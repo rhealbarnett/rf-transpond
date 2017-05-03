@@ -4,7 +4,7 @@ Repository containing relevent phd codes, including reproductions of results fro
 
 ###### RK4 and Boris push method solvers to reproduce fig 13 in VE paper
 
-BP method x and v results are an order of magnitude lower than expected??  
+Both methods: x and v results are an order of magnitude lower than expected??  
 Shape of vx, vy and vz look correct though.  
 Note: both the rk4 and Boris push method are second order accurate.
 
