@@ -73,25 +73,31 @@ om_ci = abs(q_i)*B0/mi
 
 #-- frequency values
 fact = np.logspace(-2,1, 100)
+#fact += 0.1*np.min(fact)
 om = fact*om_ce
 
 #-- solve dispersion relation n^2
 ns_R = 1.0 - ((om_pi**2)/(om*(om + om_ci))) - ((om_pe**2)/(om*(om - om_ce)))
-#ns = 1.0 - ((om_pe**2)/(5.*om*(om + (om_pe/(np.sqrt(0.3)*5.))))) - ((om_pe**2)/(om*(om - (om_pe/np.sqrt(0.3)))))
 
-S = 1.0 - (om_pe**2. / (om**2. - om_ce**2.)) - (om_pi**2. / (om**2. - om_ci**2.))
-D = sign_e*om_ce*om_pe**2. / (om*(om**2. - om_ce**2.)) + sign_i*om_ci*om_ce**2. / (om*(om**2. - om_ci**2.))
-P = 1.0 - (om_pe**2. / om**2.) - (om_pi**2. / om**2.)
-R = 1.0 - (om_pe**2. / (om*(om + sign_e*om_ce))) - (om_pi**2. / (om*(om + sign_i*om_ci)))
-L = 1.0 - (om_pe**2. / (om*(om - sign_e*om_ce))) - (om_pi**2. / (om*(om - sign_i*om_ci)))
+S = 1.0 - ((om_pe**2.)/(om**2. - om_ce**2.)) - ((om_pi**2.)/(om**2. - om_ci**2.))
+D = ((sign_e*om_ce*(om_pe**2.))/(om*(om**2. - om_ce**2.))) + ((sign_i*om_ci*(om_ce**2))/(om*(om**2. - om_ci**2.)))
+P = 1.0 - ((om_pe**2. / om**2.) + (om_pi**2. / om**2.))
+R = 1.0 - (((om_pe**2.)/(om*(om + sign_e*om_ce))) + ((om_pi**2.)/(om*(om + sign_i*om_ci))))
+L = 1.0 - (((om_pe**2.)/(om*(om - sign_e*om_ce))) + ((om_pi**2.)/(om*(om - sign_i*om_ci))))
 
 theta = 0.
 
 A = S*np.sin(theta)**2. + P*np.cos(theta)**2.
-B = R*L*np.sin(theta)**2. + P*S*(1.0 + np.cos(theta)**2)
+B = R*L*np.sin(theta)**2. + P*S*(1.0 + np.cos(theta)**2.)
 C = P*R*L
 #F = np.sqrt(((R*L - P*S)**2.)*np.sin(theta)**4. + 4.*P**2.*D**2.*np.cos(theta)**2.)
 F = np.sqrt(B**2. - 4.*A*C)
 
 ns = (B + F) / (2.*A)
 
+plt.figure(1)
+plt.plot(om/om_ce, ns_R)
+plt.xlabel('${\omega}/{\omega_{ce}}$', size=16)
+plt.ylabel('$n_R^2$', size=16)
+plt.xscale('log')
+plt.show(1)
