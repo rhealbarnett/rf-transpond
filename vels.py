@@ -48,6 +48,7 @@ b = e_para*B_mag
 #-- initial velocity
 #- electron initial velocity
 v0 = vt/3.
+#v0 = 0.1*vt
 
 vx = v0
 vy = v0
@@ -163,7 +164,7 @@ pos_prev = np.array([0.0,0.0,0.0])
 
 #-- rotation from B field
 #-- (qB_mag/m)*(dt/2.)*e_para, b=B_mag*e_para
-OM = (-q / m)*(dt / 2.0)*b
+OM = (q / m)*(dt / 2.0)*b
 OM_mag_sq = OM[0]**2. + OM[1]**2. + OM[2]**2.
 s = 2.*OM / (1.0 + OM_mag_sq)
 
@@ -175,18 +176,20 @@ count = 0
 pos_av = np.zeros(pos_dim)
 pos_avarr = np.zeros((num_cyc, pos_dim))
 a_avarr = np.zeros((num_cyc, pos_dim))
+v_mag_arr = np.zeros((nmax, pos_dim))
 print v
 
 for ii in range(nmax):
 
 	v_mag = np.sqrt(v[0]**2 + v[1]**2 + v[2]**2)
+	v_mag_arr[ii,:] = v_mag
 	vp1 = np.dot(v,R[0,:])
 	vp2 = np.dot(v,R[1,:])
 	vpara = np.dot(v,e_para)
 	v_check = np.sqrt(vp1**2 + vp2**2 + vpara**2)
-	print 'v magnitude', v_mag
-	print 'vp1, vp2, vpara', vp1, vp2, vpara
-	print 'v check', v_check
+#	print 'v magnitude', v_mag
+#	print 'vp1, vp2, vpara', vp1, vp2, vpara
+#	print 'v check', v_check
 	
 
 	boX_arr[ii,:,0] = x
@@ -242,43 +245,49 @@ dv_dt = (v_drift[1:num_cyc,:] - v_drift[0:num_cyc-1,:])/period
 vd = (1.0/om_c)*(np.cross(a_avarr, e_para))
 vcom = np.cross(vd, om_c*e_para)
 
+vd_mag = v_mag_arr*e_para
+vd_mag_perp1 = np.sum(R[0,:]*vd_mag, axis=1)
+vd_mag_perp2 = np.sum(R[1,:]*vd_mag, axis=1)
+vd_mag_para = np.sum(R[2,:]*vd_mag, axis=1)
+
 plt.figure(2)
 plt.plot(boX_arr[:,0,0], boX_arr[:,0,1], label='vx')
 plt.plot(boX_arr[:,0,0], boX_arr[:,1,1], label='vy')
 plt.plot(boX_arr[:,0,0], boX_arr[:,2,1], label='vz')
-plt.plot(pos_avarr[:,0], v_drift[:,0], '--', label='v$_{d,x}$')
-plt.plot(pos_avarr[:,0], v_drift[:,1], '--',  label='v$_{d,y}$')
-plt.plot(pos_avarr[:,0], v_drift[:,2], '--', label='v$_{d,z}$')
-plt.xlabel('Position ($x$)')
-plt.ylabel('Velocity ($ms^{-1}$)')
-plt.legend(loc='upper left', prop={'size':10})
+plt.plot(boX_arr[:,0,0], vd_mag[:,0], '--', label='v$_{d,x}$')
+plt.plot(boX_arr[:,0,0], vd_mag[:,1], '--',  label='v$_{d,y}$')
+plt.plot(boX_arr[:,0,0], vd_mag[:,2], '--', label='v$_{d,z}$')
+plt.xlabel('Position ($m$)', fontsize=16)
+plt.ylabel('Velocity ($ms^{-1}$)', fontsize=16)
+plt.legend(loc='lower right', prop={'size':10})
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-plt.title('$^3$He, T=%r$eV$' % (T_ev))
+plt.title('e$^-$, T=%r$eV$' % (T_ev))
 plt.show(2)
 
 plt.figure(3)
 plt.plot(boX_arr[:,0,0], v_perp1, label='v$_{\perp,1}$')
 plt.plot(boX_arr[:,0,0], v_perp2, label='v$_{\perp,2}$')
 plt.plot(boX_arr[:,0,0], v_para, label='v$_{\parallel}$')
-plt.plot(pos_avarr[:,0], vd_perp1, '--', label='v$_{\perp,1,d}$')
-plt.plot(pos_avarr[:,0], vd_perp2, '--',  label='v$_{\perp,2,d}$')
-plt.plot(pos_avarr[:,0], vd_para, '--', label='v$_{\parallel,d}$')
+plt.plot(boX_arr[:,0,0], vd_mag_perp1, '--', label='v$_{\perp,1,d}$')
+plt.plot(boX_arr[:,0,0], vd_mag_perp2, '--',  label='v$_{\perp,2,d}$')
+plt.plot(boX_arr[:,0,0], vd_mag_para, '--', label='v$_{\parallel,d}$')
 plt.xlabel('Position ($x$)')
 plt.ylabel('Velocity ($ms^{-1}$)')
 plt.legend(loc='upper left', prop={'size':10})
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-plt.title('$^3$He, T=%r$eV$' % (T_ev))
+plt.title('e$^-$, T=%r$eV$' % (T_ev))
 plt.show(3)
 
 plt.figure(4)
 plt.plot(pos_avarr[:,0], vcom[:,0], 'r--',  label='[v$_s\\times\Omega$]$_x$')
 plt.plot(pos_avarr[:,0], a_avarr[:,0],'g--', label='a$_x$')
 plt.plot(pos_avarr[:,0], a_avarr[:,0]+vcom[:,0], 'c--', label='[a + v$_s\\times\Omega$]$_x$')
-plt.xlabel('Position ($x$)')
-plt.ylabel('Acceleration ($ms^{-2}$)')
+plt.xlabel('Position ($m$)', fontsize=16)
+plt.ylabel('Acceleration ($ms^{-2}$)', fontsize=16)
 plt.legend(loc='upper left')
+plt.title('$^3$He, T=%r$eV$' % (T_ev))
 plt.xlim(min(pos_avarr[:,0]), max(pos_avarr[:,0]))
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
