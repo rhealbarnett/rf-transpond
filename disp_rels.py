@@ -30,14 +30,19 @@ import pdb
 #
 #r = r[0:npts]
 
+B0 = 1.1
+
 #-- Swanson assumes mi/me = 5
-me = 9.11e-31
+#me = 9.11e-31
+me = 1.0
 mi = 5.*me
 #mi = 2.*1.67e-27
 
 #-- constants
-eps0 = 8.85e-12
-q_e = -1.602e-19
+#eps0 = 8.85e-12
+#q_e = -1.602e-19
+eps0 = 1.0
+q_e = -1.0
 q_i = abs(q_e)
 sign_e = q_e / abs(q_e)
 sign_i = q_i / abs(q_i)
@@ -70,7 +75,7 @@ om_ce = abs(q_e)*B0/me
 om_ci = abs(q_i)*B0/mi
 
 #-- frequency values
-fact = np.logspace(-2,1, 100)
+fact = np.logspace(-2,1,100)
 fact += 0.1*np.min(fact)
 om = fact*om_ce
 #freq = 51.0e6
@@ -91,22 +96,25 @@ dielec_tens = np.array([[S, -1.0j*D, 0.0],
 			[1.0j*D, S, 0.0],
 			[0.0, 0.0, P]])
 
-theta = np.pi/2.
+theta = 0.
 
 A = S*np.sin(theta)**2. + P*np.cos(theta)**2.
 B = R*L*np.sin(theta)**2. + P*S*(1.0 + np.cos(theta)**2.)
 C = P*R*L
-F = np.sqrt(((R*L - P*S)**2.)*np.sin(theta)**4. + 4.*P**2.*D**2.*np.cos(theta)**2.)
-#F = np.sqrt(B**2. - 4.*A*C)
+#F = np.sqrt(((R*L - P*S)**2.)*np.sin(theta)**4. + 4.*P**2.*D**2.*np.cos(theta)**2.)
+F = np.sqrt(B**2. - 4.*A*C)
 
 ns_pos = (B + F) / (2.*A)
 ns_neg = (B - F) / (2.*A)
 
 plt.figure(1)
 #plt.plot(om/om_ce, ns_R)
-plt.plot(r, ns_pos, label='pos')
-plt.plot(r, ns_neg, label='neg')
-plt.xlabel('r', size=16)
+plt.plot(om/om_ce, ns_pos, label='pos')
+plt.plot(om/om_ce, ns_neg, label='neg')
+#plt.xlabel('r', size=16)
+plt.axvline(om_pe, color='black', linestyle='--')
+plt.axhline(1.0, color='black', linestyle='--')
 plt.ylabel('$n^2$', size=16)
-#plt.xscale('log')
+plt.xscale('log')
+plt.ylim(-10, 20)
 plt.show(1)
