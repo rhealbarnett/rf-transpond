@@ -15,20 +15,39 @@ eps0 = 8.85e-12
 c0 = 1.0 / np.sqrt(mu0*eps0)
 k0 = om / c0
 
-B0 = 1.0
-e = 1.6022e-19
+B0 = 3.4
+
+e = -1.6022e-19
 me = 9.11e-31
 om_ce = (e*B0) / me
 Ne = 1.0e16
 om_pe = np.sqrt((Ne*e**2.) / (eps0*me))
 
-alpha = 0.1
-beta = 0.
+ky = 5.0
+kz = 6.0
+kx = 3.0
 
-R = np.array([[np.cos(beta)*np.cos(alpha), np.cos(beta)*np.sin(alpha), -np.sin(beta)],
+alpha = 0.01
+beta = 0.01
+
+rot = np.array([[np.cos(beta)*np.cos(alpha), np.cos(beta)*np.sin(alpha), -np.sin(beta)],
 		[-np.sin(alpha), np.cos(alpha), 0.0],
 		[np.sin(beta)*np.cos(alpha), np.sin(beta)*np.sin(alpha), np.cos(beta)]])
 
+S = 1.0 - om_pe**2/(om**2 - om_ce**2)
+D = om_ce*om_pe/(om*(om**2 - om_ce**2))
+P = 1.0 - om_pe**2/om**2
+R = S + D
+L = S - D
+
+dielec_tens = np.array([[S, -1.0j*D, 0.0],
+			[1.0j*D, S, 0.0],
+			[0.0, 0.0, P]])
 
 
+disp_rel = np.array([[ky**2. + kz**2. - k0**2.*S, -ky*kx + k0**2.*1.0j*D, -kz*kx],
+		     [-ky*kx - k0**2.*1.0j*D, kz**2. + kx**2. - k0**2.*S, -kz*ky],
+		     [-kz*kx, -ky*kz, ky**2. + kx**2. - k0**2.*P]])	
+
+eigvals, eigvecs = np.linalg.eig(disp_rel)
 
