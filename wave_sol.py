@@ -21,7 +21,7 @@ B0 = 3.4
 e = -1.6022e-19
 me = 9.11e-31
 om_ce = (e*B0) / me
-Ne = 1.0e16
+Ne = 1.0e20
 om_pe = np.sqrt((Ne*e**2.) / (eps0*me))
 
 #-- ion calcs (assume fully ionised, 100% D (d) plasma, neutron mass approx proton mass)
@@ -29,16 +29,16 @@ q = 2.*abs(e)
 mp = 1.67e-27
 md = 2.*mp
 om_cd = (q*B0) / md
-Nd = 1.0e16
-om_pd = np.sqrt((Nd*q**2.) / (eps0*me))
+Nd = 1.0e20
+om_pd = np.sqrt((Nd*q**2.) / (eps0*md))
 
 #-- wavenumbers (ky and kz from section IV in DVE 2015)
 ky = 5.0
 kz = 6.0
 
 #-- non-rotated, cold plasma dielectric tensor 
-S = 1.0 - om_pe**2./(om**2. - om_ce**2.) - om_pd**2.//(om**2. - om_cd**2.)
-D = om_ce*om_pe/(om*(om**2. - om_ce**2.)) + om_cd*om_pd/(om*(om**2. - om_cd**2.))
+S = 1.0 - om_pe**2./(om**2. - om_ce**2.) - om_pd**2./(om**2. - om_cd**2.)
+D = om_ce*om_pe**2./(om*(om**2. - om_ce**2.)) + om_cd*om_pd**2./(om*(om**2. - om_cd**2.))
 P = 1.0 - om_pe**2./om**2. - om_pd**2./om**2.
 R = S + D
 L = S - D
