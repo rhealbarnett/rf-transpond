@@ -37,9 +37,9 @@ ky = 5.0
 kz = 6.0
 
 #-- non-rotated, cold plasma dielectric tensor 
-S = 1.0 - om_pe**2/(om**2 - om_ce**2)
-D = om_ce*om_pe/(om*(om**2 - om_ce**2))
-P = 1.0 - om_pe**2/om**2
+S = 1.0 - om_pe**2./(om**2. - om_ce**2.) - om_pd**2.//(om**2. - om_cd**2.)
+D = om_ce*om_pe/(om*(om**2. - om_ce**2.)) + om_cd*om_pd/(om*(om**2. - om_cd**2.))
+P = 1.0 - om_pe**2./om**2. - om_pd**2./om**2.
 R = S + D
 L = S - D
 
