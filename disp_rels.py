@@ -30,13 +30,13 @@ import pdb
 #
 #r = r[0:npts]
 
-B0 = 1.1
+B0 = 1.0
 
 #-- Swanson assumes mi/me = 5
 #me = 9.11e-31
+#mi = 2.*1.67e-27
 me = 1.0
 mi = 5.*me
-#mi = 2.*1.67e-27
 
 #-- constants
 #eps0 = 8.85e-12
@@ -46,6 +46,7 @@ q_e = -1.0
 q_i = abs(q_e)
 sign_e = q_e / abs(q_e)
 sign_i = q_i / abs(q_i)
+q_i = 2.*q_i
 
 #-- assume Ni=Ne=N
 #-- from Swanson
@@ -64,7 +65,7 @@ sign_i = q_i / abs(q_i)
 #N = np.exp(alpha*r) + N_min
 alpha = 3.0
 N = alpha*eps0*(B0**2.)/(me)
-
+#N = 1.0e18
 
 #-- plasma frequencies (assume ion has charge +e)
 om_pe = np.sqrt((N*abs(q_e)**2)/(eps0*me))
