@@ -25,12 +25,12 @@ Ne = 1.0e20
 om_pe = np.sqrt((Ne*e**2.) / (eps0*me))
 
 #-- ion calcs (assume fully ionised, 100% D (d) plasma, neutron mass approx proton mass)
-q = 2.*abs(e)
+qd = 2.*abs(e)
 mp = 1.67e-27
 md = 2.*mp
-om_cd = (q*B0) / md
+om_cd = (qd*B0) / md
 Nd = 1.0e20
-om_pd = np.sqrt((Nd*q**2.) / (eps0*md))
+om_pd = np.sqrt((Nd*qd**2.) / (eps0*md))
 
 #-- wavenumbers (ky and kz from section IV in DVE 2015)
 ky = 5.0
