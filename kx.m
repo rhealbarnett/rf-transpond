@@ -47,20 +47,20 @@ me = 9.11e-31;
 
 %--
 % ion constants (assume 100% D plasma for now)
-qd = 2.0*abs(e)
-mp = 1.67e-27
-md = 2.0*mp
+qd = 2.0*abs(e);
+mp = 1.67e-27;
+md = 2.0*mp;
 
 %-- 
 % cyclotron frequencies
-om_ce = e*B0/me
-om_cd = q*B0/md
+om_ce = e*B0/me;
+om_cd = qd*B0/md;
 
 %-- 
 % loop through density values
 
 for ii = 1:count
-    syms z
+    syms z;
     %--
     % electron calcs
     Ne = N0(ii);
