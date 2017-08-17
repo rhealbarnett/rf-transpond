@@ -33,12 +33,28 @@ kz = 6.0;
 
 %--
 % density N0 (taken from axes on figure 3)
-N0 = logspace(15, 18, 100);
+N0 = logspace(15, 18, 1000);
 count = length(N0);
 
 %--
 % initialise kx roots array
 kx_arr = zeros(count, 4);
+
+%--
+% electron constants
+e = -1.6022e-19;
+me = 9.11e-31;
+
+%--
+% ion constants (assume 100% D plasma for now)
+qd = 2.0*abs(e)
+mp = 1.67e-27
+md = 2.0*mp
+
+%-- 
+% cyclotron frequencies
+om_ce = e*B0/me
+om_cd = q*B0/md
 
 %-- 
 % loop through density values
@@ -47,18 +63,11 @@ for ii = 1:count
     syms z
     %--
     % electron calcs
-    e = -1.6022e-19;
-    me = 9.11e-31;
-    om_ce = e*B0/me;
     Ne = N0(ii);
     om_pe = sqrt(Ne*e^2/(me*eps0));
 
     %--
-    % ion calcs (just assume 100% D (d) plasma for now)
-    qd = 2.0*abs(e);
-    mp = 1.67e-27;
-    md = 2.0*mp;
-    om_cd = qd*B0/md;
+    % ion calcs
     Nd = N0(ii);
     om_pd = sqrt(Nd*qd^2/(md*eps0));
 
