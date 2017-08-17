@@ -56,6 +56,41 @@ md = 2.0*mp;
 om_ce = e*B0/me;
 om_cd = qd*B0/md;
 
+%--
+% rotation matrix
+alpha = 0.01;
+beta = 0.01;
+
+r11 = cos(beta)*cos(alpha);
+r12 = cos(beta)*sin(alpha);
+r13 = -sin(beta);
+r21 = -sin(alpha);
+r22 = cos(alpha);
+r23 = 0.0;
+r31 = sin(beta)*cos(alpha);
+r32 = sin(beta)*sin(alpha);
+r33 = cos(beta);
+
+r = [[r11, r12, r13]
+     [r21, r22, r23]
+     [r31, r32, r33]];
+
+%-- 
+% k matrix
+a11 = ky^2 + kz^2;
+a12 = - ky*kx;
+a13 = -kz*kx;
+a21 = -ky*kx;
+a22 = kz^2 + kx^2;
+a23 = -ky*kz;
+a31 = -kz*kx;
+a32 = -ky*kz;
+a33 = ky^2 + kx^2;
+
+a = [[a11, a12, a13]
+    [a21, a22, a23]
+    [a31, a32, a33]];
+
 %-- 
 % loop through density values
 
@@ -73,34 +108,15 @@ for ii = 1:count
 
     %--
     % cold plasma dielectric tensor elements
-    s = 1.0 - om_pe.^2/(om^2 - om_ce^2) - om_pd.^2/(om^2 - om_cd^2);
-    d = om_ce*om_pe.^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd.^2/(om*(om^2 - om_cd^2));
-    p = 1.0 - om_pe.^2/om^2 - om_pd.^2/om^2;
+    s = 1.0 - om_pe^2/(om^2 - om_ce^2) - om_pd^2/(om^2 - om_cd^2);
+    d = om_ce*om_pe^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd^2/(om*(om^2 - om_cd^2));
+    p = 1.0 - om_pe^2/om^2 - om_pd^2/om^2;
 
     %--
     % cold plasma delectric tensor
     cpdt = [[s, -j*d, 0.0]
             [j*d, s, 0.0]
             [0.0, 0.0, p]];
-
-    %--
-    % rotation matrix
-    alpha = 0.01;
-    beta = 0.01;
-
-    r11 = cos(beta)*cos(alpha);
-    r12 = cos(beta)*sin(alpha);
-    r13 = -sin(beta);
-    r21 = -sin(alpha);
-    r22 = cos(alpha);
-    r23 = 0.0;
-    r31 = sin(beta)*cos(alpha);
-    r32 = sin(beta)*sin(alpha);
-    r33 = cos(beta);
-
-    r = [[r11, r12, r13]
-         [r21, r22, r23]
-         [r31, r32, r33]];
 
     %-- 
     % rotate cpdt
@@ -109,18 +125,6 @@ for ii = 1:count
     %--
     % wave equation rhs
     we_rhs = k0^2*cpdt_rot;
-
-    %-- 
-    % k matrix
-    a11 = ky^2 + kz^2;
-    a12 = - ky*kx;
-    a13 = -kz*kx;
-    a21 = -ky*kx;
-    a22 = kz^2 + kx^2;
-    a23 = -ky*kz;
-    a31 = -kz*kx;
-    a32 = -ky*kz;
-    a33 = ky^2 + kx^2;
 
     % %-- 
     % % k - k0**2.K matrix
@@ -134,9 +138,9 @@ for ii = 1:count
     % a32 = -ky*kz;
     % a33 = ky^2 + kx^2 - k0^2*p;
 
-    a = [[a11, a12, a13]
-        [a21, a22, a23]
-        [a31, a32, a33]];
+    %a = [[a11, a12, a13]
+    %    [a21, a22, a23]
+    %    [a31, a32, a33]];
 
     %--
     % set wave equation to zero to find determinant
