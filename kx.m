@@ -39,6 +39,7 @@ count = length(N0);
 %--
 % initialise kx roots array
 kx_arr = zeros(count, 4);
+kx_arr = complex(kx_arr);
 
 %--
 % electron constants
@@ -98,12 +99,12 @@ for ii = 1:count
     syms z;
     %--
     % electron calcs
-    Ne = N0(ii);
+    Ne = N0(1);
     om_pe = sqrt(Ne*e^2/(me*eps0));
 
     %--
     % ion calcs
-    Nd = N0(ii);
+    Nd = N0(1);
     om_pd = sqrt(Nd*qd^2/(md*eps0));
 
     %--
