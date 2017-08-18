@@ -15,13 +15,13 @@ eps0 = 8.85e-12
 c0 = 1.0 / np.sqrt(mu0*eps0)
 k0 = om / c0
 
-B0 = 3.4
+B0 = 2.5
 
 #-- electron calcs
 e = -1.6022e-19
 me = 9.11e-31
 om_ce = (e*B0) / me
-Ne = 1.0e20
+Ne = 1.0e18
 om_pe = np.sqrt((Ne*e**2.) / (eps0*me))
 
 #-- ion calcs (assume fully ionised, 100% D (d) plasma, neutron mass approx proton mass)
@@ -29,7 +29,7 @@ qd = 2.*abs(e)
 mp = 1.67e-27
 md = 2.*mp
 om_cd = (qd*B0) / md
-Nd = 1.0e20
+Nd = 1.0e18
 om_pd = np.sqrt((Nd*qd**2.) / (eps0*md))
 
 #-- wavenumbers (ky and kz from section IV in DVE 2015)
