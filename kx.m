@@ -33,7 +33,8 @@ kz = 6.0;
 
 %--
 % density N0 (taken from axes on figure 3)
-N0 = logspace(15, 18, 1000);
+npts = 500;
+N0 = logspace(15, 18, npts);
 count = length(N0);
 
 %--
@@ -47,15 +48,19 @@ e = -1.6022e-19;
 me = 9.11e-31;
 
 %--
-% ion constants (assume 100% D plasma for now)
+% ion constants (95% D, 5% H)
 qd = 2.0*abs(e);
 mp = 1.67e-27;
 md = 2.0*mp;
+
+qh = abs(e);
+mh = mp;
 
 %-- 
 % cyclotron frequencies
 om_ce = e*B0/me;
 om_cd = qd*B0/md;
+om_ch = qh*B0/mh;
 
 %--
 % rotation matrix
@@ -79,7 +84,7 @@ r = [[r11, r12, r13]
 %-- 
 % k matrix
 a11 = ky^2 + kz^2;
-a12 = - ky*kx;
+a12 = -ky*kx;
 a13 = -kz*kx;
 a21 = -ky*kx;
 a22 = kz^2 + kx^2;
@@ -99,19 +104,21 @@ for ii = 1:count
     syms z;
     %--
     % electron calcs
-    Ne = N0(1);
+    Ne = N0(ii);
     om_pe = sqrt(Ne*e^2/(me*eps0));
 
     %--
     % ion calcs
-    Nd = N0(1);
+    Nd = 0.95*N0(ii);
     om_pd = sqrt(Nd*qd^2/(md*eps0));
-
+    Nh = 0.05*N0(ii);
+    om_ph = sqrt(Nh*qh^2/(mh*eps0));
+    
     %--
     % cold plasma dielectric tensor elements
-    s = 1.0 - om_pe^2/(om^2 - om_ce^2) - om_pd^2/(om^2 - om_cd^2);
-    d = om_ce*om_pe^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd^2/(om*(om^2 - om_cd^2));
-    p = 1.0 - om_pe^2/om^2 - om_pd^2/om^2;
+    s = 1.0 - om_pe^2/(om^2 - om_ce^2) - om_pd^2/(om^2 - om_cd^2) - om_ph^2/(om^2 - om_ch^2);
+    d = om_ce*om_pe^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd^2/(om*(om^2 - om_cd^2)) + om_ch*om_ph^2/(om*(om^2 - om_ch^2));
+    p = 1.0 - om_pe^2/om^2 - om_pd^2/om^2 - om_ph^2/om^2;
 
     %--
     % cold plasma delectric tensor
@@ -168,21 +175,36 @@ k3 = kx_arr(:,3);
 k4 = kx_arr(:,4);
 
 
-semilogx(N0, real(k1))
+% semilogx(N0, real(k1))
+% 
+% hold on
+% 
+% semilogx(N0, real(k2))
+% semilogx(N0, real(k3))
+% semilogx(N0, real(k4))
+% legend('k1', 'k2', 'k3', 'k4')
+% xlim([min(N0), max(N0)])
+% ylim([-3000,3000])
+% xlabel('log10N0 (/m^3)')
+% ylabel('Real(kx) (/m)')
+% 
+% hold off
+
+N0_plot = linspace(15, 18, npts)
+
+plot(N0_plot, real(k1))
 
 hold on
 
-semilogx(N0, real(k2))
-semilogx(N0, real(k3))
-semilogx(N0, real(k4))
+plot(N0_plot, real(k2))
+plot(N0_plot, real(k3))
+plot(N0_plot, real(k4))
 legend('k1', 'k2', 'k3', 'k4')
-xlim([min(N0), max(N0)])
+ylim([-3000,3000])
 xlabel('log10N0 (/m^3)')
 ylabel('Real(kx) (/m)')
 
 hold off
-
-
 
 
 
