@@ -17,7 +17,7 @@ c0 = 1.0/sqrt(eps0*mu0);
 
 %--
 % magnetic field (tesla)
-B0 = 2.5;
+B0 = 2.62;
 
 %--
 % driver freq
@@ -59,7 +59,7 @@ mh = mp;
 %-- 
 % cyclotron frequencies
 om_ce = e*B0/me;
-om_cd = qd*B0/md;
+om_cd = abs(e)*B0/md;
 om_ch = qh*B0/mh;
 
 %--
@@ -109,16 +109,16 @@ for ii = 1:count
 
     %--
     % ion calcs
-    Nd = 0.95*N0(ii);
+    Nd = N0(ii);
     om_pd = sqrt(Nd*qd^2/(md*eps0));
     Nh = 0.05*N0(ii);
     om_ph = sqrt(Nh*qh^2/(mh*eps0));
-    
+  
     %--
     % cold plasma dielectric tensor elements
-    s = 1.0 - om_pe^2/(om^2 - om_ce^2) - om_pd^2/(om^2 - om_cd^2) - om_ph^2/(om^2 - om_ch^2);
-    d = om_ce*om_pe^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd^2/(om*(om^2 - om_cd^2)) + om_ch*om_ph^2/(om*(om^2 - om_ch^2));
-    p = 1.0 - om_pe^2/om^2 - om_pd^2/om^2 - om_ph^2/om^2;
+    s = 1.0 - om_pe^2/(om^2 - om_ce^2) - om_pd^2/(om^2 - om_cd^2);% - om_ph^2/(om^2 - om_ch^2);
+    d = om_ce*om_pe^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd^2/(om*(om^2 - om_cd^2));% + om_ch*om_ph^2/(om*(om^2 - om_ch^2));
+    p = 1.0 - om_pe^2/om^2 - om_pd^2/om^2;% - om_ph^2/om^2;
 
     %--
     % cold plasma delectric tensor
@@ -190,7 +190,7 @@ k4 = kx_arr(:,4);
 % 
 % hold off
 
-N0_plot = linspace(15, 18, npts)
+N0_plot = linspace(15, 18, npts);
 
 plot(N0_plot, real(k1))
 
