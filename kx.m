@@ -15,9 +15,10 @@ mu0 = 4.0*pi*1.0e-7;
 eps0 = 8.85e-12;
 c0 = 1.0/sqrt(eps0*mu0);
 
+
 %--
 % magnetic field (tesla)
-B0 = 3.4;
+B0 = 2.62;
 
 %--
 % driver freq
@@ -49,7 +50,7 @@ me = 9.11e-31;
 
 %--
 % ion constants (95% D, 5% H)
-qd = 2.0*abs(e);
+qd = abs(e);
 mp = 1.67e-27;
 md = 2.0*mp;
 
@@ -59,7 +60,7 @@ mh = mp;
 %-- 
 % cyclotron frequencies
 om_ce = e*B0/me;
-om_cd = abs(e)*B0/md;
+om_cd = qd*B0/md;
 om_ch = qh*B0/mh;
 
 %--
