@@ -42,6 +42,10 @@ count = length(N0);
 % initialise kx roots array
 kx_arr = zeros(count, 4);
 kx_arr = complex(kx_arr);
+kx_roots_arr = zeros(count, 4);
+kx_roots_arr = complex(kx_roots_arr);
+kx_coeffs_arr = zeros(count, 4);
+kx_coeffs_arr = complex(kx_coeffs_arr);
 
 %--
 % electron constants
@@ -102,7 +106,7 @@ a = [[a11, a12, a13]
 % loop through density values
 
 for ii = 1:count
-    syms z;
+    %syms z;
     %--
     % electron calcs
     Ne = N0(ii);
@@ -129,7 +133,7 @@ for ii = 1:count
 
     %-- 
     % rotate cpdt
-    cpdt_rot = transpose(r)*cpdt*r;
+    cpdt_rot = r'*cpdt*r;
 
     %--
     % wave equation rhs
@@ -158,15 +162,30 @@ for ii = 1:count
     %--
     % find kx's
     kx_quart = det(wave_eq);
-    kx_roots = solve(kx_quart == 0, kx);
-    kx_roots = eval(kx_roots);
+    kx_roots = solve(kx_quart == 0.0, kx);
+    %kx_roots = roots(kx_quart);
+    %kx_roots = eval(kx_roots);
+    kx_roots = vpa(kx_roots);
+    kx_arr(ii,:) = kx_roots;
     
     %--
-    % getting solution in terms of 'free' variable z. More eqns than
-    % unknowns? Should be solutions for any value of z-- set to 1?
-    z = 1;  
+    % solve using coefficient companion matrix method
+    kx_coeffs = coeffs(kx_quart, 'All');
+    kx_coeffs_roots = roots(kx_coeffs);
+    kx_roots_arr(ii,:) = kx_coeffs_roots;
+    kx_coeffs_norm = kx_coeffs/kx_coeffs(1);
 
-    kx_arr(ii,:) = kx_roots;
+    coeffa = kx_coeffs_norm(2);
+    coeffb = kx_coeffs_norm(3);
+    coeffc = kx_coeffs_norm(4);
+    coeffd = kx_coeffs_norm(5);
+    coeffs_matrix = [[0.0, 0.0, 0.0, -coeffd];
+                    [1.0, 0.0, 0.0, -coeffc];
+                    [0.0, 1.0, 0.0, -coeffb];
+                    [0.0, 0.0, 1.0, -coeffa]];
+                
+    kx_coeffs_roots = eig(coeffs_matrix);
+    kx_coeffs_arr(ii,:) = kx_coeffs_roots;
     
 end
 
@@ -175,6 +194,15 @@ k2 = kx_arr(:,2);
 k3 = kx_arr(:,3);
 k4 = kx_arr(:,4);
 
+k1_coeff = kx_coeffs_arr(:,1);
+k2_coeff = kx_coeffs_arr(:,2);
+k3_coeff = kx_coeffs_arr(:,3);
+k4_coeff = kx_coeffs_arr(:,4);
+
+k1_root = kx_roots_arr(:,1);
+k2_root = kx_roots_arr(:,2);
+k3_root = kx_roots_arr(:,3);
+k4_root = kx_roots_arr(:,4);
 
 % semilogx(N0, real(k1))
 % 
@@ -193,13 +221,13 @@ k4 = kx_arr(:,4);
 
 N0_plot = linspace(15, 18, npts);
 
-plot(N0_plot, real(k1))
+plot(N0_plot, real(k1_root))
 
 hold on
 
-plot(N0_plot, real(k2))
-plot(N0_plot, real(k3))
-plot(N0_plot, real(k4))
+plot(N0_plot, real(k2_root))
+plot(N0_plot, real(k3_root))
+plot(N0_plot, real(k4_root))
 legend('k1', 'k2', 'k3', 'k4')
 ylim([-3000,3000])
 xlabel('log10N0 (/m^3)')
@@ -207,10 +235,19 @@ ylabel('Real(kx) (/m)')
 
 hold off
 
-
-
-
-
+% plot(N0_plot, imag(k1_root))
+% 
+% hold on
+% 
+% plot(N0_plot, imag(k2_root))
+% plot(N0_plot, imag(k3_root))
+% plot(N0_plot, imag(k4_root))
+% legend('k1', 'k2', 'k3', 'k4')
+% ylim([-1000,400])
+% xlabel('log10N0 (/m^3)')
+% ylabel('Imag(kx) (/m)')
+% 
+% hold off
 
 
 
