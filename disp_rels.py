@@ -46,7 +46,6 @@ q_e = -1.0
 q_i = abs(q_e)
 sign_e = q_e / abs(q_e)
 sign_i = q_i / abs(q_i)
-q_i = 2.*q_i
 
 #-- assume Ni=Ne=N
 #-- from Swanson
@@ -76,7 +75,7 @@ om_ce = abs(q_e)*B0/me
 om_ci = abs(q_i)*B0/mi
 
 #-- frequency values
-fact = np.logspace(-2,1,100)
+fact = np.logspace(-3,1,100)
 fact += 0.1*np.min(fact)
 om = fact*om_ce
 #freq = 51.0e6
@@ -93,11 +92,16 @@ P = 1.0 - ((om_pe**2. / om**2.) + (om_pi**2. / om**2.))
 R = S + D
 L = S - D
 
+S = S + 0.0j
+D = D + 0.0j
+P = P + 0.0j
+
+
 dielec_tens = np.array([[S, -1.0j*D, 0.0],
 			[1.0j*D, S, 0.0],
 			[0.0, 0.0, P]])
 
-theta = 0.
+theta = np.pi/2.0 
 
 A = S*np.sin(theta)**2. + P*np.cos(theta)**2.
 B = R*L*np.sin(theta)**2. + P*S*(1.0 + np.cos(theta)**2.)
@@ -105,17 +109,57 @@ C = P*R*L
 #F = np.sqrt(((R*L - P*S)**2.)*np.sin(theta)**4. + 4.*P**2.*D**2.*np.cos(theta)**2.)
 F = np.sqrt(B**2. - 4.*A*C)
 
+
+
 ns_pos = (B + F) / (2.*A)
 ns_neg = (B - F) / (2.*A)
 
+pdb.set_trace()
+
+n_pos_pos = np.sqrt(ns_pos)
+n_pos_neg = -np.sqrt(ns_pos)
+n_neg_pos = np.sqrt(ns_neg)
+n_neg_neg = -np.sqrt(ns_neg)
+
 plt.figure(1)
-#plt.plot(om/om_ce, ns_R)
-plt.plot(om/om_ce, ns_pos, label='pos')
-plt.plot(om/om_ce, ns_neg, label='neg')
+plt.plot(om/om_ce, np.real(n_pos_pos), label='Re(++)')
+plt.plot(om/om_ce, np.real(n_pos_neg), label='Re(+-)')
+plt.plot(om/om_ce, np.real(n_neg_pos), label='Re(-+)')
+plt.plot(om/om_ce, np.real(n_neg_neg), label='Re(--)')
 #plt.xlabel('r', size=16)
 plt.axvline(om_pe, color='black', linestyle='--')
 plt.axhline(1.0, color='black', linestyle='--')
-plt.ylabel('$n^2$', size=16)
+plt.ylabel('$n$', size=16)
+plt.xlabel('$\omega/\omega_{ce}$', size=16)
 plt.xscale('log')
-plt.ylim(-10, 20)
+plt.ylim(-20,30)
+plt.legend(loc='upper right')
 plt.show(1)
+
+
+plt.figure(2)
+plt.plot(om/om_ce, np.imag(n_pos_pos), label='Im(++)')
+plt.plot(om/om_ce, np.imag(n_pos_neg), label='Im(+-)')
+plt.plot(om/om_ce, np.imag(n_neg_pos), label='Im(-+)')
+plt.plot(om/om_ce, np.imag(n_neg_neg), label='Im(--)')
+#plt.xlabel('r', size=16)
+plt.axvline(om_pe, color='black', linestyle='--')
+plt.axhline(1.0, color='black', linestyle='--')
+plt.ylabel('$n$', size=16)
+plt.xlabel('$\omega/\omega_{ce}$', size=16)
+plt.xscale('log')
+plt.ylim(-20,30)
+plt.legend(loc='upper right')
+plt.show(2)
+
+plt.figure(3)
+plt.plot(om/om_ce, ns_pos, label='+')
+plt.plot(om/om_ce, ns_neg, label='-')
+plt.ylabel('$n^2$')
+plt.xlabel('$\omega/omega_{ce}$')
+plt.axvline(om_pe, color='black', linestyle='--')
+plt.axhline(1.0, color='black', linestyle='--')
+plt.xscale('log')
+plt.ylim(-20,30)
+plt.legend(loc='upper right')
+plt.show(3)
