@@ -15,7 +15,6 @@ mu0 = 4.0*pi*1.0e-7;
 eps0 = 8.85e-12;
 c0 = 1.0/sqrt(eps0*mu0);
 
-
 %--
 % magnetic field (tesla)
 B0 = 2.62;
@@ -27,24 +26,23 @@ om = 2.0*pi*freq;
 k0 = om/c0;
 
 %--
-% define wavenumbers ky and kz (/m); use values given in section IV?? No
+% define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
 ky = 5.0;
 kz = 6.0;
 
 %--
 % density N0 (taken from axes on figure 3)
-npts = 500;
+npts = 100;
 N0 = logspace(15, 18, npts);
-count = length(N0);
 
 %--
-% initialise kx roots array
-kx_arr = zeros(count, 4);
+% initialise kx roots arrays, ensure they are complex
+kx_arr = zeros(npts, 4);
 kx_arr = complex(kx_arr);
-kx_roots_arr = zeros(count, 4);
+kx_roots_arr = zeros(npts, 4);
 kx_roots_arr = complex(kx_roots_arr);
-kx_coeffs_arr = zeros(count, 4);
+kx_coeffs_arr = zeros(npts, 4);
 kx_coeffs_arr = complex(kx_coeffs_arr);
 
 %--
@@ -85,6 +83,9 @@ r33 = cos(beta);
 r = [[r11, r12, r13]
      [r21, r22, r23]
      [r31, r32, r33]];
+ 
+r_para = r(3,:);
+Bvec = B0*r_para;
 
 %-- 
 % k matrix
@@ -105,15 +106,14 @@ a = [[a11, a12, a13]
 %-- 
 % loop through density values
 
-for ii = 1:count
-    %syms z;
+for ii = 1:npts
     %--
-    % electron calcs
+    % electron calcs; density, plasma frequency
     Ne = N0(ii);
     om_pe = sqrt(Ne*e^2/(me*eps0));
 
     %--
-    % ion calcs
+    % ion calcs (95% D, 5% H); density, plasma frequency
     Nd = 0.95*N0(ii);
     om_pd = sqrt(Nd*qd^2/(md*eps0));
     Nh = 0.05*N0(ii);
@@ -139,22 +139,6 @@ for ii = 1:count
     % wave equation rhs
     we_rhs = k0^2*cpdt_rot;
 
-    % %-- 
-    % % k - k0**2.K matrix
-    % a11 = ky^2 + kz^2 - k0^2*s;
-    % a12 = k0^2*j*d - ky*kx;
-    % a13 = -kz*kx;
-    % a21 = -ky*kx - k0^2*j*d;
-    % a22 = kz^2 + kx^2 - k0^2*s;
-    % a23 = -ky*kz;
-    % a31 = -kz*kx;
-    % a32 = -ky*kz;
-    % a33 = ky^2 + kx^2 - k0^2*p;
-
-    %a = [[a11, a12, a13]
-    %    [a21, a22, a23]
-    %    [a31, a32, a33]];
-
     %--
     % set wave equation to zero to find determinant
     wave_eq = a - we_rhs;
@@ -163,16 +147,18 @@ for ii = 1:count
     % find kx's
     kx_quart = det(wave_eq);
     kx_roots = solve(kx_quart == 0.0, kx);
-    %kx_roots = roots(kx_quart);
-    %kx_roots = eval(kx_roots);
-    kx_roots = vpa(kx_roots);
+    kx_roots = double(kx_roots);
     kx_arr(ii,:) = kx_roots;
     
     %--
-    % solve using coefficient companion matrix method
+    % solve using coefficients and roots function
     kx_coeffs = coeffs(kx_quart, 'All');
     kx_coeffs_roots = roots(kx_coeffs);
     kx_roots_arr(ii,:) = kx_coeffs_roots;
+    
+    %--
+    % 'normalise' the coefficients to the coeff on the highest order term
+    % put coeffs into the companion matrix, eigenvalues are the roots
     kx_coeffs_norm = kx_coeffs/kx_coeffs(1);
 
     coeffa = kx_coeffs_norm(2);
@@ -184,11 +170,15 @@ for ii = 1:count
                     [0.0, 1.0, 0.0, -coeffb];
                     [0.0, 0.0, 1.0, -coeffa]];
                 
-    kx_coeffs_roots = eig(coeffs_matrix);
-    kx_coeffs_arr(ii,:) = kx_coeffs_roots;
+    [kx_coeffs_vecs, kx_coeffs_roots] = eig(coeffs_matrix);
+    for nn = 1:4
+        kx_coeffs_arr(ii,nn) = kx_coeffs_roots(nn,nn);
+    end
     
 end
 
+%--
+% might not be this simple -- kx root values are likely not 'ordered' (MS)
 k1 = kx_arr(:,1);
 k2 = kx_arr(:,2);
 k3 = kx_arr(:,3);
@@ -204,30 +194,19 @@ k2_root = kx_roots_arr(:,2);
 k3_root = kx_roots_arr(:,3);
 k4_root = kx_roots_arr(:,4);
 
-% semilogx(N0, real(k1))
-% 
-% hold on
-% 
-% semilogx(N0, real(k2))
-% semilogx(N0, real(k3))
-% semilogx(N0, real(k4))
-% legend('k1', 'k2', 'k3', 'k4')
-% xlim([min(N0), max(N0)])
-% ylim([-3000,3000])
-% xlabel('log10N0 (/m^3)')
-% ylabel('Real(kx) (/m)')
-% 
-% hold off
-
+%--
+% 'linear' plot axis for N0 powers
 N0_plot = linspace(15, 18, npts);
 
-plot(N0_plot, real(k1_root))
+%--
+% plot kx's
+plot(N0_plot, real(k1_coeff))
 
 hold on
 
-plot(N0_plot, real(k2_root))
-plot(N0_plot, real(k3_root))
-plot(N0_plot, real(k4_root))
+plot(N0_plot, real(k2_coeff))
+plot(N0_plot, real(k3_coeff))
+plot(N0_plot, real(k4_coeff))
 legend('k1', 'k2', 'k3', 'k4')
 ylim([-3000,3000])
 xlabel('log10N0 (/m^3)')
@@ -235,19 +214,19 @@ ylabel('Real(kx) (/m)')
 
 hold off
 
-% plot(N0_plot, imag(k1_root))
-% 
-% hold on
-% 
-% plot(N0_plot, imag(k2_root))
-% plot(N0_plot, imag(k3_root))
-% plot(N0_plot, imag(k4_root))
-% legend('k1', 'k2', 'k3', 'k4')
-% ylim([-1000,400])
-% xlabel('log10N0 (/m^3)')
-% ylabel('Imag(kx) (/m)')
-% 
-% hold off
+plot(N0_plot, imag(k1_coeff))
+
+hold on
+
+plot(N0_plot, imag(k2_coeff))
+plot(N0_plot, imag(k3_coeff))
+plot(N0_plot, imag(k4_coeff))
+legend('k1', 'k2', 'k3', 'k4')
+ylim([-1000,400])
+xlabel('log10N0 (/m^3)')
+ylabel('Imag(kx) (/m)')
+
+hold off
 
 
 
