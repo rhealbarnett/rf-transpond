@@ -21,7 +21,7 @@ B0 = 2.62;
 
 %--
 % driver freq
-freq = 51.0e6;
+freq = 51.0e6
 om = 2.0*pi*freq;
 k0 = om/c0;
 
@@ -33,7 +33,7 @@ kz = 6.0;
 
 %--
 % density N0 (taken from axes on figure 3)
-npts = 100;
+npts = 250;
 N0 = logspace(15, 18, npts);
 
 %--
@@ -114,9 +114,9 @@ for ii = 1:npts
 
     %--
     % ion calcs (95% D, 5% H); density, plasma frequency
-    Nd = 0.95*N0(ii);
+    Nd = N0(ii);
     om_pd = sqrt(Nd*qd^2/(md*eps0));
-    Nh = 0.05*N0(ii);
+    Nh = 0.0*N0(ii);
     om_ph = sqrt(Nh*qh^2/(mh*eps0));
   
     %--
