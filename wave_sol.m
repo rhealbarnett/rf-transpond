@@ -102,51 +102,29 @@ cpdt = [[s, -1i*d, 0.0]
         [0.0, 0.0, p]];
     
 %--
-% initialise electric field components
-ex = zeros(1,npts);
-ey = zeros(1,npts);
-ez = zeros(1,npts);
+% set up rhs matrix (multiples E field)
 
-%--
-% 
+waveeq_mat = zeros(3.0*npts, 9.0*npts);
 
-ez(npts/2) = 1.0;
-
-nmax = 5000;
-
-for ii=1,nmax;
+for ii=2,3.0*npts:3;
+    eq1_row = 3.0*ii - 2.0;
+    eq2_row = 3.0*ii - 1.0;
+    eq3_row = 3.0*ii;
+    for kk=1,npts;
+        
     
-    %--
-    % bulk solve
+    waveeq_mat(eq1_row,ii) = -1i*ky;
+    waveeq_mat(eq1_row,ii-1) = 0.0;
+    waveeq_mat(eq1_row,ii+1) = -1i*kz;
+    waveeq_mat(eq2_row,ii) = -1.0;
+    waveeq_mat(eq2_row,ii-1) = -1i*ky*(dx/2.0);
+    waveeq_mat(eq2_row,ii+1) = 0.0;
+    waveeq_mat(eq3_row,ii) = 0.0;
+    waveeq_mat(eq3_row,ii-1) = -1i*kz*(dx/2.0);
+    waveeq_mat(eq3_row,ii+1) = -1.0;
+    
+    
 
-    ex(2:npts-1) = (1i*ky*(ey(1:npts-2) - ey(3:npts)) + 1i*kz*(ez(1:npts-2) - ez(3:npts)) + k0^2*2.0*dx*(cpdt(1,2)*ey(2:npts-1) + cpdt(1,3)*ez(2:npts-1)))...
-        /(2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1)));
-    ey(2:npts-1) = (ey(3:npts) + ey(1:npts-2) + (dx/2.0)*1i*ky*(ex(1:npts-2) - ex(3:npts)) + dx^2*(ky*kz*ez(2:npts-1) + k0^2*(cpdt(2,1)*ex(2:npts-1)...
-        + cpdt(2,3)*ez(2:npts-1))))/(2.0 + dx^2*(kz^2 - k0^2*cpdt(2,2)));
-    ez(2:npts-1) = (ez(3:npts) + ez(1:npts-2) + (dx/2.0)*1i*kz*(ex(1:npts-2) - ex(3:npts)) + dx^2*(ky*kz*ey(2:npts-1) + k0^2*(cpdt(3,1)*ex(2:npts-1)...
-        + cpdt(3,2)*ey(2:npts-1))))/(2.0 + dx^2*(ky^2 - k0^2*cpdt(3,3)));
-    
-    %--
-    % forward diff for initial position
-    
-    ex(1) = (1i*ky*(3.0*ey(1) - 4.0*ey(2) + ey(3)) + 1i*kz*(3.0*ex(1) - 4.0*ez(2) + ez(3)) + 2.0*dx*k0^2*(cpdt(1,2)*ey(1) + cpdt(1,3)*ez(1)))...
-        /(2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1)));
-    ey(1) = ((dx/2.0)*1i*ky*(3.0*ex(1) - 4.0*ex(2) + ex(3)) - 5.0*ey(2) + 4.0*ey(3) - ey(4) + dx^2*(ky*kz*ez(1) + k0^2*(cpdt(2,1)*ex(1) + cpdt(2,3)*ez(1))))...
-        /(dx^2*(kz^2 - k0^2*cpdt(2,2)));
-    ez(1) = ((dx/2.0)*1i*kz*(3.0*ex(1) - 4.0*ex(2) + ex(3)) - 5.0*ez(2) + 4.0*ez(3) - ez(4) + dx^2*(ky*kz*ey(1) + k0^2*(cpdt(3,1)*ex(1) + cpdt(3,2)*ey(1))))...
-        /(dx^2*(ky^2 - k0^2*cpdt(3,3)));
-    
-    %--
-    % backward diff for final position
-    
-    ex(npts) = (1i*ky*(-3.0*ey(npts) + 4.0*ey(npts-1) - ey(npts-2)) + 1i*kz*(-3.0*ex(npts) + 4.0*ez(npts-1) - ez(npts-2)) + ...
-        2.0*dx*k0^2*(cpdt(1,2)*ey(npts) + cpdt(1,3)*ez(npts)))/(2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1)));
-    ey(npts) = ((dx/2.0)*1i*ky*(-3.0*ex(npts) + 4.0*ex(npts-1) - ex(npts-2)) - 5.0*ey(npts-1) + 4.0*ey(npts-2) - ey(npts-3) + ...
-        dx^2*(ky*kz*ez(npts) + k0^2*(cpdt(2,1)*ex(npts) + cpdt(2,3)*ez(npts))))/(dx^2*(kz^2 - k0^2*cpdt(2,2)));
-    ez(npts) = ((dx/2.0)*1i*kz*(-3.0*ex(npts) + 4.0*ex(npts-1) - ex(npts-2)) - 5.0*ez(npts-1) + 4.0*ez(npts-2) - ez(npts-3) + ...
-        dx^2*(ky*kz*ey(npts) + k0^2*(cpdt(3,1)*ex(npts) + cpdt(3,2)*ey(npts))))/(dx^2*(ky^2 - k0^2*cpdt(3,3)));
-
-end
 
 
 
