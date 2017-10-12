@@ -16,23 +16,29 @@ B0 = 0.0;
 
 %--
 % driver freq
-freq = 51.0e6;
+freq = 51.0e7;
 om = 2.0*pi*freq;
+nu = 0.05*om;
+om = om + (1i*nu);
 k0 = om/c0;
+wavel0 = (2*pi)/k0;
 
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
 ky = 0.0;
-kz = 6.0;
+kz = 0.0;
 
 %--
 % spatial domain
 npts = 1000;
+dx = 0.025;
 xmin = 0.0;
-xmax = 10.0;
+% xmax = 10.0;
+xmax = npts*dx;
+% npts = ((xmax - xmin)/dx);
 xax = linspace(xmin,xmax,npts);
-dx = (xmax - xmin)/(npts - 1);
+% dx = (xmax - xmin)/(npts - 1);
 
 %--
 % density -- set to zero for vacuum case
@@ -186,9 +192,9 @@ end
 %--
 % set up rhs vector
 rhs = zeros(3*npts,1);
-rhs(1501) = 0.0;
-rhs(1502) = 1.0;
-rhs(1503) = 1.0;
+rhs((3*npts/2)+1) = 0.0;
+rhs((3*npts/2)+2) = 0.0;
+rhs((3*npts/2)+3) = 1.0;
 
 %--
 % calculation solution as waveeq_mat^-1*rhs
