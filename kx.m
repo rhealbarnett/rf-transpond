@@ -17,11 +17,11 @@ c0 = 1.0/sqrt(eps0*mu0);
 
 %--
 % magnetic field (tesla)
-B0 = 2.62;
+B0 = 2.5;
 
 %--
 % driver freq
-freq = 51.0e6
+freq = 51.0e6;
 om = 2.0*pi*freq;
 k0 = om/c0;
 
@@ -67,8 +67,8 @@ om_ch = qh*B0/mh;
 
 %--
 % rotation matrix
-alpha = 0.01;
-beta = 0.01;
+alpha = 0.5;
+beta = 0.5;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
@@ -114,9 +114,9 @@ for ii = 1:npts
 
     %--
     % ion calcs (95% D, 5% H); density, plasma frequency
-    Nd = N0(ii);
+    Nd = 0.95*N0(ii);
     om_pd = sqrt(Nd*qd^2/(md*eps0));
-    Nh = 0.0*N0(ii);
+    Nh = 0.05*N0(ii);
     om_ph = sqrt(Nh*qh^2/(mh*eps0));
   
     %--
@@ -127,13 +127,14 @@ for ii = 1:npts
 
     %--
     % cold plasma delectric tensor
-    cpdt = [[s, -j*d, 0.0]
-            [j*d, s, 0.0]
+    cpdt = [[s, -1i*d, 0.0]
+            [1i*d, s, 0.0]
             [0.0, 0.0, p]];
 
     %-- 
     % rotate cpdt
     cpdt_rot = r'*cpdt*r;
+%     cpdt_rot = cpdt;
 
     %--
     % wave equation rhs
@@ -200,6 +201,7 @@ N0_plot = linspace(15, 18, npts);
 
 %--
 % plot kx's
+figure(1)
 plot(N0_plot, real(k1_coeff))
 
 hold on
@@ -208,12 +210,13 @@ plot(N0_plot, real(k2_coeff))
 plot(N0_plot, real(k3_coeff))
 plot(N0_plot, real(k4_coeff))
 legend('k1', 'k2', 'k3', 'k4')
-ylim([-3000,3000])
+% ylim([-2.5, 2.5])
 xlabel('log10N0 (/m^3)')
 ylabel('Real(kx) (/m)')
 
 hold off
 
+figure(2)
 plot(N0_plot, imag(k1_coeff))
 
 hold on
@@ -222,7 +225,7 @@ plot(N0_plot, imag(k2_coeff))
 plot(N0_plot, imag(k3_coeff))
 plot(N0_plot, imag(k4_coeff))
 legend('k1', 'k2', 'k3', 'k4')
-ylim([-1000,400])
+% ylim([-10.0, 10.0])
 xlabel('log10N0 (/m^3)')
 ylabel('Imag(kx) (/m)')
 
