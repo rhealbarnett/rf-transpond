@@ -12,37 +12,37 @@ c0 = 1.0/sqrt(eps0*mu0);
 
 %--
 % magnetic field (tesla)
-B0 = 0.0;
+B0 = 2.5;
 
 %--
 % driver freq
-freq = 51.0e7;
+freq = 51.0e6;
 om = 2.0*pi*freq;
-nu = 0.05*om;
-om = om + (1i*nu);
+% nu = 0.05*om;
+% om = om + (1i*nu);
 k0 = om/c0;
 wavel0 = (2*pi)/k0;
 
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
-ky = 0.0;
-kz = 0.0;
+ky = 5.0;
+kz = 6.0;
 
 %--
 % spatial domain
 npts = 1000;
-dx = 0.025;
+dx = 0.002;
 xmin = 0.0;
-% xmax = 10.0;
-xmax = npts*dx;
+xmax = 0.2;
 % npts = ((xmax - xmin)/dx);
-xax = linspace(xmin,xmax,npts);
+xax = linspace(xmin, xmax, npts);
+% xax = xmin:dx:xmax;
 % dx = (xmax - xmin)/(npts - 1);
 
 %--
 % density -- set to zero for vacuum case
-N0 = 0.0;
+N0 = 5.0e17;
 
 %--
 % electron constants
@@ -66,8 +66,8 @@ om_ch = qh*B0/mh;
 
 %--
 % rotation matrix
-alpha = 0.01;
-beta = 1.57;
+alpha = 0.5;
+beta = 0.5;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
@@ -110,7 +110,7 @@ cpdt = [[s, -1i*d, 0.0]
         [1i*d, s, 0.0]
         [0.0, 0.0, p]];
     
-% cpdt_rot = r'*cpdt*r;
+cpdt = r'*cpdt*r;
     
 %--
 % set up rhs matrix (multiples E field)
@@ -190,43 +190,80 @@ for eq1=1:3:3*npts
 end
 
 %--
-% set up rhs vector
-rhs = zeros(3*npts,1);
-rhs((3*npts/2)+1) = 0.0;
-rhs((3*npts/2)+2) = 0.0;
-rhs((3*npts/2)+3) = 1.0;
+% metallic wall BC
+waveeq_mat(1,1:6) = 0.0;
+waveeq_mat(2,1:6) = 0.0;
+waveeq_mat(3,1:6) = 0.0;
+waveeq_mat(1,1) = 1.0;
+waveeq_mat(2,2) = 1.0;
+waveeq_mat(3,3) = 1.0;
+
+waveeq_mat(3*npts-2,1:3) = 0.0;
+waveeq_mat(3*npts-1,1:3) = 0.0;
+waveeq_mat(3*npts,1:3) = 0.0;
+waveeq_mat(3*npts-2,1) = 1.0;
+waveeq_mat(3*npts-1,2) = 1.0;
+waveeq_mat(3*npts,3) = 1.0;
 
 %--
+% set up rhs vector
+Jy = 1.0;
+Jz = 1.0;
+xloc = find(xax<=0.19);
+xloc = xloc*3.0;
+rhs = zeros(3*npts,1);
+rhs(xloc(end)) = 0.0;
+rhs(xloc(end)+1) = 1i*om*mu0*Jy;
+rhs(xloc(end)+2) = 1i*om*mu0*Jz;
+
+% --
 % calculation solution as waveeq_mat^-1*rhs
-%-- COMMENT OUT IF DOING SYMBOLIC MATRIX --%
+% -- COMMENT OUT IF DOING SYMBOLIC MATRIX --%
 sol = (waveeq_mat)\rhs;
 
-%----------------------plots-----------------------%
+% ----------------------plots-----------------------%
 figure(1)
-plot(xax, real(sol(1:3:3*npts)))
+
+subplot(3,1,1)
+plot(xax, real(sol(1:3:3*npts)), 'k')
+ylabel('Amplitude (?)')
 
 hold on
 
-plot(xax, real(sol(2:3:3*npts)))
-plot(xax, real(sol(3:3:3*npts)))
-xlabel('Position')
-ylabel('Amplitude (?)')
-legend('Re[Ex] (?)', 'Re[Ey] (?)', 'Re[Ez] (?)')
-
+plot(xax, imag(sol(1:3:3*npts)), '--')
+set(gca, 'XTickLabel', [])
+legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
+vline(0.19, '--r', 'Antenna')
+    
 hold off
 
-figure(2)
-plot(xax, imag(sol(1:3:3*npts)))
+subplot(3,1,2)
+plot(xax, real(sol(2:3:3*npts)), 'k')
+ylabel('Amplitude (?)')
 
 hold on
 
-plot(xax, imag(sol(2:3:3*npts)))
-plot(xax, imag(sol(3:3:3*npts)))
-xlabel('Position')
-ylabel('Amplitude (?)')
-legend('Im[Ex] (?)', 'Im[Ey] (?)', 'Im[Ez] (?)')
+plot(xax, imag(sol(2:3:3*npts)), '--')
+set(gca, 'XTickLabel', [])
+legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
+vline(0.19, '--r', 'Antenna')
 
 hold off
+
+subplot(3,1,3)
+plot(xax, real(sol(3:3:3*npts)), 'k')
+ylabel('Amplitude (?)')
+
+hold on
+
+plot(xax, imag(sol(3:3:3*npts)), '--')
+xlabel('Position')
+legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
+vline(0.19, '--r', 'Antenna')
+
+hold off
+
+
 
 
 
