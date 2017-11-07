@@ -28,9 +28,11 @@ for ii=1:npts
     coeff_mat(ii,iim) = 1.0;
     coeff_mat(ii,iip) = 1.0;
     
-    rhs(ii) = rho(ii);
+    rhs(ii) = rho;
     
 end
+
+coeff_mat = sparse(coeff_mat);
 
 static_pot = coeff_mat\rhs;
 
