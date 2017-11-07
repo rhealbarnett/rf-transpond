@@ -4,6 +4,8 @@
 % rlbarnett c3149416 191017                %
 %------------------------------------------%
 
+% function static_pot = poisson_sol(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
+
 coeff_mat = zeros(npts,npts);
 rhs = zeros(npts,1);
 
@@ -30,7 +32,9 @@ for ii=1:npts
     
 end
 
-sol = coeff_mat\rhs;
+static_pot = coeff_mat\rhs;
+
+% end
     
     
 
