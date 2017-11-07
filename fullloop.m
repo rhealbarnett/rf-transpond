@@ -48,7 +48,7 @@ xax = linspace(xmin, xmax, npts);
 %--
 % density -- set to zero for vacuum case
 Nmax = 5.0e17;
-N0 = Nmax*ones(npts,1);
+N0 = Nmax;%*ones(npts,1);
 
 %--
 % electron constants
