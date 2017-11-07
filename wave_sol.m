@@ -4,6 +4,8 @@
 % rlbarnett c3149416 210917      %
 %--------------------------------%
 
+
+%for kk=1,npts
 %--
 % cold plasma dielectric tensor elements
 s = 1.0 - om_pe^2/(om^2 - om_ce^2) - om_pd^2/(om^2 - om_cd^2) - om_ph^2/(om^2 - om_ch^2);
@@ -53,7 +55,7 @@ for eq1=1:3:3*npts
     
     %--
     % this loop doesn't work if it's set up like the previous one???
-    if ((iiexp)) >= (3*npts)
+    if ((iiexp) & (iieyp) & (iiezp)) > (3*npts)
         iiexp = iiexp - 3*npts;
         iieyp = iieyp - 3*npts;
         iiezp = iiezp - 3*npts;
@@ -110,6 +112,8 @@ waveeq_mat(3*npts,1:3) = 0.0;
 waveeq_mat(3*npts-2,1) = 1.0;
 waveeq_mat(3*npts-1,2) = 1.0;
 waveeq_mat(3*npts,3) = 1.0;
+
+waveeq_mat = sparse(waveeq_mat);
 
 %--
 % set up rhs vector
