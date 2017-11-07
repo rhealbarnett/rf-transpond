@@ -3,6 +3,8 @@
 % rlbarnett c3149416 061117              %
 %----------------------------------------%
 
+clear all; close all
+
 %--
 % constants
 mu0 = 4.0*pi*1.0e-7;
@@ -12,14 +14,6 @@ c0 = 1.0/sqrt(eps0*mu0);
 %--
 % magnetic field (tesla)
 B0 = 2.5;
-
-%--
-% temperature
-T_ev = 15.0;
-
-%--
-% thermal velocity
-vt = sqrt((T_ev*e) / me);
 
 %--
 % driver freq
@@ -35,6 +29,12 @@ ky = 5.0;
 kz = 6.0;
 
 %--
+% "common local derivatives for N0, v||^2, static potential and
+% ponderomotive potential" 
+lamby = 0.0;
+lambz = 0.0;
+
+%--
 % spatial domain
 npts = 1000;
 dx = 0.002;
@@ -47,12 +47,21 @@ xax = linspace(xmin, xmax, npts);
 
 %--
 % density -- set to zero for vacuum case
-N0 = 5.0e17;
+Nmax = 5.0e17;
+N0 = Nmax*ones(npts,1);
 
 %--
 % electron constants
 e = -1.6022e-19;
 me = 9.11e-31;
+
+%--
+% temperature
+T_ev = 15.0;
+
+%--
+% thermal velocity
+vt = sqrt((T_ev*e) / me);
 
 %--
 % ion constants (95% D, 5% H)
@@ -102,3 +111,18 @@ Nd = 0.95*N0;
 om_pd = sqrt(Nd*qd^2/(md*eps0));
 Nh = 0.05*N0;
 om_ph = sqrt(Nh*qh^2/(mh*eps0));
+
+%--
+% poisson solve for static potential -- solution "static_pot"
+
+poisson_sol
+
+%--
+% static electric field calculation
+
+
+
+%--
+% wave solver to find rf electric field
+
+wave_sol
