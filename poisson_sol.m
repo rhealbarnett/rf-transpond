@@ -4,67 +4,35 @@
 % rlbarnett c3149416 191017                %
 %------------------------------------------%
 
-%--
-% constants
-mu0 = 4.0*pi*1.0e-7;
-eps0 = 8.85e-12;
-c0 = 1.0/sqrt(eps0*mu0);
-e = -1.6022e-19;
-qd = abs(e);
-qh = abs(e);
+coeff_mat = zeros(npts,npts);
+rhs = zeros(npts,1);
 
-%--
-% spatial domain
-npts = 10;
-dx = 0.02;
-xmin = 0.0;
-xmax = 0.2;
-xax = linspace(xmin, xmax, npts);
+mult = dx^2*(lamby^2 + lambz^2) - 2.0;
+rho = (dx^2*e/eps0)*(Ne - (Nh + Nd));
 
-%--
-% density
-N0 = 5.0e17;
-Ne = N0;
-Nd = 0.95*N0;
-Nh = 0.15*N0;
-Ni = Nd + Nh;
-
-%--
-% charge density
-rho = -(e/eps0)*(Ne - Ni);
-
-%--
-% initialise potential array and set up simple boundary conditions
-phi = zeros(npts);
-phi(1) = 0.0;
-phi(end) = 0.0;
-phi_old = zeros(npts);
-
-%--
-% solver parameters
-threshold = 1.0e-5;
-nmax = 10000;
-
-%--
-% solve
-
-for ii=nmax
+for ii=1:npts
     
-    phi(2:end-1) = (1.0/2.0)*(phi(1:end-2) - phi(3:end) - dx^2*rho);
+    iip = ii + 1;
+    iim = ii - 1;
     
-    rms_err = sqrt(sum((phi - phi_old)^2)/npts);
-    
-    phi_old(:) = phi;
-    
-    if rms_err<=threshold
-        break
-    else
-        continue
+    if iip > npts
+        iip = iip - npts;
     end
+    if iim <= 0
+        iim = npts + iim;
+    end
+    
+    coeff_mat(ii,ii) = mult;
+    coeff_mat(ii,iim) = 1.0;
+    coeff_mat(ii,iip) = 1.0;
+    
+    rhs(ii) = rho(ii);
+    
 end
 
-
-
+sol = coeff_mat\rhs;
+    
+    
 
 
 
