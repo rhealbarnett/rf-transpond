@@ -3,7 +3,7 @@
 % rlbarnett c3149416 061117              %
 %----------------------------------------%
 
-clear all; close all
+%clear all; close all
 
 %--
 % constants
@@ -31,13 +31,13 @@ kz = 6.0;
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 0.0;
-lambz = 0.0;
+lamby = 0.005;
+lambz = 0.005;
 
 %--
 % spatial domain
-npts = 1000;
-dx = 0.002;
+npts = 10;
+dx = 0.2;
 xmin = 0.0;
 xmax = 0.2;
 % npts = ((xmax - xmin)/dx);
@@ -97,8 +97,8 @@ r = [[r11, r12, r13]
      [r21, r22, r23]
      [r31, r32, r33]];
  
-r_para = r(3,:);
-Bvec = B0*r_para;
+e_para = r(3,:);
+Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency
@@ -115,7 +115,7 @@ om_ph = sqrt(Nh*qh^2/(mh*eps0));
 %--
 % poisson solve for static potential -- solution "static_pot"
 
-poisson_sol
+poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
 
 %--
 % static electric field calculation
