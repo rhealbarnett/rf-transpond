@@ -4,13 +4,19 @@
 % rlbarnett c3149416 191017                %
 %------------------------------------------%
 
-%function static_pot = poisson_sol(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts)
+%function static_pot = poisson_sol(Ne, Ni, lamby, lambz, e, eps0, dx, npts)
 
+%--
+% initialise coefficient matrix and right hand side vector
 coeff_mat = zeros(npts,3.0*npts);
 rhs = zeros(npts,1);
 
-rho = (dx^2*e/eps0)*(Ne - (Nh + Nd));
+%--
+% calculate charge density
+rho = (dx^2*e/eps0)*(Ne - Ni);
 
+%--
+% counter
 kk = 1;
 
 for ii=1:npts
@@ -25,7 +31,8 @@ for ii=1:npts
     iiyp = iiy + 3;
     iizp = iiz + 3;
     
-    
+    %--
+    % rolling boundary conditions
     if ((iixp)) > 3.0*npts
         iixp = iixp - 3.0*npts;
         iiyp = iiyp - 3.0*npts;
@@ -37,6 +44,8 @@ for ii=1:npts
         iizm = 3.0*npts + iizm;
     end
     
+    %--
+    % populate coefficient matrix
     coeff_mat(ii,iixm) = 1.0;
     coeff_mat(ii,iiym) = 0.0;
     coeff_mat(ii,iizm) = 0.0;
@@ -47,14 +56,25 @@ for ii=1:npts
     coeff_mat(ii,iiyp) = 0.0;
     coeff_mat(ii,iizp) = 0.0;
     
+    %--
+    % populate right hand side vector
     rhs(ii) = rho;
     
     kk = kk + 3;
     
 end
 
+%--
+% set simple PEC boundaries for now
+rhs(1) = 0.0;
+rhs(npts) = 0.0;
+
+%--
+% reduce matrix size
 coeff_mat = sparse(coeff_mat);
 
+%--
+% solve Ax = b
 static_pot = coeff_mat\rhs;
 
 %end
