@@ -31,13 +31,13 @@ kz = 6.0;
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 0.005;
-lambz = 0.005;
+lamby = 0.05;
+lambz = 0.05;
 
 %--
 % spatial domain
-npts = 10;
-dx = 0.2;
+npts = 11;
+dx = 0.02;
 xmin = 0.0;
 xmax = 0.2;
 % npts = ((xmax - xmin)/dx);
@@ -102,7 +102,7 @@ Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency
-Ne = N0;
+Ne = 1.05*N0;
 om_pe = sqrt(Ne*e^2/(me*eps0));
 
 %--
@@ -111,6 +111,7 @@ Nd = 0.95*N0;
 om_pd = sqrt(Nd*qd^2/(md*eps0));
 Nh = 0.05*N0;
 om_ph = sqrt(Nh*qh^2/(mh*eps0));
+Ni = Nh + Nd;
 
 %--
 % poisson solve for static potential -- solution "static_pot"
