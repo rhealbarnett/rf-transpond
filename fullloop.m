@@ -36,7 +36,7 @@ lambz = 0.0;
 
 %--
 % spatial domain
-npts = 1001;
+npts = 128;
 dx = 0.002;
 xmin = 0.0;
 xmax = 0.2;
@@ -47,7 +47,7 @@ xax = linspace(xmin, xmax, npts);
 
 %--
 % density -- set to zero for vacuum case
-Nmax = 5.0e17;
+Nmax = 800.0e17;
 N0 = Nmax*ones(npts,1);
 
 %--

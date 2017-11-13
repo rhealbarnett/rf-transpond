@@ -32,10 +32,10 @@ end
 
 waveeq_mat = zeros(3*npts, 3*npts);
 % waveeq_mat = sym('O%d%d', [3*npts,3*npts]);
-ii = 1;
+ii = 4;
 kk = 1;
 
-for eq1=1:3:3*npts
+for eq1=4:3:3*(npts-1)
     
     eq2 = eq1+1;
     eq3 = eq2+1;
@@ -51,20 +51,20 @@ for eq1=1:3:3*npts
     iiezp = iiez + 3;
 
     %--
-    % set up periodic boundary conditions
-    if ((iiexm) & (iieym) & (iiezm)) <= 0
-        iiexm = 3*npts + iiexm;
-        iieym = 3*npts + iieym;
-        iiezm = 3*npts + iiezm;
-    end
+%     % set up periodic boundary conditions
+%     if ((iiexm) & (iieym) & (iiezm)) <= 0
+%         iiexm = 3*npts + iiexm;
+%         iieym = 3*npts + iieym;
+%         iiezm = 3*npts + iiezm;
+%     end
     
     %--
-    % this loop doesn't work if it's set up like the previous one???
-    if ((iiexp) & (iieyp) & (iiezp)) > (3*npts)
-        iiexp = iiexp - 3*npts;
-        iieyp = iieyp - 3*npts;
-        iiezp = iiezp - 3*npts;
-    end          
+%     % this loop doesn't work if it's set up like the previous one???
+%     if ((iiexp) & (iieyp) & (iiezp)) > (3*npts)
+%         iiexp = iiexp - 3*npts;
+%         iieyp = iieyp - 3*npts;
+%         iiezp = iiezp - 3*npts;
+%     end          
     
     %--
     % fill matrix
@@ -115,15 +115,15 @@ waveeq_mat(3,3) = 1.0;
 waveeq_mat(3*npts-2,1:3) = 0.0;
 waveeq_mat(3*npts-1,1:3) = 0.0;
 waveeq_mat(3*npts,1:3) = 0.0;
-waveeq_mat(3*npts-2,1) = 1.0;
-waveeq_mat(3*npts-1,2) = 1.0;
-waveeq_mat(3*npts,3) = 1.0;
+waveeq_mat(3*npts-2,3*npts-2) = 1.0;
+waveeq_mat(3*npts-1,3*npts-1) = 1.0;
+waveeq_mat(3*npts-0,3*npts-0) = 1.0;
 
-waveeq_mat = sparse(waveeq_mat);
+% waveeq_mat = sparse(waveeq_mat);
 
 %--
 % set up rhs vector
-Jy = 1.0;
+Jy = .0;
 Jz = 1.0;
 xloc = find(xax<=0.19);
 xloc = xloc*3.0;
@@ -153,7 +153,7 @@ hold on
 plot(xax, imag(rf_e(1:3:3*npts)), '--')
 set(gca, 'XTickLabel', [])
 legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
-vline(0.19, '--r', 'Antenna')
+%vline(0.19, '--r', 'Antenna')
     
 hold off
 
@@ -166,7 +166,7 @@ hold on
 plot(xax, imag(rf_e(2:3:3*npts)), '--')
 set(gca, 'XTickLabel', [])
 legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
-vline(0.19, '--r', 'Antenna')
+%vline(0.19, '--r', 'Antenna')
 
 hold off
 
@@ -179,7 +179,7 @@ hold on
 plot(xax, imag(rf_e(3:3:3*npts)), '--')
 xlabel('Position')
 legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
-vline(0.19, '--r', 'Antenna')
+%vline(0.19, '--r', 'Antenna')
 
 hold off
 
