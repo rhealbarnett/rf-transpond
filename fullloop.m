@@ -31,13 +31,13 @@ kz = 6.0;
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 0.001;
-lambz = 0.001;
+lamby = 0.0;
+lambz = 0.0;
 
 %--
 % spatial domain
-npts = 11;
-dx = 0.02;
+npts = 1001;
+dx = 0.002;
 xmin = 0.0;
 xmax = 0.2;
 % npts = ((xmax - xmin)/dx);
@@ -48,7 +48,7 @@ xax = linspace(xmin, xmax, npts);
 %--
 % density -- set to zero for vacuum case
 Nmax = 5.0e17;
-N0 = Nmax;%*ones(npts,1);
+N0 = Nmax*ones(npts,1);
 
 %--
 % electron constants
@@ -102,7 +102,7 @@ Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency
-Ne = 1.05*N0;
+Ne = 1.0*N0;
 om_pe = sqrt(Ne*e^2/(me*eps0));
 
 %--
@@ -124,6 +124,10 @@ poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
 static_e;
 
 %--
-% wave solver to find rf electric field
+% wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
 
-wave_sol
+wave_sol;
+
+%--
+% ponderomotive acceleration calculation
+
