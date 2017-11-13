@@ -13,7 +13,7 @@ c0 = 1.0/sqrt(eps0*mu0);
 
 %--
 % magnetic field (tesla)
-B0 = 2.5;
+B0 = 3.4;
 
 %--
 % driver freq
@@ -57,11 +57,11 @@ me = 9.11e-31;
 
 %--
 % temperature
-T_ev = 15.0;
+T_ev = 0.5;
 
 %--
 % thermal velocity
-vt = sqrt((T_ev*e) / me);
+vt = sqrt((T_ev*abs(e)) / me);
 
 %--
 % ion constants (95% D, 5% H)
@@ -90,8 +90,8 @@ nmax = ((tmax - t) / dt);
 
 %--
 % rotation matrix
-alpha = 0.0;
-beta = 0.0;
+alpha = 0.5;
+beta = 0.5;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
