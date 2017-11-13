@@ -47,7 +47,7 @@ xax = linspace(xmin, xmax, npts);
 
 %--
 % density -- set to zero for vacuum case
-Nmax = 800.0e17;
+Nmax = 5.0e17;
 N0 = Nmax*ones(npts,1);
 
 %--
@@ -79,9 +79,19 @@ om_cd = qd*B0/md;
 om_ch = qh*B0/mh;
 
 %--
+% temporal step
+period = 2.0*pi / om_ce;
+t = 0.0;
+num_cyc = 10;
+num_points = 100;
+dt = period/num_points;
+tmax = num_cyc*num_points*dt;
+nmax = ((tmax - t) / dt);
+
+%--
 % rotation matrix
-alpha = 0.5;
-beta = 0.5;
+alpha = 0.0;
+beta = 0.0;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
@@ -131,3 +141,7 @@ wave_sol;
 %--
 % ponderomotive acceleration calculation
 
+%--
+% transport solve 
+
+eqofmot;
