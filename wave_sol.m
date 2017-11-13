@@ -4,21 +4,25 @@
 % rlbarnett c3149416 210917      %
 %--------------------------------%
 
+cpdt = zeros(3,3,npts);
 
-%for kk=1,npts
 %--
 % cold plasma dielectric tensor elements
-s = 1.0 - om_pe^2/(om^2 - om_ce^2) - om_pd^2/(om^2 - om_cd^2) - om_ph^2/(om^2 - om_ch^2);
-d = om_ce*om_pe^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd^2/(om*(om^2 - om_cd^2)) + om_ch*om_ph^2/(om*(om^2 - om_ch^2));
-p = 1.0 - om_pe^2/om^2 - om_pd^2/om^2 - om_ph^2/om^2;
+for nn=1:npts
+    s = 1.0 - om_pe(nn)^2/(om^2 - om_ce^2) - om_pd(nn)^2/(om^2 - om_cd^2) - om_ph(nn)^2/(om^2 - om_ch^2);
+    d = om_ce*om_pe(nn)^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd(nn)^2/(om*(om^2 - om_cd^2)) + om_ch*om_ph(nn)^2/(om*(om^2 - om_ch^2));
+    p = 1.0 - om_pe(nn)^2/om^2 - om_pd(nn)^2/om^2 - om_ph(nn)^2/om^2;
 
-%--
-% cold plasma delectric tensor
-cpdt = [[s, -1i*d, 0.0]
-        [1i*d, s, 0.0]
-        [0.0, 0.0, p]];
+    %--
+    % cold plasma delectric tensor
+    cpdt(1,1,nn) = s;
+    cpdt(2,2,nn) = s;
+    cpdt(1,2,nn) = -1i*d;
+    cpdt(2,1,nn) = 1i*d;
+    cpdt(3,3,nn) = p;
     
-cpdt = r'*cpdt*r;
+    cpdt(:,:,nn) = r'*cpdt(:,:,nn)*r;
+end
     
 %--
 % set up rhs matrix (multiples E field)
@@ -29,6 +33,7 @@ cpdt = r'*cpdt*r;
 waveeq_mat = zeros(3*npts, 3*npts);
 % waveeq_mat = sym('O%d%d', [3*npts,3*npts]);
 ii = 1;
+kk = 1;
 
 for eq1=1:3:3*npts
     
@@ -66,9 +71,9 @@ for eq1=1:3:3*npts
     waveeq_mat(eq1,iiexm) = 0.0;
     waveeq_mat(eq1,iieym) = -1i*ky;
     waveeq_mat(eq1,iiezm) = -1i*kz;
-    waveeq_mat(eq1,iiex) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1));
-    waveeq_mat(eq1,iiey) = -2.0*dx*k0^2*cpdt(1,2);
-    waveeq_mat(eq1,iiez) = -2.0*dx*k0^2*cpdt(1,3);
+    waveeq_mat(eq1,iiex) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,kk));
+    waveeq_mat(eq1,iiey) = -2.0*dx*k0^2*cpdt(1,2,kk);
+    waveeq_mat(eq1,iiez) = -2.0*dx*k0^2*cpdt(1,3,kk);
     waveeq_mat(eq1,iiexp) = 0.0;
     waveeq_mat(eq1,iieyp) = 1i*ky;
     waveeq_mat(eq1,iiezp) = 1i*kz;
@@ -76,9 +81,9 @@ for eq1=1:3:3*npts
     waveeq_mat(eq2,iiexm) = -1i*ky*(dx/2.0);
     waveeq_mat(eq2,iieym) = -1.0;
     waveeq_mat(eq2,iiezm) = 0.0;
-    waveeq_mat(eq2,iiex) = -dx^2*k0^2*cpdt(2,1);
-    waveeq_mat(eq2,iiey) = dx^2*(kz^2 - k0^2*cpdt(2,2)) + 2.0;
-    waveeq_mat(eq2,iiez) = -dx^2*(ky*kz + k0^2*cpdt(2,3));
+    waveeq_mat(eq2,iiex) = -dx^2*k0^2*cpdt(2,1,kk);
+    waveeq_mat(eq2,iiey) = dx^2*(kz^2 - k0^2*cpdt(2,2,kk)) + 2.0;
+    waveeq_mat(eq2,iiez) = -dx^2*(ky*kz + k0^2*cpdt(2,3,kk));
     waveeq_mat(eq2,iiexp) = 1i*ky*(dx/2.0);
     waveeq_mat(eq2,iieyp) = -1.0;
     waveeq_mat(eq2,iiezp) = 0.0;
@@ -86,14 +91,15 @@ for eq1=1:3:3*npts
     waveeq_mat(eq3,iiexm) = -1i*kz*(dx/2.0);
     waveeq_mat(eq3,iieym) = 0.0;
     waveeq_mat(eq3,iiezm) = -1.0;
-    waveeq_mat(eq3,iiex) = -dx^2*k0^2*cpdt(3,1);
-    waveeq_mat(eq3,iiey) = -dx^2*(ky*kz + k0^2*cpdt(3,2));
-    waveeq_mat(eq3,iiez) = dx^2*(ky^2 - k0^2*cpdt(3,3)) + 2.0;
+    waveeq_mat(eq3,iiex) = -dx^2*k0^2*cpdt(3,1,kk);
+    waveeq_mat(eq3,iiey) = -dx^2*(ky*kz + k0^2*cpdt(3,2,kk));
+    waveeq_mat(eq3,iiez) = dx^2*(ky^2 - k0^2*cpdt(3,3,kk)) + 2.0;
     waveeq_mat(eq3,iiexp) = 1i*kz*(dx/2.0);
     waveeq_mat(eq3,iieyp) = 0.0;
     waveeq_mat(eq3,iiezp) = -1.0;
     
     ii = ii + 3;
+    kk = kk + 1;
 
 end
 
@@ -130,6 +136,10 @@ rhs(xloc(end)+2) = 1i*om*mu0*Jz;
 % calculation solution as waveeq_mat^-1*rhs
 % -- COMMENT OUT IF DOING SYMBOLIC MATRIX --%
 rf_e = (waveeq_mat)\rhs;
+
+rf_ex = rf_e(1:3:3*npts);
+rf_ey = rf_e(2:3:3*npts);
+rf_ez = rf_e(3:3:3*npts);
 
 % ----------------------plots-----------------------%
 figure(1)
