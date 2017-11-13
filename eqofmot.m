@@ -11,7 +11,7 @@ n = 2;
 
 %--
 % initial velocity 
-v0 = vt / 3.0;
+v0 = 0.1*vt;
 
 vx = v0;
 vy = v0;
@@ -59,6 +59,7 @@ for ii=1:nmax
     v = vpl + aE;
     
     x = x + v*dt;
+    
 end
     
 
