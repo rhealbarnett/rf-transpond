@@ -9,7 +9,7 @@ static_ez = -lambz*static_potz;
 
 static_ex = zeros(npts,1);
 
-for ii=2,(npts-1);
+for ii=2:(npts-1)
     static_ex(ii) = (static_potx(ii-1) - static_potx(ii+1))/(2.0*dx);
 end
 
