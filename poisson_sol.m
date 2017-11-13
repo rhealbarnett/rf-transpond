@@ -58,7 +58,7 @@ for ii=1:npts
     
     %--
     % populate right hand side vector
-    rhs(ii) = rho;
+    rhs(ii) = rho(ii);
     
     kk = kk + 3;
     
