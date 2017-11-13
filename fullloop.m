@@ -114,14 +114,14 @@ om_ph = sqrt(Nh*qh^2/(mh*eps0));
 Ni = Nh + Nd;
 
 %--
-% poisson solve for static potential -- solution "static_pot(x,y,z)"
+% poisson solve for static potential -- solution (output) "static_pot(x,y,z)"
 
 poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
 
 %--
-% static electric field calculation
+% static electric field calculation -- solution (output) "static_e(x,y,z)"
 
-
+static_e;
 
 %--
 % wave solver to find rf electric field
