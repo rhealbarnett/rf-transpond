@@ -31,8 +31,8 @@ kz = 6.0;
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 0.05;
-lambz = 0.05;
+lamby = 0.001;
+lambz = 0.001;
 
 %--
 % spatial domain
@@ -114,7 +114,7 @@ om_ph = sqrt(Nh*qh^2/(mh*eps0));
 Ni = Nh + Nd;
 
 %--
-% poisson solve for static potential -- solution "static_pot"
+% poisson solve for static potential -- solution "static_pot(x,y,z)"
 
 poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
 
