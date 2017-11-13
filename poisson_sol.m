@@ -77,6 +77,10 @@ coeff_mat = sparse(coeff_mat);
 % solve Ax = b
 static_pot = coeff_mat\rhs;
 
+static_potx = static_pot(1:3:3*npts);
+static_poty = static_pot(2:3:3*npts);
+static_potz = static_pot(3:3:3*npts);
+
 %end
     
     
