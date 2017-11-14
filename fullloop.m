@@ -142,6 +142,11 @@ wave_sol;
 % ponderomotive acceleration calculation
 
 %--
+% pressure term
+
+pressure;
+
+%--
 % transport solve 
 
 eqofmot;
