@@ -37,7 +37,7 @@ for ii=1:npts
     
 end
 
-a_ponde = (1.0 / 4.0)*(1.0 / (om^2 - om_ce.^2))*(ee_mag.^2 - abs(producte / om).^2 - (2.0*om_ce / om)*imag(conj(ee_vec(:,1).*ee_vec(:,2))));
+a_ponde = (1.0 / 4.0)*(1.0 / (om^2 - om_ce^2))*(ee_mag.^2 - abs(producte / om).^2 - (2.0*om_ce / om)*imag(conj(ee_vec(:,1).*ee_vec(:,2))));
 
 
 
