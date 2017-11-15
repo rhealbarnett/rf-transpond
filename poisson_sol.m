@@ -13,7 +13,7 @@ rhs = zeros(npts,1);
 
 %--
 % calculate charge density
-rho = (dx^2*e/eps0)*(Ne - Ni);
+rho = (dx^2*e/eps0)*(N0e - N0i);
 
 %--
 % counter
