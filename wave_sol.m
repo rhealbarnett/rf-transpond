@@ -21,7 +21,7 @@ for nn=1:npts
     cpdt(2,1,nn) = 1i*d;
     cpdt(3,3,nn) = p;
     
-    cpdt(:,:,nn) = r'*cpdt(:,:,nn)*r;
+    cpdt(:,:,nn) = rot'*cpdt(:,:,nn)*rot;
 end
     
 %--
