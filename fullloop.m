@@ -103,25 +103,25 @@ r31 = sin(beta)*cos(alpha);
 r32 = sin(beta)*sin(alpha);
 r33 = cos(beta);
 
-r = [[r11, r12, r13]
+rot = [[r11, r12, r13]
      [r21, r22, r23]
      [r31, r32, r33]];
  
-e_para = r(3,:);
+e_para = rot(3,:);
 Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency
-Ne = 1.0*N0;
-om_pe = sqrt(Ne*e^2/(me*eps0));
+N0e = 1.0*N0;
+om_pe = sqrt(N0e*e^2/(me*eps0));
 
 %--
 % ion calcs (95% D, 5% H); density, plasma frequency
-Nd = 0.95*N0;
-om_pd = sqrt(Nd*qd^2/(md*eps0));
-Nh = 0.05*N0;
-om_ph = sqrt(Nh*qh^2/(mh*eps0));
-Ni = Nh + Nd;
+N0d = 0.95*N0;
+om_pd = sqrt(N0d*qd^2/(md*eps0));
+N0h = 0.05*N0;
+om_ph = sqrt(N0h*qh^2/(mh*eps0));
+N0i = N0h + N0d;
 
 %--
 % poisson solve for static potential -- solution (output) "static_pot(x,y,z)"
