@@ -13,7 +13,7 @@ c0 = 1.0/sqrt(eps0*mu0);
 
 %--
 % magnetic field (tesla)
-B0 = 3.4;
+B0 = 2.6;
 
 %--
 % driver freq
@@ -31,8 +31,8 @@ kz = 6.0;
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 0.0;
-lambz = 0.0;
+lamby = 1.0;
+lambz = 1.0;
 
 %--
 % spatial domain
@@ -57,7 +57,7 @@ me = 9.11e-31;
 
 %--
 % temperature
-T_ev = 0.5;
+T_ev = 15.0;
 
 %--
 % thermal velocity
@@ -90,8 +90,8 @@ nmax = ((tmax - t) / dt);
 
 %--
 % rotation matrix
-alpha = 0.5;
-beta = 0.5;
+alpha = 0.0;
+beta = 0.0;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
@@ -112,7 +112,7 @@ Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency
-N0e = 1.0*N0;
+N0e = 1.05*N0;
 om_pe = sqrt(N0e*e^2/(me*eps0));
 
 %--
@@ -124,7 +124,7 @@ om_ph = sqrt(N0h*qh^2/(mh*eps0));
 N0i = N0h + N0d;
 
 %--
-% poisson solve for static potential -- solution (output) "static_pot(x,y,z)"
+% poisson solve for static potential -- solution (output) "static_pot"
 
 poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
 
@@ -140,6 +140,8 @@ wave_sol;
 
 %--
 % ponderomotive acceleration calculation
+
+a_pond;
 
 %--
 % pressure term
