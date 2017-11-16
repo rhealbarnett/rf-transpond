@@ -37,10 +37,19 @@ for ii=1:npts
     
 end
 
-a_ponde = (1.0 / 4.0)*(1.0 / (om^2 - om_ce^2))*(ee_mag.^2 - abs(producte / om).^2 - (2.0*om_ce / om)*imag(conj(ee_vec(:,1).*ee_vec(:,2))));
+pond_pote = (1.0 / 4.0)*(1.0 / (om^2 - om_ce^2))*(ee_mag.^2 - abs(producte / om).^2 - (2.0*om_ce / om)*imag(conj(ee_vec(:,1).*ee_vec(:,2))));
+pond_poth = (1.0 / 4.0)*(1.0 / (om^2 - om_ch^2))*(eh_mag.^2 - abs(producth / om).^2 - (2.0*om_ch / om)*imag(conj(eh_vec(:,1).*eh_vec(:,2))));
+pond_potd = (1.0 / 4.0)*(1.0 / (om^2 - om_cd^2))*(ed_mag.^2 - abs(productd / om).^2 - (2.0*om_cd / om)*imag(conj(ed_vec(:,1).*ed_vec(:,2))));
+pond_poti = pond_poth + pond_potd;
 
+a_pondex = gradient(pond_pote,dx);
+a_pondix = gradient(pond_poti,dx);
 
+a_pondey = -lamby*pond_pote;
+a_pondez = -lambz*pond_pote;
 
+a_pondiy = -lamby*pond_poti;
+a_pondiz = -lambz*pond_potz;
 
 
 
