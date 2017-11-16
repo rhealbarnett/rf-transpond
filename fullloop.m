@@ -46,9 +46,21 @@ xax = linspace(xmin, xmax, npts);
 % dx = (xmax - xmin)/(npts - 1);
 
 %--
-% density -- set to zero for vacuum case
+% background density -- set to zero for vacuum case
 Nmax = 5.0e17;
 N0 = Nmax*ones(npts,1);
+
+%--
+% initialise perturbed density as zero
+N1 = zeros(npts,1);
+N1e = N1;
+N1i = N1;
+
+%--
+% initialise perturbed velocity as zero
+v1 = zeros(npts,1);
+v1e = v1;
+v1i = v1;
 
 %--
 % electron constants
@@ -90,8 +102,8 @@ nmax = ((tmax - t) / dt);
 
 %--
 % rotation matrix
-alpha = 0.0;
-beta = 0.0;
+alpha = 0.5;
+beta = 0.5;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
@@ -139,16 +151,24 @@ static_e;
 wave_sol;
 
 %--
-% ponderomotive acceleration calculation
+% ponderomotive acceleration calculation -- solution (output)
+% "a_pond(x,y,z)"
 
 a_pond;
 
 %--
-% pressure term
+% pressure term -- solution (output) "press(x,y,z)"
 
 pressure;
 
 %--
-% transport solve 
+% calculate perpendicular drift velocities analytically -- solution
+% (output) "v_perp(1,2)"
 
-eqofmot;
+v_drift;
+
+%--
+% solve equation 23 (DVE 2015): slow time scale continuity equation yielding v
+% parallel -- solution (output) "v_para"
+
+cont_slow;
