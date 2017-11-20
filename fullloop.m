@@ -41,7 +41,6 @@ dx = 0.002;
 xmin = 0.0;
 xmax = 0.2;
 % npts = ((xmax - xmin)/dx);
-global xax 
 xax = linspace(xmin, xmax, npts);
 % xax = xmin:dx:xmax;
 % dx = (xmax - xmin)/(npts - 1);
@@ -116,8 +115,6 @@ r31 = sin(beta)*cos(alpha);
 r32 = sin(beta)*sin(alpha);
 r33 = cos(beta);
 
-global rot
-
 rot = [[r11, r12, r13]
      [r21, r22, r23]
      [r31, r32, r33]];
@@ -126,8 +123,7 @@ e_para = rot(3,:);
 Bvec = B0*e_para;
 
 %--
-% electron calcs; density, plasma frequency
-global N0e 
+% electron calcs; density, plasma frequency 
 N0e = 1.05*N0;
 om_pe = sqrt(N0e*e^2/(me*eps0));
 
@@ -173,6 +169,6 @@ v_drift;
 
 %--
 % solve equation 23 (DVE 2015): slow time scale continuity equation yielding v
-% parallel -- solution (output) "v_para"
+% parallel -- solution (output)
 
 cont_slow;
