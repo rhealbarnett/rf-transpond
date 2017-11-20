@@ -6,20 +6,21 @@
 
 solinit = bvpinit([0 1],[0]);
 
-sol = bvp4c(@ode,@bcs,solinit);
+bound = 1.0;
+
+sol = bvp4c(@ode,@(ya,yb)bcs(ya,yb,bound),solinit);
 
 
 function dydx = ode(x,y)
     
-    dydx = -y(1);
-    dydx
+    dydx = y(1);
 %     dydx = [y(2); -abs(y(1))];
     
 end
 
-function res = bcs(ya,yb)
+function res = bcs(ya,yb,bound)
 
-    res = [ya(1) - 1.0];%; yb(1) - 0.3679];
+    res = [ya(1) - bound];%; yb(1) - 0.3679];
 %     res = [ya(1); yb(1) + 2];
     
 end
