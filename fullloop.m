@@ -172,3 +172,9 @@ v_drift;
 % parallel -- solution (output)
 
 cont_slow;
+
+%--
+% solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
+% -- solution (output)
+
+eqofmot_slow;
