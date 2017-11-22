@@ -177,4 +177,125 @@ cont_slow;
 % solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
 % -- solution (output)
 
-eqofmot_slow;
+%eqofmot_slow;
+
+%--
+% figure to follow important quantities as changes are made
+figure(1);
+set(gcf,'Position',get(0,'Screensize'))
+
+subplot(2,3,1)
+plot(xax,static_pot,'r')
+ylabel('$\phi$ (V)','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(2,3,2)
+plot(xax,N0e,'k')
+ylabel('N$_{0,e}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(2,3,3)
+plot(xax,N1e,'k')
+ylabel('N$_{1,e}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(2,3,4)
+plot(xax,static_ex,'k')
+ylabel('E$_{0,ex}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(2,3,5)
+plot(xax,static_ey,'k')
+ylabel('E$_{0,ey}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(2,3,6)
+plot(xax,static_ez,'k')
+ylabel('E$_{0,ez}$','Fontsize',16)
+ytickformat('%.2f')
+
+figure(2);
+set(gcf,'Position',get(0,'Screensize'))
+
+subplot(3,3,1)
+plot(xax,real(rf_ex),'k')
+hold on
+plot(xax,imag(rf_ex),'--b')
+ylabel('E$_{1,ex}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,2)
+plot(xax,real(rf_ey),'k')
+hold on
+plot(xax,imag(rf_ey),'--b')
+ylabel('E$_{1,ey}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,3)
+plot(xax,real(rf_ez),'k')
+hold on
+plot(xax,imag(rf_ez),'--b')
+ylabel('E$_{1,ez}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,4)
+plot(xax,pond_pote,'r')
+ylabel('$\Theta$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,7)
+plot(xax,a_pondex,'k')
+ylabel('$(-\nabla\Theta)_x$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,8)
+plot(xax,a_pondey,'k')
+ylabel('$(-\nabla\Theta)_y$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,9)
+plot(xax,a_pondez,'k')
+ylabel('$(-\nabla\Theta)_z$','Fontsize',16)
+ytickformat('%.2f')
+
+figure(3);
+set(gcf,'Position',get(0,'Screensize'))
+
+subplot(3,3,1)
+plot(xax,vd_perp1e,'k')
+ylabel('v$_{e\perp,1}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,2)
+plot(xax,vd_perp2e,'k')
+ylabel('v$_{e\perp,2e}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,3)
+plot(xax,v_parae,'k')
+ylabel('v$_{e\parallel}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,4)
+plot(xax,v1e,'r')
+ylabel('v$_{1,e}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,7)
+plot(xax,pressex,'k')
+ylabel('$(\nabla N_0/N_0)_x$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,8)
+plot(xax,pressey,'k')
+ylabel('$(\nabla N_0/N_0)_y$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,9)
+plot(xax,pressez,'k')
+ylabel('$(\nabla N_0/N_0)_z$','Fontsize',16)
+ytickformat('%.2f')
+
+
+
+
