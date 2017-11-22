@@ -33,13 +33,15 @@ get_staticex = @(x) interp1(xax,static_ex,x);
 get_staticey = @(x) interp1(xax,static_ey,x);
 get_staticez = @(x) interp1(xax,static_ez,x);
 get_apondex = @(x) interp1(xax,a_pondex,x);
+get_apondey = @(x) interp1(xax,a_pondey,x);
+get_apondez = @(x) interp1(xax,a_pondez,x);
 
 %--
 % C coefficient
 C = @(x) -get_vdperp1e(x).*(rot(1,1).*get_gradvparaex(x) + (get_vparae(x)./2.0)*(rot(1,2)*lamby + rot(1,3)*lambz)) -...
     get_vdperp2e(x).*(rot(2,1).*get_gradvparaex(x) + (get_vparae(x)./2.0)*(rot(2,2)*lamby + rot(2,3)*lambz)) +...
-    (abs(e)/me)*(rot(3,1).*get_staticex(x) + rot(3,2).*get_staticey(x) + rot(3,3).*get_staticez(x));% + rot(3,1).*get_apondex(x);% +...
-    %(get_vparae(x)./(2.0.*get_N0e(x))).*real(gradient(conj(get_N1e(x)).*get_v1e(x),dx));
+    ((e)/me)*(rot(3,1).*get_staticex(x) + rot(3,2).*get_staticey(x) + rot(3,3).*get_staticez(x)) + rot(3,1).*get_apondex(x) +...
+    (get_vparae(x)./(2.0.*get_N0e(x))).*real(gradient(conj(get_N1e(x)).*get_v1e(x),dx));
 
 %--
 % bounday condition 
@@ -47,12 +49,16 @@ bound = @(ya,yb) yb - log(Nmax);
 
 %--
 % initial guess for boundary value problem solution
-solinit = bvpinit(xax,xmax);
+solinit = bvpinit(xax,log(Nmax/2.0));
 
 %--
 % call to ode_solve, inputs A(x), B(x) & C(x), bound and solinit
 % outputs sol
 ode_solve;
+
+%--
+% find solution
+sol = bvp4c(dydx,bound,solinit);
 
 %--
 % label solutions
