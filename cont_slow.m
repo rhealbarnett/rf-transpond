@@ -46,7 +46,7 @@ bound = @(ya,yb) yb - vt;
 
 %--
 % initial guess for boundary value problem solution
-solinit = bvpinit(xax,xmax);
+solinit = bvpinit(xax,vt);
 
 %--
 % call to ode_solve, inputs A(x), B(x) & C(x), bound and solinit
@@ -58,7 +58,6 @@ ode_solve;
 v_parae = sol.y;
 gradv_paraex = sol.yp;
 
-clear A B C bound
 
 
 
