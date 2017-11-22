@@ -125,12 +125,12 @@ A(3*npts-0,3*npts-0) = 1.0;
 % set up rhs vector
 Jy = 1.0;
 Jz = 1.0;
-xloc = find(xax<=0.19);
+xloc = find(xax<=0.1);
 xloc = xloc*3.0;
 rhs = zeros(3*npts,1);
 rhs(xloc(end)) = 0.0;
 rhs(xloc(end)+1) = 1i*om*mu0*Jy;
-rhs(xloc(end)+2) = 1i*om*mu0*Jz;
+rhs(xloc(end)+2) = 0.0;%1i*om*mu0*Jz;
 
 % --
 % calculation solution as waveeq_mat^-1*rhs
