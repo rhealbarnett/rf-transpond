@@ -177,7 +177,7 @@ cont_slow;
 % solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
 % -- solution (output)
 
-%eqofmot_slow;
+eqofmot_slow;
 
 %--
 % figure to follow important quantities as changes are made
@@ -221,6 +221,7 @@ subplot(3,3,1)
 plot(xax,real(rf_ex),'k')
 hold on
 plot(xax,imag(rf_ex),'--b')
+legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest') 
 ylabel('E$_{1,ex}$','Fontsize',16)
 ytickformat('%.2f')
 
