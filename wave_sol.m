@@ -1,4 +1,4 @@
-%--------------------------------%
+% --------------------------------%
 % time independent wave solver   %
 % V X V X E = k0^2.K.E           %
 % rlbarnett c3149416 210917      %
@@ -31,7 +31,7 @@ end
 % cpdt = sym('R%d%d',[3,3]);
 
 A = zeros(3*npts, 3*npts);
-% waveeq_mat = sym('O%d%d', [3*npts,3*npts]);
+% A = sym('O%d%d', [3*npts,3*npts]);
 ii = 4;
 kk = 1;
 
@@ -105,32 +105,35 @@ end
 
 %--
 % metallic wall BC
-A(1,1:6) = 0.0;
-A(2,1:6) = 0.0;
-A(3,1:6) = 0.0;
+% A(1,1:6) = 0.0;
+% A(2,1:6) = 0.0;
+% A(3,1:6) = 0.0;
 A(1,1) = 1.0;
 A(2,2) = 1.0;
 A(3,3) = 1.0;
 
-A(3*npts-2,1:3) = 0.0;
-A(3*npts-1,1:3) = 0.0;
-A(3*npts,1:3) = 0.0;
-A(3*npts-2,3*npts-2) = 1.0;
-A(3*npts-1,3*npts-1) = 1.0;
-A(3*npts-0,3*npts-0) = 1.0;
+% A(3*npts-2,1:3) = 0.0;
+% A(3*npts-1,1:3) = 0.0;
+% A(3*npts,1:3) = 0.0;
+A(end-2,end-2) = 1.0;
+A(end-1,end-1) = 1.0;
+A(end,end) = 1.0;
+A(end-2,end-5) = -1.0;
+A(end-1,end-4) = -1.0;
+A(end,end-3) = -1.0;
 
-% waveeq_mat = sparse(waveeq_mat);
+A = sparse(A);
 
 %--
 % set up rhs vector
 Jy = 1.0;
 Jz = 1.0;
-xloc = find(xax<=0.1);
+xloc = find(xax<=0.19);
 xloc = xloc*3.0;
 rhs = zeros(3*npts,1);
 rhs(xloc(end)) = 0.0;
 rhs(xloc(end)+1) = 1i*om*mu0*Jy;
-rhs(xloc(end)+2) = 0.0;%1i*om*mu0*Jz;
+rhs(xloc(end)+2) = 1i*om*mu0*Jz;
 
 % --
 % calculation solution as waveeq_mat^-1*rhs
@@ -142,46 +145,46 @@ rf_ey = rf_e(2:3:3*npts);
 rf_ez = rf_e(3:3:3*npts);
 
 % ----------------------plots----------------------- %
-figure(1)
-
-subplot(3,1,1)
-plot(xax, real(rf_ex), 'k')
-ylabel('Amplitude (?)')
-
-hold on
-
-plot(xax, imag(rf_ex), '--')
-set(gca, 'XTickLabel', [])
-legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
-%vline(0.19, '--r', 'Antenna')
-    
-hold off
-
-subplot(3,1,2)
-plot(xax, real(rf_ey), 'k')
-ylabel('Amplitude (?)')
-
-hold on
-
-plot(xax, imag(rf_ey), '--')
-set(gca, 'XTickLabel', [])
-legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
-%vline(0.19, '--r', 'Antenna')
-
-hold off
-
-subplot(3,1,3)
-plot(xax, real(rf_ez), 'k')
-ylabel('Amplitude (?)')
-
-hold on
-
-plot(xax, imag(rf_ez), '--')
-xlabel('Position')
-legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
-%vline(0.19, '--r', 'Antenna')
-
-hold off
+% figure(1)
+% 
+% subplot(3,1,1)
+% plot(xax, real(rf_ex), '*k')
+% ylabel('Amplitude (?)')
+% 
+% hold on
+% 
+% plot(xax, imag(rf_ex), '--')
+% set(gca, 'XTickLabel', [])
+% legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
+% %vline(0.19, '--r', 'Antenna')
+%     
+% hold off
+% 
+% subplot(3,1,2)
+% plot(xax, real(rf_ey), 'k')
+% ylabel('Amplitude (?)')
+% 
+% hold on
+% 
+% plot(xax, imag(rf_ey), '--')
+% set(gca, 'XTickLabel', [])
+% legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
+% %vline(0.19, '--r', 'Antenna')
+% 
+% hold off
+% 
+% subplot(3,1,3)
+% plot(xax, real(rf_ez), 'k')
+% ylabel('Amplitude (?)')
+% 
+% hold on
+% 
+% plot(xax, imag(rf_ez), '--')
+% xlabel('Position')
+% legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
+% %vline(0.19, '--r', 'Antenna')
+% 
+% hold off
 
 
 
