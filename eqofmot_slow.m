@@ -49,7 +49,7 @@ bound = @(ya,yb) yb - log(Nmax);
 
 %--
 % initial guess for boundary value problem solution
-solinit = bvpinit(xax,log(Nmax/2.0));
+solinit = bvpinit(xax,log(Nmax));
 
 %--
 % call to ode_solve, inputs A(x), B(x) & C(x), bound and solinit
@@ -58,7 +58,7 @@ ode_solve;
 
 %--
 % find solution
-sol = bvp4c(dydx,bound,solinit);
+% sol = bvp4c(dydx,bound,solinit);
 
 %--
 % label solutions
