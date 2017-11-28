@@ -10,7 +10,7 @@ dydx = @(x,y) -(B(x).*y + C(x))/A(x);
 
 %--
 % find solution
-sol = bvp5c(dydx,bound,solinit);
+sol = bvp4c(dydx,bound,solinit);
 
 
 
