@@ -18,12 +18,12 @@ get_vparaesq = @(x) interp1(xax,v_paraesq,x);
 
 %--
 % A coefficient
-A = @(x) (get_vparaesq(x) - vt^2).*rot(3,1) + get_vparae(x).*(get_vdperp1e(x).*rot(1,1) + get_vdperp2e(x).*rot(2,1));
+A = @(x) (get_vparaesq(x) - vt^2)*rot(3,1) + get_vparae(x).*(get_vdperp1e(x)*rot(1,1) + get_vdperp2e(x)*rot(2,1));
 
 %--
 % B coefficient
-B = @(x) (get_vparaesq(x) - vt^2).*(rot(3,2)*lamby + rot(3,3)*lambz) + get_vparae(x).*(get_vdperp1e(x).*(rot(1,2)*lamby +...
-    rot(1,3)*lambz) + get_vdperp2e(x).*(rot(2,2)*lamby + rot(2,3)*lambz));
+B = @(x) (get_vparaesq(x) - vt^2)*(rot(3,2)*lamby + rot(3,3)*lambz) + get_vparae(x).*(get_vdperp1e(x)*(rot(1,2)*lamby +...
+    rot(1,3)*lambz) + get_vdperp2e(x)*(rot(2,2)*lamby + rot(2,3)*lambz));
 
 %--
 % interpolate parallel velocity derivative, static potential, static Ex and a_pondx 
@@ -40,8 +40,8 @@ get_apondez = @(x) interp1(xax,a_pondez,x);
 % C coefficient
 C = @(x) -get_vdperp1e(x).*(rot(1,1).*get_gradvparaex(x) + (get_vparae(x)./2.0)*(rot(1,2)*lamby + rot(1,3)*lambz)) -...
     get_vdperp2e(x).*(rot(2,1).*get_gradvparaex(x) + (get_vparae(x)./2.0)*(rot(2,2)*lamby + rot(2,3)*lambz)) +...
-    ((e)/me)*(rot(3,1).*get_staticex(x) + rot(3,2).*get_staticey(x) + rot(3,3).*get_staticez(x)) + rot(3,1).*get_apondex(x) +...
-    (get_vparae(x)./(2.0.*get_N0e(x))).*real(gradient(conj(get_N1e(x)).*get_v1e(x),dx));
+    ((e)/me)*(rot(3,1).*get_staticex(x));% + rot(3,2).*get_staticey(x) + rot(3,3).*get_staticez(x)) + rot(3,1).*get_apondex(x) +...
+%     (get_vparae(x)./(2.0.*get_N0e(x))).*real(gradient(conj(get_N1e(x)).*get_v1e(x),dx));
 
 %--
 % bounday condition 
@@ -49,7 +49,8 @@ bound = @(ya,yb) yb - log(Nmax);
 
 %--
 % initial guess for boundary value problem solution
-solinit = bvpinit(xax,log(Nmax));
+test = linspace(xmin,xmax,10*npts);
+solinit = bvpinit(test,log(Nmax)/2);
 
 %--
 % call to ode_solve, inputs A(x), B(x) & C(x), bound and solinit
@@ -57,12 +58,8 @@ solinit = bvpinit(xax,log(Nmax));
 ode_solve;
 
 %--
-% find solution
-% sol = bvp4c(dydx,bound,solinit);
-
-%--
 % label solutions
-N0elog = sol.y;
+N0elog = deval(sol,xax);
 grad_N0exlog = sol.yp;
 N0e = exp(N0elog);
 grad_N0ex = gradient(N0e,dx);
