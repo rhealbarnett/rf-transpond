@@ -48,23 +48,7 @@ for eq1=4:3:3*(npts-1)
     iiezm = iiez - 3;
     iiexp = iiex + 3;
     iieyp = iiey + 3;
-    iiezp = iiez + 3;
-
-    %--
-%     % set up periodic boundary conditions
-%     if ((iiexm) & (iieym) & (iiezm)) <= 0
-%         iiexm = 3*npts + iiexm;
-%         iieym = 3*npts + iieym;
-%         iiezm = 3*npts + iiezm;
-%     end
-    
-    %--
-%     % this loop doesn't work if it's set up like the previous one???
-%     if ((iiexp) & (iieyp) & (iiezp)) > (3*npts)
-%         iiexp = iiexp - 3*npts;
-%         iieyp = iieyp - 3*npts;
-%         iiezp = iiezp - 3*npts;
-%     end          
+    iiezp = iiez + 3;        
     
     %--
     % fill matrix
@@ -105,23 +89,29 @@ end
 
 %--
 % metallic wall BC
-% A(1,1:6) = 0.0;
-% A(2,1:6) = 0.0;
-% A(3,1:6) = 0.0;
 A(1,1) = 1.0;
 A(2,2) = 1.0;
 A(3,3) = 1.0;
+% A(end-2,end-2) = 1.0;
+% A(end-1,end-1) = 1.0;
+% A(end,end) = 1.0;
 
+%--
+% boundary at main plasma interface, backward difference
+% eq1 -- want "final" (end) calculated value of the cold plasma dielectric tensor
 A(end-2,end-8) = 0.0;
 A(end-2,end-7) = 1i*ky;
 A(end-2,end-6) = 1i*kz;
 A(end-2,end-5) = 0.0;
 A(end-2,end-4) = -4i*ky;
 A(end-2,end-3) = -4i*kz;
-A(end-2,end-2) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,kk));
-A(end-2,end-1) = 3i*ky - 2.0*dx*k0^2*cpdt(1,2,kk);
-A(end-2,end) = 3i*kz - 2.0*dx*k0^2*cpdt(1,3,kk);
+A(end-2,end-2) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,end));
+A(end-2,end-1) = 3i*ky - 2.0*dx*k0^2*cpdt(1,2,end);
+A(end-2,end) = 3i*kz - 2.0*dx*k0^2*cpdt(1,3,end);
 
+%--
+% boundary at main plasma interface, backward difference
+% eq2
 A(end-1,end-11) = 0.0;
 A(end-1,end-10) = 1.0;
 A(end-1,end-9) = 0.0;
@@ -131,10 +121,13 @@ A(end-1,end-6) = 0.0;
 A(end-1,end-5) = -4i*ky*(dx/2.0);
 A(end-1,end-4) = 5.0;
 A(end-1,end-3) = 0.0;
-A(end-1,end-2) = 3i*ky*(dx/2.0) - dx^2*k0^2*cpdt(2,1,kk);
-A(end-1,end-1) = dx^2*(kz^2 - k0^2*cpdt(2,2,kk)) - 2.0;
-A(end-1,end) = -dx^2*(ky*kz + k0^2*cpdt(2,3,kk));
+A(end-1,end-2) = 3i*ky*(dx/2.0) - dx^2*k0^2*cpdt(2,1,end);
+A(end-1,end-1) = dx^2*(kz^2 - k0^2*cpdt(2,2,end)) - 2.0;
+A(end-1,end) = -dx^2*(ky*kz + k0^2*cpdt(2,3,end));
 
+%--
+% boundary at main plasma interface, backward difference
+% eq3
 A(end,end-11) = 0.0;
 A(end,end-10) = 0.0;
 A(end,end-9) = 1.0;
@@ -144,9 +137,9 @@ A(end,end-6) = -4.0;
 A(end,end-5) = -4i*kz*(dx/2.0);
 A(end,end-4) = 0.0;
 A(end,end-3) = 5.0;
-A(end,end-2) = 3i*kz*(dx/2.0) - dx^2*k0^2*cpdt(3,1,kk);
-A(end,end-1) = -dx^2*(ky*kz + k0^2*cpdt(3,2,kk));
-A(end,end) = dx^2*(ky^2 - k0^2*cpdt(3,3,kk)) - 2.0;
+A(end,end-2) = 3i*kz*(dx/2.0) - dx^2*k0^2*cpdt(3,1,end);
+A(end,end-1) = -dx^2*(ky*kz + k0^2*cpdt(3,2,end));
+A(end,end) = dx^2*(ky^2 - k0^2*cpdt(3,3,end)) - 2.0;
 
 A = sparse(A);
 
