@@ -36,7 +36,7 @@ lambz = 1.0;
 
 %--
 % spatial domain
-npts = 128;
+npts = 1000;
 dx = 0.002;
 xmin = 0.0;
 xmax = 0.2;
@@ -177,7 +177,7 @@ cont_slow;
 % solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
 % -- solution (output)
 
-eqofmot_slow;
+% eqofmot_slow;
 
 %--
 % figure to follow important quantities as changes are made
