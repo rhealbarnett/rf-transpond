@@ -136,9 +136,33 @@ om_ph = sqrt(N0h*qh^2/(mh*eps0));
 N0i = N0h + N0d;
 
 %--
+% plot electron densities
+figure(1);
+set(gcf,'Position',get(0,'Screensize'))
+
+subplot(2,3,1)
+plot(xax,N0e,'k')
+ylabel('N$_{0,e}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(2,3,2)
+plot(xax,N1e,'k')
+ylabel('N$_{1,e}$','Fontsize',16)
+ytickformat('%.2f')
+
+hold on
+
+%--
 % poisson solve for static potential -- solution (output) "static_pot"
 
 poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
+
+%--
+% plot static potential
+subplot(2,3,3)
+plot(xax,static_pot,'r')
+ylabel('$\phi$ (V)','Fontsize',16)
+ytickformat('%.2f')
 
 %--
 % static electric field calculation -- solution (output) "static_e(x,y,z)"
@@ -146,59 +170,7 @@ poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
 static_e;
 
 %--
-% wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
-
-wave_sol;
-
-%--
-% ponderomotive acceleration calculation -- solution (output)
-% "a_pond(x,y,z)"
-
-a_pond;
-
-%--
-% pressure term -- solution (output) "press(x,y,z)"
-
-pressure;
-
-%--
-% calculate perpendicular drift velocities analytically -- solution
-% (output) "v_perp(1,2)"
-
-v_drift;
-
-%--
-% solve equation 23 (DVE 2015): slow time scale continuity equation yielding v
-% parallel -- solution (output)
-
-cont_slow;
-
-%--
-% solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
-% -- solution (output)
-
-% eqofmot_slow;
-
-%--
-% figure to follow important quantities as changes are made
-figure(1);
-set(gcf,'Position',get(0,'Screensize'))
-
-subplot(2,3,1)
-plot(xax,static_pot,'r')
-ylabel('$\phi$ (V)','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(2,3,2)
-plot(xax,N0e,'k')
-ylabel('N$_{0,e}$','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(2,3,3)
-plot(xax,N1e,'k')
-ylabel('N$_{1,e}$','Fontsize',16)
-ytickformat('%.2f')
-
+% plot static electric field solutions
 subplot(2,3,4)
 plot(xax,static_ex,'k')
 ylabel('E$_{0,ex}$','Fontsize',16)
@@ -214,6 +186,15 @@ plot(xax,static_ez,'k')
 ylabel('E$_{0,ez}$','Fontsize',16)
 ytickformat('%.2f')
 
+hold off
+
+%--
+% wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
+
+wave_sol;
+
+%--
+% plot rf wave solutions
 figure(2);
 set(gcf,'Position',get(0,'Screensize'))
 
@@ -239,6 +220,16 @@ plot(xax,imag(rf_ez),'--b')
 ylabel('E$_{1,ez}$','Fontsize',16)
 ytickformat('%.2f')
 
+hold on
+
+%--
+% ponderomotive acceleration calculation -- solution (output)
+% "a_pond(x,y,z)"
+
+a_pond;
+
+%--
+% plot ponderomotive potential and accelerations
 subplot(3,3,4)
 plot(xax,pond_pote,'r')
 ylabel('$\Theta$','Fontsize',16)
@@ -259,44 +250,89 @@ plot(xax,a_pondez,'k')
 ylabel('$(-\nabla\Theta)_z$','Fontsize',16)
 ytickformat('%.2f')
 
+hold off
+
+%--
+% pressure term -- solution (output) "press(x,y,z)"
+
+pressure;
+
+%--
+% plot pressures
 figure(3);
 set(gcf,'Position',get(0,'Screensize'))
 
 subplot(3,3,1)
-plot(xax,vd_perp1e,'k')
-ylabel('v$_{e\perp,1}$','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(3,3,2)
-plot(xax,vd_perp2e,'k')
-ylabel('v$_{e\perp,2e}$','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(3,3,3)
-plot(xax,v_parae,'k')
-ylabel('v$_{e\parallel}$','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(3,3,4)
-plot(xax,v1e,'r')
-ylabel('v$_{1,e}$','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(3,3,7)
 plot(xax,pressex,'k')
 ylabel('$(\nabla N_0/N_0)_x$','Fontsize',16)
 ytickformat('%.2f')
 
-subplot(3,3,8)
+subplot(3,3,2)
 plot(xax,pressey,'k')
 ylabel('$(\nabla N_0/N_0)_y$','Fontsize',16)
 ytickformat('%.2f')
 
-subplot(3,3,9)
+subplot(3,3,3)
 plot(xax,pressez,'k')
 ylabel('$(\nabla N_0/N_0)_z$','Fontsize',16)
 ytickformat('%.2f')
 
+hold on
+
+%--
+% calculate perpendicular drift velocities analytically -- solution
+% (output) "v_perp(1,2)"
+
+v_drift;
+
+%--
+% plot perpendicular drift velocities
+subplot(3,3,4)
+plot(xax,vd_perp1e,'k')
+ylabel('v$_{e\perp,1}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,5)
+plot(xax,vd_perp2e,'k')
+ylabel('v$_{e\perp,2e}$','Fontsize',16)
+ytickformat('%.2f')
+
+%--
+% solve equation 23 (DVE 2015): slow time scale continuity equation yielding v
+% parallel -- solution (output)
+
+cont_slow;
+
+%--
+% plot parallel drift velocity and perturbed velocity
+subplot(3,3,6)
+plot(xax,v_parae,'k')
+ylabel('v$_{e\parallel}$','Fontsize',16)
+ytickformat('%.2f')
+
+subplot(3,3,7)
+plot(xax,v1e,'r')
+ylabel('v$_{1,e}$','Fontsize',16)
+ytickformat('%.2f')
+
+hold off
+
+%--
+% solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
+% -- solution (output)
+
+eqofmot_slow;
+
+%--
+% calculate perturbed velocity
+
+fastv_update;
+
+%--
+% solve equation 25 (DVE 2015): fast time scale continuity equation
+% yielding the perturbed density 
+
+% cont_fast;
 
 
 
