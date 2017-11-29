@@ -164,47 +164,47 @@ rf_ey = rf_e(2:3:3*npts);
 rf_ez = rf_e(3:3:3*npts);
 
 % ----------------------plots----------------------- %
-figure(4)
-
-subplot(3,1,1)
-plot(xax, real(rf_ex), 'k')
-ylabel('Amplitude (?)')
-
-hold on
-
-plot(xax, imag(rf_ex), '--')
-set(gca, 'XTickLabel', [])
-legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
-%vline(0.19, '--r', 'Antenna')
-    
-hold off
-
-subplot(3,1,2)
-plot(xax, real(rf_ey), 'k')
-ylabel('Amplitude (?)')
-
-hold on
-
-plot(xax, imag(rf_ey), '--')
-set(gca, 'XTickLabel', [])
-legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
-%vline(0.19, '--r', 'Antenna')
-
-hold off
-
-subplot(3,1,3)
-plot(xax, real(rf_ez), 'k')
-ylabel('Amplitude (?)')
-
-hold on
-
-plot(xax, imag(rf_ez), '--')
-xlabel('Position')
-legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
-%vline(0.19, '--r', 'Antenna')
-
-hold off
-
+% figure(4)
+% 
+% subplot(3,1,1)
+% plot(xax, real(rf_ex), 'k')
+% ylabel('Amplitude (?)')
+% 
+% hold on
+% 
+% plot(xax, imag(rf_ex), '--')
+% set(gca, 'XTickLabel', [])
+% legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
+% %vline(0.19, '--r', 'Antenna')
+%     
+% hold off
+% 
+% subplot(3,1,2)
+% plot(xax, real(rf_ey), 'k')
+% ylabel('Amplitude (?)')
+% 
+% hold on
+% 
+% plot(xax, imag(rf_ey), '--')
+% set(gca, 'XTickLabel', [])
+% legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
+% %vline(0.19, '--r', 'Antenna')
+% 
+% hold off
+% 
+% subplot(3,1,3)
+% plot(xax, real(rf_ez), 'k')
+% ylabel('Amplitude (?)')
+% 
+% hold on
+% 
+% plot(xax, imag(rf_ez), '--')
+% xlabel('Position')
+% legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
+% %vline(0.19, '--r', 'Antenna')
+% 
+% hold off
+% 
 
 
 
