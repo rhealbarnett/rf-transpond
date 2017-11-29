@@ -3,8 +3,6 @@
 % rlbarnett c3149416 061117              %
 %----------------------------------------%
 
-%clear all; close all
-
 %--
 % constants
 mu0 = 4.0*pi*1.0e-7;
@@ -91,16 +89,6 @@ om_cd = qd*B0/md;
 om_ch = qh*B0/mh;
 
 %--
-% temporal step
-period = 2.0*pi / om_ce;
-t = 0.0;
-num_cyc = 10;
-num_points = 100;
-dt = period/num_points;
-tmax = num_cyc*num_points*dt;
-nmax = ((tmax - t) / dt);
-
-%--
 % rotation matrix
 alpha = 0.5;
 beta = 0.5;
@@ -124,7 +112,7 @@ Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency 
-N0e = 1.05*N0;
+N0e = 1.0*N0;
 om_pe = sqrt(N0e*e^2/(me*eps0));
 
 %--
