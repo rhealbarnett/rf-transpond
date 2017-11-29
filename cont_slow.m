@@ -93,7 +93,8 @@ C = @(x) get_gradN0ex(x).*(get_vdperp1e(x).*rot(1,1) + get_vdperp2e(x).*rot(2,1)
 %--
 % define the boundary conditions as anonymous
 % functions
-bound = @(ya,yb) yb - vt;
+ve_bound = -N0i(end)*v_parai(end)/N0e(end);
+bound = @(ya,yb) yb - ve_bound;
 
 %--
 % initial guess for boundary value problem solution
