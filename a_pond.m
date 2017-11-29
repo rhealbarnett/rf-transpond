@@ -44,12 +44,18 @@ pond_poti = pond_poth + pond_potd;
 
 a_pondex = -gradient(pond_pote,dx);
 a_pondix = -gradient(pond_poti,dx);
+a_pondhx = -gradient(pond_poth,dx);
+a_ponddx = -gradient(pond_potd,dx);
 
 a_pondey = -lamby*pond_pote;
 a_pondez = -lambz*pond_pote;
 
 a_pondiy = -lamby*pond_poti;
 a_pondiz = -lambz*pond_poti;
+a_pondhy = -lamby*pond_poth;
+a_pondhz = -lambz*pond_poth;
+a_ponddy = -lamby*pond_potd;
+a_ponddz = -lambz*pond_potd;
 
 
 
