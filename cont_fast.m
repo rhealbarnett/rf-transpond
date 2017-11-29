@@ -25,5 +25,7 @@ get_gradv1ex = @(x) gradient(get_v1x(x),dx);
 C = @(x) get_N0e(x)*(get_gradv1e(x) + 1i*ky*get_v1ey(x) + 1i*kz*get_v1ez(x)) +...
     get_v1ex(x)*get_gradN0ex(x) + get_N0ex(x)*(get_v1ey(x)*lamby + get_v1ez(x)*lambz);
 
-
+%--
+% boundary condition
+% bound = 
     
