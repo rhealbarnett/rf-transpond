@@ -24,12 +24,19 @@ acceli(:,2) = acceliy;
 acceli(:,3) = acceliz;
 
 v_drifte = zeros(npts,3);
+v_drifti = zeros(npts,3);
+
+om_cimag = sqrt(om_ch^2 + om_cd^2);
 
 for ii=1:npts
     
     v_drifte(ii,:) = (1.0/om_ce)*cross(accele(ii,:),Bvec);
+    v_drifti(ii,:) = (1.0/om_cimag)*cross(acceli(ii,:),Bvec);
     
 end
 
 vd_perp1e = v_drifte(:,1);
 vd_perp2e = v_drifte(:,2);
+
+vd_perp1i = v_drifti(:,1);
+vd_perp2i = v_drifti(:,2);
