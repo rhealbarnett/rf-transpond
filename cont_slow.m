@@ -9,7 +9,7 @@
 %------------------------------------------%
 
 %--
-% interpolate N0e over arbitrary x range
+% interpolate N0i over arbitrary x range
 get_N0i = @(x) interp1(xax,N0i,x);
 
 %--
@@ -17,7 +17,7 @@ get_N0i = @(x) interp1(xax,N0i,x);
 A = @(x) get_N0i(x).*rot(3,1);
 
 %--
-% interpolate grad*N0e over arbitrary x range
+% interpolate grad*N0i over arbitrary x range
 get_gradN0ix = @(x) gradient(get_N0i(x),dx);
 
 %--
@@ -25,7 +25,7 @@ get_gradN0ix = @(x) gradient(get_N0i(x),dx);
 B = @(x) get_gradN0ix(x).*rot(3,1) + get_N0i(x).*(3.0 / 2.0)*(rot(3,2)*lamby + rot(3,3)*lambz);
 
 %--
-% interpolate N1e, v1e and perpendicular drift velocities over arbitrary x
+% interpolate N1i, v1i and perpendicular drift velocities over arbitrary x
 % range
 get_N1i = @(x) interp1(xax,N1i,x);
 get_v1i = @(x) interp1(xax,v1i,x);
