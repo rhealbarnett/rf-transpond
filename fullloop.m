@@ -320,7 +320,7 @@ fastv_update;
 % solve equation 25 (DVE 2015): fast time scale continuity equation
 % yielding the perturbed density 
 
-% cont_fast;
+cont_fast;
 
 
 
