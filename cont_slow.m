@@ -28,14 +28,14 @@ B = @(x) get_gradN0ix(x).*rot(3,1) + get_N0i(x).*(3.0 / 2.0)*(rot(3,2)*lamby + r
 % interpolate N1i, v1i and perpendicular drift velocities over arbitrary x
 % range
 get_N1i = @(x) interp1(xax,N1i,x);
-get_v1i = @(x) interp1(xax,v1i,x);
+get_v1ix = @(x) interp1(xax,v1i(1,:),x);
 get_vdperp1i = @(x) interp1(xax,vd_perp1i,x);
 get_vdperp2i = @(x) interp1(xax,vd_perp2i,x);
 
 %--
 % calculate C coefficient
 C = @(x) get_gradN0ix(x).*(get_vdperp1i(x).*rot(1,1) + get_vdperp2i(x).*rot(2,1)) + get_N0i(x).*(get_vdperp1i(x).*(rot(1,2)*lamby +...
-    rot(1,3)*lambz) + get_vdperp2i(x).*(rot(2,2)*lamby + rot(2,3)*lambz)) + (1.0 / 2.0).*real(gradient(conj(get_N1i(x)).*get_v1i(x),dx));
+    rot(1,3)*lambz) + get_vdperp2i(x).*(rot(2,2)*lamby + rot(2,3)*lambz)) + (1.0 / 2.0).*real(gradient(conj(get_N1i(x)).*get_v1ix(x),dx));
 
 %--
 % define the boundary conditions as anonymous
@@ -81,14 +81,14 @@ B = @(x) get_gradN0ex(x).*rot(3,1) + get_N0e(x).*(3.0 / 2.0)*(rot(3,2)*lamby + r
 % interpolate N1e, v1e and perpendicular drift velocities over arbitrary x
 % range
 get_N1e = @(x) interp1(xax,N1e,x);
-get_v1e = @(x) interp1(xax,v1e,x);
+get_v1ex = @(x) interp1(xax,v1e(1,:),x);
 get_vdperp1e = @(x) interp1(xax,vd_perp1e,x);
 get_vdperp2e = @(x) interp1(xax,vd_perp2e,x);
 
 %--
 % calculate C coefficient
 C = @(x) get_gradN0ex(x).*(get_vdperp1e(x).*rot(1,1) + get_vdperp2e(x).*rot(2,1)) + get_N0e(x).*(get_vdperp1e(x).*(rot(1,2)*lamby +...
-    rot(1,3)*lambz) + get_vdperp2e(x).*(rot(2,2)*lamby + rot(2,3)*lambz)) + (1.0 / 2.0).*real(gradient(conj(get_N1e(x)).*get_v1e(x),dx));
+    rot(1,3)*lambz) + get_vdperp2e(x).*(rot(2,2)*lamby + rot(2,3)*lambz)) + (1.0 / 2.0).*real(gradient(conj(get_N1e(x)).*get_v1ex(x),dx));
 
 %--
 % define the boundary conditions as anonymous
