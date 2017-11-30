@@ -33,5 +33,6 @@ coeff_mat(npts,npts) = 1.0;
 coeff_mat = sparse(coeff_mat);
 
 static_pot = coeff_mat\rhs;
+static_pot = static_pot';
 
 % end
