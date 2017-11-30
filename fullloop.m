@@ -112,7 +112,7 @@ Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency 
-N0e = 1.0*N0;
+N0e = 1.05*N0;
 om_pe = sqrt(N0e*e^2/(me*eps0));
 
 %--
