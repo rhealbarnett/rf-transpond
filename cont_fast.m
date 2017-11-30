@@ -27,9 +27,9 @@ B = @(x) rot(3,1)*get_gradvparaix(x) + 1i*(-om + get_vdperp1i(x)*(ky*rot(1,2) + 
 
 %--
 % interpolate perturbed velocity on arbitrary grid; calculate v1 derivative
-get_v1ix = @(x) interp1(xax,v1i(:,1),x);
-get_v1iy = @(x) interp1(xax,v1i(:,2),x);
-get_v1iz = @(x) interp1(xax,v1i(:,3),x);
+get_v1ix = @(x) interp1(xax,v1i(1,:),x);
+get_v1iy = @(x) interp1(xax,v1i(2,:),x);
+get_v1iz = @(x) interp1(xax,v1i(3,:),x);
 get_gradv1ix = @(x) gradient(get_v1ix(x),dx);
 
 %--
@@ -71,9 +71,9 @@ B = @(x) rot(3,1)*get_gradvparaex(x) + 1i*(-om + get_vdperp1e(x)*(ky*rot(1,2) + 
 
 %--
 %interpolate perturbed velocity on arbitrary grid; calculate v1 derivative
-get_v1ex = @(x) interp1(xax,v1e(:,1),x);
-get_v1ey = @(x) interp1(xax,v1e(:,2),x);
-get_v1ez = @(x) interp1(xax,v1e(:,3),x);
+get_v1ex = @(x) interp1(xax,v1e(1,:),x);
+get_v1ey = @(x) interp1(xax,v1e(2,:),x);
+get_v1ez = @(x) interp1(xax,v1e(3,:),x);
 get_gradv1ex = @(x) gradient(get_v1ex(x),dx);
 
 %--
