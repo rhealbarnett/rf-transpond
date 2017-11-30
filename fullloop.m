@@ -46,17 +46,17 @@ xax = linspace(xmin, xmax, npts);
 %--
 % background density -- set to zero for vacuum case
 Nmax = 5.0e17;
-N0 = Nmax*ones(npts,1);
+N0 = Nmax*ones(1,npts);
 
 %--
 % initialise perturbed density as zero
-N1 = zeros(npts,1);
+N1 = zeros(1,npts);
 N1e = N1;
 N1i = N1;
 
 %--
 % initialise perturbed velocity as zero
-v1 = zeros(npts,1);
+v1 = zeros(1,npts);
 v1e = v1;
 v1i = v1;
 
@@ -123,10 +123,17 @@ N0h = 0.05*N0;
 om_ph = sqrt(N0h*qh^2/(mh*eps0));
 N0i = N0h + N0d;
 
+nmax = 10;
+
+% for iter=1:nmax
+    
+%     tic
+
 %--
 % plot electron densities
 figure(1);
-set(gcf,'Position',get(0,'Screensize'))
+set(gcf,'Position',[0   536   824   419])
+% suptitle(['Iteration ' num2str(iter)])
 
 subplot(2,3,1)
 plot(xax,N0e,'k')
@@ -175,6 +182,7 @@ ylabel('E$_{0,ez}$','Fontsize',16)
 ytickformat('%.2f')
 
 hold off
+drawnow
 
 %--
 % wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
@@ -184,7 +192,8 @@ wave_sol;
 %--
 % plot rf wave solutions
 figure(2);
-set(gcf,'Position',get(0,'Screensize'))
+set(gcf,'Position',[859   536   824   419])
+% suptitle(['Iteration ' num2str(iter)])
 
 subplot(3,3,1)
 plot(xax,real(rf_ex),'k')
@@ -239,6 +248,7 @@ ylabel('$(-\nabla\Theta)_z$','Fontsize',16)
 ytickformat('%.2f')
 
 hold off
+drawnow
 
 %--
 % pressure term -- solution (output) "press(x,y,z)"
@@ -248,7 +258,8 @@ pressure;
 %--
 % plot pressures
 figure(3);
-set(gcf,'Position',get(0,'Screensize'))
+set(gcf,'Position',[6    60   824   419])
+% suptitle(['Iteration ' num2str(iter)])
 
 subplot(3,3,1)
 plot(xax,pressex,'k')
@@ -304,6 +315,7 @@ ylabel('v$_{1,e}$','Fontsize',16)
 ytickformat('%.2f')
 
 hold off
+drawnow
 
 %--
 % solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
@@ -321,6 +333,10 @@ fastv_update;
 % yielding the perturbed density 
 
 cont_fast;
+
+%     toc
+    
+%     end
 
 
 
