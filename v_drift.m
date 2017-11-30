@@ -12,31 +12,31 @@ accelix = pressix + static_ex + a_pondix;
 acceliy = pressiy + static_ey + a_pondiy;
 acceliz = pressiz + static_ez + a_pondiz;
 
-accele = zeros(npts,3);
-acceli = zeros(npts,3);
+accele = zeros(3,npts);
+acceli = zeros(3,npts);
 
-accele(:,1) = accelex;
-accele(:,2) = acceley;
-accele(:,3) = accelez;
+accele(1,:) = accelex;
+accele(2,:) = acceley;
+accele(3,:) = accelez;
 
-acceli(:,1) = accelix;
-acceli(:,2) = acceliy;
-acceli(:,3) = acceliz;
+acceli(1,:) = accelix;
+acceli(2,:) = acceliy;
+acceli(3,:) = acceliz;
 
-v_drifte = zeros(npts,3);
-v_drifti = zeros(npts,3);
+v_drifte = zeros(3,npts);
+v_drifti = zeros(3,npts);
 
 om_cimag = sqrt(om_ch^2 + om_cd^2);
 
 for ii=1:npts
     
-    v_drifte(ii,:) = (1.0/om_ce)*cross(accele(ii,:),Bvec);
-    v_drifti(ii,:) = (1.0/om_cimag)*cross(acceli(ii,:),Bvec);
+    v_drifte(:,ii) = (1.0/om_ce)*cross(accele(:,ii),Bvec);
+    v_drifti(:,ii) = (1.0/om_cimag)*cross(acceli(:,ii),Bvec);
     
 end
 
-vd_perp1e = v_drifte(:,1);
-vd_perp2e = v_drifte(:,2);
+vd_perp1e = v_drifte(1,:);
+vd_perp2e = v_drifte(2,:);
 
-vd_perp1i = v_drifti(:,1);
-vd_perp2i = v_drifti(:,2);
+vd_perp1i = v_drifti(1,:);
+vd_perp2i = v_drifti(2,:);
