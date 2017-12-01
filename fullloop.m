@@ -251,6 +251,11 @@ hold off
 drawnow
 
 %--
+% calculate perturbed velocity
+
+fastv_update;
+
+%--
 % pressure term -- solution (output) "press(x,y,z)"
 
 pressure;
@@ -323,10 +328,6 @@ drawnow
 
 eqofmot_slow;
 
-%--
-% calculate perturbed velocity
-
-fastv_update;
 
 %--
 % solve equation 25 (DVE 2015): fast time scale continuity equation
