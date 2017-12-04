@@ -92,67 +92,73 @@ end
 A(1,1) = 1.0;
 A(2,2) = 1.0;
 A(3,3) = 1.0;
-% A(end-2,end-2) = 1.0;
-% A(end-1,end-1) = 1.0;
-% A(end,end) = 1.0;
+A(end-2,end-2) = 1.0;
+A(end-1,end-1) = 1.0;
+A(end,end) = 1.0;
 
 %--
 % boundary at main plasma interface, backward difference
 % eq1 -- want "final" (end) calculated value of the cold plasma dielectric tensor
-A(end-2,end-8) = 0.0;
-A(end-2,end-7) = 1i*ky;
-A(end-2,end-6) = 1i*kz;
-A(end-2,end-5) = 0.0;
-A(end-2,end-4) = -4i*ky;
-A(end-2,end-3) = -4i*kz;
-A(end-2,end-2) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,end));
-A(end-2,end-1) = 3i*ky - 2.0*dx*k0^2*cpdt(1,2,end);
-A(end-2,end) = 3i*kz - 2.0*dx*k0^2*cpdt(1,3,end);
-
-%--
-% boundary at main plasma interface, backward difference
-% eq2
-A(end-1,end-11) = 0.0;
-A(end-1,end-10) = 1.0;
-A(end-1,end-9) = 0.0;
-A(end-1,end-8) = 1i*ky*(dx/2.0);
-A(end-1,end-7) = -4.0;
-A(end-1,end-6) = 0.0;
-A(end-1,end-5) = -4i*ky*(dx/2.0);
-A(end-1,end-4) = 5.0;
-A(end-1,end-3) = 0.0;
-A(end-1,end-2) = 3i*ky*(dx/2.0) - dx^2*k0^2*cpdt(2,1,end);
-A(end-1,end-1) = dx^2*(kz^2 - k0^2*cpdt(2,2,end)) - 2.0;
-A(end-1,end) = -dx^2*(ky*kz + k0^2*cpdt(2,3,end));
-
-%--
-% boundary at main plasma interface, backward difference
-% eq3
-A(end,end-11) = 0.0;
-A(end,end-10) = 0.0;
-A(end,end-9) = 1.0;
-A(end,end-8) = 1i*kz*(dx/2.0);
-A(end,end-7) = 0.0;
-A(end,end-6) = -4.0;
-A(end,end-5) = -4i*kz*(dx/2.0);
-A(end,end-4) = 0.0;
-A(end,end-3) = 5.0;
-A(end,end-2) = 3i*kz*(dx/2.0) - dx^2*k0^2*cpdt(3,1,end);
-A(end,end-1) = -dx^2*(ky*kz + k0^2*cpdt(3,2,end));
-A(end,end) = dx^2*(ky^2 - k0^2*cpdt(3,3,end)) - 2.0;
+% A(end-2,end-8) = 0.0;
+% A(end-2,end-7) = 1i*ky;
+% A(end-2,end-6) = 1i*kz;
+% A(end-2,end-5) = 0.0;
+% A(end-2,end-4) = -4i*ky;
+% A(end-2,end-3) = -4i*kz;
+% A(end-2,end-2) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,end));
+% A(end-2,end-1) = 3i*ky - 2.0*dx*k0^2*cpdt(1,2,end);
+% A(end-2,end) = 3i*kz - 2.0*dx*k0^2*cpdt(1,3,end);
+% 
+% %--
+% % boundary at main plasma interface, backward difference
+% % eq2
+% A(end-1,end-11) = 0.0;
+% A(end-1,end-10) = 1.0;
+% A(end-1,end-9) = 0.0;
+% A(end-1,end-8) = 1i*ky*(dx/2.0);
+% A(end-1,end-7) = -4.0;
+% A(end-1,end-6) = 0.0;
+% A(end-1,end-5) = -4i*ky*(dx/2.0);
+% A(end-1,end-4) = 5.0;
+% A(end-1,end-3) = 0.0;
+% A(end-1,end-2) = 3i*ky*(dx/2.0) - dx^2*k0^2*cpdt(2,1,end);
+% A(end-1,end-1) = dx^2*(kz^2 - k0^2*cpdt(2,2,end)) - 2.0;
+% A(end-1,end) = -dx^2*(ky*kz + k0^2*cpdt(2,3,end));
+% 
+% %--
+% % boundary at main plasma interface, backward difference
+% % eq3
+% A(end,end-11) = 0.0;
+% A(end,end-10) = 0.0;
+% A(end,end-9) = 1.0;
+% A(end,end-8) = 1i*kz*(dx/2.0);
+% A(end,end-7) = 0.0;
+% A(end,end-6) = -4.0;
+% A(end,end-5) = -4i*kz*(dx/2.0);
+% A(end,end-4) = 0.0;
+% A(end,end-3) = 5.0;
+% A(end,end-2) = 3i*kz*(dx/2.0) - dx^2*k0^2*cpdt(3,1,end);
+% A(end,end-1) = -dx^2*(ky*kz + k0^2*cpdt(3,2,end));
+% A(end,end) = dx^2*(ky^2 - k0^2*cpdt(3,3,end)) - 2.0;
 
 A = sparse(A);
 
 %--
 % set up rhs vector
-Jy = 1.0;
-Jz = 1.0;
-xloc = find(xax<=0.19);
-xloc = xloc*3.0;
+% Jy = 1.0;
+% Jz = 1.0;
+% xloc = find(xax<=0.19);
+% xloc = xloc*3.0;
 rhs = zeros(3*npts,1);
-rhs(xloc(end)) = 0.0;
-rhs(xloc(end)+1) = 1i*om*mu0*Jy;
-rhs(xloc(end)+2) = 1i*om*mu0*Jz;
+% rhs(xloc(end)) = 0.0;
+% rhs(xloc(end)+1) = 1i*om*mu0*Jy;
+% rhs(xloc(end)+2) = 1i*om*mu0*Jz;
+peak_width = 0.001;
+peak_loc = 0.1;
+mult = 1.0/sqrt(2.0*pi*peak_width);
+source = mult*exp(-(xax - peak_loc).^2/(2.0*peak_width^2));
+rhs(1:3:3*npts) = source';
+rhs(2:3:3*npts) = source';
 
 % --
 % calculation solution as waveeq_mat^-1*rhs
@@ -164,47 +170,47 @@ rf_ey = rf_e(2:3:3*npts);
 rf_ez = rf_e(3:3:3*npts);
 
 % ----------------------plots----------------------- %
-% figure(4)
-% 
-% subplot(3,1,1)
-% plot(xax, real(rf_ex), 'k')
-% ylabel('Amplitude (?)')
-% 
-% hold on
-% 
-% plot(xax, imag(rf_ex), '--')
-% set(gca, 'XTickLabel', [])
-% legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
-% %vline(0.19, '--r', 'Antenna')
-%     
-% hold off
-% 
-% subplot(3,1,2)
-% plot(xax, real(rf_ey), 'k')
-% ylabel('Amplitude (?)')
-% 
-% hold on
-% 
-% plot(xax, imag(rf_ey), '--')
-% set(gca, 'XTickLabel', [])
-% legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
-% %vline(0.19, '--r', 'Antenna')
-% 
-% hold off
-% 
-% subplot(3,1,3)
-% plot(xax, real(rf_ez), 'k')
-% ylabel('Amplitude (?)')
-% 
-% hold on
-% 
-% plot(xax, imag(rf_ez), '--')
-% xlabel('Position')
-% legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
-% %vline(0.19, '--r', 'Antenna')
-% 
-% hold off
-% 
+figure(4)
+
+subplot(3,1,1)
+plot(xax, real(rf_ex), 'k')
+ylabel('Amplitude (?)')
+
+hold on
+
+plot(xax, imag(rf_ex), '--')
+set(gca, 'XTickLabel', [])
+legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
+%vline(0.19, '--r', 'Antenna')
+    
+hold off
+
+subplot(3,1,2)
+plot(xax, real(rf_ey), 'k')
+ylabel('Amplitude (?)')
+
+hold on
+
+plot(xax, imag(rf_ey), '--')
+set(gca, 'XTickLabel', [])
+legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
+%vline(0.19, '--r', 'Antenna')
+
+hold off
+
+subplot(3,1,3)
+plot(xax, real(rf_ez), 'k')
+ylabel('Amplitude (?)')
+
+hold on
+
+plot(xax, imag(rf_ez), '--')
+xlabel('Position')
+legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
+%vline(0.19, '--r', 'Antenna')
+
+hold off
+
 
 
 
