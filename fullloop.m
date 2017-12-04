@@ -35,7 +35,7 @@ lambz = 1.0;
 %--
 % spatial domain
 npts = 1000;
-dx = 0.002;
+dx = 0.0002;
 xmin = 0.0;
 xmax = 0.2;
 % npts = ((xmax - xmin)/dx);
@@ -112,7 +112,7 @@ Bvec = B0*e_para;
 
 %--
 % electron calcs; density, plasma frequency 
-N0e = 1.05*N0;
+N0e = 1.0*N0;
 om_pe = sqrt(N0e*e^2/(me*eps0));
 
 %--
@@ -124,6 +124,8 @@ om_ph = sqrt(N0h*qh^2/(mh*eps0));
 N0i = N0h + N0d;
 
 nmax = 10;
+
+%%
 
 % for iter=1:nmax
     
@@ -251,11 +253,6 @@ hold off
 drawnow
 
 %--
-% calculate perturbed velocity
-
-fastv_update;
-
-%--
 % pressure term -- solution (output) "press(x,y,z)"
 
 pressure;
@@ -288,6 +285,12 @@ hold on
 % (output) "v_perp(1,2)"
 
 v_drift;
+
+
+%--
+% calculate perturbed velocity
+
+fastv_update;
 
 %--
 % plot perpendicular drift velocities
