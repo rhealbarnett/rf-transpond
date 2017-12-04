@@ -53,13 +53,17 @@ bound = @(ya,yb) yb - log(Nmax);
 
 %--
 % initial guess for boundary value problem solution
-test = linspace(xmin,xmax,10*npts);
+test = linspace(xmin,xmax,npts);
 solinit = bvpinit(test,log(Nmax)/2);
 
 %--
 % call to ode_solve, inputs A(x), B(x) & C(x), bound and solinit
 % outputs sol
 ode_solve;
+
+%--
+% solve again? 
+sol = bvp4c(dydx,bound,solinit);
 
 %--
 % label solutions
