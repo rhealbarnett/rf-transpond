@@ -17,12 +17,12 @@ dot_termi = zeros(3,npts);
 for ii=1:npts
     
     cross_terme(:,ii) = cross(ee_vec(:,ii),Bvec);
-    dot_terme(:,ii) = (1i / om)*producte(ii)*om_ce_vec;
+    dot_terme(:,ii) = (1i / om)*producte(:,ii)*om_ce_vec(:,ii);
     cross_termi(:,ii) = cross(ei_vec(:,ii),Bvec);
-    dot_termi(:,ii) = (1i / om)*producti(ii)*om_ci_vec;
+    dot_termi(:,ii) = (1i / om)*producti(:,ii)*om_ci_vec(:,ii);
     
 end
     
 
-v1e = denome*(-1i*om.*ee_vec + cross_terme + dot_terme);
-v1i = denomi*(-1i*om.*ei_vec + cross_termi + dot_termi);
+v1e = denome.*(-1i*om.*ee_vec + cross_terme + dot_terme);
+v1i = denomi.*(-1i*om.*ei_vec + cross_termi + dot_termi);
