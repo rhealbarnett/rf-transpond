@@ -26,12 +26,12 @@ acceli(3,:) = acceliz;
 v_drifte = zeros(3,npts);
 v_drifti = zeros(3,npts);
 
-om_cimag = sqrt(om_ch^2 + om_cd^2);
+om_cimag = sqrt(om_ch.^2 + om_cd.^2);
 
 for ii=1:npts
     
-    v_drifte(:,ii) = (1.0/om_ce)*cross(accele(:,ii),Bvec);
-    v_drifti(:,ii) = (1.0/om_cimag)*cross(acceli(:,ii),Bvec);
+    v_drifte(:,ii) = (1.0/om_ce(ii)).*cross(accele(:,ii),Bvec);
+    v_drifti(:,ii) = (1.0/om_cimag(ii)).*cross(acceli(:,ii),Bvec);
     
 end
 
