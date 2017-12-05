@@ -9,8 +9,9 @@ cpdt = zeros(3,3,npts);
 %--
 % cold plasma dielectric tensor elements
 for nn=1:npts
-    s = 1.0 - om_pe(nn)^2/(om^2 - om_ce^2) - om_pd(nn)^2/(om^2 - om_cd^2) - om_ph(nn)^2/(om^2 - om_ch^2);
-    d = om_ce*om_pe(nn)^2/(om*(om^2 - om_ce^2)) + om_cd*om_pd(nn)^2/(om*(om^2 - om_cd^2)) + om_ch*om_ph(nn)^2/(om*(om^2 - om_ch^2));
+    s = 1.0 - om_pe(nn)^2/(om^2 - om_ce(nn)^2) - om_pd(nn)^2/(om^2 - om_cd(nn)^2) - om_ph(nn)^2/(om^2 - om_ch(nn)^2);
+    d = om_ce(nn)*om_pe(nn)^2/(om*(om^2 - om_ce(nn)^2)) + om_cd(nn)*om_pd(nn)^2/(om*(om^2 - om_cd(nn)^2)) +...
+        om_ch(nn)*om_ph(nn)^2/(om*(om^2 - om_ch(nn)^2));
     p = 1.0 - om_pe(nn)^2/om^2 - om_pd(nn)^2/om^2 - om_ph(nn)^2/om^2;
 
     %--
@@ -153,7 +154,7 @@ rhs = zeros(3*npts,1);
 % rhs(xloc(end)) = 0.0;
 % rhs(xloc(end)+1) = 1i*om*mu0*Jy;
 % rhs(xloc(end)+2) = 1i*om*mu0*Jz;
-peak_width = 0.001;
+peak_width = 0.005;
 peak_loc = 0.1;
 mult = 1.0/sqrt(2.0*pi*peak_width);
 source = mult*exp(-(xax - peak_loc).^2/(2.0*peak_width^2));
