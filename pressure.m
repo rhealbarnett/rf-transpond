@@ -29,13 +29,13 @@ gradN0iz = lambz*N0i;
 gradN0ex = gradient(N0e, dx);
 gradN0ix = gradient(N0i, dx);
 
-pressex = -vt^2*gradN0ex./N0e;
-pressey = -vt^2*gradN0ey./N0e;
-pressez = -vt^2*gradN0ez./N0e;
+pressex = -vt.^2.*gradN0ex./N0e;
+pressey = -vt.^2.*gradN0ey./N0e;
+pressez = -vt.^2.*gradN0ez./N0e;
 
-pressix = -vt^2*gradN0ix./N0i;
-pressiy = -vt^2*gradN0iy./N0i;
-pressiz = -vt^2*gradN0iz./N0i;
+pressix = -vt.^2.*gradN0ix./N0i;
+pressiy = -vt.^2.*gradN0iy./N0i;
+pressiz = -vt.^2.*gradN0iz./N0i;
 
 presse = [pressex, pressey, pressez];
 pressi = [pressix, pressiy, pressiz];
