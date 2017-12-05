@@ -8,6 +8,8 @@
 %------------------IONS--------------------%
 %------------------------------------------%
 
+vT = sqrt((T_ev*abs(e)) / me(npts/2));
+
 %--
 % interpolate N0i over arbitrary x range
 get_N0i = @(x) interp1(xax,N0i,x);
@@ -40,11 +42,11 @@ C = @(x) get_gradN0ix(x).*(get_vdperp1i(x).*rot(1,1) + get_vdperp2i(x).*rot(2,1)
 %--
 % define the boundary conditions as anonymous
 % functions
-bound = @(ya,yb) yb - vt;
+bound = @(ya,yb) yb - vT;
 
 %--
 % initial guess for boundary value problem solution
-solinit = bvpinit(xax,vt);
+solinit = bvpinit(xax,vT);
 
 %--
 % call to ode_solve, inputs A(x), B(x) & C(x), bound and solinit
@@ -98,7 +100,7 @@ bound = @(ya,yb) yb - ve_bound;
 
 %--
 % initial guess for boundary value problem solution
-solinit = bvpinit(xax,vt);
+solinit = bvpinit(xax,vT);
 
 %--
 % call to ode_solve, inputs A(x), B(x) & C(x), bound and solinit
