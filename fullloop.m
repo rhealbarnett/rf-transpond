@@ -63,7 +63,19 @@ v1i = v1;
 %--
 % electron constants
 e = -1.6022e-19;
-me = 9.11e-31;
+me = 9.11e-31*ones(1,npts);
+
+% pd1 = makedist('HalfNormal','sigma',0.005);
+np_bound = 100;
+% ax = linspace(0,0.04,np_bound);
+% pdf1 = pdf(pd1,ax);
+% pdf1 = pdf1/max(pdf1);
+ax = linspace(0,pi/2,100);
+test = cos(ax);
+damp = 1.0e8*test;
+
+me(1:np_bound) = me(1:np_bound) + 1i*damp;
+me(end-(np_bound-1):end) = me(end-(np_bound-1):end) + 1i*fliplr(damp);
 
 %--
 % temperature
@@ -71,22 +83,26 @@ T_ev = 15.0;
 
 %--
 % thermal velocity
-vt = sqrt((T_ev*abs(e)) / me);
+vt = sqrt((T_ev*abs(e)) ./ me);
 
 %--
 % ion constants (95% D, 5% H)
 qd = abs(e);
 mp = 1.67e-27;
-md = 2.0*mp;
+md = 2.0*mp*ones(1,npts);
+md(1:np_bound) = md(1:np_bound) + 1i*damp;
+md(end-(np_bound-1):end) = md(end-(np_bound-1):end) + 1i*fliplr(damp);
 
 qh = abs(e);
-mh = mp;
+mh = mp*ones(1,npts);
+mh(1:np_bound) = mh(1:np_bound) + 1i*damp;
+mh(end-(np_bound-1):end) = mh(end-(np_bound-1):end) + 1i*fliplr(damp);
 
 %-- 
 % cyclotron frequencies
-om_ce = e*B0/me;
-om_cd = qd*B0/md;
-om_ch = qh*B0/mh;
+om_ce = e*B0./me;
+om_cd = qd*B0./md;
+om_ch = qh*B0./mh;
 
 %--
 % rotation matrix
@@ -113,14 +129,14 @@ Bvec = B0*e_para;
 %--
 % electron calcs; density, plasma frequency 
 N0e = 1.0*N0;
-om_pe = sqrt(N0e*e^2/(me*eps0));
+om_pe = sqrt(N0e*e^2./(me*eps0));
 
 %--
 % ion calcs (95% D, 5% H); density, plasma frequency
 N0d = 0.95*N0;
-om_pd = sqrt(N0d*qd^2/(md*eps0));
+om_pd = sqrt(N0d*qd^2./(md*eps0));
 N0h = 0.05*N0;
-om_ph = sqrt(N0h*qh^2/(mh*eps0));
+om_ph = sqrt(N0h*qh^2./(mh*eps0));
 N0i = N0h + N0d;
 
 nmax = 10;
@@ -318,9 +334,14 @@ ylabel('v$_{e\parallel}$','Fontsize',16)
 ytickformat('%.2f')
 
 subplot(3,3,7)
-plot(xax,v1e,'r')
+plot(xax,v1e(1,:),'r')
+hold on
+plot(xax,v1e(2,:))
+plot(xax,v1e(3,:))
 ylabel('v$_{1,e}$','Fontsize',16)
+legend('$v1_{e,x}$','$v1_{e,y}$','$v1_{e,z}$')
 ytickformat('%.2f')
+hold off
 
 hold off
 drawnow
@@ -329,14 +350,14 @@ drawnow
 % solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
 % -- solution (output)
 
-eqofmot_slow;
+% eqofmot_slow;
 
 
 %--
 % solve equation 25 (DVE 2015): fast time scale continuity equation
 % yielding the perturbed density 
 
-cont_fast;
+% cont_fast;
 
 %     toc
     
