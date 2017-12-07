@@ -24,20 +24,20 @@ wavel0 = (2*pi)/k0;
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
 ky = 5.0;
-kz = 6.0;
+kz = 0.0;
 
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 1.0;
-lambz = 1.0;
+lamby = 0.0;
+lambz = 0.0;
 
 %--
 % spatial domain
-npts = 1000;
-dx = 0.0002;
-xmin = 0.0;
-xmax = 0.2;
+npts = 256;
+xmin = -25.0;
+xmax = 25.0;
+dx = (xmax - xmin)/(npts - 1);
 % npts = ((xmax - xmin)/dx);
 xax = linspace(xmin, xmax, npts);
 % xax = xmin:dx:xmax;
@@ -66,13 +66,13 @@ e = -1.6022e-19;
 me = 9.11e-31*ones(1,npts);
 
 % pd1 = makedist('HalfNormal','sigma',0.005);
-np_bound = 100;
+np_bound = 12;
 % ax = linspace(0,0.04,np_bound);
 % pdf1 = pdf(pd1,ax);
 % pdf1 = pdf1/max(pdf1);
-ax = linspace(0,pi/2,100);
+ax = linspace(0,pi/2,np_bound);
 test = cos(ax);
-damp = 1.0e8*test;
+damp = 0.0;%max(me)*test;
 
 me(1:np_bound) = me(1:np_bound) + 1i*damp;
 me(end-(np_bound-1):end) = me(end-(np_bound-1):end) + 1i*fliplr(damp);
@@ -206,6 +206,12 @@ drawnow
 % wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
 
 wave_sol;
+
+%--
+% call dispersion relation script
+dispersion;
+
+%%
 
 %--
 % plot rf wave solutions
