@@ -66,7 +66,7 @@ e = -1.6022e-19;
 me = 9.11e-31*ones(1,npts);
 
 % pd1 = makedist('HalfNormal','sigma',0.005);
-np_bound = 12;
+np_bound = floor(0.05*npts);
 % ax = linspace(0,0.04,np_bound);
 % pdf1 = pdf(pd1,ax);
 % pdf1 = pdf1/max(pdf1);
