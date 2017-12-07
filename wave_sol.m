@@ -154,8 +154,8 @@ rhs = zeros(3*npts,1);
 % rhs(xloc(end)) = 0.0;
 % rhs(xloc(end)+1) = 1i*om*mu0*Jy;
 % rhs(xloc(end)+2) = 1i*om*mu0*Jz;
-peak_width = 0.005;
-peak_loc = 0.1;
+peak_width = 1.0;
+peak_loc = 0.0;
 mult = 1.0/sqrt(2.0*pi*peak_width);
 source = mult*exp(-(xax - peak_loc).^2/(2.0*peak_width^2));
 rhs(1:3:3*npts) = source';
@@ -180,6 +180,7 @@ ylabel('Amplitude (?)')
 hold on
 
 plot(xax, imag(rf_ex), '--')
+plot(xax, source)
 set(gca, 'XTickLabel', [])
 legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
 %vline(0.19, '--r', 'Antenna')
