@@ -158,8 +158,9 @@ peak_width = 1.0;
 peak_loc = 0.0;
 mult = 1.0/sqrt(2.0*pi*peak_width);
 source = mult*exp(-(xax - peak_loc).^2/(2.0*peak_width^2));
-rhs(1:3:3*npts) = source';
-rhs(2:3:3*npts) = source';
+source = source / max(source);
+rhs(2:3:3*npts) = 1i*om*mu0*source';
+rhs(3:3:3*npts) = 1i*om*mu0*source';
 
 % --
 % calculation solution as waveeq_mat^-1*rhs
@@ -173,21 +174,24 @@ rf_ez = rf_e(3:3:3*npts);
 % ----------------------plots----------------------- %
 figure(4)
 
-subplot(3,1,1)
+subplot(4,1,1)
+plot(xax,om*mu0*source,'r')
+ylabel('Source ($i\omega\mu_0J_{y,z}$)')
+
+subplot(4,1,2)
 plot(xax, real(rf_ex), 'k')
 ylabel('Amplitude (?)')
 
 hold on
 
 plot(xax, imag(rf_ex), '--')
-plot(xax, source)
 set(gca, 'XTickLabel', [])
-legend('Re[Ex]', 'Im[Ex]', 'Source', 'Location', 'northwest')
+legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
 %vline(0.19, '--r', 'Antenna')
     
 hold off
 
-subplot(3,1,2)
+subplot(4,1,3)
 plot(xax, real(rf_ey), 'k')
 ylabel('Amplitude (?)')
 
@@ -200,7 +204,7 @@ legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
 
 hold off
 
-subplot(3,1,3)
+subplot(4,1,4)
 plot(xax, real(rf_ez), 'k')
 ylabel('Amplitude (?)')
 
@@ -212,30 +216,6 @@ legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
 %vline(0.19, '--r', 'Antenna')
 
 hold off
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
