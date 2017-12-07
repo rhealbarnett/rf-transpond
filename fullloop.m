@@ -45,7 +45,7 @@ xax = linspace(xmin, xmax, npts);
 
 %--
 % background density -- set to zero for vacuum case
-Nmax = 5.0e17;
+Nmax = 0.0;%5.0e17;
 N0 = Nmax*ones(1,npts);
 
 %--
