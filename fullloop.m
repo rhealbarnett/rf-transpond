@@ -23,7 +23,7 @@ wavel0 = (2*pi)/k0;
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
-ky = 5.0;
+ky = 0.0;
 kz = 0.0;
 
 %--
