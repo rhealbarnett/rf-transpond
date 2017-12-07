@@ -182,7 +182,7 @@ hold on
 plot(xax, imag(rf_ex), '--')
 plot(xax, source)
 set(gca, 'XTickLabel', [])
-legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
+legend('Re[Ex]', 'Im[Ex]', 'Source', 'Location', 'northwest')
 %vline(0.19, '--r', 'Antenna')
     
 hold off
