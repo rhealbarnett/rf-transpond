@@ -15,7 +15,7 @@ B0 = 2.6;
 
 %--
 % driver freq
-freq = 51.0e6;
+freq = 60.0e6;
 om = 2.0*pi*freq;
 k0 = om/c0;
 wavel0 = (2*pi)/k0;
@@ -45,7 +45,7 @@ xax = linspace(xmin, xmax, npts);
 
 %--
 % background density -- set to zero for vacuum case
-Nmax = 0.0;%5.0e17;
+Nmax = 5.0e10;
 N0 = Nmax*ones(1,npts);
 
 %--
@@ -72,7 +72,7 @@ np_bound = floor(0.05*npts);
 % pdf1 = pdf1/max(pdf1);
 ax = linspace(0,pi/2,np_bound);
 test = cos(ax);
-damp = 0.0;%max(me)*test;
+damp = 0.1*max(me)*test;
 
 me(1:np_bound) = me(1:np_bound) + 1i*damp;
 me(end-(np_bound-1):end) = me(end-(np_bound-1):end) + 1i*fliplr(damp);
