@@ -160,7 +160,7 @@ mult = 1.0/sqrt(2.0*pi*peak_width);
 source = mult*exp(-(xax - peak_loc).^2/(2.0*peak_width^2));
 source = source / max(source);
 rhs(2:3:3*npts) = 1i*om*mu0*source';
-rhs(3:3:3*npts) = 1i*om*mu0*source';
+% rhs(3:3:3*npts) = 1i*om*mu0*source';
 
 % --
 % calculation solution as waveeq_mat^-1*rhs
