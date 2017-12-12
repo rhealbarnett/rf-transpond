@@ -207,9 +207,10 @@ drawnow
 
 wave_sol;
 
+profile on
 %--
 % call dispersion relation script
-% dispersion;
+dispersion;
 
 %%
 
