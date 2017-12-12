@@ -44,9 +44,9 @@ for ii = 1:npts
     %--
     % find kx's
     kx_quart = det(wave_eq);
-    kx_roots = solve(kx_quart == 0.0, kx);
-    kx_roots = double(kx_roots);
-    kx_arr(ii,:) = kx_roots;
+    kx_coeffs = coeffs(kx_quart, 'All');
+    kx_coeffs_roots = roots(kx_coeffs);
+    kx_arr(ii,:) = kx_coeffs_roots;
     
 end
 
