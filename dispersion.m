@@ -59,7 +59,7 @@ k4 = kx_arr(:,4);
 
 %--
 % plot kx's
-figure('Name','Dispersion')
+figure(5)
 plot(xax, real(k1),'+')
 
 hold on
