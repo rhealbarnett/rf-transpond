@@ -10,21 +10,20 @@ eps0 = 8.85e-12;
 c0 = 1.0/sqrt(eps0*mu0);
 
 %--
-% magnetic field (tesla)
-B0 = 2.6;
-
-%--
 % driver freq
-freq = 30.0e6;
+freq = 42.0e6;
 om = 2.0*pi*freq;
 k0 = om/c0;
 wavel0 = (2*pi)/k0;
+source_width = 0.01;
+source_loc = 1.5;
+dampFac = 10.0
 
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
 ky = 0.0;
-kz = 15.0;
+kz = 10.0;
 
 %--
 % "common local derivatives for N0, v||^2, static potential and
@@ -35,8 +34,8 @@ lambz = 0.0;
 %--
 % spatial domain
 npts = 256;
-xmin = 0.0;
-xmax = 17.0;
+xmin = 1.15;
+xmax = 1.7;
 dx = (xmax - xmin)/(npts - 1);
 % npts = ((xmax - xmin)/dx);
 xax = linspace(xmin, xmax, npts);
@@ -44,8 +43,13 @@ xax = linspace(xmin, xmax, npts);
 % dx = (xmax - xmin)/(npts - 1);
 
 %--
+% magnetic field (tesla)
+R0 = 1.3;
+B0 = 2.4*R0./xax;
+
+%--
 % background density -- set to zero for vacuum case
-Nmax = 5.0e19;
+Nmax = 15.0e19;
 N0 = Nmax*ones(1,npts);
 
 %--
@@ -65,17 +69,22 @@ v1i = v1;
 e = -1.6022e-19;
 me = 9.11e-31*ones(1,npts);
 
-pd1 = makedist('HalfNormal','sigma',0.15);
-np_bound = floor(0.1*npts);
-ax = linspace(0,dx*np_bound,np_bound);
-pdf1 = pdf(pd1,ax);
-pdf1 = pdf1/max(pdf1);
-% ax = linspace(0,pi/2,np_bound);
-% test = cos(ax);
-damp = 0.0;%max(me)*pdf1;
+%pd1 = makedist('HalfNormal','sigma',0.15);
+%ax = linspace(0,dx*np_bound,np_bound);
+%pdf1 = pdf(pd1,ax);
+%pdf1 = pdf1/max(pdf1);
 
-% me(1:np_bound) = me(1:np_bound) + 1i*damp;
-me(end-(np_bound-1):end) = me(end-(np_bound-1):end) + 1i*fliplr(damp);
+% DLG - since I don't have the license for "makedist"
+% I fixed your cos ramping function :)
+
+np_bound = floor(0.2*npts);
+ax = linspace(0,pi,np_bound);
+damp0 = (cos(ax)+1)/2;
+damp = ones(1,npts);
+damp(1:np_bound) = damp(1:np_bound) + dampFac*i*damp0;
+damp(end-(np_bound-1):end) = damp(end-(np_bound-1):end) + dampFac*i*fliplr(damp0);
+
+me = me .* damp;
 
 %--
 % temperature
@@ -90,13 +99,11 @@ vt = sqrt((T_ev*abs(e)) ./ me);
 qd = abs(e);
 mp = 1.67e-27;
 md = 2.0*mp*ones(1,npts);
-md(1:np_bound) = md(1:np_bound) + 1i*damp;
-md(end-(np_bound-1):end) = md(end-(np_bound-1):end) + 1i*fliplr(damp);
+md = md .* damp;
 
 qh = abs(e);
 mh = mp*ones(1,npts);
-mh(1:np_bound) = mh(1:np_bound) + 1i*damp;
-mh(end-(np_bound-1):end) = mh(end-(np_bound-1):end) + 1i*fliplr(damp);
+mh = mh .* damp;
 
 %-- 
 % cyclotron frequencies
@@ -124,7 +131,7 @@ rot = [[r11, r12, r13]
      [r31, r32, r33]];
  
 e_para = rot(3,:);
-Bvec = B0*e_para;
+Bvec = B0.*transpose(repmat(e_para,npts,1));
 
 %--
 % electron calcs; density, plasma frequency 
@@ -210,7 +217,7 @@ wave_sol;
 profile on
 %--
 % call dispersion relation script
-dispersion;
+%dispersion;
 
 %%
 
