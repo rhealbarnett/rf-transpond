@@ -4,91 +4,24 @@
 %----------------------------------------%
 
 %--
+% run parameter script
+dlg_comp;
+
+%--
 % constants
 mu0 = 4.0*pi*1.0e-7;
 eps0 = 8.85e-12;
 c0 = 1.0/sqrt(eps0*mu0);
 
 %--
+% electron constants
+e = -1.6022e-19;
+
+%--
 % driver freq
-freq = 42.0e6;
 om = 2.0*pi*freq;
 k0 = om/c0;
 wavel0 = (2*pi)/k0;
-source_width = 0.01;
-source_loc = 1.5;
-dampFac = 10.0
-
-%--
-% define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
-% others mentioned
-ky = 10.0;
-kz = 0.0;
-
-%--
-% "common local derivatives for N0, v||^2, static potential and
-% ponderomotive potential" 
-lamby = 0.0;
-lambz = 0.0;
-
-%--
-% spatial domain
-npts = 256;
-xmin = 1.15;
-xmax = 1.7;
-dx = (xmax - xmin)/(npts - 1);
-% npts = ((xmax - xmin)/dx);
-xax = linspace(xmin, xmax, npts);
-% xax = xmin:dx:xmax;
-% dx = (xmax - xmin)/(npts - 1);
-
-%--
-% magnetic field (tesla)
-R0 = 1.32;
-B0 = 2.4*R0./xax;
-
-%--
-% background density -- set to zero for vacuum case
-Nmax = 50.0e19;
-N0 = Nmax*ones(1,npts);
-
-%--
-% initialise perturbed density as zero
-N1 = zeros(1,npts);
-N1e = N1;
-N1i = N1;
-
-%--
-% initialise perturbed velocity as zero
-v1 = zeros(1,npts);
-v1e = v1;
-v1i = v1;
-
-%--
-% electron constants
-e = -1.6022e-19;
-me = 9.11e-31*ones(1,npts);
-
-%pd1 = makedist('HalfNormal','sigma',0.15);
-%ax = linspace(0,dx*np_bound,np_bound);
-%pdf1 = pdf(pd1,ax);
-%pdf1 = pdf1/max(pdf1);
-
-% DLG - since I don't have the license for "makedist"
-% I fixed your cos ramping function :)
-
-np_bound = floor(0.2*npts);
-ax = linspace(0,pi,np_bound);
-damp0 = (cos(ax)+1)/2;
-damp = ones(1,npts);
-damp(1:np_bound) = damp(1:np_bound) + dampFac*i*damp0;
-damp(end-(np_bound-1):end) = damp(end-(np_bound-1):end) + dampFac*i*fliplr(damp0);
-
-me = me .* damp;
-
-%--
-% temperature
-T_ev = 15.0;
 
 %--
 % thermal velocity
@@ -134,17 +67,10 @@ e_para = rot(3,:);
 Bvec = B0.*transpose(repmat(e_para,npts,1));
 
 %--
-% electron calcs; density, plasma frequency 
-N0e = 1.0*N0;
+% plasma frequencies
 om_pe = sqrt(N0e*e^2./(me*eps0));
-
-%--
-% ion calcs (95% D, 5% H); density, plasma frequency
-N0d = 0.95*N0;
 om_pd = sqrt(N0d*qd^2./(md*eps0));
-N0h = 0.05*N0;
 om_ph = sqrt(N0h*qh^2./(mh*eps0));
-N0i = N0h + N0d;
 
 nmax = 10;
 
@@ -217,7 +143,7 @@ wave_sol;
 profile on
 %--
 % call dispersion relation script
-%dispersion;
+dispersion;
 
 %%
 
