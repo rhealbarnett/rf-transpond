@@ -158,8 +158,8 @@ rhs = zeros(3*npts,1);
 mult = 1.0/sqrt(2.0*pi*source_width);
 source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
 source = source / max(source);
-% rhs(1:3:3*npts) = 1i*om*mu0*source';
-% rhs(2:3:3*npts) = 1i*om*mu0*source';
+rhs(1:3:3*npts) = 1i*om*mu0*source';
+rhs(2:3:3*npts) = 1i*om*mu0*source';
 rhs(3:3:3*npts) = 1i*om*mu0*source';
 
 % --

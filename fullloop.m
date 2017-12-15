@@ -22,8 +22,8 @@ dampFac = 10.0
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
-ky = 0.0;
-kz = 10.0;
+ky = 10.0;
+kz = 0.0;
 
 %--
 % "common local derivatives for N0, v||^2, static potential and
@@ -44,12 +44,12 @@ xax = linspace(xmin, xmax, npts);
 
 %--
 % magnetic field (tesla)
-R0 = 1.3;
+R0 = 1.32;
 B0 = 2.4*R0./xax;
 
 %--
 % background density -- set to zero for vacuum case
-Nmax = 15.0e19;
+Nmax = 50.0e19;
 N0 = Nmax*ones(1,npts);
 
 %--
