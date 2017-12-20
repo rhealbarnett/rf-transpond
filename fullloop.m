@@ -5,7 +5,7 @@
 
 %--
 % run parameter script
-dlg_comp;
+dve_comp;
 
 %--
 % constants
@@ -46,8 +46,8 @@ om_ch = qh*B0./mh;
 
 %--
 % rotation matrix
-alpha = 0.;
-beta = 0.;
+alpha = 0.5;
+beta = 0.5;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
@@ -64,7 +64,7 @@ rot = [[r11, r12, r13]
      [r31, r32, r33]];
  
 e_para = rot(3,:);
-Bvec = B0.*transpose(repmat(e_para,npts,1));
+Bvec = B0*e_para;%.*transpose(repmat(e_para,npts,1));
 
 %--
 % plasma frequencies
@@ -76,232 +76,235 @@ nmax = 10;
 
 %%
 
-% for iter=1:nmax
+for iter=1:nmax
     
-%     tic
+    %     tic
 
-%--
-% plot electron densities
-figure(1);
-set(gcf,'Position',[0   536   824   419])
-% suptitle(['Iteration ' num2str(iter)])
+    %--
+    % plot electron densities
+    figure(1);
+    set(gcf,'Position',[0   536   824   419])
+    % suptitle(['Iteration ' num2str(iter)])
 
-subplot(2,3,1)
-plot(xax,N0e,'k')
-ylabel('N$_{0,e}$','Fontsize',16)
-ytickformat('%.2f')
+    subplot(2,3,1)
+    plot(xax,N0e,'k')
+    ylabel('N$_{0,e}$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(2,3,2)
-plot(xax,N1e,'k')
-ylabel('N$_{1,e}$','Fontsize',16)
-ytickformat('%.2f')
+    subplot(2,3,2)
+    plot(xax,N1e,'k')
+    ylabel('N$_{1,e}$','Fontsize',16)
+    ytickformat('%.2f')
 
-hold on
+    hold on
 
-%--
-% poisson solve for static potential -- solution (output) "static_pot"
+    %--
+    % poisson solve for static potential -- solution (output) "static_pot"
 
-poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
+%     poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
+    static_pot = zeros(1,npts);
 
-%--
-% plot static potential
-subplot(2,3,3)
-plot(xax,static_pot,'r')
-ylabel('$\phi$ (V)','Fontsize',16)
-ytickformat('%.2f')
+    %--
+    % plot static potential
+    subplot(2,3,3)
+    plot(xax,static_pot,'r')
+    ylabel('$\phi$ (V)','Fontsize',16)
+    ytickformat('%.2f')
 
-%--
-% static electric field calculation -- solution (output) "static_e(x,y,z)"
+    %--
+    % static electric field calculation -- solution (output) "static_e(x,y,z)"
+% 
+%     static_e;
+    static_ex = zeros(1,npts);
+    static_ey = zeros(1,npts);
+    static_ez = zeros(1,npts);
+    %--
+    % plot static electric field solutions
+    subplot(2,3,4)
+    plot(xax,static_ex,'k')
+    ylabel('E$_{0,ex}$','Fontsize',16)
+    ytickformat('%.2f')
 
-static_e;
+    subplot(2,3,5)
+    plot(xax,static_ey,'k')
+    ylabel('E$_{0,ey}$','Fontsize',16)
+    ytickformat('%.2f')
 
-%--
-% plot static electric field solutions
-subplot(2,3,4)
-plot(xax,static_ex,'k')
-ylabel('E$_{0,ex}$','Fontsize',16)
-ytickformat('%.2f')
+    subplot(2,3,6)
+    plot(xax,static_ez,'k')
+    ylabel('E$_{0,ez}$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(2,3,5)
-plot(xax,static_ey,'k')
-ylabel('E$_{0,ey}$','Fontsize',16)
-ytickformat('%.2f')
+    hold off
+    drawnow
 
-subplot(2,3,6)
-plot(xax,static_ez,'k')
-ylabel('E$_{0,ez}$','Fontsize',16)
-ytickformat('%.2f')
+    %--
+    % wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
 
-hold off
-drawnow
+    wave_sol;
 
-%--
-% wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
+    profile on
+    %--
+    % call dispersion relation script
+    dispersion;
 
-wave_sol;
+    %%
 
-profile on
-%--
-% call dispersion relation script
-dispersion;
+    %--
+    % plot rf wave solutions
+    figure(2);
+    set(gcf,'Position',[859   536   824   419])
+    % suptitle(['Iteration ' num2str(iter)])
 
-%%
+    subplot(3,3,1)
+    plot(xax,real(rf_ex),'k')
+    hold on
+    plot(xax,imag(rf_ex),'--b')
+    legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest') 
+    ylabel('E$_{1,ex}$','Fontsize',16)
+    ytickformat('%.2f')
 
-%--
-% plot rf wave solutions
-figure(2);
-set(gcf,'Position',[859   536   824   419])
-% suptitle(['Iteration ' num2str(iter)])
+    subplot(3,3,2)
+    plot(xax,real(rf_ey),'k')
+    hold on
+    plot(xax,imag(rf_ey),'--b')
+    ylabel('E$_{1,ey}$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(3,3,1)
-plot(xax,real(rf_ex),'k')
-hold on
-plot(xax,imag(rf_ex),'--b')
-legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest') 
-ylabel('E$_{1,ex}$','Fontsize',16)
-ytickformat('%.2f')
+    subplot(3,3,3)
+    plot(xax,real(rf_ez),'k')
+    hold on
+    plot(xax,imag(rf_ez),'--b')
+    ylabel('E$_{1,ez}$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(3,3,2)
-plot(xax,real(rf_ey),'k')
-hold on
-plot(xax,imag(rf_ey),'--b')
-ylabel('E$_{1,ey}$','Fontsize',16)
-ytickformat('%.2f')
+    hold on
 
-subplot(3,3,3)
-plot(xax,real(rf_ez),'k')
-hold on
-plot(xax,imag(rf_ez),'--b')
-ylabel('E$_{1,ez}$','Fontsize',16)
-ytickformat('%.2f')
+    %--
+    % ponderomotive acceleration calculation -- solution (output)
+    % "a_pond(x,y,z)"
 
-hold on
+    a_pond;
 
-%--
-% ponderomotive acceleration calculation -- solution (output)
-% "a_pond(x,y,z)"
+    %--
+    % plot ponderomotive potential and accelerations
+    subplot(3,3,4)
+    plot(xax,pond_pote,'r')
+    ylabel('$\Theta$','Fontsize',16)
+    ytickformat('%.2f')
 
-a_pond;
+    subplot(3,3,7)
+    plot(xax,a_pondex,'k')
+    ylabel('$(-\nabla\Theta)_x$','Fontsize',16)
+    ytickformat('%.2f')
 
-%--
-% plot ponderomotive potential and accelerations
-subplot(3,3,4)
-plot(xax,pond_pote,'r')
-ylabel('$\Theta$','Fontsize',16)
-ytickformat('%.2f')
+    subplot(3,3,8)
+    plot(xax,a_pondey,'k')
+    ylabel('$(-\nabla\Theta)_y$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(3,3,7)
-plot(xax,a_pondex,'k')
-ylabel('$(-\nabla\Theta)_x$','Fontsize',16)
-ytickformat('%.2f')
+    subplot(3,3,9)
+    plot(xax,a_pondez,'k')
+    ylabel('$(-\nabla\Theta)_z$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(3,3,8)
-plot(xax,a_pondey,'k')
-ylabel('$(-\nabla\Theta)_y$','Fontsize',16)
-ytickformat('%.2f')
+    hold off
+    drawnow
 
-subplot(3,3,9)
-plot(xax,a_pondez,'k')
-ylabel('$(-\nabla\Theta)_z$','Fontsize',16)
-ytickformat('%.2f')
+    %--
+    % pressure term -- solution (output) "press(x,y,z)"
 
-hold off
-drawnow
+    pressure;
 
-%--
-% pressure term -- solution (output) "press(x,y,z)"
+    %--
+    % plot pressures
+    figure(3);
+    set(gcf,'Position',[6    60   824   419])
+    % suptitle(['Iteration ' num2str(iter)])
 
-pressure;
+    subplot(3,3,1)
+    plot(xax,pressex,'k')
+    ylabel('$(\nabla N_0/N_0)_x$','Fontsize',16)
+    ytickformat('%.2f')
 
-%--
-% plot pressures
-figure(3);
-set(gcf,'Position',[6    60   824   419])
-% suptitle(['Iteration ' num2str(iter)])
+    subplot(3,3,2)
+    plot(xax,pressey,'k')
+    ylabel('$(\nabla N_0/N_0)_y$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(3,3,1)
-plot(xax,pressex,'k')
-ylabel('$(\nabla N_0/N_0)_x$','Fontsize',16)
-ytickformat('%.2f')
+    subplot(3,3,3)
+    plot(xax,pressez,'k')
+    ylabel('$(\nabla N_0/N_0)_z$','Fontsize',16)
+    ytickformat('%.2f')
 
-subplot(3,3,2)
-plot(xax,pressey,'k')
-ylabel('$(\nabla N_0/N_0)_y$','Fontsize',16)
-ytickformat('%.2f')
+    hold on
 
-subplot(3,3,3)
-plot(xax,pressez,'k')
-ylabel('$(\nabla N_0/N_0)_z$','Fontsize',16)
-ytickformat('%.2f')
+    %--
+    % calculate perpendicular drift velocities analytically -- solution
+    % (output) "v_perp(1,2)"
 
-hold on
-
-%--
-% calculate perpendicular drift velocities analytically -- solution
-% (output) "v_perp(1,2)"
-
-v_drift;
-
-
-%--
-% calculate perturbed velocity
-
-fastv_update;
-
-%--
-% plot perpendicular drift velocities
-subplot(3,3,4)
-plot(xax,vd_perp1e,'k')
-ylabel('v$_{e\perp,1}$','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(3,3,5)
-plot(xax,vd_perp2e,'k')
-ylabel('v$_{e\perp,2e}$','Fontsize',16)
-ytickformat('%.2f')
-
-%--
-% solve equation 23 (DVE 2015): slow time scale continuity equation yielding v
-% parallel -- solution (output)
-
-cont_slow;
-
-%--
-% plot parallel drift velocity and perturbed velocity
-subplot(3,3,6)
-plot(xax,v_parae,'k')
-ylabel('v$_{e\parallel}$','Fontsize',16)
-ytickformat('%.2f')
-
-subplot(3,3,7)
-plot(xax,v1e(1,:),'r')
-hold on
-plot(xax,v1e(2,:))
-plot(xax,v1e(3,:))
-ylabel('v$_{1,e}$','Fontsize',16)
-legend('$v1_{e,x}$','$v1_{e,y}$','$v1_{e,z}$')
-ytickformat('%.2f')
-hold off
-
-hold off
-drawnow
-
-%--
-% solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
-% -- solution (output)
-
-% eqofmot_slow;
+    v_drift;
 
 
-%--
-% solve equation 25 (DVE 2015): fast time scale continuity equation
-% yielding the perturbed density 
+    %--
+    % calculate perturbed velocity
 
-% cont_fast;
+    fastv_update;
 
-%     toc
+    %--
+    % plot perpendicular drift velocities
+    subplot(3,3,4)
+    plot(xax,vd_perp1e,'k')
+    ylabel('v$_{e\perp,1}$','Fontsize',16)
+    ytickformat('%.2f')
+
+    subplot(3,3,5)
+    plot(xax,vd_perp2e,'k')
+    ylabel('v$_{e\perp,2e}$','Fontsize',16)
+    ytickformat('%.2f')
+
+    %--
+    % solve equation 23 (DVE 2015): slow time scale continuity equation yielding v
+    % parallel -- solution (output)
+
+    cont_slow;
+
+    %--
+    % plot parallel drift velocity and perturbed velocity
+    subplot(3,3,6)
+    plot(xax,v_parae,'k')
+    ylabel('v$_{e\parallel}$','Fontsize',16)
+    ytickformat('%.2f')
+
+    subplot(3,3,7)
+    plot(xax,v1e(1,:),'r')
+    hold on
+    plot(xax,v1e(2,:))
+    plot(xax,v1e(3,:))
+    ylabel('v$_{1,e}$','Fontsize',16)
+    legend('$v1_{e,x}$','$v1_{e,y}$','$v1_{e,z}$')
+    ytickformat('%.2f')
+    hold off
+
+    hold off
+    drawnow
+
+    %--
+    % solve equation 24 (DVE 2015): slow time scale parallel equation of motion yielding log(N0) 
+    % -- solution (output)
+
+    eqofmot_slow;
+
+
+    %--
+    % solve equation 25 (DVE 2015): fast time scale continuity equation
+    % yielding the perturbed density 
+
+    cont_fast;
+
+    %     toc
     
-%     end
+    end
 
 
 
