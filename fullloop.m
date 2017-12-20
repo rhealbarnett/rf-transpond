@@ -76,7 +76,7 @@ nmax = 10;
 
 %%
 
-for iter=1:nmax
+for iter=1:2
     
     %     tic
 
@@ -101,9 +101,8 @@ for iter=1:nmax
     %--
     % poisson solve for static potential -- solution (output) "static_pot"
 
-%     poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
-    static_pot = zeros(1,npts);
-
+    poisson_sol;%(Ne, Nh, Nd, lamby, lambz, e, eps0, dx, npts);
+    
     %--
     % plot static potential
     subplot(2,3,3)
@@ -113,11 +112,9 @@ for iter=1:nmax
 
     %--
     % static electric field calculation -- solution (output) "static_e(x,y,z)"
-% 
-%     static_e;
-    static_ex = zeros(1,npts);
-    static_ey = zeros(1,npts);
-    static_ez = zeros(1,npts);
+
+    static_e;
+
     %--
     % plot static electric field solutions
     subplot(2,3,4)
