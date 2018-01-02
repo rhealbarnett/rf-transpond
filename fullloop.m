@@ -14,14 +14,14 @@ eps0 = 8.85e-12;
 c0 = 1.0/sqrt(eps0*mu0);
 
 %--
-% electron constants
-e = -1.6022e-19;
-
-%--
 % driver freq
 om = 2.0*pi*freq;
 k0 = om/c0;
 wavel0 = (2*pi)/k0;
+
+%--
+% electron constants
+e = -1.6022e-19;
 
 %--
 % thermal velocity
@@ -64,7 +64,7 @@ rot = [[r11, r12, r13]
      [r31, r32, r33]];
  
 e_para = rot(3,:);
-Bvec = B0*e_para;%.*transpose(repmat(e_para,npts,1));
+Bvec = B0.*e_para;%transpose(repmat(e_para,npts,1));
 
 %--
 % plasma frequencies
@@ -134,10 +134,13 @@ for iter=1:2
 
     hold off
     drawnow
+    
+    %--
+    % calculate dielectric tensor
+    dielec_tens;
 
     %--
     % wave solver to find rf electric field -- solution (output) "rf_e(x,y,z)"
-
     wave_sol;
 
     profile on
