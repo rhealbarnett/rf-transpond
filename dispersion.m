@@ -57,6 +57,29 @@ k2 = kx_arr(:,2);
 k3 = kx_arr(:,3);
 k4 = kx_arr(:,4);
 
+evec1 = zeros(3,npts);
+evec2 = zeros(3,npts);
+evec3 = zeros(3,npts);
+evec4 = zeros(3,npts);
+
+eval1 = zeros(1,npts);
+eval2 = zeros(1,npts);
+eval3 = zeros(1,npts);
+eval4 = zeros(1,npts);
+
+for ii=1:npts
+    
+    wave_eq = a - we_rhs(:,:,ii);
+    subbed = subs(wave_eq,kx,k1(ii));
+    [vecs,vals] = eig(subbed);
+%     vals = double(diag(vals));
+    minimum = min(double(diag(vals)));
+    mineig = find(double(diag(vals))==minimum);
+    evec1(:,ii) = vecs(:,mineig);
+    eval1(1,ii) = vals(mineig,1);
+    
+end
+
 %--
 % plot kx's
 figure(5)
