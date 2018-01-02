@@ -72,9 +72,8 @@ for ii=1:npts
     wave_eq = a - we_rhs(:,:,ii);
     subbed = subs(wave_eq,kx,k1(ii));
     [vecs,vals] = eig(subbed);
-%     vals = double(diag(vals));
     minimum = min(double(diag(vals)));
-    mineig = find(double(diag(vals))==minimum);
+    mineig = find(double(diag(vals)) == minimum);
     evec1(:,ii) = vecs(:,mineig);
     eval1(1,ii) = vals(mineig,1);
     
