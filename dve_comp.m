@@ -20,7 +20,7 @@ kz = 6.0;
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 0.1;
+lamby = 0.01;
 lambz = 0.01;
 
 %--
@@ -66,11 +66,11 @@ me = 9.11e-31*ones(1,npts);
 % DLG - since I don't have the license for "makedist"
 % I fixed your cos ramping function :)
 
-np_bound = floor(0.2*npts);
+np_bound = floor(0.07*npts);
 ax = linspace(0,pi,np_bound);
 damp0 = (cos(ax)+1)/2;
 damp = ones(1,npts);
-damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
+% damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 damp(end-(np_bound-1):end) = damp(end-(np_bound-1):end) + dampFac*1i*fliplr(damp0);
 
 me = me .* damp;
