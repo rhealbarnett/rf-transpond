@@ -57,15 +57,10 @@ k2 = kx_arr(:,2);
 k3 = kx_arr(:,3);
 k4 = kx_arr(:,4);
 
+%--
+% initialise arrays for eigenvectors and eigenvalues
 evec = zeros(3,npts,4);
-evec2 = zeros(3,npts);
-evec3 = zeros(3,npts);
-evec4 = zeros(3,npts);
-
 eval = zeros(1,npts,4);
-eval2 = zeros(1,npts);
-eval3 = zeros(1,npts);
-eval4 = zeros(1,npts);
 
 for kk=1:4
     for ii=1:npts
