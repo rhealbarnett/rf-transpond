@@ -57,26 +57,43 @@ k2 = kx_arr(:,2);
 k3 = kx_arr(:,3);
 k4 = kx_arr(:,4);
 
-evec1 = zeros(3,npts);
+evec = zeros(3,npts,4);
 evec2 = zeros(3,npts);
 evec3 = zeros(3,npts);
 evec4 = zeros(3,npts);
 
-eval1 = zeros(1,npts);
+eval = zeros(1,npts,4);
 eval2 = zeros(1,npts);
 eval3 = zeros(1,npts);
 eval4 = zeros(1,npts);
 
-for ii=1:npts
-    
-    wave_eq = a - we_rhs(:,:,ii);
-    subbed = subs(wave_eq,kx,k1(ii));
-    [vecs,vals] = eig(subbed);
-    minimum = min(double(diag(vals)));
-    mineig = find(double(diag(vals)) == minimum);
-    evec1(:,ii) = vecs(:,mineig);
-    eval1(1,ii) = vals(mineig,1);
-    
+for kk=1:4
+    for ii=1:npts
+
+        %--
+        % recalculate wave equation matrix again 
+        % seems super unnessesary to have this again, probably can work
+        % something better than this
+        wave_eq = a - we_rhs(:,:,ii);
+
+        %--
+        % substitute kx values into the matrix
+        subbed = subs(wave_eq,kx,kx_arr(ii,kk));
+
+        %--
+        % calculate eigenvalues and eigenvectors
+        [vecs,vals] = eig(subbed);
+
+        %--
+        % find the index of the minimum eigenvalue
+        mineig = find(double(diag(vals)) == min(double(diag(vals))));
+
+        %--
+        % take eigenvector associated with the min eigenvalue
+        evec(:,ii,kk) = vecs(:,mineig);
+        eval(1,ii,kk) = vals(mineig,1);
+
+    end
 end
 
 %--
