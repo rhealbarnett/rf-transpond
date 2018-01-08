@@ -94,13 +94,13 @@ end
 %--
 % plot kx's
 figure(5)
-plot(xax, real(k1),'+')
+plot(xax, real(k1),'.')
 
 hold on
 
-plot(xax, real(k2),'*')
+plot(xax, real(k2),'.')
 plot(xax, real(k3),'o')
-plot(xax, real(k4),'^')
+plot(xax, real(k4),'o')
 legend('k1', 'k2', 'k3', 'k4')
 % ylim([-2.5, 2.5])
 xlabel('Position, x ($m$)')
@@ -109,13 +109,13 @@ ylabel('Real(kx) (/m)')
 hold off
 
 figure(6)
-plot(xax, imag(k1),'+')
+plot(xax, imag(k1),'.')
 
 hold on
 
-plot(xax, imag(k2),'*')
+plot(xax, imag(k2),'.')
 plot(xax, imag(k3),'o')
-plot(xax, imag(k4),'^')
+plot(xax, imag(k4),'o')
 legend('k1', 'k2', 'k3', 'k4')
 % ylim([-10.0, 10.0])
 xlabel('Position, x ($m$)')
@@ -123,10 +123,117 @@ ylabel('Imag(kx) (/m)')
 
 hold off
 
+figure(10)
 
+subplot(3,1,1)
+plot(xax,real(evec(1,:,1)),'.')
+hold on
+plot(xax,imag(evec(1,:,1)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ex]', 'Im[Ex]')
+set(gca, 'XTickLabel', [])
+hold off
 
+subplot(3,1,2)
+plot(xax,real(evec(2,:,1)),'.')
+hold on
+plot(xax,imag(evec(2,:,1)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ey]', 'Im[Ey]')
+set(gca, 'XTickLabel', [])
+hold off
 
+subplot(3,1,3)
+plot(xax,real(evec(3,:,1)),'.')
+hold on
+plot(xax,imag(evec(3,:,1)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ez]', 'Im[Ez]')
+hold off
 
+figure(11)
+
+subplot(3,1,1)
+plot(xax,real(evec(1,:,2)),'.')
+hold on
+plot(xax,imag(evec(1,:,2)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ex]', 'Im[Ex]')
+set(gca, 'XTickLabel', [])
+hold off
+
+subplot(3,1,2)
+plot(xax,real(evec(2,:,2)),'.')
+hold on
+plot(xax,imag(evec(2,:,2)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ey]', 'Im[Ey]')
+set(gca, 'XTickLabel', [])
+hold off
+
+subplot(3,1,3)
+plot(xax,real(evec(3,:,2)),'.')
+hold on
+plot(xax,imag(evec(3,:,2)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ez]', 'Im[Ez]')
+hold off
+
+figure(12)
+
+subplot(3,1,1)
+plot(xax,real(evec(1,:,3)),'.')
+hold on
+plot(xax,imag(evec(1,:,3)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ex]', 'Im[Ex]')
+set(gca, 'XTickLabel', [])
+hold off
+
+subplot(3,1,2)
+plot(xax,real(evec(2,:,3)),'.')
+hold on
+plot(xax,imag(evec(2,:,3)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ey]', 'Im[Ey]')
+set(gca, 'XTickLabel', [])
+hold off
+
+subplot(3,1,3)
+plot(xax,real(evec(3,:,3)),'.')
+hold on
+plot(xax,imag(evec(3,:,3)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ez]', 'Im[Ez]')
+hold off
+
+figure(13)
+
+subplot(3,1,1)
+plot(xax,real(evec(1,:,4)),'.')
+hold on
+plot(xax,imag(evec(1,:,4)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ex]', 'Im[Ex]')
+set(gca, 'XTickLabel', [])
+hold off
+
+subplot(3,1,2)
+plot(xax,real(evec(2,:,4)),'.')
+hold on
+plot(xax,imag(evec(2,:,4)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ey]', 'Im[Ey]')
+set(gca, 'XTickLabel', [])
+hold off
+
+subplot(3,1,3)
+plot(xax,real(evec(3,:,4)),'.')
+hold on
+plot(xax,imag(evec(3,:,4)),'.')
+ylabel('Amplitude (Vm$^{-1}$)')
+legend('Re[Ez]', 'Im[Ez]')
+hold off
 
 
 
