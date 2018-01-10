@@ -16,9 +16,9 @@ dot_termi = zeros(3,npts);
 
 for ii=1:npts
     
-    cross_terme(:,ii) = cross(ee_vec(:,ii),Bvec);
+    cross_terme(:,ii) = cross(ee_vec(:,ii),Bvec(:,ii));
     dot_terme(:,ii) = (1i / om)*producte(:,ii)*om_ce_vec(:,ii);
-    cross_termi(:,ii) = cross(ei_vec(:,ii),Bvec);
+    cross_termi(:,ii) = cross(ei_vec(:,ii),Bvec(:,ii));
     dot_termi(:,ii) = (1i / om)*producti(:,ii)*om_ci_vec(:,ii);
     
 end
