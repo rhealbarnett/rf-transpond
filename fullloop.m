@@ -46,8 +46,8 @@ om_ch = qh*B0./mh;
 
 %--
 % rotation matrix
-alpha = 0.5;
-beta = 0.5;
+alpha = 0.0;
+beta = 0.0;
 
 r11 = cos(beta)*cos(alpha);
 r12 = cos(beta)*sin(alpha);
@@ -64,7 +64,7 @@ rot = [[r11, r12, r13]
      [r31, r32, r33]];
  
 e_para = rot(3,:);
-Bvec = B0.*e_para;%transpose(repmat(e_para,npts,1));
+Bvec = B0.*transpose(repmat(e_para,npts,1));
 
 %--
 % plasma frequencies
@@ -73,6 +73,10 @@ om_pd = sqrt(N0d*qd^2./(md*eps0));
 om_ph = sqrt(N0h*qh^2./(mh*eps0));
 
 nmax = 10;
+
+dielec_tens;
+dispersion;
+polarisation;
 
 %%
 
