@@ -7,8 +7,8 @@
 %--
 % driver terms
 freq = 51.0e6;
-source_width = 0.01;
-source_loc = 1.8;
+source_width = 0.001;
+source_loc = 0.19;
 dampFac = 10.0;
 
 %--
@@ -27,7 +27,7 @@ lambz = 0.01;
 % spatial domain
 npts = 256;
 xmin = 0.0;
-xmax = 2.0;
+xmax = 0.2;
 dx = (xmax - xmin)/(npts - 1);
 % npts = ((xmax - xmin)/dx);
 xax = linspace(xmin, xmax, npts);
@@ -36,7 +36,7 @@ xax = linspace(xmin, xmax, npts);
 
 %--
 % magnetic field (tesla)
-B0 = 2.6;
+B0 = 2.6*ones(1,npts);
 
 %--
 % temperature
