@@ -18,9 +18,9 @@ ed_vec = zeros(3,npts);
 
 for ii=1:npts
     
-    om_ce_vec(:,ii) = e*Bvec / me(ii);
-    om_ch_vec(:,ii) = qh*Bvec / mh(ii);
-    om_cd_vec(:,ii) = qd*Bvec / md(ii);
+    om_ce_vec(:,ii) = e*Bvec(:,ii) / me(ii);
+    om_ch_vec(:,ii) = qh*Bvec(:,ii) / mh(ii);
+    om_cd_vec(:,ii) = qd*Bvec(:,ii) / md(ii);
     
     ee_vec(:,ii) = e*rf_E(:,ii) / me(ii);
     eh_vec(:,ii) = qh*rf_E(:,ii) / mh(ii);
