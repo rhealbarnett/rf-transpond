@@ -30,8 +30,8 @@ om_cimag = sqrt(om_ch.^2 + om_cd.^2);
 
 for ii=1:npts
     
-    v_drifte(:,ii) = (1.0/om_ce(ii)).*cross(accele(:,ii),Bvec);
-    v_drifti(:,ii) = (1.0/om_cimag(ii)).*cross(acceli(:,ii),Bvec);
+    v_drifte(:,ii) = (1.0/om_ce(ii)).*cross(accele(:,ii),Bvec(:,ii));
+    v_drifti(:,ii) = (1.0/om_cimag(ii)).*cross(acceli(:,ii),Bvec(:,ii));
     
 end
 
