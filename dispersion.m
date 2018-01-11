@@ -61,32 +61,32 @@ k4 = kx_arr(:,4);
 %--
 % plot kx's
 figure(5)
-plot(xax, real(k1),'.')
+plot(xax, real(k1),'.k')
 
 hold on
 
-plot(xax, real(k2),'.')
-plot(xax, real(k3),'o')
-plot(xax, real(k4),'o')
-legend('k1', 'k2', 'k3', 'k4')
+plot(xax, imag(k1),'.r')
+plot(xax, real(k3),'dk','MarkerSize',3)
+plot(xax, imag(k3),'dr','MarkerSize',3)
+legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
 % ylim([-2.5, 2.5])
 xlabel('Position, x ($m$)')
-ylabel('Real(kx) (/m)')
+% ylabel('Real(kx) (/m)')
 
 hold off
 
 figure(6)
-plot(xax, imag(k1),'.')
+plot(xax, real(k2),'.k')
 
 hold on
 
-plot(xax, imag(k2),'.')
-plot(xax, imag(k3),'o')
-plot(xax, imag(k4),'o')
-legend('k1', 'k2', 'k3', 'k4')
+plot(xax, imag(k2),'.r')
+plot(xax, real(k4),'dk','MarkerSize',3)
+plot(xax, imag(k4),'dr','MarkerSize',3)
+legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
 % ylim([-10.0, 10.0])
 xlabel('Position, x ($m$)')
-ylabel('Imag(kx) (/m)')
+% ylabel('Imag(kx) (/m)')
 
 hold off
 
