@@ -44,8 +44,11 @@ T_ev = 15.0;
 
 %--
 % background density -- set to zero for vacuum case
-Nmax = 5.0e18;
-N0 = Nmax*ones(1,npts);
+Nmax = 19;
+Nmin = 16;
+m = (Nmax - Nmin) ./ (xmax - xmin);
+N0 = 10.^(m*xax + Nmin);
+% N0 = Nmax*ones(1,npts);
 
 %--
 % initialise perturbed density as zero
