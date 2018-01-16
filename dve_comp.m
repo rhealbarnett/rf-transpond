@@ -14,14 +14,14 @@ dampFac = 10.0;
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
-ky = 5.0;
-kz = 6.0;
+ky = 0.0;
+kz = 0.0;
 
 %--
 % "common local derivatives for N0, v||^2, static potential and
 % ponderomotive potential" 
-lamby = 0.01;
-lambz = 0.01;
+lamby = 0.0;
+lambz = 0.0;
 
 %--
 % spatial domain
