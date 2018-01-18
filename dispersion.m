@@ -28,6 +28,9 @@ a = [[a11, a12, a13]
     [a21, a22, a23]
     [a31, a32, a33]];
 
+% kx_quart_arr = sym('K',[npts,1]);
+check = zeros(npts, 4);
+
 %-- 
 % loop through density values
 
@@ -45,6 +48,7 @@ for ii = 1:npts
     % the determinant of the above equation will be a quartic in kx -- the
     % dispersion relation
     kx_quart = det(wave_eq);
+%     kx_quart_arr(ii,1) = kx_quart;
     
     %--
     % coeffs + 'All' finds the polynomial coeffients on the highest to
@@ -60,6 +64,10 @@ for ii = 1:npts
     %--
     % store the four roots
     kx_arr(ii,:) = kx_coeffs_roots;
+    
+    for kk=1:4
+        check(ii,kk) = vpa(subs(kx_quart,kx,kx_arr(ii,kk)));
+    end
     
 end
 
