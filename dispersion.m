@@ -11,6 +11,8 @@ syms kx
 % initialise kx roots arrays, ensure they are complex
 kx_arr = zeros(npts, 4);
 kx_arr = complex(kx_arr);
+kpf_arr = zeros(npts, 2);
+kps_arr = zeros(npts, 2);
 
 %-- 
 % k matrix
@@ -55,6 +57,12 @@ for ii = 1:npts
     % lowest order terms (ie for ax^4 + bx^3 ... etc they are ordered [a,
     % b, c, d, e]
     kx_coeffs = coeffs(kx_quart, 'All');
+    a = kx_coeffs(1);
+    b = kx_coeffs(3);
+    c = kx_coeffs(5);
+    kp_fast = (-1.0*b - sqrt(b^2 - 4.0*a*c))/(2.0*a);
+    kp_slow = (-1.0*b + sqrt(b^2 - 4.0*a*c))/(2.0*a);
+    kp_arr(ii,1) = sqrt 
     
     %--
     % the roots function uses the polynomial coefficients, in order highest
@@ -81,41 +89,8 @@ k4 = kx_arr(:,4);
 %%
 %--
 % plot kx's
-
 imme = find(imag(me)==0);
 imme = imme(end)+1;
-
-figure(5)
-semilogy(xax, real(k1),'.k')
-
-hold on
-
-semilogy(xax, imag(k1),'.r')
-semilogy(xax, real(k3),'dk','MarkerSize',3)
-semilogy(xax, imag(k3),'dr','MarkerSize',3)
-legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
-% ylim([-2.5, 2.5])
-xlabel('Position ($m$)','Fontsize',16)
-% ylabel('Real(kx) (/m)')
-vline(xax(imme),'--k')
-
-hold off
-
-figure(6)
-semilogy(xax, real(k2),'.k')
-
-hold on
-
-semilogy(xax, imag(k2),'.r')
-semilogy(xax, real(k4),'dk','MarkerSize',3)
-semilogy(xax, imag(k4),'dr','MarkerSize',3)
-legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
-% ylim([-10.0, 10.0])
-xlabel('Position ($m$)','Fontsize',16)
-% ylabel('Imag(kx) (/m)')
-vline(xax(imme),'--k')
-
-hold off
 
 %%
 %--
