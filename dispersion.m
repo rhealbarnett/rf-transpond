@@ -108,6 +108,12 @@ sw1 = sqrt(kp1_arr);
 sw2 = -sqrt(kp1_arr);
 fw1 = sqrt(kp2_arr);
 fw2 = -sqrt(kp2_arr);
+sf_arr = zeros(npts,4);
+sf_arr(:,1) = sw1;
+sf_arr(:,2) = sw2;
+sf_arr(:,3) = fw1;
+sf_arr(:,4) = fw2;
+
 
 s1 = sign(sw1).*log10(abs(sw1));
 s2 = sign(sw2).*log10(abs(sw1));
@@ -149,32 +155,32 @@ ylabel('log$_{10}|$k$_x|$','Fontsize',16)
 hold off
 
 figure(9)
-plot(xax,real(s1),'.k')
+plot(log10(N0),real(s1),'.k')
 
 hold on
 
-plot(xax,imag(s1),'.r')
-plot(xax,real(s2),'dk','MarkerSize',3)
-plot(xax,imag(s2),'dr','MarkerSize',3)
+plot(log10(N0),imag(s1),'.r')
+plot(log10(N0),real(s2),'dk','MarkerSize',3)
+plot(log10(N0),imag(s2),'dr','MarkerSize',3)
 % legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
-xlabel('Position ($m$)','Fontsize',16)
-vline(xax(imme),'--k')
+xlabel('log$_{10}|$N$_0|$','Fontsize',16)
+vline(log10(N0(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
 ylabel('log$_{10}|$k$_{\perp1}|$','Fontsize',16)
 
 hold off
 
-figure(10)
-plot(xax,real(f1),'.k')
+figure(15)
+plot(log10(N0),real(f1),'.k')
 
 hold on
 
-plot(xax,imag(f1),'.r')
-plot(xax,real(f2),'dk','MarkerSize',3)
-plot(xax,imag(f2),'dr','MarkerSize',3)
+plot(log10(N0),imag(f1),'.r')
+plot(log10(N0),real(f2),'dk','MarkerSize',3)
+plot(log10(N0),imag(f2),'dr','MarkerSize',3)
 % legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
-xlabel('Position ($m$)','Fontsize',16)
-vline(xax(imme),'--k')
+xlabel('log$_{10}|$N$_0|$','Fontsize',16)
+vline(log10(N0(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
 ylabel('log$_{10}|$k$_{\perp2}|$','Fontsize',16)
 
