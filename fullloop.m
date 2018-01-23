@@ -5,7 +5,7 @@
 
 %--
 % run parameter script
-dve_comp;
+lower_hyb;
 
 %--
 % constants
