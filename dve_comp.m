@@ -14,8 +14,8 @@ dampFac = 10.0;
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
-ky = 0.0;
-kz = 1.0;
+ky = 5.0;
+kz = 6.0;
 
 %--
 % "common local derivatives for N0, v||^2, static potential and
@@ -44,7 +44,7 @@ T_ev = 15.0;
 
 %--
 % background density -- set to zero for vacuum case
-Nmax = 19;
+Nmax = 18;
 Nmin = 14;
 m = (Nmax - Nmin) ./ (xmax - xmin);
 N0 = 10.^(m*xax + Nmin);
