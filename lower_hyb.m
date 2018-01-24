@@ -3,12 +3,6 @@
 % rlbarnett c3149416, 230118              %
 %-----------------------------------------%
 
-%-----------------------------------------%
-% parameters for comparison with          %
-% dve 2015 paper                          %
-% rlbarnett c3149416, 201217              %
-%-----------------------------------------%
-
 %--
 % driver terms
 freq = 4.6e9;
@@ -20,7 +14,7 @@ dampFac = 10.0;
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
 ky = 0.0;
-kz = 3.0;
+kz = 290.0;
 
 %--
 % "common local derivatives for N0, v||^2, static potential and
