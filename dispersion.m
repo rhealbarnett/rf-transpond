@@ -16,15 +16,28 @@ kp2_arr = zeros(npts, 1);
 
 %-- 
 % k matrix
-a11 = ky^2 + kz^2;
-a12 = -ky*kx;
-a13 = -kz*kx;
-a21 = -ky*kx;
-a22 = kz^2 + kx^2;
-a23 = -ky*kz;
-a31 = -kz*kx;
-a32 = -ky*kz;
-a33 = ky^2 + kx^2;
+% a11 = ky^2 + kz^2;
+% a12 = -ky*kx;
+% a13 = -kz*kx;
+% a21 = -ky*kx;
+% a22 = kz^2 + kx^2;
+% a23 = -ky*kz;
+% a31 = -kz*kx;
+% a32 = -ky*kz;
+% a33 = ky^2 + kx^2;
+
+kperp = sqrt(kx^2 + ky^2);
+kpara = kz;
+
+a11 = -kpara^2;
+a12 = 0.0;
+a13 = kperp*kpara;
+a21 = 0.0;
+a22 = -(kperp^2 + kpara^2);
+a23 = 0.0;
+a31 = 0.0;
+a32 = kperp*kpara;
+a33 = -kperp^2;
 
 a = [[a11, a12, a13]
     [a21, a22, a23]
@@ -57,7 +70,7 @@ for ii = 1:npts
     % coeffs + 'All' finds the polynomial coeffients on the highest to
     % lowest order terms (ie for ax^4 + bx^3 ... etc they are ordered [a,
     % b, c, d, e]
-    kx_coeffs = coeffs(kx_quart, 'All');
+    kx_coeffs = coeffs(kx_quart, kx, 'All');
     kx_coeffs_arr(ii,:) = kx_coeffs;
     
     c4 = kx_coeffs(1);
@@ -122,37 +135,6 @@ f2 = sign(fw2).*log10(abs(fw1));
 
 
 %%
-figure(7)
-plot(xax,real(y1),'.k')
-
-hold on
-
-plot(xax,imag(y1),'.r')
-plot(xax,real(y3),'dk','MarkerSize',3)
-plot(xax,imag(y3),'dr','MarkerSize',3)
-legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
-xlabel('Position ($m$)','Fontsize',16)
-vline(xax(imme),'--k')
-% yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log$_{10}|$k$_x|$','Fontsize',16)
-
-hold off
-
-figure(8)
-plot(xax,real(y2),'.k')
-
-hold on
-
-plot(xax,imag(y2),'.r')
-plot(xax,real(y4),'dk','MarkerSize',3)
-plot(xax,imag(y4),'dr','MarkerSize',3)
-legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
-xlabel('Position ($m$)','Fontsize',16)
-vline(xax(imme),'--k')
-% yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log$_{10}|$k$_x|$','Fontsize',16)
-
-hold off
 
 figure(9)
 plot(log10(N0),real(s1),'.k')
@@ -162,10 +144,9 @@ hold on
 plot(log10(N0),imag(s1),'.r')
 plot(log10(N0),real(s2),'dk','MarkerSize',3)
 plot(log10(N0),imag(s2),'dr','MarkerSize',3)
-% legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
+legend('Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]', 'Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]')
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
 vline(log10(N0(imme)),'--k')
-% yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
 ylabel('log$_{10}|$k$_{\perp1}|$','Fontsize',16)
 
 hold off
@@ -178,10 +159,9 @@ hold on
 plot(log10(N0),imag(f1),'.r')
 plot(log10(N0),real(f2),'dk','MarkerSize',3)
 plot(log10(N0),imag(f2),'dr','MarkerSize',3)
-% legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
+legend('Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]', 'Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]')
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
 vline(log10(N0(imme)),'--k')
-% yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
 ylabel('log$_{10}|$k$_{\perp2}|$','Fontsize',16)
 
 hold off
