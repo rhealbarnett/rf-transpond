@@ -5,56 +5,50 @@
 % rlbarnett c3149416, 170817              %
 %-----------------------------------------%
 
-syms kx
+syms kx ky kz kperp kpara
 
 %--
 % initialise kx roots arrays, ensure they are complex
-kx_arr = zeros(npts, 4);
-kx_arr = complex(kx_arr);
+kperp_arr = zeros(npts, 4);
+kperp_arr = complex(kperp_arr);
 kp1_arr = zeros(npts, 1);
 kp2_arr = zeros(npts, 1);
 
 %-- 
 % k matrix
-% a11 = ky^2 + kz^2;
-% a12 = -ky*kx;
-% a13 = -kz*kx;
-% a21 = -ky*kx;
-% a22 = kz^2 + kx^2;
-% a23 = -ky*kz;
-% a31 = -kz*kx;
-% a32 = -ky*kz;
-% a33 = ky^2 + kx^2;
-
-kperp = sqrt(kx^2 + ky^2);
-kpara = kz;
-
-a11 = -kpara^2;
-a12 = 0.0;
-a13 = kperp*kpara;
-a21 = 0.0;
-a22 = -(kperp^2 + kpara^2);
-a23 = 0.0;
-a31 = 0.0;
-a32 = kperp*kpara;
-a33 = -kperp^2;
+a11 = -(ky^2 + kz^2);
+a12 = -ky*kx;
+a13 = kz*kx;
+a21 = -ky*kx;
+a22 = kz^2 + kx^2;
+a23 = -ky*kz;
+a31 = kz*kx;
+a32 = -ky*kz;
+a33 = -(ky^2 + kx^2);
 
 a = [[a11, a12, a13]
     [a21, a22, a23]
     [a31, a32, a33]];
 
-kx_quart_arr = sym('K',[npts,1]);
+a = subs(a, [kx kz], [sqrt(kperp^2 - ky^2) kpara]);
+
+kpara = 5.0;
+ky = 0.0;
+
+a = subs(a);
+
+kperp_quart_arr = sym('K',[npts,1]);
 check = zeros(npts, 4);
-kx_coeffs_arr = zeros(npts,5);
+kperp_coeffs_arr = zeros(npts,5);
 
 %-- 
 % loop through density values
 
-for ii = 1:npts
+%--
+% wave equation rhs
+we_rhs = k0^2*cpdt;
 
-    %--
-    % wave equation rhs
-    we_rhs = k0^2*cpdt;
+for ii = 1:npts
 
     %--
     % set wave equation to zero to find determinant
@@ -63,19 +57,19 @@ for ii = 1:npts
     %--
     % the determinant of the above equation will be a quartic in kx -- the
     % dispersion relation
-    kx_quart = det(wave_eq);
-    kx_quart_arr(ii,1) = kx_quart;
+    kperp_quart = det(wave_eq);
+    kperp_quart_arr(ii,1) = kperp_quart;
     
     %--
     % coeffs + 'All' finds the polynomial coeffients on the highest to
     % lowest order terms (ie for ax^4 + bx^3 ... etc they are ordered [a,
     % b, c, d, e]
-    kx_coeffs = coeffs(kx_quart, kx, 'All');
-    kx_coeffs_arr(ii,:) = kx_coeffs;
+    kperp_coeffs = coeffs(kperp_quart, kperp, 'All');
+    kperp_coeffs_arr(ii,:) = kperp_coeffs;
     
-    c4 = kx_coeffs(1);
-    c2 = kx_coeffs(3);
-    c = kx_coeffs(5);
+    c4 = kperp_coeffs(1);
+    c2 = kperp_coeffs(3);
+    c = kperp_coeffs(5);
     kperp1 = (-1.0*c2 - sqrt(c2^2 - 4.0*c4*c))/(2.0*c4);
     kperp2 = (-1.0*c2 + sqrt(c2^2 - 4.0*c4*c))/(2.0*c4);
     kp1_arr(ii,1) = kperp1;
@@ -85,24 +79,24 @@ for ii = 1:npts
     %--
     % the roots function uses the polynomial coefficients, in order highest
     % to lowest, to determine the polynomial roots. 
-    kx_coeffs_roots = roots(kx_coeffs);
+    kperp_coeffs_roots = roots(kperp_coeffs);
     
     %--
     % store the four roots
-    kx_arr(ii,:) = kx_coeffs_roots;
+    kperp_arr(ii,:) = kperp_coeffs_roots;
     
     for kk=1:4
-        check(ii,kk) = vpa(subs(kx_quart,kx,kx_arr(ii,kk)));
+        check(ii,kk) = vpa(subs(kperp_quart,kperp,kperp_arr(ii,kk)));
     end
     
 end
 
 %--
 % might not be this simple -- kx root values are likely not 'ordered' (MS)
-k1 = kx_arr(:,1);
-k2 = kx_arr(:,2);
-k3 = kx_arr(:,3);
-k4 = kx_arr(:,4);
+k1 = kperp_arr(:,1);
+k2 = kperp_arr(:,2);
+k3 = kperp_arr(:,3);
+k4 = kperp_arr(:,4);
 
 %%
 %--
