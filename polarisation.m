@@ -24,7 +24,7 @@ for kk=1:4
         %--
         % substitute kx values into the matrix
 %         subbed = subs(wave_eq,kx,kx_arr(ii,kk));
-        subbed = subs(wave_eq,kx,sf_arr(ii,kk));
+        subbed = subs(wave_eq,kperp,sf_arr(ii,kk));
 
         %--
         % calculate eigenvalues and eigenvectors
