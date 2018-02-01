@@ -20,8 +20,8 @@ a1 = s_arr;
 b1 = r_arr.*l_arr + p_arr.*s_arr - kpara^2*(p_arr + s_arr);
 c1 = p_arr.*((kpara^2 - r_arr).*(kpara^2 - l_arr));
 
-ks_p1 = (-1.0*b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
-ks_p2 = (-1.0*b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+ks_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+ks_p2 = (b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
 
 kp11 = sqrt(ks_p1);
 kp12 = -sqrt(ks_p1);
@@ -40,7 +40,6 @@ yp11 = sign(kp11).*log10(abs(kp11));
 yp12 = sign(kp12).*log10(abs(kp12));
 yp21 = sign(kp21).*log10(abs(kp21));
 yp22 = sign(kp22).*log10(abs(kp22));
-
 
 %%
 
@@ -73,4 +72,5 @@ vline(log10(N0(imme)),'--k')
 ylabel('log$_{10}|$k$_{\perp2}|$','Fontsize',16)
 
 hold off
+
 
