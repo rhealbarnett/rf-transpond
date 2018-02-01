@@ -37,3 +37,6 @@ for nn=1:npts
     cpdt(:,:,nn) = rot'*cpdt(:,:,nn)*rot;
    
 end
+
+r_arr = s_arr + d_arr;
+l_arr = s_arr - d_arr;
