@@ -21,6 +21,28 @@ eyez_slow21 = 1i*(kpara*d_arr)./(kp21.*(kpara^2 - s_arr));
 eyez_slow22 = 1i*(kpara*d_arr)./(kp22.*(kpara^2 - s_arr));
 
 %%
+%------------------------------------------------%
+% set Ex=1, calculate Ey and Ez from ratios      %
+%------------------------------------------------%
+
+ey_fast = (kpara^2 - s_arr)./(-1i*d_arr);
+
+ez_fast11 = -1i*kpara*kp11.*(d_arr./(p_arr.*(kpara^2 - s_arr))).*ey_fast;
+ez_fast12 = -1i*kpara*kp12.*(d_arr./(p_arr.*(kpara^2 - s_arr))).*ey_fast;
+ez_fast21 = -1i*kpara*kp21.*(d_arr./(p_arr.*(kpara^2 - s_arr))).*ey_fast;
+ez_fast22 = -1i*kpara*kp22.*(d_arr./(p_arr.*(kpara^2 - s_arr))).*ey_fast;
+
+ez_slow11 = (kpara^2 - s_arr)./(kp11.*kpara);
+ez_slow12 = (kpara^2 - s_arr)./(kp12.*kpara);
+ez_slow21 = (kpara^2 - s_arr)./(kp21.*kpara);
+ez_slow22 = (kpara^2 - s_arr)./(kp22.*kpara);
+
+ey_slow11 = 1i*((kpara*d_arr)./(kp11.*(kpara^2 - s_arr))).*ez_slow11;
+ey_slow12 = 1i*((kpara*d_arr)./(kp12.*(kpara^2 - s_arr))).*ez_slow12;
+ey_slow21 = 1i*((kpara*d_arr)./(kp21.*(kpara^2 - s_arr))).*ez_slow21;
+ey_slow22 = 1i*((kpara*d_arr)./(kp22.*(kpara^2 - s_arr))).*ez_slow22;
+
+%%
 
 figure(20)
 set(gcf,'Position',[4 68 857 886])
