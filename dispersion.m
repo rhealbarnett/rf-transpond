@@ -15,18 +15,24 @@ kp1_arr = zeros(npts, 1);
 kp2_arr = zeros(npts, 1);
 
 kpara = kz;
+npara = c0*kpara/om;
 
 a1 = s_arr;
-b1 = r_arr.*l_arr + p_arr.*s_arr - kpara^2*(p_arr + s_arr);
-c1 = p_arr.*((kpara^2 - r_arr).*(kpara^2 - l_arr));
+b1 = r_arr.*l_arr + p_arr.*s_arr - npara^2*(p_arr + s_arr);
+c1 = p_arr.*((npara^2 - r_arr).*(npara^2 - l_arr));
 
-ks_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
-ks_p2 = (b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+ns_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+ns_p2 = (b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
 
-kp11 = sqrt(ks_p1);
-kp12 = -sqrt(ks_p1);
-kp21 = sqrt(ks_p2);
-kp22 = -sqrt(ks_p2);
+np11 = sqrt(ns_p1);
+np12 = -sqrt(ns_p1);
+np21 = sqrt(ns_p2);
+np22 = -sqrt(ns_p2);
+
+kp11 = np11*om/c0;
+kp12 = np12*om/c0;
+kp21 = np21*om/c0;
+kp22 = np22*om/c0;
 
 %%
 %--
