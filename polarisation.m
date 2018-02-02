@@ -3,6 +3,8 @@
 % rlbarnett c3149416, 010218              %
 %-----------------------------------------%
 
+fact = om/c0;
+
 exey_fast = -1i*(d_arr./(kpara^2 - s_arr.^2));
 
 ezey_fast11 = -1i*kpara*kp11.*(d_arr./(p_arr.*(kpara^2 - s_arr)));
