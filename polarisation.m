@@ -48,95 +48,95 @@ figure(20)
 set(gcf,'Position',[4 68 857 886])
 suptitle('Fast wave polarisation')
 subplot(3,1,1)
-plot(log10(N0(1:imme)),real(exey_fast(1:imme)),'.k')
+plot(xax(1:imme),real(ey_fast(1:imme)),'.k')
 hold on
 
-plot(log10(N0(1:imme)),imag(exey_fast(1:imme)),'.r')
-xlim([min(log10(N0)) log10(N0(imme))])
+plot(xax(1:imme),imag(ey_fast(1:imme)),'.r')
+% xlim([min(xax) xax(imme)])
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-ylabel('E$_x$/E$_y$','Fontsize',16)
-legend('Re[E$_x$/E$_y$]','Im[E$_x$/E$_y$]')
+ylabel('E$_y$','Fontsize',16)
+legend('Re[E$_y$]','Im[E$_y$]')
 hold off
 
 subplot(3,1,2)
-plot(log10(N0(1:imme)),real(ezey_fast11(1:imme)),'.k')
+plot(xax(1:imme),real(ez_fast11(1:imme)),'.k')
 hold on
 
-plot(log10(N0(1:imme)),imag(ezey_fast11(1:imme)),'.r')
-plot(log10(N0(1:imme)),real(ezey_fast12(1:imme)),'dk','MarkerSize',3)
-plot(log10(N0(1:imme)),imag(ezey_fast12(1:imme)),'dr','MarkerSize',3)
-xlim([min(log10(N0)) log10(N0(imme))])
+plot(xax(1:imme),imag(ez_fast11(1:imme)),'.r')
+plot(xax(1:imme),real(ez_fast12(1:imme)),'dk','MarkerSize',3)
+plot(xax(1:imme),imag(ez_fast12(1:imme)),'dr','MarkerSize',3)
+% xlim([min(log10(N0)) log10(N0(imme))])
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-ylabel('E$_z$/E$_y$','Fontsize',16)
-legend('Re[E$_z$/E$_y$]$_{\perp1,1}$','Im[E$_z$/E$_y$]$_{\perp1,1}$','Re[E$_z$/E$_y$]$_{\perp1,2}$','Im[E$_z$/E$_y$]$_{\perp1,2}$')
+ylabel('E$_z$','Fontsize',16)
+legend('Re[E$_z$]$_{\perp1,1}$','Im[E$_z$]$_{\perp1,1}$','Re[E$_z$]$_{\perp1,2}$','Im[E$_z$]$_{\perp1,2}$')
 hold off
 
 subplot(3,1,3)
-plot(log10(N0(1:imme)),real(ezey_fast21(1:imme)),'.k')
+plot(xax(1:imme),real(ez_fast21(1:imme)),'.k')
 hold on
 
-plot(log10(N0(1:imme)),imag(ezey_fast21(1:imme)),'.r')
-plot(log10(N0(1:imme)),real(ezey_fast22(1:imme)),'dk','MarkerSize',3)
-plot(log10(N0(1:imme)),imag(ezey_fast22(1:imme)),'dr','MarkerSize',3)
-xlim([min(log10(N0)) log10(N0(imme))])
+plot(xax(1:imme),imag(ez_fast21(1:imme)),'.r')
+plot(xax(1:imme),real(ez_fast22(1:imme)),'dk','MarkerSize',3)
+plot(xax(1:imme),imag(ez_fast22(1:imme)),'dr','MarkerSize',3)
+% xlim([min(log10(N0)) log10(N0(imme))])
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-ylabel('E$_z$/E$_y$','Fontsize',16)
-legend('Re[E$_z$/E$_y$]$_{\perp2,1}$','Im[E$_z$/E$_y$]$_{\perp2,1}$','Re[E$_z$/E$_y$]$_{\perp2,2}$','Im[E$_z$/E$_y$]$_{\perp2,2}$')
+ylabel('E$_z$','Fontsize',16)
+legend('Re[E$_z$]$_{\perp2,1}$','Im[E$_z$]$_{\perp2,1}$','Re[E$_z$]$_{\perp2,2}$','Im[E$_z$]$_{\perp2,2}$')
 hold off
 
 figure(21)
 set(gcf,'Position',[865 69 813 886])
 suptitle('Slow wave polarisation')
 subplot(4,1,1)
-plot(log10(N0(1:imme)),real(exez_slow11(1:imme)),'.k')
+plot(xax(1:imme),real(ez_slow11(1:imme)),'.k')
 hold on
 
-plot(log10(N0(1:imme)),imag(exez_slow11(1:imme)),'.r')
-plot(log10(N0(1:imme)),real(exez_slow12(1:imme)),'dk','MarkerSize',3)
-plot(log10(N0(1:imme)),imag(exez_slow12(1:imme)),'dr','MarkerSize',3)
-xlim([min(log10(N0)) log10(N0(imme))])
+plot(xax(1:imme),imag(ez_slow11(1:imme)),'.r')
+plot(xax(1:imme),real(ez_slow12(1:imme)),'dk','MarkerSize',3)
+plot(xax(1:imme),imag(ez_slow12(1:imme)),'dr','MarkerSize',3)
+% xlim([min(log10(N0)) log10(N0(imme))])
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-ylabel('E$_x$/E$_z$','Fontsize',16)
-legend('Re[E$_x$/E$_z$]$_{\perp1,1}$','Im[E$_x$/E$_z$]$_{\perp1,1}$','Re[E$_x$/E$_z$]$_{\perp1,2}$','Im[E$_x$/E$_z$]$_{\perp1,2}$')
+ylabel('E$_z$','Fontsize',16)
+legend('Re[E$_z$]$_{\perp1,1}$','Im[E$_z$]$_{\perp1,1}$','Re[E$_z$]$_{\perp1,2}$','Im[E$_z$]$_{\perp1,2}$')
 hold off
 
 subplot(4,1,2)
-plot(log10(N0(1:imme)),real(exez_slow21(1:imme)),'.k')
+plot(xax(1:imme),real(ez_slow21(1:imme)),'.k')
 hold on
 
-plot(log10(N0(1:imme)),imag(exez_slow21(1:imme)),'.r')
-plot(log10(N0(1:imme)),real(exez_slow22(1:imme)),'dk','MarkerSize',3)
-plot(log10(N0(1:imme)),imag(exez_slow22(1:imme)),'dr','MarkerSize',3)
-xlim([min(log10(N0)) log10(N0(imme))])
+plot(xax(1:imme),imag(ez_slow21(1:imme)),'.r')
+plot(xax(1:imme),real(ez_slow22(1:imme)),'dk','MarkerSize',3)
+plot(xax(1:imme),imag(ez_slow22(1:imme)),'dr','MarkerSize',3)
+% xlim([min(log10(N0)) log10(N0(imme))])
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-ylabel('E$_x$/E$_z$','Fontsize',16)
-legend('Re[E$_x$/E$_z$]$_{\perp2,1}$','Im[E$_x$/E$_z$]$_{\perp2,1}$','Re[E$_x$/E$_z$]$_{\perp2,2}$','Im[E$_x$/E$_z$]$_{\perp2,2}$')
+ylabel('E$_z$','Fontsize',16)
+legend('Re[E$_z$]$_{\perp2,1}$','Im[E$_z$]$_{\perp2,1}$','Re[E$_z$]$_{\perp2,2}$','Im[E$_z$]$_{\perp2,2}$')
 hold off
 
 subplot(4,1,3)
-plot(log10(N0(1:imme)),real(eyez_slow11(1:imme)),'.k')
+plot(xax(1:imme),real(ey_slow11(1:imme)),'.k')
 hold on
 
-plot(log10(N0(1:imme)),imag(eyez_slow11(1:imme)),'.r')
-plot(log10(N0(1:imme)),real(eyez_slow12(1:imme)),'dk','MarkerSize',3)
-plot(log10(N0(1:imme)),imag(eyez_slow12(1:imme)),'dr','MarkerSize',3)
-xlim([min(log10(N0)) log10(N0(imme))])
+plot(xax(1:imme),imag(ey_slow11(1:imme)),'.r')
+plot(xax(1:imme),real(ey_slow12(1:imme)),'dk','MarkerSize',3)
+plot(xax(1:imme),imag(ey_slow12(1:imme)),'dr','MarkerSize',3)
+% xlim([min(log10(N0)) log10(N0(imme))])
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-ylabel('E$_y$/E$_z$','Fontsize',16)
-legend('Re[E$_y$/E$_z$]$_{\perp1,1}$','Im[E$_y$/E$_z$]$_{\perp1,1}$','Re[E$_y$/E$_z$]$_{\perp1,2}$','Im[E$_y$/E$_z$]$_{\perp1,2}$')
+ylabel('E$_y$','Fontsize',16)
+legend('Re[E$_y$]$_{\perp1,1}$','Im[E$_y$]$_{\perp1,1}$','Re[E$_y$]$_{\perp1,2}$','Im[E$_y$]$_{\perp1,2}$')
 hold off
 
 subplot(4,1,4)
-plot(log10(N0(1:imme)),real(eyez_slow21(1:imme)),'.k')
+plot(xax(1:imme),real(ey_slow21(1:imme)),'.k')
 hold on
 
-plot(log10(N0(1:imme)),imag(eyez_slow21(1:imme)),'.r')
-plot(log10(N0(1:imme)),real(eyez_slow22(1:imme)),'dk','MarkerSize',3)
-plot(log10(N0(1:imme)),imag(eyez_slow22(1:imme)),'dr','MarkerSize',3)
-xlim([min(log10(N0)) log10(N0(imme))])
+plot(xax(1:imme),imag(ey_slow21(1:imme)),'.r')
+plot(xax(1:imme),real(ey_slow22(1:imme)),'dk','MarkerSize',3)
+plot(xax(1:imme),imag(ey_slow22(1:imme)),'dr','MarkerSize',3)
+% xlim([min(log10(N0)) log10(N0(imme))])
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-ylabel('E$_y$/E$_z$','Fontsize',16)
-legend('Re[E$_y$/E$_z$]$_{\perp2,1}$','Im[E$_y$/E$_z$]$_{\perp2,1}$','Re[E$_y$/E$_z$]$_{\perp2,2}$','Im[E$_y$/E$_z$]$_{\perp2,2}$')
+ylabel('E$_y$','Fontsize',16)
+legend('Re[E$_y$]$_{\perp2,1}$','Im[E$_y$]$_{\perp2,1}$','Re[E$_y$]$_{\perp2,2}$','Im[E$_y$]$_{\perp2,2}$')
 hold off
 
 
