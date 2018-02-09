@@ -75,8 +75,8 @@ om_ph = sqrt(N0h*qh^2./(mh*eps0));
 nmax = 10;
 
 dielec_tens;
-dispersion;
-polarisation;
+gen_dispersion;
+gen_polarisation;
 
 %%
 

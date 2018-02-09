@@ -34,6 +34,10 @@ kp12 = np12*om/c0;
 kp21 = np21*om/c0;
 kp22 = np22*om/c0;
 
+kperp_arr(:,1) = kp11;
+kperp_arr(:,2) = kp12;
+kperp_arr(:,3) = kp21;
+kperp_arr(:,4) = kp22;
 %%
 %--
 % plot kperps's
