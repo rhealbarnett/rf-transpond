@@ -5,7 +5,7 @@
 
 %--
 % run parameter script
-lower_hyb;
+dlg_comp;
 
 %--
 % constants
@@ -75,8 +75,8 @@ om_ph = sqrt(N0h*qh^2./(mh*eps0));
 nmax = 10;
 
 dielec_tens;
-gen_dispersion;
-gen_polarisation;
+% gen_dispersion;
+% gen_polarisation;
 
 %%
 

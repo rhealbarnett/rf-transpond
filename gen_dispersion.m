@@ -94,6 +94,8 @@ y2 = sign(k2).*log10(abs(k2));
 y3 = sign(k3).*log10(abs(k3));
 y4 = sign(k4).*log10(abs(k4));
 
+
+%%
 figure(7)
 plot(log10(N0),real(y1),'.k')
 
@@ -121,6 +123,40 @@ plot(log10(N0),imag(y4),'dr','MarkerSize',3)
 legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
 xlabel('log$_{10}|$N$_0|$','Fontsize',16)
 vline(log10(N0(imme)),'--k')
+% yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
+ylabel('log$_{10}|$k$_x|$','Fontsize',16)
+
+hold off
+
+%%
+
+figure(7)
+plot(xax,real(y1),'.k')
+
+hold on
+
+plot(xax,imag(y1),'.r')
+plot(xax,real(y3),'dk','MarkerSize',3)
+plot(xax,imag(y3),'dr','MarkerSize',3)
+legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
+xlabel('Position','Fontsize',16)
+% vline(log10(N0(imme)),'--k')
+% yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
+ylabel('log$_{10}|$k$_x|$','Fontsize',16)
+
+hold off
+
+figure(8)
+plot(xax,real(y2),'.k')
+
+hold on
+
+plot(xax,imag(y2),'.r')
+plot(xax,real(y4),'dk','MarkerSize',3)
+plot(xax,imag(y4),'dr','MarkerSize',3)
+legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
+xlabel('Position','Fontsize',16)
+% vline(log10(N0(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
 ylabel('log$_{10}|$k$_x|$','Fontsize',16)
 

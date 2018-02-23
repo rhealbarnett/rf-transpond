@@ -137,7 +137,7 @@ rhs = zeros(3*npts,1);
 mult = 1.0/sqrt(2.0*pi*source_width);
 source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
 source = source / max(source);
-rhs(1:3:3*npts) = 1i*om*mu0*source';
+% rhs(1:3:3*npts) = 1i*om*mu0*source';
 rhs(2:3:3*npts) = 1i*om*mu0*source';
 rhs(3:3:3*npts) = 1i*om*mu0*source';
 
@@ -150,8 +150,10 @@ rf_ex = rf_e(1:3:3*npts);
 rf_ey = rf_e(2:3:3*npts);
 rf_ez = rf_e(3:3:3*npts);
 
+%%
 % ----------------------plots----------------------- %
 figure(9)
+% set(gca,'YTickLabel','%.2f')
 
 subplot(4,1,1)
 plot(xax,om*mu0*source,'r')
@@ -159,7 +161,7 @@ ylabel('Source ($i\omega\mu_0J_{y,z}$)')
 
 subplot(4,1,2)
 plot(xax, real(rf_ex), 'k')
-ylabel('Amplitude (?)')
+ylabel('E$_x$ $Vm^{-1}$')
 
 hold on
 
@@ -172,7 +174,7 @@ hold off
 
 subplot(4,1,3)
 plot(xax, real(rf_ey), 'k')
-ylabel('Amplitude (?)')
+ylabel('E$_y$ $Vm^{-1}$')
 
 hold on
 
@@ -185,7 +187,7 @@ hold off
 
 subplot(4,1,4)
 plot(xax, real(rf_ez), 'k')
-ylabel('Amplitude (?)')
+ylabel('E$_z$ $Vm^{-1}$')
 
 hold on
 

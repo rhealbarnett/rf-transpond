@@ -83,4 +83,40 @@ ylabel('log$_{10}|$k$_{\perp2}|$','Fontsize',16)
 
 hold off
 
+%%
+
+%%
+
+figure(9)
+plot(xax(npts-imme+1:imme-1),real(kp11(npts-imme+1:imme-1)),'.k')
+
+hold on
+
+plot(xax(npts-imme+1:imme-1),imag(kp11(npts-imme+1:imme-1)),'.r')
+plot(xax(npts-imme+1:imme-1),real(kp12(npts-imme+1:imme-1)),'dk','MarkerSize',3)
+plot(xax(npts-imme+1:imme-1),imag(kp12(npts-imme+1:imme-1)),'dr','MarkerSize',3)
+legend('Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]', 'Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]')
+xlabel('Position','Fontsize',16)
+% vline(xax(imme),'--k')
+ylabel('k$_{\perp1}$','Fontsize',16)
+
+hold off
+
+figure(10)
+plot(xax(npts-imme+1:imme-1),real(kp21(npts-imme+1:imme-1)),'.k')
+
+hold on
+
+plot(xax(npts-imme+1:imme-1),imag(kp21(npts-imme+1:imme-1)),'.r')
+plot(xax(npts-imme+1:imme-1),real(kp22(npts-imme+1:imme-1)),'dk','MarkerSize',3)
+plot(xax(npts-imme+1:imme-1),imag(kp22(npts-imme+1:imme-1)),'dr','MarkerSize',3)
+legend('Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]', 'Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]')
+xlabel('Position','Fontsize',16)
+% vline(xax(imme),'--k')
+ylabel('k$_{\perp2}$','Fontsize',16)
+
+hold off
+
+
+
 
