@@ -20,7 +20,7 @@ dx = (xmax - xmin)/(npts-1);
 % temporal domain
 tmin = 0;
 dt = 0.99*dx/c0;
-tmax = 1.0e7*dt;
+tmax = 1.0e6*dt;
 nmax = tmax/dt;
 tax = linspace(tmin,tmax,nmax);
 tol = 1.0e-5;
@@ -32,8 +32,8 @@ m = 1.67e-27;
 
 %--
 % parameters
-Te = 5.0;
-Ti = Te;
+Te = 10.0;
+Ti = 5;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
 
@@ -110,8 +110,8 @@ hold off
 % CONSERVATIVE FORM ie (all partials) dv/dt + d(v^2/2)/dx = ...
 
 vx = zeros(1,npts);
-vx(1) = cs;
-vx(npts) = 0;
+vx(1) = 0;
+vx(npts) = cs;
 
 for ii=1:nmax
     vx_old = vx;
