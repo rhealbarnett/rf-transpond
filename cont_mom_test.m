@@ -116,7 +116,7 @@ vx(npts) = cs;
 for ii=1:nmax
     vx_old = vx;
     for jj=2:npts-1
-        vx(1,jj) = vx(1,jj) - (dt/(2.0*dx))*(vx(1,jj)^2 - vx(1,jj-1)^2) - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
+        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*(vx(1,jj+1)^2 - vx(1,jj-1)^2) - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
     end
 %     if abs(rms(vx_old)-rms(vx))<1.0e-9
 %         break
