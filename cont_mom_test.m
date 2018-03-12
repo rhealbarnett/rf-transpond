@@ -32,8 +32,8 @@ m = 1.67e-27;
 
 %--
 % parameters
-Te = 10.0;
-Ti = 5;
+Te = 10e3;
+Ti = 5e3;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
 
@@ -92,7 +92,11 @@ clear vx dvx n
 
 %--
 % density
-n = 0.5e19*xax+1.0e17;
+Nmax = 20;
+Nmin = 16;
+m = (Nmax - Nmin) ./ (xmax - xmin);
+n = 10.^(m*xax + Nmin);
+% n = -0.5e19*(xax)+1.05e19;
 dnx = gradient(n,xax);
 
 %--
