@@ -95,7 +95,7 @@ clear vx dvx n
 Nmax = 20;
 Nmin = 16;
 m = (Nmax - Nmin) ./ (xmax - xmin);
-n = 10.^(m*xax + Nmin);
+n = 10.^(-m*xax + Nmax);
 % n = -0.5e19*(xax)+1.05e19;
 dnx = gradient(n,xax);
 
@@ -120,7 +120,7 @@ vx(npts) = cs;
 for ii=1:nmax
     vx_old = vx;
     for jj=2:npts-1
-        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*(vx(1,jj+1)^2 - vx(1,jj-1)^2) - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
+        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.) - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
     end
 %     if abs(rms(vx_old)-rms(vx))<1.0e-9
 %         break
@@ -130,3 +130,10 @@ for ii=1:nmax
 %         continue
 %     end
 end
+
+%--
+% plot solution to compare with comsol solution
+figure(4)
+plot(xax,vx)
+xlabel('Position ($m$)','Fontsize',16)
+ylabel('Velocity ($ms^{-1}$)','Fontsize',16)
