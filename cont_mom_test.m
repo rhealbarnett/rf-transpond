@@ -11,11 +11,11 @@ c0 = 3.0e8;
 %--
 % spatial domain
 xmin = 0;
-xmax = 1;
+xmax = 2*pi;
 % xax = linspace(xmin,xmax,256);
 % npts = length(xax);
 % dx = (xmax - xmin)/(npts-1);
-dx = 0.0013378;
+dx = 0.0210;
 xax = xmin:dx:xmax;
 npts = length(xax);
 
@@ -27,8 +27,8 @@ tmin = 0;
 % nmax = tmax/dt;
 % tax = linspace(tmin,tmax,nmax);
 % tol = 1.0e-5;
-dt = (0.99)*0.006689/5;
-nmax = 600;
+dt = dx;
+nmax = 8;
 
 %--
 % constants
@@ -120,19 +120,20 @@ hold off
 % up wind differencing scheme
 % CONSERVATIVE FORM ie (all partials) dv/dt + d(v^2/2)/dx = ...
 
-vx = zeros(1,npts);
+% vx = zeros(1,npts);
 % vx(1) = 0;
 % vx(npts) = cs;
-vx(npts/2:npts) = 1.0;
+vx = sin(xax);
+vx_new = zeros(1,npts);
+
 
 for ii=1:nmax
-%     vx_old = vx;
     for jj=2:npts-1
-        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.);% - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
+        vx_new(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.);% - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
     end
-    if (ii==1) || (ii==100) || (ii==300) || (ii==600)
+    if (ii==1) || (ii==2) || (ii==5) || (ii==8)
         figure(5)
-        plot(xax,vx)
+        plot(xax,vx_new)
         hold on
 %     if abs(rms(vx_old)-rms(vx))<1.0e-9
 %         break
@@ -142,10 +143,13 @@ for ii=1:nmax
 %         continue
 %     end
     end
+    vx_new(1,1) = vx(1,1);
+    vx_new(1,end) = vx_new(1,end-1);
+    vx = vx_new;
 end
 
 figure(5)
-legend('n=1', 'n=100', 'n=300', 'n=600')
+legend('n=1', 'n=2', 'n=5', 'n=8')
 hold off
     
 %--
