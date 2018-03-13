@@ -11,19 +11,24 @@ c0 = 3.0e8;
 %--
 % spatial domain
 xmin = 0;
-xmax = 2;
-xax = linspace(xmin,xmax,256);
+xmax = 1;
+% xax = linspace(xmin,xmax,256);
+% npts = length(xax);
+% dx = (xmax - xmin)/(npts-1);
+dx = 0.0013378;
+xax = xmin:dx:xmax;
 npts = length(xax);
-dx = (xmax - xmin)/(npts-1);
 
 %--
 % temporal domain
 tmin = 0;
-dt = 0.99*dx/c0;
-tmax = 1.0e6*dt;
-nmax = tmax/dt;
-tax = linspace(tmin,tmax,nmax);
-tol = 1.0e-5;
+% dt = 0.99*dx/c0;
+% tmax = 1.0e6*dt;
+% nmax = tmax/dt;
+% tax = linspace(tmin,tmax,nmax);
+% tol = 1.0e-5;
+dt = (0.99)*0.006689/5;
+nmax = 600;
 
 %--
 % constants
@@ -36,6 +41,8 @@ Te = 10e3;
 Ti = 5e3;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
+
+%%
 
 %-------------------------------------------------------------------------%
 % Solve continuity equation with analytic velocity expression             %
@@ -114,14 +121,19 @@ hold off
 % CONSERVATIVE FORM ie (all partials) dv/dt + d(v^2/2)/dx = ...
 
 vx = zeros(1,npts);
-vx(1) = 0;
-vx(npts) = cs;
+% vx(1) = 0;
+% vx(npts) = cs;
+vx(npts/2:npts) = 1.0;
 
 for ii=1:nmax
-    vx_old = vx;
+%     vx_old = vx;
     for jj=2:npts-1
-        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.) - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
+        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.);% - ((T*e)/(n(1,jj)*m))*dt*dnx(1,jj);
     end
+    if (ii==1) || (ii==100) || (ii==300) || (ii==600)
+        figure(5)
+        plot(xax,vx)
+        hold on
 %     if abs(rms(vx_old)-rms(vx))<1.0e-9
 %         break
 %     elseif isnan(vx(end-1))
@@ -129,11 +141,16 @@ for ii=1:nmax
 %     else
 %         continue
 %     end
+    end
 end
 
+figure(5)
+legend('n=1', 'n=100', 'n=300', 'n=600')
+hold off
+    
 %--
-% plot solution to compare with comsol solution
-figure(4)
-plot(xax,vx)
-xlabel('Position ($m$)','Fontsize',16)
-ylabel('Velocity ($ms^{-1}$)','Fontsize',16)
+% % plot solution to compare with comsol solution
+% figure(4)
+% plot(xax,vx)
+% xlabel('Position ($m$)','Fontsize',16)
+% ylabel('Velocity ($ms^{-1}$)','Fontsize',16)
