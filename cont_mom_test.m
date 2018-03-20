@@ -20,17 +20,6 @@ dx = (xmax - xmin)/(npts-1);
 % npts = length(xax);
 
 %--
-% temporal domain
-tmin = 0;
-dt = 0.99*dx/c0;
-tmax = 1.0e7*dt;
-nmax = tmax/dt;
-tax = linspace(tmin,tmax,nmax);
-tol = 1.0e-5;
-% dt = 0.99*dx;
-% nmax = 756;
-
-%--
 % constants
 e = 1.6022e-19;
 m = 1.67e-27;
@@ -41,6 +30,18 @@ Te = 5.0;
 Ti = 5.0;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
+% cs = 10.0;
+
+%--
+% temporal domain
+tmin = 0;
+dt = 0.99*(dx)/(cs);
+tmax = 1.0e2*dt;
+nmax = tmax/dt;
+tax = linspace(tmin,tmax,nmax);
+tol = 1.0e-5;
+% dt = 0.99*dx;
+% nmax = 756;
 
 %%
 
@@ -105,8 +106,8 @@ Nmax = 19;
 Nmin = 16;
 m = (Nmax - Nmin) ./ (xmax - xmin);
 n = 10.^(-m*xax + Nmax);
-% n = 1.0e19*ones(1,npts);
-n = 0.5e19*(xax)+1.05e19;
+n = 1.0e19*ones(1,npts);
+% n = 0.5e19*(xax)+1.05e19;
 dnx = gradient(n,xax);
 
 %--
@@ -123,10 +124,10 @@ hold off
 % up wind differencing scheme
 % CONSERVATIVE FORM ie (all partials) dv/dt + d(v^2/2)/dx = ...
 
-vx = (cs/2)*ones(1,npts);
+vx = (cs)*ones(1,npts);
 % vx = zeros(1,npts);
-% vx(1,1) = 0;
-% vx(1,end) = cs;
+vx(1,1) = 0;
+vx(1,end) = cs;
 % vx = sin(xax);
 % a = find(xax<=0.5);
 % vx(a(end):end) = 1.0;
@@ -138,8 +139,8 @@ hold on
 
 for ii=1:nmax
     for jj=2:npts-1
-        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.) - ((T*e)/(n(1,jj)*m))*(dt/dx)*...
-            (n(1,jj) - n(1,jj-1));
+        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.);% - ((T*e)/(n(1,jj)*m))*(dt/dx)*...
+            %(n(1,jj) - n(1,jj-1));
     end
     vx(1,1) = 0.0;
     vx(1,end) = cs;
