@@ -11,7 +11,7 @@ c0 = 3.0e8;
 %--
 % spatial domain
 xmin = 0;
-xmax = 2;
+xmax = 1;
 xax = linspace(xmin,xmax,256);
 npts = length(xax);
 dx = (xmax - xmin)/(npts-1);
@@ -35,10 +35,12 @@ cs = sqrt((Te + Ti)*e/m);
 %--
 % temporal domain
 tmin = 0;
-dt = 0.99*(dx)/(cs);
-tmax = 1.0e2*dt;
-nmax = tmax/dt;
-tax = linspace(tmin,tmax,nmax);
+% dt = 0.99*(dx);
+dt = logspace(-5,-11,7);
+% tmax = 1.0e6*dt;
+tmax = 2.5e-4;
+nmax = tmax./dt;
+% tax = linspace(tmin,tmax,nmax);
 tol = 1.0e-5;
 % dt = 0.99*dx;
 % nmax = 756;
@@ -94,10 +96,11 @@ semilogy(xax,n)
 xlabel('Position ($m$)','Fontsize',16)
 ylabel('log$_{10}|$Density$|$','Fontsize',16)
 
+%%
 %-------------------------------------------------------------------------%
 % Solve momentum equation with analytic density expression                %
 %-------------------------------------------------------------------------%
-%%
+
 clear vx dvx n
 
 %--
@@ -124,43 +127,54 @@ hold off
 % up wind differencing scheme
 % CONSERVATIVE FORM ie (all partials) dv/dt + d(v^2/2)/dx = ...
 
-vx = (cs)*ones(1,npts);
+% vx = (cs)*ones(1,npts);
 % vx = zeros(1,npts);
-vx(1,1) = 0;
-vx(1,end) = cs;
-% vx = sin(xax);
+% vx(1,1) = 0;
+% vx(1,end) = cs;
+vx = sin(xax);
 % a = find(xax<=0.5);
 % vx(a(end):end) = 1.0;
 vx_new = zeros(1,npts);
+source = zeros(1,npts);
 
-figure(5)
+figure(4)
 plot(xax,vx,'--k')
 hold on
 
-for ii=1:nmax
-    for jj=2:npts-1
-        vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.);% - ((T*e)/(n(1,jj)*m))*(dt/dx)*...
-            %(n(1,jj) - n(1,jj-1));
-    end
-    vx(1,1) = 0.0;
-    vx(1,end) = cs;
-%     vx_new(1,1) = vx(1,1);
-%     vx(1,end) = vx(1,end-1);
-%     vx = vx_new;
-%     if (ii==100) || (ii==300) || (ii==600) || (ii==756)
-%         figure(5)
-%         plot(xax,vx_new)
-%         hold on
-%     if abs(rms(vx_old)-rms(vx))<1.0e-9
-%         break
-%     elseif isnan(vx(end-1))
-%         break
-%     else
-%         continue
-%     end
-%     end
-end
 
+for kk=1:length(dt)
+    for ii=1:round(nmax(kk))
+        l_inf = zeros(1,round(nmax(kk)));
+        l_sec = zeros(1,round(nmax(kk)));
+        tax = linspace(tmin,tmax,round(nmax(kk)));
+        for jj=2:npts-1
+            vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt(kk)/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.);% - ((T*e)/(n(1,jj)*m))*(dt/dx)*...
+                %(n(1,jj) - n(1,jj-1));
+            source(1,jj) = - cos(xax(jj)-ii*dt(kk)) - (1.0/2.0)*sin(2.0*(ii*dt(kk) - xax(jj)));    
+        end
+        vx(1,1) = sin(-ii*dt(kk));
+        vx(1,end) = sin(xmax - ii*dt(kk));
+        source(1,1) = -sin(-ii*dt(kk));
+        source(1,end) = -sin(xmax - ii*dt(kk));
+        l_inf(1,ii) = abs(max(vx + source));
+        l_sec(1,ii) = rms(vx + source);
+    %     vx_new(1,1) = vx(1,1);
+    %     vx(1,end) = vx(1,end-1);
+    %     vx = vx_new;
+    %     if (ii==100) || (ii==300) || (ii==600) || (ii==756)
+    %         figure(5)
+    %         plot(xax,vx_new)
+    %         hold on
+    %     if abs(rms(vx_old)-rms(vx))<1.0e-9
+    %         break
+    %     elseif isnan(vx(end-1))
+    %         break
+    %     else
+    %         continue
+    %     end
+    %     end
+    end
+end
 % figure(5)
 % legend('t=0s', 't=0.13s', 't=0.4s', 't=0.8s', 't=1.0s','Location','northwest')
 % 
@@ -168,7 +182,7 @@ end
     
 %--
 % % plot solution to compare with comsol solution
-figure(4)
+figure(5)
 plot(xax,vx)
 xlabel('Position ($m$)','Fontsize',16)
 ylabel('Velocity ($ms^{-1}$)','Fontsize',16)
