@@ -9,12 +9,28 @@
 c0 = 3.0e8;
 
 %--
+% temporal domain
+tmin = 0;
+% dt = 0.99*(dx);
+% dt = logspace(-5,-11,7);
+dt = 1.5e-13;
+tmax = 1.0e5*dt;
+% tmax = 2.5e-4;
+nmax = tmax/dt;
+% tax = linspace(tmin,tmax,nmax);
+tol = 1.0e-5;
+% dt = 0.99*dx;
+% nmax = 756;
+
+%--
 % spatial domain
 xmin = 0;
 xmax = 1;
-xax = linspace(xmin,xmax,256);
-npts = length(xax);
-dx = (xmax - xmin)/(npts-1);
+dx = logspace(-1,-5,5);
+% npts = (xmax-xmin)./dx;
+% xax = linspace(xmin,xmax,npts);
+% npts = length(xax);
+% dx = (xmax - xmin)/(npts-1);
 % dx = 0.0013378;
 % xax = xmin:dx:xmax;
 % npts = length(xax);
@@ -32,18 +48,7 @@ T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
 % cs = 10.0;
 
-%--
-% temporal domain
-tmin = 0;
-% dt = 0.99*(dx);
-dt = logspace(-5,-11,7);
-% tmax = 1.0e6*dt;
-tmax = 2.5e-4;
-nmax = tmax./dt;
-% tax = linspace(tmin,tmax,nmax);
-tol = 1.0e-5;
-% dt = 0.99*dx;
-% nmax = 756;
+
 
 %%
 
@@ -102,26 +107,26 @@ ylabel('log$_{10}|$Density$|$','Fontsize',16)
 %-------------------------------------------------------------------------%
 
 clear vx dvx n
-
-%--
-% density
-Nmax = 19;
-Nmin = 16;
-m = (Nmax - Nmin) ./ (xmax - xmin);
-n = 10.^(-m*xax + Nmax);
-n = 1.0e19*ones(1,npts);
-% n = 0.5e19*(xax)+1.05e19;
-dnx = gradient(n,xax);
-
-%--
-% plot density to compare against comsol output
-figure(3)
-plot(xax,n)
-hold on
-plot(xax,dnx)
-legend('n', 'dnx')
-xlabel('Position ($m$)')
-hold off
+% 
+% %--
+% % density
+% Nmax = 19;
+% Nmin = 16;
+% m = (Nmax - Nmin) ./ (xmax - xmin);
+% n = 10.^(-m*xax + Nmax);
+% n = 1.0e19*ones(1,npts);
+% % n = 0.5e19*(xax)+1.05e19;
+% dnx = gradient(n,xax);
+% 
+% %--
+% % plot density to compare against comsol output
+% figure(3)
+% plot(xax,n)
+% hold on
+% plot(xax,dnx)
+% legend('n', 'dnx')
+% xlabel('Position ($m$)')
+% hold off
 
 %--
 % up wind differencing scheme
@@ -131,33 +136,41 @@ hold off
 % vx = zeros(1,npts);
 % vx(1,1) = 0;
 % vx(1,end) = cs;
-vx = sin(xax);
-% a = find(xax<=0.5);
-% vx(a(end):end) = 1.0;
-vx_new = zeros(1,npts);
-source = zeros(1,npts);
+% vx = sin(xax);
+% % a = find(xax<=0.5);
+% % vx(a(end):end) = 1.0;
+% vx_new = zeros(1,npts);
+% source = zeros(1,npts);
 
-figure(4)
-plot(xax,vx,'--k')
-hold on
+% figure(4)
+% plot(xax,vx,'--k')
+% hold on
 
 
-for kk=1:length(dt)
-    for ii=1:round(nmax(kk))
-        l_inf = zeros(1,round(nmax(kk)));
-        l_sec = zeros(1,round(nmax(kk)));
-        tax = linspace(tmin,tmax,round(nmax(kk)));
+for kk=1:length(dx)
+    kk
+    for ii=1:nmax
+        npts = round((xmax-xmin)/dx(kk));
+        xax = linspace(xmin,xmax,npts);
+        vx = sin(xax);
+        source = zeros(1,npts);
+        l_inf = zeros(1,npts);
+        l_sec = zeros(1,npts);
+%         tax = linspace(tmin,tmax,round(nmax(kk)));
         for jj=2:npts-1
-            vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - (dt(kk)/(2.0*dx))*((vx(1,jj+1)^2)/2. - (vx(1,jj-1)^2)/2.);% - ((T*e)/(n(1,jj)*m))*(dt/dx)*...
+            vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - vx(1,jj)*(dt/(2.0*dx(kk)))*((vx(1,jj+1)) - (vx(1,jj-1)));% - ((T*e)/(n(1,jj)*m))*(dt/dx)*...
                 %(n(1,jj) - n(1,jj-1));
-            source(1,jj) = - cos(xax(jj)-ii*dt(kk)) - (1.0/2.0)*sin(2.0*(ii*dt(kk) - xax(jj)));    
+%             source(1,jj) = - cos(ii*dt(kk) - xax(jj)) - (1.0/2.0)*sin(2.0*(ii*dt(kk) - xax(jj))); 
+            source(1,jj) = - cos(ii*dt - jj*dx(kk)) + sin(ii*dt - jj*dx(kk))*cos(jj*dx(kk) - ii*dt);
+%             source(1,jj) = - exp(xax(jj) - ii*dt(kk)) + exp(2.0*(xax(jj) - ii*dt(kk)));
         end
-        vx(1,1) = sin(-ii*dt(kk));
-        vx(1,end) = sin(xmax - ii*dt(kk));
-        source(1,1) = -sin(-ii*dt(kk));
-        source(1,end) = -sin(xmax - ii*dt(kk));
-        l_inf(1,ii) = abs(max(vx + source));
-        l_sec(1,ii) = rms(vx + source);
+        vx(1,1) = sin(-ii*dt);
+        vx(1,end) = sin(npts*dx(kk) - ii*dt);
+        source(1,1) = sin(-ii*dt);
+        source(1,end) = sin(npts*dx(kk) - ii*dt);
+        l_inf(1,ii) = abs(max(vx - source));
+        l_sec(1,ii) = rms(vx - source);
+        
     %     vx_new(1,1) = vx(1,1);
     %     vx(1,end) = vx(1,end-1);
     %     vx = vx_new;
@@ -186,3 +199,9 @@ figure(5)
 plot(xax,vx)
 xlabel('Position ($m$)','Fontsize',16)
 ylabel('Velocity ($ms^{-1}$)','Fontsize',16)
+
+figure(6)
+plot(xax,source) 
+hold on
+plot(xax,vx)
+legend('source','vx')
