@@ -14,7 +14,7 @@ tmin = 0;
 % dt = 0.99*(dx);
 % dt = logspace(-5,-11,7);
 dt = 1.5e-13;
-tmax = 1.0e5*dt;
+tmax = 1.0e4*dt;
 % tmax = 2.5e-4;
 nmax = tmax/dt;
 % tax = linspace(tmin,tmax,nmax);
@@ -141,13 +141,14 @@ clear vx dvx n
 % % vx(a(end):end) = 1.0;
 % vx_new = zeros(1,npts);
 % source = zeros(1,npts);
+nu = 1.0e-5;
 
 % figure(4)
 % plot(xax,vx,'--k')
 % hold on
 
 
-for kk=1:length(dx)
+for kk=length(dx)
     kk
     for ii=1:nmax
         npts = round((xmax-xmin)/dx(kk));
@@ -157,11 +158,11 @@ for kk=1:length(dx)
         l_inf = zeros(1,npts);
         l_sec = zeros(1,npts);
 %         tax = linspace(tmin,tmax,round(nmax(kk)));
-        for jj=2:npts-1
-            vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - vx(1,jj)*(dt/(2.0*dx(kk)))*((vx(1,jj+1)) - (vx(1,jj-1)));% - ((T*e)/(n(1,jj)*m))*(dt/dx)*...
-                %(n(1,jj) - n(1,jj-1));
+        for jj=2:npts-2
+            vx(1,jj) = (1./2.)*(vx(1,jj-1) + vx(1,jj+1)) - vx(1,jj)*(dt/(2.0*dx(kk)))*((vx(1,jj+1)) - (vx(1,jj-1))) + ...
+                (dt*nu/(dx(kk)^2))*(vx(1,jj) - 2.0*vx(1,jj+1) + vx(1,jj+2));
 %             source(1,jj) = - cos(ii*dt(kk) - xax(jj)) - (1.0/2.0)*sin(2.0*(ii*dt(kk) - xax(jj))); 
-            source(1,jj) = - cos(ii*dt - jj*dx(kk)) + sin(ii*dt - jj*dx(kk))*cos(jj*dx(kk) - ii*dt);
+            source(1,jj) = - cos(ii*dt - jj*dx(kk)) + sin(ii*dt - jj*dx(kk))*cos(jj*dx(kk) - ii*dt) + nu*sin(jj*dx(kk) - ii*dt);
 %             source(1,jj) = - exp(xax(jj) - ii*dt(kk)) + exp(2.0*(xax(jj) - ii*dt(kk)));
         end
         vx(1,1) = sin(-ii*dt);
