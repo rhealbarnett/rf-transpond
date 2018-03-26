@@ -25,12 +25,8 @@ tax = linspace(tmin,nmax*dt,nmax);
 xmin = 0;
 xmax = 1.0;
 
-% number of spatial points
-npts = 61;
-
 % spatial step and axis
-dx = (xmax - xmin)/(npts-1);
-xax = linspace(xmin,xmax,npts);
+dx = logspace(-5,-1,5);
 
 % coefficients for source term s = a + sin(x + ct)
 a = 1.0;
@@ -45,45 +41,44 @@ c = 1.0;
 % diffusion term multiplier
 nu = 0.0;
 
-% initial conditions
-source = zeros(1,npts);%c*cos(xax) + (a + sin(xax)).*cos(xax) + nu*sin(xax);
-vx = zeros(1,npts);
-vx_new = a + sin(xax) + source;
-% vx_new = zeros(1,npts);
+l_sec = zeros(1,length(dx));
+l_inf = zeros(1,length(dx));
 
-l_sec = zeros(1,nmax);
-l_inf = zeros(1,nmax);
-
-for ii=1
+for kk=1:length(dx)
     
-    % exact solution
-    ex_sol = a + sin(xax + c*dt*ii);
+    npts = round(1 + (xmax - xmin)/dx(kk));
+    xax = linspace(xmin,xmax,npts);
     
-    vx = vx_new;
+    % initial conditions
+    source = zeros(1,npts);
+    vx = zeros(1,npts);
+    vx_new = a + sin(xax) + source;
+    
+    for ii=1
 
-    for jj=2:npts-1
+        % exact solution
+        ex_sol = a + sin(xax + c*dt*ii);
 
-        source(1,jj) = c*cos(c*ii*dt + xax(jj)) + (a + sin(xax(jj) + ii*dt*c))*cos(xax(jj) + c*ii*dt) + nu*sin(xax(jj) + c*ii*dt); 
+        vx = vx_new;
 
-        vx_new(1,jj) = vx(1,jj) - ((dt)/(2.0*dx))*((vx(1,jj+1)^2)/2 - (vx(1,jj-1)^2)/2) +...
-            ((nu*dt)/(dx^2))*(vx(1,jj+1) - 2.0*vx(1,jj) + vx(1,jj-1)) + dt*source(1,jj);
+        for jj=2:npts-1
+
+            source(1,jj) = c*cos(c*ii*dt + xax(jj)) + (a + sin(xax(jj) + ii*dt*c))*cos(xax(jj) + c*ii*dt) + nu*sin(xax(jj) + c*ii*dt); 
+
+            vx_new(1,jj) = vx(1,jj) - ((dt)/(2.0*dx(kk)))*((vx(1,jj+1)^2)/2 - (vx(1,jj-1)^2)/2) +...
+                ((nu*dt)/(dx(kk)^2))*(vx(1,jj+1) - 2.0*vx(1,jj) + vx(1,jj-1)) + dt*source(1,jj);
+        end
+
+        % boundary conditions
+        vx_new(1,end) = a + sin(xmax + c*dt*ii);
+        vx_new(1,1) = a + sin(c*dt*ii);
+        
+        l_inf(1,kk) = abs(max(vx_new - ex_sol));
+        l_sec(1,kk) = rms(vx_new - ex_sol);
+
     end
-
-    l_inf(1,ii) = abs(max(vx_new - ex_sol));
-    l_sec(1,ii) = rms(vx_new - ex_sol);
     
-    % source boundary conditions
-    source(1,1) = c*cos(ii*dt*c) + (a + sin(c*dt*ii))*cos(c*dt*ii) + nu*sin(c*ii*dt);
-    source(1,end) = c*cos(ii*dt*c + xmax) + (a + sin(xmax + c*dt*ii))*cos(xmax + c*dt*ii) + nu*sin(xmax + c*ii*dt);
-
-%     vx_new(1,end) = vx(1,end) - ((dt)/(2.0*dx))*((vx(1,2)^2)/2 - (vx(1,end-1)^2)/2) +...
-%             ((nu*dt)/(dx^2))*(vx(1,2) - 2.0*vx(1,end) + vx(1,end-1)) + dt*source(1,end);
-    vx_new(1,end) = a + sin(xmax + c*dt*ii);
-%     vx_new(1,1) = vx_new(1,end);
-    vx_new(1,1) = a + sin(c*dt*ii);
-
 end
-% end
 
 
 %%
