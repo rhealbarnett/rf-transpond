@@ -50,8 +50,10 @@ tol = 1.0e-14;
 l_inf = zeros(1,iter);
 l_two = zeros(1,iter);
 dx_arr = zeros(1,iter);
+dt_arr = zeros(1,iter);
 
 om = 0.0;
+dt = 0.0;
 
 
 for kk=1:iter
@@ -91,11 +93,8 @@ for kk=1:iter
             
             coeff_mat = sparse(coeff_mat);
 
-            source(jj,1) = 2.0*u0^2*xax(1,jj)*cos(xax(1,jj)^2)*(sin(xax(1,jj)^2) +...
-                epsilon) - nu*2.0*u0*(cos(xax(1,jj)^2) - 2.0*xax(1,jj)^2*sin(xax(1,jj)^2));
-
-%             vx_new(1,jj) = (1.0/2.0)*(vx(1,jj+1) - vx(1,jj-1)) - (dx/(4.0*nu))*(vx(1,jj+1)^2/2.0 - vx(1,jj-1)^2/2.0) +...
-%                 (dx^2/(2.0*nu))*source(1,jj);
+            source(jj,1) = om*u0*cos(xax(1,jj)^2 + om*dt*ii) + 2.0*u0^2*xax(1,jj)*cos(xax(1,jj)^2 +om*dt*ii)*(sin(xax(1,jj)^2 + dt*om*ii) +...
+                epsilon) - nu*2.0*u0*(cos(xax(1,jj)^2 + om*dt*ii) - 2.0*xax(1,jj)^2*sin(xax(1,jj)^2 +om*dt*ii));
             
         end
         
