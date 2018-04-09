@@ -11,29 +11,29 @@
 %------
 tmin = 0;
 
-% max number of iterations -- keep constant
-nmax = 1.0e7;
-
 % temporal step
-% dt = 1.0/nmax;
-dt = 0.0;
+dt = 8.0e-6;
+% dt = 1.0;
 
-% time axis
-tax = linspace(tmin,nmax*dt,nmax);
+nmax = 1.0e7;
 
 %------
 % spatial domain %
 %------
 xmin = -0.1;
-xmax = 0.7;
+xmax = 1.7;
 
 % initial grid size
-npts = 11;
+npts = 1281;
+dx = (xmax - xmin)/(npts - 1);
+xax = linspace(xmin,xmax,npts);
+% dx_arr(1,kk) = dx;
 
 % coefficients for source term u0(sin(x^2 + omt) + eps) and viscosity
 u0 = 1.0;
 epsilon = 0.001;
 nu = 0.7;
+om = 1.0e3;
 
 %%
 %-------------------------------------------------------------------------%
@@ -45,77 +45,87 @@ nu = 0.7;
 %-------------------------------------------------------------------------%
 
 iter = 8;
-const = 2.0;
+const = 1.0;
 tol = 1.0e-14;
 l_inf = zeros(1,iter);
 l_two = zeros(1,iter);
 dx_arr = zeros(1,iter);
 dt_arr = zeros(1,iter);
 
-om = 0.0;
-dt = 0.0;
-
 
 for kk=1:iter
     
     fprintf('counter=%d\n',kk)
     
-    dx = (xmax - xmin)/(npts - 1);
-    dx_arr(1,kk) = dx;
-    xax = linspace(xmin,xmax,npts);
+    fprintf('dt=%d\n',dt)
+  
+    tmax = 4.0e-4;
+    nmax = tmax/dt;
+    dt_arr(1,kk) = dt;
     
-    fprintf('dx=%d\n',dx)
+    fprintf('nmax=%d\n',nmax)
+    fprintf('ratio=%d\n',(dt/dx))
 
     % initial conditions
     source = zeros(npts,1);
-    vx_new = u0*sin(xax.^2 + epsilon)*const;
+    vx_new = u0*(sin(xax.^2) + epsilon)*const;
     coeff_mat = zeros(npts,npts);
     
     for ii=1:nmax
         
         % exact solution (steady)
-        ex_sol = u0*sin(xax.^2) + epsilon;
+        ex_sol = u0*(sin(xax.^2 + dt*ii*om) + epsilon);
+        
+        if ii==1
+            figure(3)
+            plot(xax, ex_sol)
+            hold on
+        end
         
         % boundary conditions
         coeff_mat(1,1) = 1.0;
         coeff_mat(end,end) = 1.0;
         
-        source(1,1) = u0*sin(xmin.^2) + epsilon;
-        source(end,1) = u0*sin(xmax.^2) + epsilon;
+%         source(1,1) = u0*(sin(xmin.^2 + om*dt*ii) + epsilon);
+%         source(end,1) = u0*(sin(xmax.^2 + om*dt*ii) + epsilon);
         
         vx = vx_new;
 
         for jj=2:npts-1
             
-            coeff_mat(jj,jj) = (2.0*nu)/(dx^2);
-            coeff_mat(jj,jj-1) = -vx(1,jj)/(2.0*dx) - nu/(dx^2);
-            coeff_mat(jj,jj+1) = vx(1,jj)/(2.0*dx) - nu/(dx^2);
+            coeff_mat(jj,jj) = (2.0*nu*dt)/(dx^2) - 1;
+            coeff_mat(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
+            coeff_mat(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
             
             coeff_mat = sparse(coeff_mat);
 
-            source(jj,1) = om*u0*cos(xax(1,jj)^2 + om*dt*ii) + 2.0*u0^2*xax(1,jj)*cos(xax(1,jj)^2 +om*dt*ii)*(sin(xax(1,jj)^2 + dt*om*ii) +...
-                epsilon) - nu*2.0*u0*(cos(xax(1,jj)^2 + om*dt*ii) - 2.0*xax(1,jj)^2*sin(xax(1,jj)^2 +om*dt*ii));
+            source(jj,1) = dt*(om*u0*cos(xax(1,jj)^2 + om*dt*ii) + 2.0*u0^2*xax(1,jj)*cos(xax(1,jj)^2 + om*dt*ii)*(sin(xax(1,jj)^2 + dt*om*ii) +...
+                epsilon) - nu*2.0*u0*(cos(xax(1,jj)^2 + om*dt*ii) - 2.0*xax(1,jj)^2*sin(xax(1,jj)^2 + om*dt*ii)));
             
         end
         
         
-        vx_new = coeff_mat\source;
+        vx_new = source - coeff_mat*vx';
+        
+        vx_new(1,1) = u0*(sin(xmin.^2 + om*dt*ii) + epsilon);
+        vx_new(end,1) = u0*(sin(xmax.^2 + om*dt*ii) + epsilon);
         
         vx_new = vx_new';
         
         l_inf(1,kk) = norm(ex_sol - vx_new, Inf);
         l_two(1,kk) = rms(ex_sol - vx_new);
         
-        if rms(vx_new - vx)<=tol
-            fprintf('tolerance reached, ii=%d\n',ii)
-            break
-        else
-            continue
-        end
+%         if rms(vx_new - vx)<=tol
+%             fprintf('tolerance reached, ii=%d\n',ii)
+%             break
+%         else
+%             continue
+%         end
         
     end
     
-    npts = 2.0*npts - 1;
+    dt = dt/2.0;
+%     npts = 2*npts - 1;
     fprintf('coefficient matrix determinant=%d\n\n',det(coeff_mat))
     
 end
@@ -123,13 +133,18 @@ end
 ratio_inf = l_inf(1:iter-1)./l_inf(2:iter);
 ratio_two = l_two(1:iter-1)./l_two(2:iter);
 
+figure(3)
+plot(xax, ex_sol, '*r')
+legend('1 time step','100 time steps')
+hold off
+
 %%
 %------ 
 % plot solution %
 %------
 
 figure(1)
-plot(xax, vx, '*k')
+plot(xax, vx_new, '*k')
 hold on
 plot(xax, ex_sol)
 xlabel('Location')
@@ -138,12 +153,12 @@ legend('vx', 'exact solution')
 hold off
 
 figure(2)
-loglog(dx_arr,l_two, '-*r') 
+loglog(dt_arr, l_two, '-*r') 
 hold on
-loglog(dx_arr,l_inf, '-ob')
-loglog(dx_arr, dx_arr.^2, '--k')
+loglog(dt_arr, l_inf, '-ob')
+loglog(dt_arr, dt_arr, '--k')
 % xlim([5e-4 1e-1])
-xlabel('dx','Fontsize',16)
+xlabel('dt','Fontsize',16)
 ylabel('Error','Fontsize',16)
-legend({'L$_2$', 'L$_{\inf}$', 'dx$^2$'},'Fontsize',16,'Location','northwest')
+legend({'L$_2$', 'L$_{\inf}$', 'dt'},'Fontsize',16,'Location','northwest')
 hold off
