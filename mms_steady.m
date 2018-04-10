@@ -2,7 +2,7 @@
 % Method of manufactured solutions       %
 % mom eqn                                %
 % dvx/dt + dvx/dx = 0                    %
-% steady state solution                  %
+% steady state OR TD solution            %
 % rlbarnett c3149416 300318              %
 %----------------------------------------%
 
@@ -24,7 +24,7 @@ xmin = -0.1;
 xmax = 1.7;
 
 % initial grid size
-npts = 1281;
+npts = 161;
 dx = (xmax - xmin)/(npts - 1);
 xax = linspace(xmin,xmax,npts);
 % dx_arr(1,kk) = dx;
@@ -64,7 +64,7 @@ for kk=1:iter
     dt_arr(1,kk) = dt;
     
     fprintf('nmax=%d\n',nmax)
-    fprintf('ratio=%d\n',(dt/dx))
+    fprintf('dt/dx=%d\n',(dt/dx))
 
     % initial conditions
     source = zeros(npts,1);
@@ -135,7 +135,7 @@ ratio_two = l_two(1:iter-1)./l_two(2:iter);
 
 figure(3)
 plot(xax, ex_sol, '*r')
-legend('1 time step','100 time steps')
+legend(['t = 1dt'],['t = ' num2str(nmax) 'dt'])
 hold off
 
 %%
