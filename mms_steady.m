@@ -157,7 +157,6 @@ loglog(dt_arr, l_two, '-*r')
 hold on
 loglog(dt_arr, l_inf, '-ob')
 loglog(dt_arr, dt_arr, '--k')
-% xlim([5e-4 1e-1])
 xlabel('dt','Fontsize',16)
 ylabel('Error','Fontsize',16)
 legend({'L$_2$', 'L$_{\inf}$', 'dt'},'Fontsize',16,'Location','northwest')
