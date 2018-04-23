@@ -7,15 +7,16 @@
 %----------------------------------------%
 
 c0 = 3.0e8;
+cs = 1.0e4;
 
 %--
 % spatial domain
 xmin = 0;
-xmax = 2.0;
-dx = 1.125e-4;
-% npts = 128;
-npts = round((xmax - xmin)/(dx) + 1);
-% dx = (xmax - xmin)/(npts-1);
+xmax = 10.0/cs;
+% dx = 1.125e-4;
+npts = 128;
+% npts = round((xmax - xmin)/(dx) + 1);
+dx = (xmax - xmin)/(npts-1);
 xax = linspace(xmin,xmax,npts);
 
 %--
@@ -29,7 +30,6 @@ Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
 % cs = sqrt((Te + Ti)*e/m);
-cs = 1.0e4;
 nu = 1.0;
 
 %--
@@ -122,7 +122,7 @@ clear vx dvx n
 % density
 % Nmax = 1.0e19;
 % n = nmax*ones(1,npts);
-n = normpdf(xax,1,0.05);
+n = normpdf(xax,xmax/2,xmax/30);
 n = n/max(n);
 n = 1.0e3*n;
 n = n + 1;
@@ -148,8 +148,21 @@ vx_source = zeros(npts,1);
 % initial value for velocity
 vx_new = (cs/4.0)*xax + cs/2.0;
 % vx_new = cs*xax;
+% vx_new = cs*ones(1,npts);
+
+count = 1;
+
+start = tic;
 
 for ii=1:nmax
+    
+    if ii==count
+        fprintf('Number of timesteps complete = %d\n',ii)
+        time = toc(start);
+        fprintf('Total time taken = %d\n',time)
+        count = count*10;
+        continue
+    end
     
     vx = vx_new;
 
@@ -159,7 +172,7 @@ for ii=1:nmax
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
-        vx_source(jj,1) = 0.0;%-((Te + Ti)*e)/(m*n(1,jj)*2.0*dx)*(n(1,jj+1) - n(1,jj-1)); 
+        vx_source(jj,1) = 0;%-((Te + Ti)*e)/(m*n(1,jj)*2.0*dx)*(n(1,jj+1) - n(1,jj-1)); 
 
     end
     
@@ -179,16 +192,10 @@ for ii=1:nmax
         break
     else
         continue
-    end
-    
-    if (rms(vx - vx_new) <= tol)
-        fprintf('tolerance reached, ii=%d\n',ii)
-        break
-    else
-        continue
-        
-    end
+    end 
+            
 end
+
 
 %%
 %--
