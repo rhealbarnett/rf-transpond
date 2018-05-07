@@ -28,7 +28,7 @@ nu = 1.0;
 %------
 xmin = 0.0;
 xmax = 10/cs;
-npts = 1024;
+npts = 256;
 dx = (xmax - xmin)/(npts - 1);
 xax = linspace(xmin,xmax,npts);
 
@@ -38,9 +38,9 @@ xax = linspace(xmin,xmax,npts);
 tmin = 0;
 
 % set dt based on CFL conditions, check during loop if violated
-dt = 1.0e-16;
+dt = 5.0e-15;
 nmax = 1.0e4;
-alpha = dt/(dx);
+alpha = dt/(2.0*dx);
 
 %%
 
@@ -51,15 +51,15 @@ alpha = dt/(dx);
 
 n_new = normpdf(xax(1:end-1),xmax/2,xmax/30);
 n_new = n_new/max(n_new);
-n_new = 1.0e3*n_new;
-n_new = n_new + 1;
-n_new = n_new*1.0e16;
+% n_new = 1.0e3*n_new;
+% n_new = n_new + 1;
+% n_new = n_new*1.0e16;
 dnx = gradient(n_new,xax(1:end-1));
 
 vx_new = zeros(1,npts);
 vx_ax = linspace(0,1,npts);
-vx_new = -(cs/2)*vx_ax + cs;
-% vx_new = cs*ones(1,npts);
+% vx_new = -(cs/2)*vx_ax + cs;
+vx_new = cs*ones(1,npts);
 % vx_new(1:end/2+1) = -cs;
 % vx_new(end/2+1:end) = cs;
 
@@ -78,7 +78,7 @@ vxA(end,end) = 1.0;
 
 figure(1)
 plot(xax(1:end-1),n_new,'DisplayName','time = 0s')
-ylim([-1.0e19 1.0e19])
+% ylim([-1.0e19 1.0e19])
 % pause(1)
 hold on
 
@@ -104,19 +104,26 @@ for ii=1:nmax
     n = n_new;
 
     for jj=2:npts-2
+        nA(jj,jj) = 1.0 - alpha*(vx(1,jj+1) - vx(1,jj-1));
+        nA(jj,jj-1) = alpha*vx(1,jj);
+        nA(jj,jj+1) = -alpha*vx(1,jj);
         
-        if ((vx(1,jj+1)+vx(1,jj))/2)>0
-            nA(jj,jj) = 1.0 - alpha*vx(1,jj+1);
-            nA(jj,jj-1) = alpha*vx(1,jj);
-            nA(npts-1,npts-1) = 1.0 - alpha*vx(1,npts);
-            nA(npts-1,npts-2) = alpha*vx(1,npts-1);
-        elseif ((vx(1,jj+1)+vx(1,jj))/2)<0
-            nA(jj,jj) = 1.0 + alpha*vx(1,jj);
-            nA(jj,jj+1) = -alpha*vx(1,jj+1);
-            nA(1,1) = 1.0 + alpha*vx(1,1);
-            nA(1,2) = -alpha*vx(1,2);
-        end        
+        
+%         if ((vx(1,jj+1)+vx(1,jj))/2)>0
+%             nA(jj,jj) = 1.0 - alpha*vx(1,jj+1);
+%             nA(jj,jj-1) = alpha*vx(1,jj);
+%             nA(npts-1,npts-1) = 1.0 - alpha*vx(1,npts);
+%             nA(npts-1,npts-2) = alpha*vx(1,npts-1);
+%         elseif ((vx(1,jj+1)+vx(1,jj))/2)<0
+%             nA(jj,jj) = 1.0 + alpha*vx(1,jj);
+%             nA(jj,jj+1) = -alpha*vx(1,jj+1);
+%             nA(1,1) = 1.0 + alpha*vx(1,1);
+%             nA(1,2) = -alpha*vx(1,2);
+%         end        
     end
+    
+    nA(npts-1,npts-1) = nA(npts-2,npts-2);
+    nA(npts-1,npts-2) = nA(npts-2,npts-3);
     
     for jj=2:npts-1
         
@@ -138,7 +145,7 @@ for ii=1:nmax
     vx_new = vx_new';
     
     vx_new(1,1) = cs;
-    vx_new(1,end) = cs/2;
+    vx_new(1,end) = cs;
     
     nan_check = isnan(vx_new);
     
@@ -151,7 +158,7 @@ for ii=1:nmax
     elseif ii==count*1000
         figure(1)
         plot(xax(1:end-1),n_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
-        ylim([-1.0e19 1.0e19]) 
+%         ylim([-1.0e19 1.0e19]) 
 %         legend('show')
         hold on
 %         pause(1)
