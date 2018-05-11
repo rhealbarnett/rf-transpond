@@ -28,7 +28,12 @@ nu = 1.0;
 %------
 xmin = 0.0;
 xmax = 10/cs;
-npts = 256;
+% include two additional gridpoints for the density ghost points
+% velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
+% total 128 grid points
+% density solution space will be defined as having npts-2 (xax(2:npts-1))
+% -- total 127 gridpoints
+npts = 129;
 dx = (xmax - xmin)/(npts - 1);
 xax = linspace(xmin,xmax,npts);
 
@@ -38,9 +43,8 @@ xax = linspace(xmin,xmax,npts);
 tmin = 0;
 
 % set dt based on CFL conditions, check during loop if violated
-dt = 5.0e-15;
+% dt = 5.0e-15;
 nmax = 1.0e4;
-alpha = dt/(2.0*dx);
 
 %%
 
@@ -49,25 +53,24 @@ alpha = dt/(2.0*dx);
 % Initialise coefficient matrices                                         %
 %-------------------------------------------------------------------------%
 
-n_new = normpdf(xax(1:end-1),xmax/2,xmax/30);
+n_new = normpdf(xax,xmax/2,xmax/30);
 n_new = n_new/max(n_new);
+n_new = n_new + 1.0;
 % n_new = 1.0e3*n_new;
 % n_new = n_new + 1;
 % n_new = n_new*1.0e16;
-dnx = gradient(n_new,xax(1:end-1));
+dnx = gradient(n_new,xax);
 
 vx_new = zeros(1,npts);
 vx_ax = linspace(0,1,npts);
 % vx_new = -(cs/2)*vx_ax + cs;
-vx_new = cs*ones(1,npts);
+% vx_new = cs*ones(1,npts);
 % vx_new(1:end/2+1) = -cs;
 % vx_new(end/2+1:end) = cs;
 
 nA = zeros(npts-1,npts-1);
 vxA = zeros(npts,npts);
 vx_source = zeros(npts,1);
-phi_plus = zeros(1,npts);
-phi_minus = zeros(1,npts);
 
 nA(1,1) = 1.0;
 nA(end,end) = 1.0;
@@ -88,50 +91,51 @@ hold on
 
 count = 1;
 
+dt = 0.99*(dx^2)/(2.0*nu);
+
 %-------------------------------------------------------------------------%
 % Solve                                                                   %
 %-------------------------------------------------------------------------%
 
 for ii=1:nmax
-
-%     if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(vx_new))
-%         dt = 0.99*(dx^2)/(2.0*nu);
-%     elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(vx_new))
-%         dt = 0.99*dx/max(vx_new);
-%     end
+    
+    alpha = dt/(2.0*dx);
     
     vx = vx_new;
     n = n_new;
 
     for jj=2:npts-2
-        nA(jj,jj) = 1.0 - alpha*(vx(1,jj+1) - vx(1,jj-1));
-        nA(jj,jj-1) = alpha*vx(1,jj);
-        nA(jj,jj+1) = -alpha*vx(1,jj);
         
-        
-%         if ((vx(1,jj+1)+vx(1,jj))/2)>0
-%             nA(jj,jj) = 1.0 - alpha*vx(1,jj+1);
-%             nA(jj,jj-1) = alpha*vx(1,jj);
-%             nA(npts-1,npts-1) = 1.0 - alpha*vx(1,npts);
-%             nA(npts-1,npts-2) = alpha*vx(1,npts-1);
-%         elseif ((vx(1,jj+1)+vx(1,jj))/2)<0
-%             nA(jj,jj) = 1.0 + alpha*vx(1,jj);
-%             nA(jj,jj+1) = -alpha*vx(1,jj+1);
-%             nA(1,1) = 1.0 + alpha*vx(1,1);
-%             nA(1,2) = -alpha*vx(1,2);
-%         end        
+%---------------------------------------------------------------------------%
+% central difference                                                        %
+% currently unstable on staggered grid 070518                               %
+%---------------------------------------------------------------------------%
+%         nA(jj,jj) = 1.0 - alpha*(vx(1,jj+1) - vx(1,jj-1));
+%         nA(jj,jj-1) = alpha*vx(1,jj);
+%         nA(jj,jj+1) = -alpha*vx(1,jj);  
+%---------------------------------------------------------------------------%
+% first order upwind                                                        %
+% stable on staggered grid                                                  %
+%---------------------------------------------------------------------------%
+        if ((vx(1,jj+1)+vx(1,jj))/2)>0
+            nA(jj,jj) = 1.0 - alpha*vx(1,jj+1);
+            nA(jj,jj-1) = alpha*vx(1,jj);
+            nA(npts-1,npts-1) = 1.0 - alpha*vx(1,npts);
+            nA(npts-1,npts-2) = alpha*vx(1,npts-1);
+        elseif ((vx(1,jj+1)+vx(1,jj))/2)<=0
+            nA(jj,jj) = 1.0 + alpha*vx(1,jj);
+            nA(jj,jj+1) = -alpha*vx(1,jj+1);
+            nA(1,1) = 1.0 + alpha*vx(1,1);
+            nA(1,2) = -alpha*vx(1,2);
+        end 
+        vx_source(jj,1) = -((Te + Ti)*e)/(m*n(1,jj)*2.0*dx)*(n(1,jj+1) - n(1,jj-1)); 
     end
-    
-    nA(npts-1,npts-1) = nA(npts-2,npts-2);
-    nA(npts-1,npts-2) = nA(npts-2,npts-3);
     
     for jj=2:npts-1
         
         vxA(jj,jj) = (2.0*nu*dt)/(dx^2) - 1;
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
-        
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n(1,jj)*dx)*(n(1,jj) - n(1,jj-1)); 
 
     end
     
@@ -144,18 +148,27 @@ for ii=1:nmax
     n_new = n_new';
     vx_new = vx_new';
     
-    vx_new(1,1) = cs;
-    vx_new(1,end) = cs;
+    vx_new(1,1) = 0.0;
+    vx_new(1,end) = 0.0;
+    
+    if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
+        dt = 0.99*(dx^2)/(2.0*nu);
+%         fprintf('CFL condition diffusive\n')
+    elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
+        dt = 0.99*dx/max(abs(vx_new));
+%         fprintf('CFL condition convective\n')
+    end
     
     nan_check = isnan(vx_new);
     
     if sum(nan_check) ~= 0
         fprintf('unstable, ii=%d\n',ii)
         break
-    elseif dt*max(vx_new)/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+    elseif dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
         fprintf('CFL condition violated, ii=%d\n',ii)
         break
     elseif ii==count*1000
+        fprintf('dt=%ds\n', dt)
         figure(1)
         plot(xax(1:end-1),n_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
 %         ylim([-1.0e19 1.0e19]) 
@@ -164,6 +177,9 @@ for ii=1:nmax
 %         pause(1)
         figure(2)
         plot(xax,vx_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        hold on
+        figure(3)
+        plot(xax,vx_source*dt,'DisplayName',['time = ' num2str(ii*dt) ' s'])
         hold on
         count = count + 1;
     end 
@@ -184,11 +200,12 @@ xlabel('Position (m)')
 ylabel('Velocity ms$^{-1}$')
 hold off
 
-
 figure(3)
-plot(xax,vx_new)
-xlabel('Position ($m$)','Fontsize',16)
-ylabel('Velocity ($ms^{-1}$)','Fontsize',16)
+legend('show','Location','northwest')
+xlabel('Position (m)')
+ylabel('Velocity source ms$^{-1}$')
+hold off
+
 
 
 
