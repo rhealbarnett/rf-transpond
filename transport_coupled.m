@@ -75,7 +75,9 @@ vxA = zeros(npts-1,npts-1);
 vx_source = zeros(npts-1,1);
 
 nA(1,1) = 1.0;
+nA(1,2) = -1.0;
 nA(end,end) = 1.0;
+nA(end,end-1) = -1.0;
 vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
@@ -105,11 +107,11 @@ for ii=1:nmax
     
     vx = vx_new;
     n = n_new;
-    n_interp = interp1(nxax(2:npts-1),n(2:npts-1),vxax(2:npts-2),'spline');
+    n_interp = interp1(nxax(2:npts-1),n(2:npts-1),vxax(2:npts-2),'pchip');
     gradn = (n(3:npts) - n(1:npts-2))/(2.0*dx);
-    gradn_interp = interp1(nxax(2:npts-1),gradn,vxax(2:npts-2),'spline');
+    gradn_interp = interp1(nxax(2:npts-1),gradn,vxax(2:npts-2),'pchip');
 
-    for jj=2:npts-2
+    for jj=2:npts-1
         
 %---------------------------------------------------------------------------%
 % central difference                                                        %
@@ -122,16 +124,14 @@ for ii=1:nmax
 % first order upwind                                                        %
 % stable on staggered grid                                                  %
 %---------------------------------------------------------------------------%
-        if ((vx(1,jj+1)+vx(1,jj))/2)>0
-            nA(jj,jj) = 1.0 - alpha*vx(1,jj+1);
-            nA(jj,jj-1) = alpha*vx(1,jj);
-            nA(npts-1,npts-1) = 1.0 - alpha*vx(1,npts);
-            nA(npts-1,npts-2) = alpha*vx(1,npts-1);
-        elseif ((vx(1,jj+1)+vx(1,jj))/2)<=0
-            nA(jj,jj) = 1.0 + alpha*vx(1,jj);
-            nA(jj,jj+1) = -alpha*vx(1,jj+1);
-            nA(1,1) = 1.0 + alpha*vx(1,1);
-            nA(1,2) = -alpha*vx(1,2);
+        if ((vx(1,jj-1)+vx(1,jj))/2)>0
+            nA(jj,jj) = 1.0 - alpha*vx(1,jj);
+            nA(jj,jj-1) = alpha*vx(1,jj-1);
+        elseif ((vx(1,jj-1)+vx(1,jj))/2)<=0
+            nA(jj,jj) = 1.0 + alpha*vx(1,jj-1);
+            nA(jj,jj+1) = -alpha*vx(1,jj);
+            nA(2,2) = 1.0 + alpha*vx(1,1);
+            nA(2,3) = -alpha*vx(1,2);
         end 
     end
     
