@@ -36,7 +36,7 @@ xmax = 10/cs;
 npts = 129;
 dx = (xmax - xmin)/(npts - 1);
 % xax = linspace(xmin,xmax,npts);
-nxax = linspace(xmin+0.5*dx,xmax+0.5*dx,npts);
+nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
 
 %------
@@ -105,8 +105,11 @@ for ii=1:nmax
     
     vx = vx_new;
     n = n_new;
+    n_interp = interp1(nxax(2:npts-1),n(2:npts-1),vxax(2:npts-2),'spline');
+    gradn = (n(3:npts) - n(1:npts-2))/(2.0*dx);
+    gradn_interp = interp1(nxax(2:npts-1),gradn,vxax(2:npts-2),'spline');
 
-    for jj=2:npts-1
+    for jj=2:npts-2
         
 %---------------------------------------------------------------------------%
 % central difference                                                        %
@@ -138,7 +141,7 @@ for ii=1:nmax
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n(1,jj)*2.0*dx)*(n(1,jj+1) - n(1,jj-1)); 
+        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj-1))*(gradn_interp(1,jj-1)); 
 
     end
     
