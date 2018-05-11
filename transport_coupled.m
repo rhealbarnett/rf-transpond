@@ -35,7 +35,9 @@ xmax = 10/cs;
 % -- total 127 gridpoints
 npts = 129;
 dx = (xmax - xmin)/(npts - 1);
-xax = linspace(xmin,xmax,npts);
+% xax = linspace(xmin,xmax,npts);
+nxax = linspace(xmin+0.5*dx,xmax+0.5*dx,npts);
+vxax = linspace(xmin,xmax,npts-1);
 
 %------
 % temporal domain %
@@ -53,24 +55,24 @@ nmax = 1.0e4;
 % Initialise coefficient matrices                                         %
 %-------------------------------------------------------------------------%
 
-n_new = normpdf(xax,xmax/2,xmax/30);
+n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
 n_new = n_new/max(n_new);
 n_new = n_new + 1.0;
 % n_new = 1.0e3*n_new;
 % n_new = n_new + 1;
 % n_new = n_new*1.0e16;
-dnx = gradient(n_new,xax);
+dnx = gradient(n_new,nxax);
 
-vx_new = zeros(1,npts);
-vx_ax = linspace(0,1,npts);
+vx_new = zeros(1,npts-1);
+% vx_ax = linspace(0,1,npts-1);
 % vx_new = -(cs/2)*vx_ax + cs;
-% vx_new = cs*ones(1,npts);
+% vx_new = cs*ones(1,npts-1);
 % vx_new(1:end/2+1) = -cs;
 % vx_new(end/2+1:end) = cs;
 
-nA = zeros(npts-1,npts-1);
-vxA = zeros(npts,npts);
-vx_source = zeros(npts,1);
+nA = zeros(npts,npts);
+vxA = zeros(npts-1,npts-1);
+vx_source = zeros(npts-1,1);
 
 nA(1,1) = 1.0;
 nA(end,end) = 1.0;
@@ -80,13 +82,13 @@ vxA(end,end) = 1.0;
 %%
 
 figure(1)
-plot(xax(1:end-1),n_new,'DisplayName','time = 0s')
+plot(nxax,n_new,'DisplayName','time = 0s')
 % ylim([-1.0e19 1.0e19])
 % pause(1)
 hold on
 
 figure(2)
-plot(xax,vx_new,'DisplayName','time = 0s')
+plot(vxax,vx_new,'DisplayName','time = 0s')
 hold on
 
 count = 1;
@@ -104,7 +106,7 @@ for ii=1:nmax
     vx = vx_new;
     n = n_new;
 
-    for jj=2:npts-2
+    for jj=2:npts-1
         
 %---------------------------------------------------------------------------%
 % central difference                                                        %
@@ -128,14 +130,15 @@ for ii=1:nmax
             nA(1,1) = 1.0 + alpha*vx(1,1);
             nA(1,2) = -alpha*vx(1,2);
         end 
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n(1,jj)*2.0*dx)*(n(1,jj+1) - n(1,jj-1)); 
     end
     
-    for jj=2:npts-1
+    for jj=2:npts-2
         
         vxA(jj,jj) = (2.0*nu*dt)/(dx^2) - 1;
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
+        
+        vx_source(jj,1) = -((Te + Ti)*e)/(m*n(1,jj)*2.0*dx)*(n(1,jj+1) - n(1,jj-1)); 
 
     end
     
@@ -150,6 +153,10 @@ for ii=1:nmax
     
     vx_new(1,1) = 0.0;
     vx_new(1,end) = 0.0;
+    % set first order neumann boundary conditions for the density ghost
+    % points
+    n_new(1,1) = n_new(1,2);
+    n_new(1,end) = n_new(1,end-1);
     
     if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
         dt = 0.99*(dx^2)/(2.0*nu);
@@ -170,16 +177,16 @@ for ii=1:nmax
     elseif ii==count*1000
         fprintf('dt=%ds\n', dt)
         figure(1)
-        plot(xax(1:end-1),n_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        plot(nxax,n_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
 %         ylim([-1.0e19 1.0e19]) 
 %         legend('show')
         hold on
 %         pause(1)
         figure(2)
-        plot(xax,vx_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        plot(vxax,vx_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
         hold on
         figure(3)
-        plot(xax,vx_source*dt,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(ii*dt) ' s'])
         hold on
         count = count + 1;
     end 
