@@ -85,12 +85,14 @@ vxA(end,end) = 1.0;
 
 figure(1)
 plot(nxax,n_new,'DisplayName','time = 0s')
+xlim([min(nxax) max(nxax)])
 % ylim([-1.0e19 1.0e19])
 % pause(1)
 hold on
 
 figure(2)
 plot(vxax,vx_new,'DisplayName','time = 0s')
+xlim([min(vxax) max(vxax)])
 hold on
 
 count = 1;
@@ -107,9 +109,8 @@ for ii=1:nmax
     
     vx = vx_new;
     n = n_new;
-    n_interp = interp1(nxax(2:npts-1),n(2:npts-1),vxax(2:npts-2),'pchip');
-    gradn = (n(3:npts) - n(1:npts-2))/(2.0*dx);
-    gradn_interp = interp1(nxax(2:npts-1),gradn,vxax(2:npts-2),'pchip');
+    n_interp = interp1(nxax,n,vxax,'spline');
+    gradn = (n_interp(3:end) - n_interp(1:end-2))/(2.0*dx);
 
     for jj=2:npts-1
         
@@ -141,7 +142,7 @@ for ii=1:nmax
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj-1))*(gradn_interp(1,jj-1)); 
+        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)); 
 
     end
     
@@ -179,6 +180,11 @@ for ii=1:nmax
         break
     elseif ii==count*1000
         fprintf('dt=%ds\n', dt)
+        if dt == 0.99*(dx^2)/(2.0*nu)
+            fprintf('Diffusive CFL condition\n')
+        elseif dt == 0.99*dx/max(abs(vx_new))
+            fprintf('Convective CFL condition\n')
+        end
         figure(1)
         plot(nxax,n_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
 %         ylim([-1.0e19 1.0e19]) 
@@ -190,6 +196,7 @@ for ii=1:nmax
         hold on
         figure(3)
         plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        xlim([min(vxax) max(vxax)])
         hold on
         count = count + 1;
     end 
