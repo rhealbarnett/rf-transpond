@@ -1,93 +1,28 @@
-%----------------------------------------%
-% solve coupled transport equations      %
-% cont and mom eqns                      %
-% dvz/dt + (1/mn)(Te+Ti)dn/dz = 0        %
-% dn/dt + (n)dvz/dz = 0                  %
-% d/dt convective derivative             %
-% rlbarnett c3149416 150318              %
-%----------------------------------------%
-
-%------
-% constants %
-%------
-e = 1.6022e-19;
-c0 = 3.0e8;
-m = 1.67e-27;
+%-------------------------------------------------------%
+% solve coupled transport equations                     %
+% continuity and momentum eqns                          %
+% CONSERVATIVE FORMS                                    %
+% (partial derivatives)                                 %
+% dvz/dt + d(vz^2/2)/dz + (1/mn)(Te+Ti)dn/dz = 0        %
+% dn/dt + d(n*vz)/dz = 0                                %
+% staggered n and vz grids                              %
+% momentum eqn central differenced                      %
+% continuity eqn first order upwind (flux selecting)    %
+% ghost points on density for mom source term           %
+%       -- first order neumann, zero flux               %
+% rlbarnett c3149416 140518                             %
+%-------------------------------------------------------%
 
 %------
 % parameters %
 %------
-Te = 10.0;
-Ti = 5.0;
-T = Te + Ti;
-cs = 10*sqrt((Te + Ti)*e/m);
-nu = 1.0;
-
-%------
-% spatial domain %
-%------
-xmin = 0.0;
-xmax = 10/cs;
-% include two additional gridpoints for the density ghost points
-% velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
-% total 128 grid points
-% density solution space will be defined as having npts-2 (xax(2:npts-1))
-% -- total 127 gridpoints
-npts = 129;
-dx = (xmax - xmin)/(npts - 1);
-% xax = linspace(xmin,xmax,npts);
-nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
-vxax = linspace(xmin,xmax,npts-1);
-
-%------
-% temporal domain %
-%------
-tmin = 0;
-
-% set dt based on CFL conditions, check during loop if violated
-% dt = 5.0e-15;
-nmax = 1.0e4;
-
-%%
-
-%-------------------------------------------------------------------------%
-% Set initial and boundary values for n and v                             %
-% Initialise coefficient matrices                                         %
-%-------------------------------------------------------------------------%
-
-n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
-n_new = n_new/max(n_new);
-n_new = n_new + 1.0;
-% n_new = 1.0e3*n_new;
-% n_new = n_new + 1;
-% n_new = n_new*1.0e16;
-dnx = gradient(n_new,nxax);
-
-vx_new = zeros(1,npts-1);
-% vx_ax = linspace(0,1,npts-1);
-% vx_new = -(cs/2)*vx_ax + cs;
-% vx_new = cs*ones(1,npts-1);
-% vx_new(1:end/2+1) = -cs;
-% vx_new(end/2+1:end) = cs;
-
-nA = zeros(npts,npts);
-vxA = zeros(npts-1,npts-1);
-vx_source = zeros(npts-1,1);
-
-nA(1,1) = 1.0;
-nA(1,2) = -1.0;
-nA(end,end) = 1.0;
-nA(end,end-1) = -1.0;
-vxA(1,1) = 1.0;
-vxA(end,end) = 1.0;
+transport_realistic;
 
 %%
 
 figure(1)
 plot(nxax,n_new,'DisplayName','time = 0s')
 xlim([min(nxax) max(nxax)])
-% ylim([-1.0e19 1.0e19])
-% pause(1)
 hold on
 
 figure(2)
@@ -96,8 +31,7 @@ xlim([min(vxax) max(vxax)])
 hold on
 
 count = 1;
-
-dt = 0.99*(dx^2)/(2.0*nu);
+timerVal = tic;
 
 %-------------------------------------------------------------------------%
 % Solve                                                                   %
@@ -155,11 +89,11 @@ for ii=1:nmax
     n_new = n_new';
     vx_new = vx_new';
     
-    vx_new(1,1) = 0.0;
-    vx_new(1,end) = 0.0;
+    vx_new(1,1) = cs/2;
+    vx_new(1,end) = cs;
     % set first order neumann boundary conditions for the density ghost
     % points
-    n_new(1,1) = n_new(1,2);
+    n_new(1,1) = 1.0e17;
     n_new(1,end) = n_new(1,end-1);
     
     if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
@@ -178,8 +112,10 @@ for ii=1:nmax
     elseif dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
         fprintf('CFL condition violated, ii=%d\n',ii)
         break
-    elseif ii==count*1000
+    elseif ii==(nmax/10)*count
+        fprintf('ii=%ds\n', ii)
         fprintf('dt=%ds\n', dt)
+        fprintf('total time %d\n', toc(timerVal))
         if dt == 0.99*(dx^2)/(2.0*nu)
             fprintf('Diffusive CFL condition\n')
         elseif dt == 0.99*dx/max(abs(vx_new))
@@ -206,19 +142,19 @@ end
 %%
 
 figure(1)
-legend('show','Location','northwest')
+legend('show','Location','northeast')
 xlabel('Position (m)')
 ylabel('Density m$^{-3}$')
 hold off
 
 figure(2)
-legend('show','Location','northwest')
+legend('show','Location','northeast')
 xlabel('Position (m)')
 ylabel('Velocity ms$^{-1}$')
 hold off
 
 figure(3)
-legend('show','Location','northwest')
+legend('show','Location','northeast')
 xlabel('Position (m)')
 ylabel('Velocity source ms$^{-1}$')
 hold off
