@@ -43,10 +43,10 @@ vxax = linspace(xmin,xmax,npts-1);
 tmin = 0;
 
 % set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-3;
+tmax = 1.0e-5;
 dt = 0.99*(dx^2)/(2.0*nu);
 nmax = int64(tmax/dt);
-% nmax = 1.0e5;
+% nmax = 5;
 
 %%
 
@@ -63,10 +63,10 @@ n_new = 10.^(-slope*nxax + Nmax);
 dnx = gradient(n_new,nxax);
 
 % initial velocity
-% vx_ax = linspace(0,1,npts-1);
-% vx_new = (cs/2)*vx_ax + cs/2;
-vx_new = cs/2*ones(1,npts-1);
-vx_new(1,end) = cs;
+vx_ax = linspace(0,1,npts-1);
+vx_new = (cs/2)*vx_ax + cs/2;
+% vx_new = cs/2*ones(1,npts-1);
+% vx_new(1,end) = cs;
 
 % initialise coefficient matrices for density, velocity, and momentum equation 
 % rhs 'source' term
