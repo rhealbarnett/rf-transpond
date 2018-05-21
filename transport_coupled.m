@@ -16,18 +16,26 @@
 %------
 % parameters %
 %------
-transport_realistic;
+transport_large;
 
 %%
 
 figure(1)
+set(gcf,'Position',[0   536   824   419])
 plot(nxax,n_new,'DisplayName','time = 0s')
+xlabel('Position (m)')
+ylabel('Density m$^{-3}$')
 xlim([min(nxax) max(nxax)])
+drawnow
 hold on
 
 figure(2)
+set(gcf,'Position',[859   536   824   419])
 plot(vxax,vx_new,'DisplayName','time = 0s')
+xlabel('Position (m)')
+ylabel('Velocity ms$^{-1}$')
 xlim([min(vxax) max(vxax)])
+drawnow
 hold on
 
 count = 1;
@@ -83,28 +91,29 @@ for ii=1:nmax
     nA = sparse(nA);
     vxA = sparse(vxA);
     
+%     vx_source(1,1) = -((Te + Ti)*e)/(m*n_interp(1,1))*(gradn(1,1));
+%     vx_source(end,1) = -((Te + Ti)*e)/(m*n_interp(1,end))*(gradn(1,end)); 
+    
     n_new = nA*n';
     vx_new = dt*vx_source - vxA*vx';
     
     n_new = n_new';
     vx_new = vx_new';
     
-    vx_new(1,1) = cs/2;
+    vx_new(1,1) = -cs;
     vx_new(1,end) = cs;
     % set first order neumann boundary conditions for the density ghost
     % points
-    n_new(1,1) = 1.0e17;
+    n_new(1,1) = n_new(1,2);
     n_new(1,end) = n_new(1,end-1);
+    
+    nan_check = isnan(vx_new);
     
     if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
         dt = 0.99*(dx^2)/(2.0*nu);
-%         fprintf('CFL condition diffusive\n')
     elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
         dt = 0.99*dx/max(abs(vx_new));
-%         fprintf('CFL condition convective\n')
     end
-    
-    nan_check = isnan(vx_new);
     
     if sum(nan_check) ~= 0
         fprintf('unstable, ii=%d\n',ii)
@@ -112,8 +121,9 @@ for ii=1:nmax
     elseif dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
         fprintf('CFL condition violated, ii=%d\n',ii)
         break
-    elseif ii==(nmax/10)*count
-        fprintf('ii=%ds\n', ii)
+    elseif ii==count*round(nmax/10)
+        fprintf('***--------------------***\n')
+        fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
         fprintf('total time %d\n', toc(timerVal))
         if dt == 0.99*(dx^2)/(2.0*nu)
@@ -122,16 +132,19 @@ for ii=1:nmax
             fprintf('Convective CFL condition\n')
         end
         figure(1)
-        plot(nxax,n_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 %         ylim([-1.0e19 1.0e19]) 
-%         legend('show')
+        legend('show')
+        drawnow
         hold on
 %         pause(1)
         figure(2)
-        plot(vxax,vx_new,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        legend('show')
+        drawnow
         hold on
         figure(3)
-        plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(ii*dt) ' s'])
+        plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         count = count + 1;
@@ -146,15 +159,17 @@ legend('show','Location','northeast')
 xlabel('Position (m)')
 ylabel('Density m$^{-3}$')
 hold off
+drawnow
 
 figure(2)
-legend('show','Location','northeast')
+legend('show','Location','southeast')
 xlabel('Position (m)')
 ylabel('Velocity ms$^{-1}$')
 hold off
+drawnow
 
 figure(3)
-legend('show','Location','northeast')
+legend('show','Location','northwest')
 xlabel('Position (m)')
 ylabel('Velocity source ms$^{-1}$')
 hold off
