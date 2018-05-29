@@ -21,21 +21,19 @@ transport_large;
 %%
 
 figure(1)
-set(gcf,'Position',[0   536   824   419])
 plot(nxax,n_new,'DisplayName','time = 0s')
-xlabel('Position (m)')
-ylabel('Density m$^{-3}$')
-xlim([min(nxax) max(nxax)])
-drawnow
 hold on
 
 figure(2)
-set(gcf,'Position',[859   536   824   419])
 plot(vxax,vx_new,'DisplayName','time = 0s')
-xlabel('Position (m)')
-ylabel('Velocity ms$^{-1}$')
-xlim([min(vxax) max(vxax)])
-drawnow
+hold on
+
+figure(3)
+plot(vxax,vx_source*dt,'DisplayName','time = 0s')
+hold on
+
+figure(4)
+plot(nxax,n_source*dt,'DisplayName','time = 0s')
 hold on
 
 count = 1;
@@ -73,10 +71,16 @@ for ii=1:nmax
         elseif ((vx(1,jj-1)+vx(1,jj))/2)<=0
             nA(jj,jj) = 1.0 + alpha*vx(1,jj-1);
             nA(jj,jj+1) = -alpha*vx(1,jj);
-            nA(2,2) = 1.0 + alpha*vx(1,1);
-            nA(2,3) = -alpha*vx(1,2);
+%             nA(2,2) = 1.0 + alpha*vx(1,1);
+%             nA(2,3) = -alpha*vx(1,2);
         end 
+        
+        n_source(jj,1) = n(1,jj)^2*rate_coeff;
+        
     end
+    
+    n_source(1,1) = n_source(2,1);
+    n_source(end,1) = n_source(end-1,1);
     
     for jj=2:npts-2
         
@@ -94,12 +98,12 @@ for ii=1:nmax
 %     vx_source(1,1) = -((Te + Ti)*e)/(m*n_interp(1,1))*(gradn(1,1));
 %     vx_source(end,1) = -((Te + Ti)*e)/(m*n_interp(1,end))*(gradn(1,end)); 
     
-    n_new = nA*n';
+    n_new = dt*n_source + nA*n';
     vx_new = dt*vx_source - vxA*vx';
     
     n_new = n_new';
     vx_new = vx_new';
-    
+     
     vx_new(1,1) = -cs;
     vx_new(1,end) = cs;
     % set first order neumann boundary conditions for the density ghost
@@ -121,7 +125,7 @@ for ii=1:nmax
     elseif dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
         fprintf('CFL condition violated, ii=%d\n',ii)
         break
-    elseif ii==count*round(nmax/10)
+    elseif ii==count*round(nmax/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -133,19 +137,19 @@ for ii=1:nmax
         end
         figure(1)
         plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-%         ylim([-1.0e19 1.0e19]) 
-        legend('show')
-        drawnow
+        xlim([min(nxax) max(nxax)])
         hold on
-%         pause(1)
         figure(2)
         plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        legend('show')
-        drawnow
+        xlim([min(vxax) max(vxax)])
         hold on
         figure(3)
         plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
+        hold on
+        figure(4)
+        plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(nxax) max(nxax)])
         hold on
         count = count + 1;
     end 
@@ -159,14 +163,12 @@ legend('show','Location','northeast')
 xlabel('Position (m)')
 ylabel('Density m$^{-3}$')
 hold off
-drawnow
 
 figure(2)
 legend('show','Location','southeast')
 xlabel('Position (m)')
 ylabel('Velocity ms$^{-1}$')
 hold off
-drawnow
 
 figure(3)
 legend('show','Location','northwest')
@@ -174,6 +176,11 @@ xlabel('Position (m)')
 ylabel('Velocity source ms$^{-1}$')
 hold off
 
+figure(4)
+legend('show','Location','northwest')
+xlabel('Position (m)')
+ylabel('Density source m$^{-3}$')
+hold off
 
 
 
