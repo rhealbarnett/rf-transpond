@@ -31,20 +31,8 @@ xmax = 1.0;
 %-- include two additional gridpoints for the density ghost points
 %-- velocity grid will then be defined as having npts-1 (xax(1:npts-1))
 %-- density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 8142;
+npts = 1018;
 dx = (xmax - xmin)/(npts - 1);
-% r = 0.99;
-% dx_arr = zeros(1,npts);
-% dx_arr(1,1) = dx;
-% for ii=2:npts
-%     dx_arr(1,ii) = r*dx_arr(1,ii-1);
-% end
-% % xax = linspace(xmin,xmax,npts);
-% nxax = zeros(1,npts);
-% dx_min = dx_arr(1,1) - r*dx_arr(1,1);
-% dx_max = dx_arr(1,npts) + r*dx_arr(1,npts);
-% nxax(1,1) = xmin - 0.5*dx_min;
-% nxax(1,npts) = xmax + 0.5*dx_max;
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
 
@@ -68,6 +56,17 @@ Nmax = 17;
 % n_new = (10^Nmax - 10^Nmin)*exp(-10.0*nxax) + 10^Nmin;
 n_new = (10^Nmax)*ones(1,npts);
 dnx = gradient(n_new,nxax);
+
+%-- density source
+rate_coeff = 10e-14;
+rate_min = 10^0.0;
+rate_max = (10^Nmax)^2*rate_coeff;
+n_source = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
+% n_source = rate_max*(1.0e-2).^nxax(1:end/2);
+n_source = [n_source,fliplr(n_source)];
+n_source = n_source';
+% n_source = zeros(npts,1);
+
 
 %-- initial velocity
 % vx_ax = linspace(0,1,npts-1);
@@ -95,7 +94,7 @@ vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-6;
+tmax = 1.0e-4;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
