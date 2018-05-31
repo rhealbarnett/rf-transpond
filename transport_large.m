@@ -20,7 +20,7 @@ Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
-nu = 100.0;
+nu = 10.0;
 
 %------
 % spatial domain %
@@ -31,7 +31,7 @@ xmax = 1.0;
 %-- include two additional gridpoints for the density ghost points
 %-- velocity grid will then be defined as having npts-1 (xax(1:npts-1))
 %-- density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 1018;
+npts = 4072;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
