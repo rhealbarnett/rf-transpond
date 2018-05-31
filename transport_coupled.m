@@ -125,7 +125,7 @@ for ii=1:nmax
     elseif dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
         fprintf('CFL condition violated, ii=%d\n',ii)
         break
-    elseif ii==count*round(nmax/5)
+    elseif ii==count*round(nmax/6)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -159,7 +159,7 @@ end
 %%
 
 figure(1)
-legend('show','Location','northeast')
+legend('show','Location','south')
 xlabel('Position (m)')
 ylabel('Density m$^{-3}$')
 hold off
@@ -177,7 +177,7 @@ ylabel('Velocity source ms$^{-1}$')
 hold off
 
 figure(4)
-legend('show','Location','northwest')
+legend('show','Location','south')
 xlabel('Position (m)')
 ylabel('Density source m$^{-3}$')
 hold off
