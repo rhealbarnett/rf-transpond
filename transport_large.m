@@ -60,19 +60,22 @@ dnx = gradient(n_new,nxax);
 %-- density source
 rate_coeff = 10e-14;
 rate_min = 10^0.0;
-rate_max = (10^Nmax)^2*rate_coeff;
-n_source = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
+rate_max = (10^Nmax);
+n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
 % n_source = rate_max*(1.0e-2).^nxax(1:end/2);
-n_source = [n_source,fliplr(n_source)];
-n_source = n_source';
-% n_source = zeros(npts,1);
+n_neut = [n_neut,fliplr(n_neut)];
+n_neut = n_neut';
+n_source = zeros(npts,1);
 
+for ii=1:npts
+    n_source(ii,1) = n_neut(ii,1)*n_new(1,ii)*rate_coeff;
+end
 
 %-- initial velocity
-% vx_ax = linspace(0,1,npts-1);
-% vx_new = (2.0*cs)*vx_ax - cs;
+vx_ax = linspace(0,1,npts-1);
+vx_new = (2.0*cs)*vx_ax - cs;
 % vx_new = cs/2*ones(1,npts-1);
-vx_new = zeros(1,npts-1);
+% vx_new = zeros(1,npts-1);
 vx_new(1,1) = -cs;
 vx_new(1,end) = cs;
 
