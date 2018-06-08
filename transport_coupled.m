@@ -49,7 +49,8 @@ for ii=1:nmax
     
     vx = vx_new;
     n = n_new;
-    n_interp = interp1(nxax,n,vxax,'spline');
+    n_fit = polyfit(nxax,n,2);
+    n_interp = polyval(n_fit,vxax);
     gradn = (n_interp(3:end) - n_interp(1:end-2))/(2.0*dx);
 
     for jj=2:npts-1
@@ -75,7 +76,7 @@ for ii=1:nmax
 %             nA(2,3) = -alpha*vx(1,2);
         end 
         
-        n_source(jj,1) = n(1,jj)^2*rate_coeff;
+        n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
         
     end
     
