@@ -49,7 +49,7 @@ tmin = 0;
 % Initialise coefficient matrices                                         %
 %-------------------------------------------------------------------------%
 
-%-- initial density profile -- Gaussian 'blob' at centre of the domain
+%-- initial density profile
 Nmax = 17;
 % Nmin = 16;
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
@@ -97,11 +97,12 @@ vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-3;
+tmax = 1.0e-4;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
     dt = 0.99*dx/max(abs(vx_new));
 end
 nmax = round(tmax/dt);
+tax = linspace(tmin,tmax,nmax);
 
