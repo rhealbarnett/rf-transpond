@@ -112,6 +112,11 @@ for ii=1:nmax
     n_new(1,1) = n_new(1,2);
     n_new(1,end) = n_new(1,end-1);
     
+    l_inf_vx(1,ii) = norm(vx - vx_new);
+    l_two_vx(1,ii) = rms(vx - vx_new);
+    l_inf_n(1,ii) = norm(n - n_new);
+    l_two_n(1,ii) = rms(n - n_new);
+    
     nan_check = isnan(vx_new);
     
     if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
@@ -130,7 +135,8 @@ for ii=1:nmax
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
-        fprintf('total time %d\n', toc(timerVal))
+        fprintf('total time=%ds\n', dt*ii)
+        fprintf('simulation time %d\n', toc(timerVal))
         if dt == 0.99*(dx^2)/(2.0*nu)
             fprintf('Diffusive CFL condition\n')
         elseif dt == 0.99*dx/max(abs(vx_new))
