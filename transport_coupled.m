@@ -167,26 +167,26 @@ end
 
 figure(1)
 legend('show','Location','northeast')
-xlabel('Position (m)')
-ylabel('Density m$^{-3}$')
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density m$^{-3}$','Fontsize',16)
 hold off
 
 figure(2)
 legend('show','Location','southeast')
-xlabel('Position (m)')
-ylabel('Velocity ms$^{-1}$')
+xlabel('Position (m)','Fontsize',16)
+ylabel('Velocity ms$^{-1}$','Fontsize',16)
 hold off
 
 figure(3)
 legend('show','Location','northwest')
-xlabel('Position (m)')
-ylabel('Velocity source ms$^{-1}$')
+xlabel('Position (m)','Fontsize',16)
+ylabel('Velocity source ms$^{-1}$','Fontsize',16)
 hold off
 
 figure(4)
 legend('show','Location','northwest')
-xlabel('Position (m)')
-ylabel('Density source m$^{-3}$')
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density source m$^{-3}$','Fontsize',16)
 hold off
 
 
