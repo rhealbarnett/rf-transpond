@@ -72,10 +72,10 @@ for ii=1:npts
 end
 
 %-- initial velocity
-vx_ax = linspace(0,1,npts-1);
-vx_new = (2.0*cs)*vx_ax - cs;
+% vx_ax = linspace(0,1,npts-1);
+% vx_new = (2.0*cs)*vx_ax - cs;
 % vx_new = cs/2*ones(1,npts-1);
-% vx_new = zeros(1,npts-1);
+vx_new = zeros(1,npts-1);
 vx_new(1,1) = -cs;
 vx_new(1,end) = cs;
 
@@ -97,7 +97,7 @@ vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-4;
+tmax = 1.0e-3;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
