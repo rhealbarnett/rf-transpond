@@ -21,11 +21,11 @@ transport_large;
 %%
 
 figure(1)
-plot(nxax,n_new,'DisplayName','time = 0s')
+semilogy(nxax,n_new,'DisplayName','time = 0s')
 hold on
 
 figure(2)
-plot(vxax,vx_new,'DisplayName','time = 0s')
+plot(vxax,vx_new/cs,'DisplayName','time = 0s')
 hold on
 
 figure(3)
@@ -89,7 +89,8 @@ for ii=1:nmax
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)); 
+        vx_source(jj,1) = 0.0;%-((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1));% -...
+            %(1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx); 
 
     end
     
@@ -143,11 +144,11 @@ for ii=1:nmax
             fprintf('Convective CFL condition\n')
         end
         figure(1)
-        plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         figure(2)
-        plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(3)
@@ -174,7 +175,7 @@ hold off
 figure(2)
 legend('show','Location','southeast')
 xlabel('Position (m)','Fontsize',16)
-ylabel('Velocity ms$^{-1}$','Fontsize',16)
+ylabel('Mach number','Fontsize',16)
 hold off
 
 figure(3)
