@@ -45,7 +45,7 @@ tmin = 0;
 % set dt based on CFL conditions, check during loop if violated
 tmax = 1.0e-5;
 dt = 0.99*(dx^2)/(2.0*nu);
-nmax = int64(tmax/dt);
+nmax = round(tmax/dt);
 % nmax = 5;
 
 %%
@@ -55,32 +55,78 @@ nmax = int64(tmax/dt);
 % Initialise coefficient matrices                                         %
 %-------------------------------------------------------------------------%
 
-% initial density profile -- Gaussian 'blob' at centre of the domain
+%-- initial density profile
 Nmax = 17;
-Nmin = 16;
-slope = (Nmax - Nmin) ./ (xmax - xmin);
-n_new = 10.^(-slope*nxax + Nmax);
+% Nmin = 16;
+% slope = (Nmax - Nmin) ./ (xmax - xmin);
+% n_new = (10^Nmax - 10^Nmin)*exp(-10.0*nxax) + 10^Nmin;
+n_new = (10^Nmax)*ones(1,npts);
 dnx = gradient(n_new,nxax);
 
-% initial velocity
-vx_ax = linspace(0,1,npts-1);
-vx_new = (cs/2)*vx_ax + cs/2;
-% vx_new = cs/2*ones(1,npts-1);
-% vx_new(1,end) = cs;
+%-- density source
+rate_coeff = 10e-14;
+rate_min = 10^0.0;
+rate_max = (10^Nmax);
+n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
+n_neut = [n_neut,fliplr(n_neut)];
+n_neut = n_neut';
+n_source = zeros(npts,1);
 
-% initialise coefficient matrices for density, velocity, and momentum equation 
-% rhs 'source' term
+% for ii=1:npts
+%     n_source(ii,1) = n_neut(ii,1)*n_new(1,ii)*rate_coeff;
+% end
+
+%-- initial velocity
+% vx_ax = linspace(0,1,npts-1);
+% vx_new = (2.0*cs)*vx_ax - cs;
+% vx_new = cs/2*ones(1,npts-1);
+vx_new = zeros(1,npts-1);
+vx_new(1,1) = -cs;
+vx_new(1,end) = cs;
+
+%-- initialise coefficient matrices for density, velocity, and momentum equation 
+%-- rhs 'source' term
 nA = zeros(npts,npts);
 vxA = zeros(npts-1,npts-1);
 vx_source = zeros(npts-1,1);
 
-% fill boundary conditions in coefficient matrix
-% zero flux on density ghost point at xmax
-% Dirichlet at xmin
+%-- fill boundary conditions in coefficient matrix
+%-- zero flux on density ghost point at xmax
+%-- Dirichlet at xmin
 nA(1,1) = 1.0;
+nA(1,2) = -1.0;
 nA(end,end) = 1.0;
 nA(end,end-1) = -1.0;
-% Dirichlet conditions on velocity 
+%-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
+
+%-- set dt based on CFL conditions, check during loop if violated
+tmax = 1.0e-6;
+if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
+    dt = 0.99*(dx^2)/(2.0*nu);
+elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
+    dt = 0.99*dx/max(abs(vx_new));
+end
+nmax = round(tmax/dt);
+tax = linspace(tmin,tmax,nmax);
+
+%%
+
+%-----------------------------------------------------------------------------%
+% Set up electric field profile & bits for PF                                 %
+% Using E||,max = 300Vcm^-1 from J. Myra 2006 Nonlinear interactions paper    %
+% exponential decay away from antenna location                                %
+%-----------------------------------------------------------------------------%
+
+Emax = 3.0e4;
+freq = 50.0e6;
+om = 2.0*pi*freq;
+
+Efield = exp(1.0e3*vxax);
+Efield = Efield./max(Efield);
+Efield = Emax*Efield;
+
+pond_pot = (1.0/4.0)*((e^2)./(m*om^2)).*(Efield.^2);
+
 
