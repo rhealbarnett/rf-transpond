@@ -173,15 +173,15 @@ legend('show','Location','south')
 hold off
 
 figure(2)
-legend('show','Location','southeast')
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
+legend('show','Location','southeast')
 hold off
 
 figure(3)
-legend('show','Location','northwest')
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms$^{-1}$','Fontsize',16)
+legend('show','Location','northwest')
 hold off
 
 figure(4)
