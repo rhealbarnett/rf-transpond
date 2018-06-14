@@ -16,7 +16,7 @@
 %------
 % parameters %
 %------
-transport_large;
+transport_realistic;
 
 %%
 
@@ -90,8 +90,9 @@ for ii=1:nmax
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
-        vx_source(jj,1) = 0.0;%-((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1));% -...
-            %(1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx); 
+        pond_source(jj,1) = (1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx);
+        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
+            pond_source(jj,1); 
 
     end
     
