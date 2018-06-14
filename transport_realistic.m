@@ -69,7 +69,7 @@ rate_min = 10^0.0;
 rate_max = (10^Nmax);
 % n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
 n_neut = zeros(1,npts);
-n_neut(1:round(npts/20)+1) = 10.^(-340.0*nxax(1:round(npts/20)+1) + Nmax);
+n_neut(1:round(npts/20)+1) = 10.^(-(34.0/1.0e-3)*nxax(1:round(npts/20)+1) + Nmax);
 n_neut(end-round(npts/20):end) = fliplr(n_neut(1:round(npts/20)+1));
 % n_neut = [n_neut,fliplr(n_neut)];
 n_neut = n_neut';
@@ -105,7 +105,7 @@ vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-6;
+tmax = 1.0e-5;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
@@ -130,6 +130,6 @@ Efield = exp(1.0e3*vxax);
 Efield = Efield./max(Efield);
 Efield = Emax*Efield;
 
-pond_pot = (1.0/4.0)*((e^2)./(m*om^2)).*(Efield.^2);
+pond_pot = (1.0/4.0)*((e^2)/(m*om^2))*(Efield.^2);
 
 
