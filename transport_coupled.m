@@ -21,7 +21,7 @@ transport_large;
 %%
 
 figure(1)
-semilogy(nxax,n_new,'DisplayName','time = 0s')
+plot(nxax,n_new,'DisplayName','time = 0s')
 hold on
 
 figure(2)
@@ -144,7 +144,7 @@ for ii=1:nmax
             fprintf('Convective CFL condition\n')
         end
         figure(1)
-        semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         figure(2)
