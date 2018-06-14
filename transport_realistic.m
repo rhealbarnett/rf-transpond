@@ -67,14 +67,17 @@ dnx = gradient(n_new,nxax);
 rate_coeff = 10e-14;
 rate_min = 10^0.0;
 rate_max = (10^Nmax);
-n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
-n_neut = [n_neut,fliplr(n_neut)];
+% n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
+n_neut = zeros(1,npts);
+n_neut(1:round(npts/20)+1) = 10.^(-340.0*nxax(1:round(npts/20)+1) + Nmax);
+n_neut(end-round(npts/20):end) = fliplr(n_neut(1:round(npts/20)+1));
+% n_neut = [n_neut,fliplr(n_neut)];
 n_neut = n_neut';
 n_source = zeros(npts,1);
 
-% for ii=1:npts
-%     n_source(ii,1) = n_neut(ii,1)*n_new(1,ii)*rate_coeff;
-% end
+for ii=1:npts
+    n_source(ii,1) = n_neut(ii,1)*n_new(1,ii)*rate_coeff;
+end
 
 %-- initial velocity
 % vx_ax = linspace(0,1,npts-1);
