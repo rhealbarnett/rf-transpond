@@ -26,12 +26,12 @@ nu = 1.0;
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.01;
+xmax = 0.1;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 512;
+npts = 128;
 dx = (xmax - xmin)/(npts - 1);
 % xax = linspace(xmin,xmax,npts);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
@@ -42,12 +42,6 @@ vxax = linspace(xmin,xmax,npts-1);
 %------
 tmin = 0;
 
-% set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-5;
-dt = 0.99*(dx^2)/(2.0*nu);
-nmax = round(tmax/dt);
-% nmax = 5;
-
 %%
 
 %-------------------------------------------------------------------------%
@@ -56,7 +50,7 @@ nmax = round(tmax/dt);
 %-------------------------------------------------------------------------%
 
 %-- initial density profile
-Nmax = 17;
+Nmax = 18;
 % Nmin = 16;
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
 % n_new = (10^Nmax - 10^Nmin)*exp(-10.0*nxax) + 10^Nmin;
@@ -105,7 +99,7 @@ vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-5;
+tmax = 1.0e-3;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))

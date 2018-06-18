@@ -20,7 +20,7 @@ Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
-nu = 10.0;
+nu = 1000.0;
 
 %------
 % spatial domain %
@@ -31,7 +31,7 @@ xmax = 1.0;
 %-- include two additional gridpoints for the density ghost points
 %-- velocity grid will then be defined as having npts-1 (xax(1:npts-1))
 %-- density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 1018;
+npts = 128;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -63,8 +63,8 @@ rate_min = 10^0.0;
 rate_max = (10^Nmax);
 % n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
 n_neut = zeros(1,npts);
-n_neut(1:round(npts/20)+1) = 10.^(-340.0*nxax(1:round(npts/20)+1) + Nmax);
-n_neut(end-round(npts/20):end) = fliplr(n_neut(1:round(npts/20)+1));
+n_neut(1:round(2*npts/5)+1) = 10.^(-42.5*nxax(1:round(2*npts/5)+1) + Nmax);
+n_neut(end-round(2*npts/5):end) = fliplr(n_neut(1:round(2*npts/5)+1));
 % n_neut = [n_neut,fliplr(n_neut)];
 n_neut = n_neut';
 n_source = zeros(npts,1);
@@ -99,7 +99,7 @@ vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-3;
+tmax = 1.0e-2;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))

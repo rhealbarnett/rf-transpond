@@ -16,7 +16,7 @@
 %------
 % parameters %
 %------
-transport_realistic;
+transport_large;
 
 %%
 
@@ -33,7 +33,7 @@ plot(vxax,vx_source*dt,'DisplayName','time = 0s')
 hold on
 
 figure(4)
-plot(nxax,n_source*dt,'DisplayName','time = 0s')
+semilogy(nxax,n_source*dt,'DisplayName','time = 0s')
 hold on
 
 count = 1;
@@ -90,7 +90,7 @@ for ii=1:nmax
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
-        pond_source(jj,1) = (1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx);
+        pond_source(jj,1) = 0.0;%(1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx);
         vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
             pond_source(jj,1); 
 
@@ -98,9 +98,6 @@ for ii=1:nmax
     
     nA = sparse(nA);
     vxA = sparse(vxA);
-    
-%     vx_source(1,1) = -((Te + Ti)*e)/(m*n_interp(1,1))*(gradn(1,1));
-%     vx_source(end,1) = -((Te + Ti)*e)/(m*n_interp(1,end))*(gradn(1,end)); 
     
     n_new = dt*n_source + nA*n';
     vx_new = dt*vx_source - vxA*vx';
@@ -117,7 +114,7 @@ for ii=1:nmax
     
     l_inf_vx(1,ii) = norm(vx - vx_new);
     l_two_vx(1,ii) = rms(vx - vx_new);
-    l_inf_n(1,ii) = norm(n - n_new);
+    l_inf_n(1,ii) = norm(n - n_new)/norm(n);
     l_two_n(1,ii) = rms(n - n_new);
     
     nan_check = isnan(vx_new);
@@ -158,7 +155,7 @@ for ii=1:nmax
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
-        plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         count = count + 1;
