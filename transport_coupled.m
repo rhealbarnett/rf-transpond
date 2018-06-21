@@ -21,19 +21,23 @@ transport_large;
 %%
 
 figure(1)
+set(gcf,'Position',[563 925 560 420])
 semilogy(nxax,n_new,'DisplayName','time = 0s')
 hold on
 
 figure(2)
+set(gcf,'Position',[7 925 560 420])
 plot(vxax,vx_new/cs,'DisplayName','time = 0s')
 hold on
 
 figure(3)
+set(gcf,'Position',[3 476 560 420])
 plot(vxax,vx_source*dt,'DisplayName','time = 0s')
 hold on
 
 figure(4)
-semilogy(nxax,n_source*dt,'DisplayName','time = 0s')
+set(gcf,'Position',[565 479 560 420])
+plot(nxax,n_source*dt,'DisplayName','time = 0s')
 hold on
 
 count = 1;
@@ -77,7 +81,7 @@ for ii=1:nmax
 %             nA(2,3) = -alpha*vx(1,2);
         end 
         
-%         n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
+        n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
         
     end
     
@@ -119,7 +123,7 @@ for ii=1:nmax
     
     bound_check(1,ii) = gradn(end);
     
-    source_check(1,ii) = rms(n_source);
+    source_check(1,ii) = trapz(nxax,n_source);
     
     flux = gradient(vx.*n_interp);
     flux_check(ii,:) = flux;
@@ -150,19 +154,23 @@ for ii=1:nmax
             fprintf('Convective CFL condition\n')
         end
         figure(1)
+        set(gcf,'Position',[563 925 560 420])
         semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         figure(2)
+        set(gcf,'Position',[7 925 560 420])
         plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(3)
+        set(gcf,'Position',[3 476 560 420])
         plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
-        semilogy(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        set(gcf,'Position',[565 479 560 420])
+        plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         count = count + 1;
@@ -173,35 +181,41 @@ end
 %%
 
 figure(1)
+set(gcf,'Position',[563 925 560 420])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m$^{-3}$','Fontsize',16)
 legend('show','Location','south')
 hold off
 
 figure(2)
+set(gcf,'Position',[7 925 560 420])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
 hold off
 
 figure(3)
+set(gcf,'Position',[3 476 560 420])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms$^{-1}$','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
 figure(4)
+set(gcf,'Position',[565 479 560 420])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density source m$^{-3}$','Fontsize',16)
 legend('show','Location','south')
 hold off
 
 figure(5)
+set(gcf,'Position',[561 33 560 420])
 semilogy(tax,l_inf_n);
 xlabel('Time (s)','Fontsize',16)
 ylabel('Relative difference in solution (for n)','Fontsize',16)
 
 figure(6)
+set(gcf,'Position',[0 29 560 420])
 semilogy(tax,l_inf_vx);
 xlabel('Time (s)','Fontsize',16)
 ylabel('Relative difference in solution (for vx)','Fontsize',16)
