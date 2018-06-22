@@ -43,6 +43,10 @@ hold on
 count = 1;
 timerVal = tic;
 
+vx_mat = zeros(nmax,npts-1);
+n_mat = zeros(nmax,npts);
+pressure_mat = zeros(nmax,npts-2);
+
 %%
 %-------------------------------------------------------------------------%
 % Solve                                                                   %
@@ -81,7 +85,7 @@ for ii=1:nmax
 %             nA(2,3) = -alpha*vx(1,2);
         end 
         
-        n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
+%         n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
         
     end
     
@@ -97,6 +101,7 @@ for ii=1:nmax
         pond_source(jj,1) = 0.0;%(1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx);
         vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
             pond_source(jj,1); 
+        pressure(1,jj) = (Te + Ti)*gradn(1,jj-1);
 
     end
     
@@ -116,17 +121,21 @@ for ii=1:nmax
     n_new(1,1) = n_new(1,2);
     n_new(1,end) = n_new(1,end-1);
     
-    l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
-    l_two_vx(1,ii) = rms(vx - vx_new);
-    l_inf_n(1,ii) = norm(n - n_new)/norm(n);
-    l_two_n(1,ii) = rms(n - n_new);
-    
-    bound_check(1,ii) = gradn(end);
-    
-    source_check(1,ii) = trapz(nxax,n_source);
-    
-    flux = gradient(vx.*n_interp);
-    flux_check(ii,:) = flux;
+%     l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
+%     l_two_vx(1,ii) = rms(vx - vx_new);
+%     l_inf_n(1,ii) = norm(n - n_new)/norm(n);
+%     l_two_n(1,ii) = rms(n - n_new);
+%     
+%     bound_check(1,ii) = gradn(end);
+%     
+%     source_check(1,ii) = trapz(nxax,n_source);
+%     
+%     flux = gradient(vx.*n_interp);
+%     flux_check(ii,:) = flux;
+
+    vx_mat(ii,:) = vx_new;
+    n_mat(ii,:) = n_new;
+    pressure_mat(ii,:) = pressure;
     
     nan_check = isnan(vx_new);
     
@@ -208,19 +217,32 @@ ylabel('Density source m$^{-3}$','Fontsize',16)
 legend('show','Location','south')
 hold off
 
-figure(5)
-set(gcf,'Position',[561 33 560 420])
-semilogy(tax,l_inf_n);
-xlabel('Time (s)','Fontsize',16)
-ylabel('Relative difference in solution (for n)','Fontsize',16)
+% figure(5)
+% set(gcf,'Position',[561 33 560 420])
+% semilogy(tax,l_inf_n);
+% xlabel('Time (s)','Fontsize',16)
+% ylabel('Relative difference in solution (for n)','Fontsize',16)
+% 
+% figure(6)
+% set(gcf,'Position',[0 29 560 420])
+% semilogy(tax,l_inf_vx);
+% xlabel('Time (s)','Fontsize',16)
+% ylabel('Relative difference in solution (for vx)','Fontsize',16)
 
-figure(6)
-set(gcf,'Position',[0 29 560 420])
-semilogy(tax,l_inf_vx);
-xlabel('Time (s)','Fontsize',16)
-ylabel('Relative difference in solution (for vx)','Fontsize',16)
+figure(7)
+levels = linspace(round(min(vx_mat(:)),-3),round(max(vx_mat(:)),-3),25);
+contourf(vxax,tax,vx_mat,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
 
+figure(8)
+levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
+contourf(nxax,tax,n_mat,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
 
-
-
-
+figure(9)
+levels = linspace(round(min(pressure_mat(:)),-3),round(max(pressure_mat(:)),-3),25);
+contourf(vxax(1:npts-2),tax,pressure_mat,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
