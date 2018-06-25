@@ -32,7 +32,7 @@ hold on
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax,vx_source*dt,'DisplayName','time = 0s')
+plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName','time = 0s')
 hold on
 
 figure(4)
@@ -85,7 +85,7 @@ for ii=1:nmax
 %             nA(2,3) = -alpha*vx(1,2);
         end 
         
-%         n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
+        n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
         
     end
     
@@ -128,10 +128,10 @@ for ii=1:nmax
 %     
 %     bound_check(1,ii) = gradn(end);
 %     
-%     source_check(1,ii) = trapz(nxax,n_source);
-%     
-%     flux = gradient(vx.*n_interp);
-%     flux_check(ii,:) = flux;
+    source_check(1,ii) = trapz(nxax,n_source);
+    
+    flux = (vx_new.*n_interp);
+    flux_check(ii,:) = flux;
 
     vx_mat(ii,:) = vx_new;
     n_mat(ii,:) = n_new;
@@ -174,7 +174,7 @@ for ii=1:nmax
         hold on
         figure(3)
         set(gcf,'Position',[3 476 560 420])
-        plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
@@ -229,20 +229,20 @@ hold off
 % xlabel('Time (s)','Fontsize',16)
 % ylabel('Relative difference in solution (for vx)','Fontsize',16)
 
-figure(7)
-levels = linspace(round(min(vx_mat(:)),-3),round(max(vx_mat(:)),-3),25);
-contourf(vxax,tax,vx_mat,levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
-
-figure(8)
-levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-contourf(nxax,tax,n_mat,levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
-
-figure(9)
-levels = linspace(round(min(pressure_mat(:)),-3),round(max(pressure_mat(:)),-3),25);
-contourf(vxax(1:npts-2),tax,pressure_mat,levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
+% figure(7)
+% levels = linspace(round(min(vx_mat(:)),-3),round(max(vx_mat(:)),-3),25);
+% contourf(vxax,tax,vx_mat,levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+% 
+% figure(8)
+% levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
+% contourf(nxax,tax,n_mat,levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+% 
+% figure(9)
+% levels = linspace(round(min(pressure_mat(:)),-3),round(max(pressure_mat(:)),-3),25);
+% contourf(vxax(1:npts-2),tax,pressure_mat,levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
