@@ -22,7 +22,7 @@ transport_large;
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax,n_new,'DisplayName','time = 0s')
+semilogy(nxax(2:npts-1),n_new,'DisplayName','time = 0s')
 hold on
 
 figure(2)
@@ -37,14 +37,14 @@ hold on
 
 figure(4)
 set(gcf,'Position',[565 479 560 420])
-plot(nxax,n_source*dt,'DisplayName','time = 0s')
+plot(nxax(2:npts-1),n_source*dt,'DisplayName','time = 0s')
 hold on
 
 count = 1;
 timerVal = tic;
 
 vx_mat = zeros(nmax,npts-1);
-n_mat = zeros(nmax,npts);
+n_mat = zeros(nmax,npts-2);
 pressure_mat = zeros(nmax,npts-2);
 
 %%
@@ -58,8 +58,12 @@ for ii=1:nmax
     
     vx = vx_new;
     n = n_new;
-    n_fit = polyfit(nxax,n,2);
-    n_interp = polyval(n_fit,vxax);
+    nlog = log10(n);
+    n_fit = interp1([nxax(2), nxax(3), nxax(npts-2), nxax(npts-1)],...
+        [nlog(1), nlog(2), nlog(npts-3), nlog(npts-2)],...
+        [nxax(1), nxax(npts)],'linear','extrap');
+    n_extrap = [10^(n_fit(1)), n, 10^(n_fit(2))];
+    n_interp = interp1(nxax,n_extrap,vxax);
     gradn = (n_interp(3:end) - n_interp(1:end-2))/(2.0*dx);
 
     for jj=2:npts-1
@@ -81,16 +85,14 @@ for ii=1:nmax
         elseif ((vx(1,jj-1)+vx(1,jj))/2)<=0
             nA(jj,jj) = 1.0 + alpha*vx(1,jj-1);
             nA(jj,jj+1) = -alpha*vx(1,jj);
-%             nA(2,2) = 1.0 + alpha*vx(1,1);
-%             nA(2,3) = -alpha*vx(1,2);
         end 
         
-        n_source(jj,1) = n(1,jj)*n_neut(jj,1)*rate_coeff;
+%         n_source(jj-1,1) = n(1,jj-1)*n_neut(jj-1,1)*rate_coeff;
         
     end
     
-    n_source(1,1) = n_source(2,1);
-    n_source(end,1) = n_source(end-1,1);
+%     n_source(1,1) = n_source(2,1);
+%     n_source(end,1) = n_source(end-1,1);
     
     for jj=2:npts-2
         
@@ -99,16 +101,17 @@ for ii=1:nmax
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
         pond_source(jj,1) = 0.0;%(1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx);
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
+        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj-1))*(gradn(1,jj-1)) -...
             pond_source(jj,1); 
-        pressure(1,jj) = (Te + Ti)*gradn(1,jj-1);
+        pressure(1,jj) = (Te + Ti)*n_interp(1,jj-1)*e;
+        pressure_tot(1,jj) = pressure(1,jj) + (1/2)*n_interp(1,jj-1)*m*(vx(1,jj)^2);
 
     end
     
     nA = sparse(nA);
     vxA = sparse(vxA);
     
-    n_new = dt*n_source + nA*n';
+    n_new = dt*n_source + nA(2:npts-1,2:npts-1)*n';
     vx_new = dt*vx_source - vxA*vx';
     
     n_new = n_new';
@@ -116,10 +119,6 @@ for ii=1:nmax
      
     vx_new(1,1) = -cs;
     vx_new(1,end) = cs;
-    % set first order neumann boundary conditions for the density ghost
-    % points
-    n_new(1,1) = n_new(1,2);
-    n_new(1,end) = n_new(1,end-1);
     
 %     l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
 %     l_two_vx(1,ii) = rms(vx - vx_new);
@@ -128,7 +127,7 @@ for ii=1:nmax
 %     
 %     bound_check(1,ii) = gradn(end);
 %     
-    source_check(1,ii) = trapz(nxax,n_source);
+    source_check(1,ii) = trapz(nxax(2:npts-1),n_source);
     
     flux = (vx_new.*n_interp);
     flux_check(ii,:) = flux;
@@ -136,6 +135,7 @@ for ii=1:nmax
     vx_mat(ii,:) = vx_new;
     n_mat(ii,:) = n_new;
     pressure_mat(ii,:) = pressure;
+    press_tot_mat(ii,:) = pressure_tot;
     
     nan_check = isnan(vx_new);
     
@@ -151,7 +151,7 @@ for ii=1:nmax
     elseif dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
         fprintf('CFL condition violated, ii=%d\n',ii)
         break
-    elseif ii==count*round(nmax/6)
+    elseif ii==count*round(nmax/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -164,7 +164,7 @@ for ii=1:nmax
         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-        semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         figure(2)
@@ -179,9 +179,19 @@ for ii=1:nmax
         hold on
         figure(4)
         set(gcf,'Position',[565 479 560 420])
-        plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax(2:npts-1),n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
+        figure(5)
+        set(gcf,'Position',[561 33 560 420])
+        semilogy(tax(1:ii),source_check(1,1:ii))
+        hold on
+        semilogy(tax(1:ii),flux_check(1:ii,end))
+        xlabel('Time (s)','Fontsize',16)
+        ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
+        legend({'source','flux'},'Fontsize',16)
+        xlim([min(tax) max(tax)])
+        hold off
         count = count + 1;
     end 
     
@@ -191,6 +201,7 @@ end
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
+semilogy(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m$^{-3}$','Fontsize',16)
 legend('show','Location','south')
@@ -198,6 +209,7 @@ hold off
 
 figure(2)
 set(gcf,'Position',[7 925 560 420])
+plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
@@ -205,6 +217,7 @@ hold off
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
+plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms$^{-1}$','Fontsize',16)
 legend('show','Location','northwest')
@@ -212,9 +225,21 @@ hold off
 
 figure(4)
 set(gcf,'Position',[565 479 560 420])
+plot(nxax(2:npts-1),n_source*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density source m$^{-3}$','Fontsize',16)
 legend('show','Location','south')
+hold off
+
+figure(5)
+set(gcf,'Position',[561 33 560 420])
+semilogy(tax,source_check(1,:))
+hold on
+semilogy(tax,flux_check(:,end))
+xlabel('Time (s)','Fontsize',16)
+ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
+legend({'source','flux'},'Fontsize',16)
+xlim([min(tax) max(tax)])
 hold off
 
 % figure(5)
@@ -240,9 +265,15 @@ hold off
 % contourf(nxax,tax,n_mat,levels,'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar
-% 
-% figure(9)
-% levels = linspace(round(min(pressure_mat(:)),-3),round(max(pressure_mat(:)),-3),25);
-% contourf(vxax(1:npts-2),tax,pressure_mat,levels,'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
+
+figure(9)
+levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
+contourf(vxax(1:npts-2),tax,pressure_mat,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
+
+figure(10)
+levels = linspace((min(press_tot_mat(:))),(max(press_tot_mat(:))),25);
+contourf(nxax(2:npts-1),tax,press_tot_mat,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
