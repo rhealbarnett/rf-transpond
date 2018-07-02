@@ -101,7 +101,7 @@ for ii=1:nmax
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
         pond_source(jj,1) = 0.0;%(1.0/m)*(pond_pot(1,jj+1) - pond_pot(1,jj-1))/(2.0*dx);
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj-1))*(gradn(1,jj-1)) -...
+        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
             pond_source(jj,1); 
         pressure(1,jj) = (Te + Ti)*n_interp(1,jj-1)*e;
         pressure_tot(1,jj) = pressure(1,jj) + (1/2)*n_interp(1,jj-1)*m*(vx(1,jj)^2);
@@ -237,7 +237,7 @@ semilogy(tax,source_check(1,:))
 hold on
 semilogy(tax,flux_check(:,end))
 xlabel('Time (s)','Fontsize',16)
-ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
+ylabel('Particles m$^{-2}$s$^{-1}$','Fontsize',16)
 legend({'source','flux'},'Fontsize',16)
 xlim([min(tax) max(tax)])
 hold off
