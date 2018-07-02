@@ -61,7 +61,7 @@ dnx = gradient(n_new,nxax(2:npts-1));
 rate_coeff = 10e-14;
 decay_index = round((npts-2)/2.5);
 cosax = linspace(0,pi,decay_index+1);
-neut_max = 16.5;
+neut_max = 17;
 neut_min = 14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -101,7 +101,7 @@ vxA(1,1) = 1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 3.0e-4;
+tmax = 1.0e-4;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
