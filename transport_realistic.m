@@ -20,7 +20,7 @@ Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
-nu = 1.0;
+nu = 1000.0;
 
 %------
 % spatial domain %
@@ -50,35 +50,40 @@ tmin = 0;
 %-------------------------------------------------------------------------%
 
 %-- initial density profile
-Nmax = 18;
+Nmax = 16;
 % Nmin = 16;
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
 % n_new = (10^Nmax - 10^Nmin)*exp(-10.0*nxax) + 10^Nmin;
-n_new = (10^Nmax)*ones(1,npts);
-dnx = gradient(n_new,nxax);
+n_new = (10^Nmax)*ones(1,npts-2);
+dnx = gradient(n_new,nxax(2:npts-1));
 
 %-- density source
 rate_coeff = 10e-14;
-rate_min = 10^0.0;
-rate_max = (10^Nmax);
+decay_index = round((npts-2)/2.5);
+cosax = linspace(0,pi,decay_index+1);
+neut_max = 16.5;
+neut_min = 14;
+decay_length = 0.4;
+decay_gradient = (neut_min - neut_max)/decay_length;
 % n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
-n_neut = zeros(1,npts);
-n_neut(1:round(npts/20)+1) = 10.^(-(34.0/1.0e-3)*nxax(1:round(npts/20)+1) + Nmax);
-n_neut(end-round(npts/20):end) = fliplr(n_neut(1:round(npts/20)+1));
+n_neut = zeros(1,npts-2);
+% n_neut(1:decay_index + 1) = 10.^(decay_gradient*nxax(1:decay_index + 1) + neut_max);
+n_neut(1:decay_index+1) = 10^neut_max*(cos(cosax)+1.01)/2;%.*exp(-4*cosax);
+n_neut(end-decay_index:end) = fliplr(n_neut(1:decay_index + 1));
 % n_neut = [n_neut,fliplr(n_neut)];
 n_neut = n_neut';
-n_source = zeros(npts,1);
+n_neut(1:end-decay_index) = n_neut(decay_index)/2;
+n_source = zeros((npts-2),1);
 
-for ii=1:npts
-    n_source(ii,1) = n_neut(ii,1)*n_new(1,ii)*rate_coeff;
-end
+% for ii=1:npts-2
+%     n_source(ii,1) = n_neut(ii,1)*n_neut(ii,1)*rate_coeff;
+% end
 
 %-- initial velocity
-% vx_ax = linspace(0,1,npts-1);
-% vx_new = (2.0*cs)*vx_ax - cs;
-% vx_new = cs/2*ones(1,npts-1);
-vx_new = zeros(1,npts-1);
-vx_new(1,1) = -cs;
+vx_ax = linspace(0,1,npts-1);
+vx_new = (cs/2)*vx_ax + cs/2;
+% vx_new = cs*ones(1,npts-1);
+vx_new(1,1) = cs/2;
 vx_new(1,end) = cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -88,18 +93,13 @@ vxA = zeros(npts-1,npts-1);
 vx_source = zeros(npts-1,1);
 
 %-- fill boundary conditions in coefficient matrix
-%-- zero flux on density ghost point at xmax
-%-- Dirichlet at xmin
-nA(1,1) = 1.0;
-nA(1,2) = -1.0;
-nA(end,end) = 1.0;
-nA(end,end-1) = -1.0;
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
+vxA(1,2) = -1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-3;
+tmax = 1.0e-5;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
@@ -120,10 +120,13 @@ Emax = 3.0e4;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
-Efield = exp(1.0e3*vxax);
+% Efield = exp(1.0e3*vxax);
+Efield = (Emax/2)*(-cos(cosax)+1.01);
+Efield = [(zeros(1,npts-1-length(cosax))), Efield];
 Efield = Efield./max(Efield);
 Efield = Emax*Efield;
+Efield = Efield.^2;
 
-pond_pot = (1.0/4.0)*((e^2)/(m*om^2))*(Efield.^2);
+pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 
 
