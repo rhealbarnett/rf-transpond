@@ -100,7 +100,7 @@ for ii=1:nmax
         vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
         
-        pond_source(jj,1) = (1.0/m)*pond_const*(Efield(1,jj+1) - Efield(1,jj-1))/(2.0*dx);
+        pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj-1)))/(2.0*dx);
         vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
             pond_source(jj,1); 
         pressure(1,jj) = (Te + Ti)*n_interp(1,jj-1)*e;
@@ -193,6 +193,11 @@ for ii=1:nmax
         legend({'source','flux (right)','flux (left)'},'Fontsize',16)
         xlim([min(tax) max(tax)])
         hold off
+        figure(6)
+        set(gcf,'Position',[3 33 560 420])
+        plot(vxax(2:npts-1),pond_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(nxax) max(nxax)])
+        hold on
         count = count + 1;
     end 
     
@@ -204,7 +209,7 @@ figure(1)
 set(gcf,'Position',[563 925 560 420])
 semilogy(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Density m$^{-3}$','Fontsize',16)
+ylabel('Density m^{-3}','Fontsize',16)
 legend('show','Location','south')
 hold off
 
@@ -220,7 +225,7 @@ figure(3)
 set(gcf,'Position',[3 476 560 420])
 plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Velocity source ms$^{-1}$','Fontsize',16)
+ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
@@ -228,7 +233,7 @@ figure(4)
 set(gcf,'Position',[565 479 560 420])
 plot(nxax(2:npts-1),n_source*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Density source m$^{-3}$','Fontsize',16)
+ylabel('Density source m^{-3}','Fontsize',16)
 legend('show','Location','south')
 hold off
 
@@ -239,9 +244,17 @@ hold on
 semilogy(tax,flux_check(:,end),'r')
 semilogy(tax,flux_check(:,1),'*r')
 xlabel('Time (s)','Fontsize',16)
-ylabel('Particles m$^{-2}$s$^{-1}$','Fontsize',16)
+ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
 legend({'source','flux (right)','flux (left)'},'Fontsize',16)
 xlim([min(tax) max(tax)])
+hold off
+
+figure(6)
+set(gcf,'Position',[3 33 560 420])
+plot(vxax(2:npts-1),pond_source*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Ponderomotive source ms^{-1}','Fontsize',16)
+legend('show','Location','south')
 hold off
 
 % figure(5)
