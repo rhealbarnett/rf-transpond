@@ -95,11 +95,10 @@ vx_source = zeros(npts-1,1);
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
-vxA(1,2) = -1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-5;
+tmax = 1.0e-4;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
@@ -116,7 +115,7 @@ tax = linspace(tmin,tmax,nmax);
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 3.0e4;
+Emax = 3.0e5;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
