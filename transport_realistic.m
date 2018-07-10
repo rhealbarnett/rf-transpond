@@ -33,7 +33,6 @@ xmax = 0.1;
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
 npts = 128;
 dx = (xmax - xmin)/(npts - 1);
-% xax = linspace(xmin,xmax,npts);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
 
@@ -51,17 +50,19 @@ tmin = 0;
 
 %-- initial density profile
 Nmax = 16;
-% Nmin = 16;
+Nmin = 15;
+N_grad = (Nmax - Nmin)/(xmax - xmin);
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
-% n_new = (10^Nmax - 10^Nmin)*exp(-10.0*nxax) + 10^Nmin;
-n_new = (10^Nmax)*ones(1,npts-2);
+% n_new = (N_grad)*exp(10*nxax(2:npts-1));
+n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
+% n_new = (10^Nmax)*ones(1,npts-2);
 dnx = gradient(n_new,nxax(2:npts-1));
 
 %-- density source
 rate_coeff = 10e-14;
 decay_index = round((npts-2)/2.5);
 cosax = linspace(0,pi,decay_index+1);
-neut_max = 16.5;
+neut_max = 17.5;
 neut_min = 14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -75,15 +76,15 @@ n_neut = n_neut';
 n_neut(1:end-decay_index) = n_neut(decay_index)/2;
 n_source = zeros((npts-2),1);
 
-% for ii=1:npts-2
-%     n_source(ii,1) = n_neut(ii,1)*n_neut(ii,1)*rate_coeff;
-% end
+for ii=1:npts-2
+    n_source(ii,1) = n_neut(ii,1)*n_neut(ii,1)*rate_coeff;
+end
 
 %-- initial velocity
 vx_ax = linspace(0,1,npts-1);
-vx_new = (cs/2)*vx_ax + cs/2;
+vx_new = (cs)*vx_ax;% + cs/2;
 % vx_new = cs*ones(1,npts-1);
-vx_new(1,1) = cs/2;
+vx_new(1,1) = 0;
 vx_new(1,end) = cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -95,10 +96,11 @@ vx_source = zeros(npts-1,1);
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
+vxA(1,2) = -1.0;
 vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-4;
+tmax = 1.0e-6;
 if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
     dt = 0.99*(dx^2)/(2.0*nu);
 elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
