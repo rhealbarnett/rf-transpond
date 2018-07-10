@@ -22,7 +22,7 @@ transport_realistic;
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax(2:npts-1),n_new,'DisplayName','time = 0s')
+plot(nxax(2:npts-1),n_new,'DisplayName','time = 0s')
 hold on
 
 figure(2)
@@ -117,7 +117,7 @@ for ii=1:nmax
     n_new = n_new';
     vx_new = vx_new';
      
-    vx_new(1,1) = 0.0;
+    vx_new(1,1) = vx_new(1,2);
     vx_new(1,end) = cs;
     
 %     l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
@@ -164,7 +164,7 @@ for ii=1:nmax
         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-        semilogy(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         figure(2)
@@ -207,7 +207,7 @@ end
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
+plot(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
 legend('show','Location','south')
