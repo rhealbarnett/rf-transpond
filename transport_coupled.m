@@ -117,7 +117,7 @@ for ii=1:nmax
     n_new = n_new';
     vx_new = vx_new';
      
-    vx_new(1,1) = vx_new(1,2);
+    vx_new(1,1) = 0.0;%vx_new(1,2);
     vx_new(1,end) = cs;
     
 %     l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
@@ -131,6 +131,7 @@ for ii=1:nmax
     
     flux = (vx_new.*n_interp);
     flux_check(ii,:) = flux;
+    density_check(1,ii) = trapz(nxax(2:npts-1),n_new);
 
     vx_mat(ii,:) = vx_new;
     n_mat(ii,:) = n_new;
