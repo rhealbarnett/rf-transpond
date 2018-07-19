@@ -54,27 +54,20 @@ pressure_mat = zeros(nmax,npts-2);
 
 for ii=1:nmax
     
-    alpha = dt/(2.0*dx);
+    alpha = dt/(dx);
     
     vx = vx_new;
     n = n_new;
-    nlog = log10(n);
+%     nlog = log10(n);
     n_fit = interp1([nxax(2), nxax(3), nxax(npts-2), nxax(npts-1)],...
-        [nlog(1), nlog(2), nlog(npts-3), nlog(npts-2)],...
+        [n(1), n(2), n(npts-3), n(npts-2)],...
         [nxax(1), nxax(npts)],'linear','extrap');
-    n_extrap = [10^(n_fit(1)), n, 10^(n_fit(2))];
+    n_extrap = [(n_fit(1)), n, (n_fit(2))];
     n_interp = interp1(nxax,n_extrap,vxax);
-    gradn = (n_interp(3:end) - n_interp(1:end-2))/(2.0*dx);
+    gradn = (n_interp(3:end-1) - n_interp(2:end-2))/(dx);
 
-    for jj=2:npts-1
-        
-%---------------------------------------------------------------------------%
-% central difference                                                        %
-% currently unstable on staggered grid 070518                               %
-%---------------------------------------------------------------------------%
-%         nA(jj,jj) = 1.0 - alpha*(vx(1,jj+1) - vx(1,jj-1));
-%         nA(jj,jj-1) = alpha*vx(1,jj);
-%         nA(jj,jj+1) = -alpha*vx(1,jj);  
+    for jj=2:npts-2
+
 %---------------------------------------------------------------------------%
 % first order upwind                                                        %
 % stable on staggered grid                                                  %
@@ -82,9 +75,13 @@ for ii=1:nmax
         if ((vx(1,jj-1)+vx(1,jj))/2)>0
             nA(jj,jj) = 1.0 - alpha*vx(1,jj);
             nA(jj,jj-1) = alpha*vx(1,jj-1);
-        elseif ((vx(1,jj-1)+vx(1,jj))/2)<=0
+            nA(npts-1,npts-1) = 1.0 - alpha*vx(1,end);
+            nA(npts-1,npts-2) = alpha*vx(1,npts-2);
+        elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
             nA(jj,jj) = 1.0 + alpha*vx(1,jj-1);
             nA(jj,jj+1) = -alpha*vx(1,jj);
+            nA(2,2) = 1.0 + alpha*vx(1,1);
+            nA(2,3) = -alpha*vx(1,2);
         end 
         
 %         n_source(jj-1,1) = n(1,jj-1)*n_neut(jj-1,1)*rate_coeff;
@@ -96,15 +93,32 @@ for ii=1:nmax
     
     for jj=2:npts-2
         
-        vxA(jj,jj) = (2.0*nu*dt)/(dx^2) - 1;
-        vxA(jj,jj-1) = -(vx(1,jj-1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
-        vxA(jj,jj+1) = (vx(1,jj+1)*dt)/(4.0*dx) - (nu*dt)/(dx^2);
+        if vx(1,jj)>0
+            vxA(jj,jj) = 1 - alpha*vx(1,jj);
+            vxA(jj,jj-1) = alpha*vx(1,jj);
+            vxA(end,end) = 1 - alpha*vx(1,end);
+            vxA(end,end-1) = alpha*vx(1,end);
+            pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj) - Efield(1,jj-1))/dx);
+            vx_source(end,1) = -((Te + Ti)*e/(m*0.5*(n(1,end)+n(1,end-1))))*((n(1,end) - n(1,end-1))/dx) -...
+            pond_source(jj,1);
+        elseif vx(1,jj)<0
+            vxA(jj,jj) = 1 + alpha*vx(1,jj);
+            vxA(jj,jj+1) = -alpha*vx(1,jj);
+            vxA(1,1) = 1 + alpha*vx(1,1);
+            vxA(1,2) = -alpha*vx(1,1);
+            pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj))/dx);
+            vx_source(1,1) = -((Te + Ti)*e/(m*0.5*(n(1,1)+n(1,2))))*((n(1,2) - n(1,1))/dx) -...
+            pond_source(jj,1);
+        end
         
-        pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj-1)))/(2.0*dx);
-        vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
-            pond_source(jj,1); 
-        pressure(1,jj) = (Te + Ti)*n_interp(1,jj-1)*e;
-        pressure_tot(1,jj) = pressure(1,jj) + (1/2)*n_interp(1,jj-1)*m*(vx(1,jj)^2);
+%         pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj-1)))/(2.0*dx);
+%         vx_source(jj,1) = -((Te + Ti)*e)/(m*n_interp(1,jj))*(gradn(1,jj-1)) -...
+%             pond_source(jj,1); 
+%         pressure(1,jj) = (Te + Ti)*n_interp(1,jj-1)*e;
+%         pressure_tot(1,jj) = pressure(1,jj) + (1/2)*n_interp(1,jj-1)*m*(vx(1,jj)^2);
+
+        vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj)+n(1,jj-1))))*((n(1,jj) - n(1,jj-1))/dx) -...
+    pond_source(jj,1);
 
     end
     
@@ -112,13 +126,13 @@ for ii=1:nmax
     vxA = sparse(vxA);
     
     n_new = dt*n_source + nA(2:npts-1,2:npts-1)*n';
-    vx_new = dt*vx_source - vxA*vx';
+    vx_new = dt*vx_source + vxA*vx';
     
     n_new = n_new';
     vx_new = vx_new';
      
-    vx_new(1,1) = vx_new(1,2);
-    vx_new(1,end) = cs;
+    vx_new(1,1) = cs;
+%     vx_new(1,end) = 0.0;
     
 %     l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
 %     l_two_vx(1,ii) = rms(vx - vx_new);
@@ -131,18 +145,18 @@ for ii=1:nmax
     
     flux = (vx_new.*n_interp);
     flux_check(ii,:) = flux;
-
-    vx_mat(ii,:) = vx_new;
-    n_mat(ii,:) = n_new;
-    pressure_mat(ii,:) = pressure;
-    press_tot_mat(ii,:) = pressure_tot;
+% 
+%     vx_mat(ii,:) = vx_new;
+%     n_mat(ii,:) = n_new;
+%     pressure_mat(ii,:) = pressure;
+%     press_tot_mat(ii,:) = pressure_tot;
     
     nan_check = isnan(vx_new);
     
-    if (0.99*(dx^2)/(2.0*nu))<(0.99*dx/max(abs(vx_new)))
-        dt = 0.99*(dx^2)/(2.0*nu);
-    elseif (0.99*(dx^2)/(2.0*nu))>(0.99*dx/max(abs(vx_new)))
-        dt = 0.99*dx/max(abs(vx_new));
+    if (0.008*(dx^2)/(2.0*nu))<(0.008*dx/max(abs(vx_new)))
+        dt = 0.008*(dx^2)/(2.0*nu);
+    elseif (0.008*(dx^2)/(2.0*nu))>(0.008*dx/max(abs(vx_new)))
+        dt = 0.008*dx/max(abs(vx_new));
     end
     
     if sum(nan_check) ~= 0
