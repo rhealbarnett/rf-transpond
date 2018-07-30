@@ -51,7 +51,7 @@ tmin = 0;
 %-- initial density profile
 Nmax = 16;
 Nmin = 15;
-N_grad = (Nmax - Nmin)/(xmax - xmin);
+% N_grad = (Nmax - Nmin)/(xmax - xmin);
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
 % n_new = (N_grad)*exp(10*nxax(2:npts-1));
 % n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
