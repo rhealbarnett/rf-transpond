@@ -99,16 +99,16 @@ for ii=1:nmax
             vxA(end,end) = 1 - alpha*vx(1,end);
             vxA(end,end-1) = alpha*vx(1,end);
             pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj) - Efield(1,jj-1))/dx);
-            vx_source(end,1) = -((Te + Ti)*e/(m*0.5*(n(1,end)+n(1,end-1))))*((n(1,end) - n(1,end-1))/dx) -...
-            pond_source(jj,1);
+            vx_source(end,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,end)+n(1,end-1))))*((n(1,end) - n(1,end-1))/dx) -...
+%             pond_source(jj,1);
         elseif vx(1,jj)<0
             vxA(jj,jj) = 1 + alpha*vx(1,jj);
             vxA(jj,jj+1) = -alpha*vx(1,jj);
             vxA(1,1) = 1 + alpha*vx(1,1);
             vxA(1,2) = -alpha*vx(1,1);
             pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj))/dx);
-            vx_source(1,1) = -((Te + Ti)*e/(m*0.5*(n(1,1)+n(1,2))))*((n(1,2) - n(1,1))/dx) -...
-            pond_source(jj,1);
+            vx_source(1,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,1)+n(1,2))))*((n(1,2) - n(1,1))/dx) -...
+%             pond_source(jj,1);
         end
         
 %         pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj-1)))/(2.0*dx);
@@ -117,8 +117,8 @@ for ii=1:nmax
 %         pressure(1,jj) = (Te + Ti)*n_interp(1,jj-1)*e;
 %         pressure_tot(1,jj) = pressure(1,jj) + (1/2)*n_interp(1,jj-1)*m*(vx(1,jj)^2);
 
-        vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj)+n(1,jj-1))))*((n(1,jj) - n(1,jj-1))/dx) -...
-    pond_source(jj,1);
+%         vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj)+n(1,jj-1))))*((n(1,jj) - n(1,jj-1))/dx) -...
+%     pond_source(jj,1);
 
     end
     
@@ -131,8 +131,8 @@ for ii=1:nmax
     n_new = n_new';
     vx_new = vx_new';
      
-    vx_new(1,1) = cs;
-%     vx_new(1,end) = 0.0;
+%     vx_new(1,1) = 0.0;
+    vx_new(1,end) = 0.0;
     
 %     l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
 %     l_two_vx(1,ii) = rms(vx - vx_new);
@@ -153,10 +153,10 @@ for ii=1:nmax
     
     nan_check = isnan(vx_new);
     
-    if (0.008*(dx^2)/(2.0*nu))<(0.008*dx/max(abs(vx_new)))
-        dt = 0.008*(dx^2)/(2.0*nu);
-    elseif (0.008*(dx^2)/(2.0*nu))>(0.008*dx/max(abs(vx_new)))
-        dt = 0.008*dx/max(abs(vx_new));
+    if (0.8*(dx^2)/(2.0*nu))<(0.8*dx/max(abs(vx_new)))
+        dt = 0.8*(dx^2)/(2.0*nu);
+    elseif (0.8*(dx^2)/(2.0*nu))>(0.8*dx/max(abs(vx_new)))
+        dt = 0.8*dx/max(abs(vx_new));
     end
     
     if sum(nan_check) ~= 0
