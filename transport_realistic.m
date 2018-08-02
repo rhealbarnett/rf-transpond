@@ -14,7 +14,7 @@ constants;
 m = mp;
 
 %------
-% parameters
+% parameters %
 %------
 Te = 10.0;
 Ti = 5.0;
@@ -31,7 +31,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 128;
+npts = 32;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -84,22 +84,22 @@ n_source = zeros((npts-2),1);
 % vx_ax = linspace(-1,0,npts-1);
 % vx_new = (cs)*vx_ax;
 % vx_new = cs*ones(1,npts-1);
-% vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
-vx_new = 400*cs*vxax.^2 - 40*cs*vxax;
+vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
+% vx_new = 400*cs*vxax.^2 - 40*cs*vxax;
 % vx_new = -400*cs*vxax.^2 + 40*cs*vxax - cs;
-% vx_new(1,1) = 0.0;
-vx_new(1,end) = 0.0;
+vx_new(1,1) = cs;
+% vx_new(1,end) = cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
-nA = zeros(npts,npts);
+nA = zeros(npts-2,npts-2);
 vxA = zeros(npts-1,npts-1);
 vx_source = zeros(npts-1,1);
 
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
-% vxA(1,1) = 1.0;
-vxA(end,end) = 1.0;
+vxA(1,1) = 1.0;
+% vxA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 1.0e-6;
