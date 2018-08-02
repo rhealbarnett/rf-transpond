@@ -92,7 +92,7 @@ vx_new(1,1) = cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
-nA = zeros(npts-2,npts-2);
+nA = zeros(npts,npts);
 vxA = zeros(npts-1,npts-1);
 vx_source = zeros(npts-1,1);
 
