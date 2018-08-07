@@ -22,7 +22,7 @@ transport_realistic;
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-plot(nxax(2:npts-1),n_new,'DisplayName','time = 0s')
+plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName','time = 0s')
 hold on
 
 figure(2)
@@ -35,10 +35,10 @@ set(gcf,'Position',[3 476 560 420])
 plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName','time = 0s')
 hold on
 
-figure(4)
-set(gcf,'Position',[565 479 560 420])
-plot(nxax(2:npts-1),n_source*dt,'DisplayName','time = 0s')
-hold on
+% figure(4)
+% set(gcf,'Position',[565 479 560 420])
+% plot(nxax(2:npts-1),n_source*dt,'DisplayName','time = 0s')
+% hold on
 
 count = 1;
 timerVal = tic;
@@ -62,12 +62,16 @@ for ii=1:nmax
     n_fit = interp1([nxax(2), nxax(3), nxax(npts-2), nxax(npts-1)],...
         [n(1), n(2), n(npts-3), n(npts-2)],...
         [nxax(1), nxax(npts)],'linear','extrap');
-    n_extrap = [(n_fit(1)), n, (n_fit(2))];
-    n_interp = interp1(nxax,n_extrap,vxax);
-    gradn = (n_interp(3:end-1) - n_interp(2:end-2))/(dx);
+    n_extrap = n;%[(n_fit(1)), n, (n_fit(2))];
+%     n_interp = interp1(nxax,n_extrap,vxax);
+%     gradn = (n_interp(3:end-1) - n_interp(2:end-2))/(dx);
+%     
+%     n_extrap(1,1) = 1.0e16;
+%     n_extrap(1,end) = 1.0e16;
+%     
+%     n = [n_extrap(1,1), n, n_extrap(1,end)];
 
     for jj=2:npts-2
-
 %---------------------------------------------------------------------------%
 % first order upwind                                                        %
 % stable on staggered grid                                                  %
@@ -75,22 +79,26 @@ for ii=1:nmax
         if ((vx(1,jj-1)+vx(1,jj))/2)>0
             nA(jj,jj) = 1.0 - alpha*vx(1,jj);
             nA(jj,jj-1) = alpha*vx(1,jj-1);
-%             nA(npts-1,npts-1) = 1.0 - alpha*vx(1,end);
-%             nA(npts-1,npts-2) = alpha*vx(1,npts-2);
+            nA(npts-1,npts-1) = 1.0 - alpha*vx(1,end);
+            nA(npts-1,npts-2) = alpha*vx(1,npts-2);
         elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
             nA(jj,jj) = 1.0 + alpha*vx(1,jj-1);
             nA(jj,jj+1) = -alpha*vx(1,jj);
-%             nA(2,2) = 1.0 + alpha*vx(1,1);
-%             nA(2,3) = -alpha*vx(1,2);
+            nA(2,2) = 1.0 + alpha*vx(1,1);
+            nA(2,3) = -alpha*vx(1,2);
         end 
         
 %         n_source(jj-1,1) = n(1,jj-1)*n_neut(jj-1,1)*rate_coeff;
-        
+%     nA(2,1) = n_extrap(1,1);
+%     nA(npts-1,npts) = n_extrap(1,end);
+    
     end
     
 %     n_source(1,1) = n_source(2,1);
 %     n_source(end,1) = n_source(end-1,1);
     
+%     n_extrap(1,1) = 10.0e50;
+
     for jj=2:npts-2
         
         if vx(1,jj)>=0
@@ -126,14 +134,20 @@ for ii=1:nmax
     nA = sparse(nA);
     vxA = sparse(vxA);
     
-    n_new = dt*n_source + nA(2:npts-1,2:npts-1)*n';
+    if ((vx(1,jj-1)+vx(1,jj))/2)>0
+        n_new = dt*n_source(2:npts-1) + nA(2:npts-1,1:npts-1)*n(1:npts-1)';
+        n_new = [1.0e16, n_new'];
+    elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+        n_new = dt*n_source(2:npts) + nA(2:npts-1,2:npts)*n(2:npts)';
+        n_new = [n_new', 1.0e16];
+    end
     vx_new = dt*vx_source + vxA*vx';
     
-    n_new = n_new';
+%     n_new = n_new';
     vx_new = vx_new';
      
     vx_new(1,1) = cs;
-%     vx_new(1,end) = cs;
+%     vx_new(1,end) = -cs;
     
 %     l_inf_vx(1,ii) = norm(vx - vx_new)/norm(vx);
 %     l_two_vx(1,ii) = rms(vx - vx_new);
@@ -142,10 +156,10 @@ for ii=1:nmax
 %     
 %     bound_check(1,ii) = gradn(end);
 %     
-    source_check(1,ii) = trapz(nxax(2:npts-1),n_source);
+%     source_check(1,ii) = trapz(nxax(2:npts-1),n_source);
     
-    flux = (vx_new.*n_interp);
-    flux_check(ii,:) = flux;
+%     flux = (vx_new.*n_interp);
+%     flux_check(ii,:) = flux;
 % 
 %     vx_mat(ii,:) = vx_new;
 %     n_mat(ii,:) = n_new;
@@ -179,7 +193,7 @@ for ii=1:nmax
         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-        plot(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax(2:end-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         figure(2)
@@ -192,22 +206,22 @@ for ii=1:nmax
         plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
-        figure(4)
-        set(gcf,'Position',[565 479 560 420])
-        plot(nxax(2:npts-1),n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlim([min(nxax) max(nxax)])
-        hold on
-        figure(5)
-        set(gcf,'Position',[561 33 560 420])
-        semilogy(tax(1:ii),source_check(1,1:ii))
-        hold on
-        semilogy(tax(1:ii),flux_check(1:ii,end),'r')
-        semilogy(tax(1:ii),flux_check(1:ii,1),'*r')
-        xlabel('Time (s)','Fontsize',16)
-        ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
-        legend({'source','flux (right)','flux (left)'},'Fontsize',16)
-        xlim([min(tax) max(tax)])
-        hold off
+%         figure(4)
+%         set(gcf,'Position',[565 479 560 420])
+%         plot(nxax(2:npts-1),n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%         xlim([min(nxax) max(nxax)])
+%         hold on
+%         figure(5)
+%         set(gcf,'Position',[561 33 560 420])
+%         semilogy(tax(1:ii),source_check(1,1:ii))
+%         hold on
+%         semilogy(tax(1:ii),flux_check(1:ii,end),'r')
+%         semilogy(tax(1:ii),flux_check(1:ii,1),'*r')
+%         xlabel('Time (s)','Fontsize',16)
+%         ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
+%         legend({'source','flux (right)','flux (left)'},'Fontsize',16)
+%         xlim([min(tax) max(tax)])
+%         hold off
         figure(6)
         set(gcf,'Position',[3 33 560 420])
         plot(vxax(2:npts-1),pond_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
@@ -222,7 +236,7 @@ end
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-plot(nxax(2:end-1),n_new,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
+plot(nxax(2:end-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
 legend('show','Location','south')
@@ -238,35 +252,35 @@ hold off
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
+plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
-figure(4)
-set(gcf,'Position',[565 479 560 420])
-plot(nxax(2:npts-1),n_source*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Density source m^{-3}','Fontsize',16)
-legend('show','Location','south')
-hold off
+% figure(4)
+% set(gcf,'Position',[565 479 560 420])
+% plot(nxax(2:npts-1),n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+% xlabel('Position (m)','Fontsize',16)
+% ylabel('Density source m^{-3}','Fontsize',16)
+% legend('show','Location','south')
+% hold off
 
-figure(5)
-set(gcf,'Position',[561 33 560 420])
-semilogy(tax,source_check(1,:))
-hold on
-semilogy(tax,flux_check(:,end),'r')
-semilogy(tax,flux_check(:,1),'*r')
-xlabel('Time (s)','Fontsize',16)
-ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
-legend({'source','flux (right)','flux (left)'},'Fontsize',16)
-xlim([min(tax) max(tax)])
-hold off
+% figure(5)
+% set(gcf,'Position',[561 33 560 420])
+% semilogy(tax,source_check(1,:))
+% hold on
+% semilogy(tax,flux_check(:,end),'r')
+% semilogy(tax,flux_check(:,1),'*r')
+% xlabel('Time (s)','Fontsize',16)
+% ylabel('Particles m^{-2}s^{-1}','Fontsize',16)
+% legend({'source','flux (right)','flux (left)'},'Fontsize',16)
+% xlim([min(tax) max(tax)])
+% hold off
 
 figure(6)
 set(gcf,'Position',[3 33 560 420])
-plot(vxax(2:npts-1),pond_source*dt,'DisplayName',['time = ' num2str(nmax*dt) ' s'])
+plot(vxax(2:npts-1),pond_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Ponderomotive source ms^{-1}','Fontsize',16)
 legend('show','Location','south')
