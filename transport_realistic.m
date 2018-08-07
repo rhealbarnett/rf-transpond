@@ -31,7 +31,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 32;
+npts = 128;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -55,14 +55,14 @@ Nmin = 15;
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
 % n_new = (N_grad)*exp(10*nxax(2:npts-1));
 % n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
-n_new = (Nmax)*ones(1,npts-2);
-dnx = gradient(n_new,nxax(2:npts-1));
+n_new = (10^Nmax)*ones(1,npts);
+% dnx = gradient(n_new,nxax(2:npts-1));
 
 %-- density source
 rate_coeff = 10e-14;
 decay_index = round((npts-2)/2.5);
 cosax = linspace(0,pi,decay_index+1);
-neut_max = 17.5;
+neut_max = 18.5;
 neut_min = 14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -70,14 +70,15 @@ decay_gradient = (neut_min - neut_max)/decay_length;
 n_neut = zeros(1,npts-2);
 % n_neut(1:decay_index + 1) = 10.^(decay_gradient*nxax(1:decay_index + 1) + neut_max);
 n_neut(1:decay_index+1) = 10^neut_max*(cos(cosax)+1.01)/2;%.*exp(-4*cosax);
-n_neut(end-decay_index:end) = fliplr(n_neut(1:decay_index + 1));
-% n_neut = [n_neut,fliplr(n_neut)];
-n_neut = n_neut';
-n_neut(1:end-decay_index) = n_neut(decay_index)/2;
-n_source = zeros((npts-2),1);
+% n_neut(end-decay_index:end) = fliplr(n_neut(1:decay_index + 1));
+% % n_neut = [n_neut,fliplr(n_neut)];
+% n_neut = n_neut';
+% n_neut(1:end-decay_index) = (n_neut(decay_index)/2);
+% n_neut = fliplr(n_neut);
+n_source = zeros((npts),1);
 
 % for ii=1:npts-2
-%     n_source(ii,1) = n_neut(ii,1)*n_neut(ii,1)*rate_coeff;
+%     n_source(ii,1) = n_neut(1,ii)*n_neut(1,ii)*rate_coeff;
 % end
 
 %-- initial velocity
@@ -88,7 +89,7 @@ vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
 % vx_new = 400*cs*vxax.^2 - 40*cs*vxax;
 % vx_new = -400*cs*vxax.^2 + 40*cs*vxax - cs;
 vx_new(1,1) = cs;
-% vx_new(1,end) = cs;
+% vx_new(1,end) = -cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
