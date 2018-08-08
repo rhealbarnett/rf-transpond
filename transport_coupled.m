@@ -22,7 +22,7 @@ transport_realistic;
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName','time = 0s')
+plot(nxax(2:npts-1),n_new,'DisplayName','time = 0s')
 hold on
 
 figure(2)
@@ -62,12 +62,9 @@ for ii=1:nmax
     n_fit = interp1([nxax(2), nxax(3), nxax(npts-2), nxax(npts-1)],...
         [n(1), n(2), n(npts-3), n(npts-2)],...
         [nxax(1), nxax(npts)],'linear','extrap');
-    n_extrap = n;%[(n_fit(1)), n, (n_fit(2))];
+    n_extrap = [1.0e16, n, 1.0e16];
 %     n_interp = interp1(nxax,n_extrap,vxax);
 %     gradn = (n_interp(3:end-1) - n_interp(2:end-2))/(dx);
-%     
-%     n_extrap(1,1) = 1.0e16;
-%     n_extrap(1,end) = 1.0e16;
 %     
 %     n = [n_extrap(1,1), n, n_extrap(1,end)];
 
@@ -89,9 +86,6 @@ for ii=1:nmax
         end 
         
 %         n_source(jj-1,1) = n(1,jj-1)*n_neut(jj-1,1)*rate_coeff;
-%     nA(2,1) = n_extrap(1,1);
-%     nA(npts-1,npts) = n_extrap(1,end);
-    
     end
     
 %     n_source(1,1) = n_source(2,1);
@@ -135,10 +129,10 @@ for ii=1:nmax
     vxA = sparse(vxA);
     
     if ((vx(1,jj-1)+vx(1,jj))/2)>0
-        n_new = dt*n_source(2:npts-1) + nA(2:npts-1,1:npts-1)*n(1:npts-1)';
+        n_new = dt*n_source + nA(2:npts-1,1:npts-1)*n';
         n_new = [1.0e16, n_new'];
     elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-        n_new = dt*n_source(2:npts) + nA(2:npts-1,2:npts)*n(2:npts)';
+        n_new = dt*n_source + nA(2:npts-1,2:npts)*n';
         n_new = [n_new', 1.0e16];
     end
     vx_new = dt*vx_source + vxA*vx';
