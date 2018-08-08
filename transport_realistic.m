@@ -20,6 +20,7 @@ Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
+% cs = 100;
 nu = 0.0;%1000.0;
 
 %------
@@ -31,7 +32,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 128;
+npts = 1024;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -55,7 +56,9 @@ Nmin = 15;
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
 % n_new = (N_grad)*exp(10*nxax(2:npts-1));
 % n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
-n_new = (10^Nmax)*ones(1,npts);
+% n_new = (10^Nmax)*ones(1,npts);
+n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
+n_new = -1*n_new/max(n_new);
 % dnx = gradient(n_new,nxax(2:npts-1));
 
 %-- density source
@@ -84,11 +87,11 @@ n_source = zeros((npts),1);
 %-- initial velocity
 % vx_ax = linspace(-1,0,npts-1);
 % vx_new = (cs)*vx_ax;
-% vx_new = cs*ones(1,npts-1);
-vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
+vx_new = cs*zeros(1,npts-1);
+% vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
 % vx_new = 400*cs*vxax.^2 - 40*cs*vxax;
 % vx_new = -400*cs*vxax.^2 + 40*cs*vxax - cs;
-vx_new(1,1) = cs;
+vx_new(1,1) = 0.0;
 % vx_new(1,end) = -cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -100,15 +103,19 @@ vx_source = zeros(npts-1,1);
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
+vxA(1,2) = -1.0;
 % vxA(end,end) = 1.0;
+nA(1,1) = 1.0;
+nA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-6;
+tmax = 1.0e-7;
 if (0.8*(dx^2)/(2.0*nu))<(0.8*dx/max(abs(vx_new)))
     dt = 0.8*(dx^2)/(2.0*nu);
 elseif (0.8*(dx^2)/(2.0*nu))>(0.8*dx/max(abs(vx_new)))
     dt = 0.8*dx/max(abs(vx_new));
 end
+dt = 0.8*dx/cs;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 
@@ -133,5 +140,6 @@ Efield = Efield.^2;
 Efield = zeros(npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
+pond_source = zeros(npts-2,1);
 
 
