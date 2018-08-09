@@ -58,7 +58,7 @@ Nmin = 15;
 % n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
 % n_new = (10^Nmax)*ones(1,npts);
 n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
-n_new = -1*n_new/max(n_new);
+n_new = n_new/max(n_new);
 % dnx = gradient(n_new,nxax(2:npts-1));
 
 %-- density source
@@ -109,7 +109,7 @@ nA(1,1) = 1.0;
 nA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-7;
+tmax = 1.0e-6;
 if (0.8*(dx^2)/(2.0*nu))<(0.8*dx/max(abs(vx_new)))
     dt = 0.8*(dx^2)/(2.0*nu);
 elseif (0.8*(dx^2)/(2.0*nu))>(0.8*dx/max(abs(vx_new)))
