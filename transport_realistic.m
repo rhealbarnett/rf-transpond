@@ -58,7 +58,7 @@ Nmin = 15;
 % n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
 % n_new = (10^Nmax)*ones(1,npts);
 n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
-n_new = n_new/max(n_new);
+n_new = (10^Nmax)*n_new/max(n_new);
 % dnx = gradient(n_new,nxax(2:npts-1));
 
 %-- density source
