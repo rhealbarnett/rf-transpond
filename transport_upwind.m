@@ -32,7 +32,7 @@ hold on
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName','time = 0s')
+plot(vxax,vx_source*dt,'DisplayName','time = 0s')
 hold on
 
 count = 1;
@@ -79,12 +79,16 @@ for ii=1:nmax
             vxA(jj,jj-1) = alpha*vx(1,jj);
             vxA(end,end) = 1 - alpha*vx(1,end);
             vxA(end,end-1) = alpha*vx(1,end);
+            vx_source(npts-1,1) = -((Te + Ti)*e/(m*0.5*(n(1,npts)+n(1,npts-1))))*((n(1,npts) - n(1,npts-1))/dx) -...
+                pond_source(end,1);
             pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj) - Efield(1,jj-1))/dx);
         elseif vx(1,jj)<0
             vxA(jj,jj) = 1 + alpha*vx(1,jj);
             vxA(jj,jj+1) = -alpha*vx(1,jj);
             vxA(1,1) = 1 + alpha*vx(1,1);
             vxA(1,2) = -alpha*vx(1,1);
+            vx_source(1,1) = -((Te + Ti)*e/(m*0.5*(n(1,2)+n(1,1))))*((n(1,2) - n(1,1))/dx) -...
+                pond_source(1,1);
             pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj))/dx);
         end
         
@@ -92,23 +96,16 @@ for ii=1:nmax
     pond_source(jj,1);
 
     end
-    
-    vx_source(end,1) = -((Te + Ti)*e/(m*0.5*(n(1,end-1)+n(1,end))))*((n(1,end) - n(1,end-1))/dx) -...
-        pond_source(end,1);
-    vx_source(1,1) = -((Te + Ti)*e/(m*0.5*(n(1,1)+n(1,2))))*((n(1,2) - n(1,1))/dx) -...
-        pond_source(1,1);
-    
+
     nA = sparse(nA);
     vxA = sparse(vxA);
     
     if ((vx(1,jj-1)+vx(1,jj))/2)>0
         n_new = dt*n_source(1:npts-1) + nA(1:npts-1,1:npts-1)*n(1,1:npts-1)';
-%         n_new(1,1) = 1.0e16;
-        n_new = [n_new; 0.0];
+        n_new = [n_new; n(npts-1) - (n(npts-2) - n(npts-1))];
     elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
         n_new = dt*n_source(2:npts) + nA(2:npts,2:npts)*n(1,2:npts)';
-%         n_new(1,end) = 1.0e16;
-        n_new = [0.0; n_new];
+        n_new = [n(2) - (n(3) - n(2)); n_new];
     end
     vx_new = dt*vx_source + vxA*vx';
     
@@ -159,7 +156,7 @@ for ii=1:nmax
         hold on
         figure(3)
         set(gcf,'Position',[3 476 560 420])
-        plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(6)
@@ -192,7 +189,7 @@ hold off
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:end-1),vx_source(2:end-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
