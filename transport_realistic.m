@@ -85,14 +85,14 @@ n_source = zeros((npts),1);
 % end
 
 %-- initial velocity
-% vx_ax = linspace(-1,0,npts-1);
+% vx_ax = linspace(0,1,npts-1);
 % vx_new = (cs)*vx_ax;
 vx_new = cs*zeros(1,npts-1);
 % vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
 % vx_new = 400*cs*vxax.^2 - 40*cs*vxax;
 % vx_new = -400*cs*vxax.^2 + 40*cs*vxax - cs;
 vx_new(1,1) = 0.0;
-% vx_new(1,end) = -cs;
+% vx_new(1,end) = cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
@@ -103,19 +103,23 @@ vx_source = zeros(npts-1,1);
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
-vxA(1,2) = -1.0;
+% vxA(1,2) = -1.0;
 % vxA(end,end) = 1.0;
 nA(1,1) = 1.0;
 nA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 1.0e-6;
-if (0.8*(dx^2)/(2.0*nu))<(0.8*dx/max(abs(vx_new)))
-    dt = 0.8*(dx^2)/(2.0*nu);
-elseif (0.8*(dx^2)/(2.0*nu))>(0.8*dx/max(abs(vx_new)))
-    dt = 0.8*dx/max(abs(vx_new));
+cfl_fact = 0.8;
+if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+    dt = cfl_fact*(dx^2)/(2.0*nu);
+elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+    dt = cfl_fact*dx/max(abs(vx_new));
+else
+    dt = cfl_fact*dx/cs;
 end
-dt = 0.8*dx/cs;
+
+dt = cfl_fact*dx/cs;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 
@@ -137,9 +141,9 @@ Efield = [(zeros(1,npts-1-length(cosax))), Efield];
 Efield = Efield./max(Efield);
 Efield = Emax*Efield;
 Efield = Efield.^2;
-Efield = zeros(npts-1);
+Efield = zeros(1,npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
-pond_source = zeros(npts-2,1);
+pond_source = zeros(npts-1,1);
 
 
