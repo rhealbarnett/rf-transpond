@@ -79,17 +79,19 @@ for ii=1:nmax
             vxA(jj,jj-1) = alpha*vx(1,jj);
             vxA(end,end) = 1 - alpha*vx(1,end);
             vxA(end,end-1) = alpha*vx(1,end);
+            pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj) - Efield(1,jj-1))/dx);
+            pond_source(npts-1,1) = (1.0/m)*pond_const*((Efield(1,npts-1) - Efield(1,npts-2))/dx);
             vx_source(npts-1,1) = -((Te + Ti)*e/(m*0.5*(n(1,npts)+n(1,npts-1))))*((n(1,npts) - n(1,npts-1))/dx) -...
                 pond_source(end,1);
-            pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj) - Efield(1,jj-1))/dx);
         elseif vx(1,jj)<0
             vxA(jj,jj) = 1 + alpha*vx(1,jj);
             vxA(jj,jj+1) = -alpha*vx(1,jj);
             vxA(1,1) = 1 + alpha*vx(1,1);
             vxA(1,2) = -alpha*vx(1,1);
+            pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj))/dx);
+            pond_source(1,1) = (1.0/m)*pond_const*((Efield(1,2) - Efield(1,1))/dx);
             vx_source(1,1) = -((Te + Ti)*e/(m*0.5*(n(1,2)+n(1,1))))*((n(1,2) - n(1,1))/dx) -...
                 pond_source(1,1);
-            pond_source(jj,1) = (1.0/m)*pond_const*((Efield(1,jj+1) - Efield(1,jj))/dx);
         end
         
         vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
@@ -102,10 +104,10 @@ for ii=1:nmax
     
     if ((vx(1,jj-1)+vx(1,jj))/2)>0
         n_new = dt*n_source(1:npts-1) + nA(1:npts-1,1:npts-1)*n(1,1:npts-1)';
-        n_new = [n_new; n(npts-1) - (n(npts-2) - n(npts-1))];
+        n_new = [n_new; n_new(end) - (n_new(end-1) - n_new(end))];
     elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
         n_new = dt*n_source(2:npts) + nA(2:npts,2:npts)*n(1,2:npts)';
-        n_new = [n(2) - (n(3) - n(2)); n_new];
+        n_new = [n_new(1) - (n_new(2) - n_new(1)); n_new];
     end
     vx_new = dt*vx_source + vxA*vx';
     
@@ -116,8 +118,14 @@ for ii=1:nmax
         n_new = n_new;
     end
      
-    vx_new(1,1) = vx_new(1,2);
-%     vx_new(1,end) = -cs;
+    if vx(1,jj)>0
+        vx_new(1,1) = vx_new(1,2);
+    elseif vx(1,jj)<0
+        vx_new(1,npts-1) = vx_new(1,npts-2);
+    end
+
+%     vx_new(1,1) = 0.0;
+%     vx_new(1,end) = cs;
     
     nan_check = isnan(vx_new);
     
@@ -139,9 +147,9 @@ for ii=1:nmax
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
-        if dt == 0.99*(dx^2)/(2.0*nu)
+        if dt == 0.8*(dx^2)/(2.0*nu)
             fprintf('Diffusive CFL condition\n')
-        elseif dt == 0.99*dx/max(abs(vx_new))
+        elseif dt == 0.8*dx/max(abs(vx_new))
             fprintf('Convective CFL condition\n')
         end
         figure(1)
@@ -161,7 +169,7 @@ for ii=1:nmax
         hold on
         figure(6)
         set(gcf,'Position',[3 33 560 420])
-        plot(vxax(2:npts-1),pond_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,pond_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax) max(nxax)])
         hold on
         count = count + 1;
@@ -197,7 +205,7 @@ hold off
 
 figure(6)
 set(gcf,'Position',[3 33 560 420])
-plot(vxax(2:npts-1),pond_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(vxax,pond_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Ponderomotive source ms^{-1}','Fontsize',16)
 legend('show','Location','south')
