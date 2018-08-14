@@ -19,8 +19,8 @@ m = mp;
 Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
-cs = sqrt((Te + Ti)*e/m);
-% cs = 100;
+% cs = sqrt((Te + Ti)*e/m);
+cs = 10;
 nu = 0.0;%1000.0;
 
 %------
@@ -32,7 +32,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 1024;
+npts = 64;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -56,9 +56,9 @@ Nmin = 15;
 % slope = (Nmax - Nmin) ./ (xmax - xmin);
 % n_new = (N_grad)*exp(10*nxax(2:npts-1));
 % n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
-% n_new = (10^Nmax)*ones(1,npts);
-n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
-n_new = (10^Nmax)*n_new/max(n_new);
+n_new = (10^Nmax)*ones(1,npts);
+% n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
+% n_new = (10^Nmax)*n_new/max(n_new);
 % dnx = gradient(n_new,nxax(2:npts-1));
 
 %-- density source
@@ -85,13 +85,13 @@ n_source = zeros((npts),1);
 % end
 
 %-- initial velocity
-% vx_ax = linspace(0,1,npts-1);
-% vx_new = (cs)*vx_ax;
-vx_new = cs*zeros(1,npts-1);
+vx_ax = linspace(0,1,npts-1);
+vx_new = (cs/2)*vx_ax + cs/2;
+% vx_new = cs*zeros(1,npts-1);
 % vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
 % vx_new = 400*cs*vxax.^2 - 40*cs*vxax;
 % vx_new = -400*cs*vxax.^2 + 40*cs*vxax - cs;
-vx_new(1,1) = 0.0;
+vx_new(1,1) = cs/2;
 % vx_new(1,end) = cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -103,13 +103,13 @@ vx_source = zeros(npts-1,1);
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
-% vxA(1,2) = -1.0;
-% vxA(end,end) = 1.0;
+vxA(1,2) = -1.0;
 nA(1,1) = 1.0;
+nA(1,2) = -1.0;
 nA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-6;
+tmax = 1.0e-3;
 cfl_fact = 0.8;
 if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -131,7 +131,7 @@ tax = linspace(tmin,tmax,nmax);
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 3.0e5;
+Emax = 3.0e4;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
