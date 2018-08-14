@@ -104,10 +104,10 @@ for ii=1:nmax
     
     if ((vx(1,jj-1)+vx(1,jj))/2)>0
         n_new = dt*n_source(1:npts-1) + nA(1:npts-1,1:npts-1)*n(1,1:npts-1)';
-        n_new = [n_new; n_new(end) - (n_new(end-1) - n_new(end))];
+        n_new = [n_new; n_new(end,1)];
     elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
         n_new = dt*n_source(2:npts) + nA(2:npts,2:npts)*n(1,2:npts)';
-        n_new = [n_new(1) - (n_new(2) - n_new(1)); n_new];
+        n_new = [n_new(1,1); n_new];
     end
     vx_new = dt*vx_source + vxA*vx';
     
@@ -118,13 +118,16 @@ for ii=1:nmax
         n_new = n_new;
     end
      
-    if vx(1,jj)>0
-        vx_new(1,1) = vx_new(1,2);
-    elseif vx(1,jj)<0
-        vx_new(1,npts-1) = vx_new(1,npts-2);
-    end
+    n_new(1,1) = n_new(1,2);
+    n_new(1,end) = n_new(1,end-1);
+    
+%     if vx(1,jj)>0
+%         vx_new(1,1) = vx_new(1,2);
+%     elseif vx(1,jj)<0
+%         vx_new(1,npts-1) = vx_new(1,npts-2);
+%     end
 
-%     vx_new(1,1) = 0.0;
+    vx_new(1,1) = ;
 %     vx_new(1,end) = cs;
     
     nan_check = isnan(vx_new);
