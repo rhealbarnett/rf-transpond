@@ -29,6 +29,8 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
+nu = 2;
+
 upwind = NaN;
 central = NaN;
 
@@ -43,7 +45,10 @@ elseif strcmp(scheme, 'central')
     central = 1;
 end
 
-
+if central && nu==0
+    fprintf("nu==0: central difference scheme not stable.\n")
+    return
+end
 
 %%
 %--------------------------------------------------------------------------------------------------------------%
@@ -57,6 +62,10 @@ rdirichlet = NaN;
 rnuemann = NaN;
 lneumann = NaN;
 periodic = NaN;
+
+%----- need a prompt here to check whether the velocity is positive or
+% negative next to the boundary, as this will determine whether left or right (or both)
+% BC is required
 
 promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
 leftBC = input(promptlBC, 's');
