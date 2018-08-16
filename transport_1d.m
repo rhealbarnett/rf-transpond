@@ -29,12 +29,21 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
+% test parameters
 nu = 2;
+npts = 32;
+vx_new = zeros(1,npts-1);
+vx_new(1:31) = 1.0;
+vxA = zeros(npts-1,npts-1);
+dx = 1.0;
+dt = 1.0;
+alpha = dt/dx;
+nmax = 5;
 
 upwind = NaN;
 central = NaN;
 
-promptDiff = 'Differencing scheme? (upwind or central) ';
+promptDiff = 'Spatial differencing scheme? (upwind or central) ';
 scheme = input(promptDiff, 's');
 
 if strcmp(scheme,'upwind')
@@ -59,7 +68,7 @@ end
 
 ldirichlet = NaN;
 rdirichlet = NaN;
-rnuemann = NaN;
+rneumann = NaN;
 lneumann = NaN;
 periodic = NaN;
 
@@ -67,67 +76,157 @@ periodic = NaN;
 % negative next to the boundary, as this will determine whether left or right (or both)
 % BC is required
 
-promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
-leftBC = input(promptlBC, 's');
-if strcmp('periodic',leftBC)
+if central
+
+    promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
+    leftBC = input(promptlBC, 's');
+    if strcmp('periodic',leftBC)
+
+    else
+        promptrBC = 'Right BC type? (dirichlet or neumann) ';
+        rightBC = input(promptrBC, 's');
+    end
+
+    if strcmp('dirichlet',leftBC)
+        ldirichlet = 1;               % this allows the use of ldirichlet as a logical 
+        lneumann = 0;
+        periodic = 0;
+    elseif strcmp('neumann',leftBC)
+        ldirichlet = 0;                
+        lneumann = 1; 
+        periodic = 0;
+    end
+
+    if strcmp('dirichlet',rightBC)
+        rdirichlet = 1;
+        rneumann = 0;
+        periodic = 0;
+    elseif strcmp('neumann',rightBC)
+        rneumann = 1;
+        rdirichlet = 0;
+        periodic = 0;
+    end
+
+    if strcmp('periodic',leftBC)
+        rdirichlet = 0;
+        rneumann = 0;
+        ldirichlet = 0;
+        lneumann = 0;
+        periodic = 1;
+    end
+
+    promptlBCval = 'Left BC value? ';
+    lBC_val = input(promptlBCval);
+    if strcmp('periodic',leftBC)
+
+    else
+        promptrBCval = 'Right BC value? ';
+        rBC_val = input(promptrBCval);
+    end
+
+    if ldirichlet && rdirichlet
+        fprintf("left and right BCs are dirichlet; lBC = %f, rBC = %f.\n", lBC_val, rBC_val)
+    elseif lneumann && rdirichlet
+        fprintf("left BC is neumann, lBC = %f; right BC is dirichlet, rBC = %f.\n", lBC_val, rBC_val)
+    elseif rneumann && ldirichlet
+        fprintf("left BC is dirichlet, lBC = %f; right BC is neumann, rBC = %f.\n", lBC_val, rBC_val)
+    elseif rneumann && lneumann
+        fprintf("left and right BCs are dirichlet; lBC = %f, rBC = %f.\n", lBC_val, rBC_val)
+    elseif periodic
+        fprintf("periodic BCs\n")
+    end
     
-else
-    promptrBC = 'Right BC type? (dirichlet or neumann) ';
-    rightBC = input(promptrBC, 's');
-end
-
-if strcmp('dirichlet',leftBC)
-    ldirichlet = 1;               % this allows the use of ldirichlet as a logical 
-    lneumann = 0;
-    periodic = 0;
-elseif strcmp('neumann',leftBC)
-    ldirichlet = 0;                
-    lneumann = 1; 
-    periodic = 0;
-end
-
-if strcmp('dirichlet',rightBC)
-    rdirichlet = 1;
-    rneumann = 0;
-    periodic = 0;
-elseif strcmp('neumann',rightBC)
-    rneumann = 1;
-    rdirichlet = 0;
-    periodic = 0;
-end
-
-if strcmp('periodic',leftBC)
-    rdirichlet = 0;
-    rneumann = 0;
-    ldirichlet = 0;
-    lneumann = 0;
-    periodic = 1;
-end
-
-promptlBCval = 'Left BC value? ';
-lBC_val = input(promptlBCval);
-if strcmp('periodic',leftBC)
+elseif upwind
     
-else
-    promptrBCval = 'Right BC value? ';
-    rBC_val = input(promptrBCval);
+    if vx_new(1,2) > 0
+            promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
+            leftBC = input(promptlBC, 's');
+            if strcmp('dirichlet',leftBC)
+                ldirichlet = 1;              
+                lneumann = 0;
+                periodic = 0;
+            elseif strcmp('neumann',leftBC)
+                ldirichlet = 0;                
+                lneumann = 1; 
+                periodic = 0;
+            end
+            promptlBCval = 'Left BC value? ';
+            lBC_val = input(promptlBCval);
+    elseif vx_new(1,2) < 0 
+            fprintf("Left BC not required\n")
+            ldirichlet = 0;
+            lneumann = 0;
+            periodic = 0;
+    end
+    
+    if vx_new(1,end-1) < 0
+            promptrBC = 'Right BC type? (dirichlet, neumann, periodic) ';
+            rightBC = input(promptrBC, 's');
+            if strcmp('dirichlet',rightBC)
+                rdirichlet = 1;              
+                rneumann = 0;
+                periodic = 0;
+            elseif strcmp('neumann',rightBC)
+                rdirichlet = 0;                
+                rneumann = 1; 
+                periodic = 0;
+            end
+            promptrBCval = 'Right BC value? ';
+            rBC_val = input(promptrBCval);
+    elseif vx_new(1,end-1) > 0 
+            fprintf("Right BC not required\n")
+            rdirichlet = 0;
+            rneumann = 0;
+            periodic = 0;
+    end
+    
 end
-
-if ldirichlet && rdirichlet
-    fprintf("left and right BCs are dirichlet; lBC = %f, rBC = %f.\n", lBC_val, rBC_val)
-elseif lneumann && rdirichlet
-    fprintf("left BC is neumann, lBC = %f; right BC is dirichlet, rBC = %f.\n", lBC_val, rBC_val)
-elseif rneumann && ldirichlet
-    fprintf("left BC is dirichlet, lBC = %f; right BC is neumann, rBC = %f.\n", lBC_val, rBC_val)
-elseif rneumann && lneumann
-    fprintf("left and right BCs are dirichlet; lBC = %f, rBC = %f.\n", lBC_val, rBC_val)
-elseif periodic
-    fprintf("periodic BCs\n")
-end
-
 %%
 
+if upwind
+    for ii=1:nmax
+        
+        vx = vx_new;
+        
+        for jj=1:npts-1
 
+            if jj==1
+                if ldirichlet
+                    vx(1,1) = lBC_val;
+                    vxA(1,1) = 1.0;
+                elseif lneumann
+                    vx(1,1) = vx(1,2) + dx*lBC_val;
+                    vxA(1,1) = 1.0;
+                else
+                vxA(jj,jj) = 1 + alpha*vx(1,jj);
+                vxA(jj,jj+1) = -alpha*vx(1,jj);
+                end
+            elseif jj==npts-1
+                if rdirichlet
+                    vx(1,end) = rBC_val;
+                    vxA(end,end) = 1.0;
+                elseif rneumann
+                    vx(1,end) = vx(1,end-1) + dx*rBC_val;
+                    vxA(end,end) = 1.0;
+                else 
+                    vxA(jj,jj) = 1 - alpha*vx(1,jj);
+                    vxA(jj,jj-1) = alpha*vx(1,jj);
+                end
+            elseif vx(1,jj)>0
+                vxA(jj,jj) = 1 - alpha*vx(1,jj);
+                vxA(jj,jj-1) = alpha*vx(1,jj);
+            elseif vx(1,jj)<0
+                vxA(jj,jj) = 1 + alpha*vx(1,jj);
+                vxA(jj,jj+1) = -alpha*vx(1,jj);
+            end
+
+        end
+        
+        vx_new = vxA*vx';
+        vx_new = vx_new';
+    
+    end
+end
 
 
 
