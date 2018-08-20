@@ -29,7 +29,10 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-transport_params_colocated;
+transport_realistic;
+
+vx = vx_new;
+n = n_new;
 
 promptGrid = 'Staggered or collocated grid? ';
 grid = input(promptGrid, 's');
@@ -42,24 +45,51 @@ else
     collocated = 1;
 end
 
-if staggered && size(vx_new)==size(n_new)
+if staggered & (size(vx_new)==size(n_new))
     fprintf("Check velocity and array density sizes for staggered grid.\n")
     return
-elseif collocated && size(vx_new)~=size(n_new)
+elseif collocated & size(vx_new)~=size(n_new)
     fprintf("Check velocity and array density sizes for collocated grid.\n")
     return
 end
 
 if staggered
     
+    promptlGhost = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
+    leftGhost = input(promptlGhost, 's');
     
-    for jj=2:npts-2
-        if ((vx(1,jj-1)+vx(1,jj))/2)>0
-            nA(jj,jj) = 1.0 - alpha*vx(1,jj);
-            nA(jj,jj-1) = alpha*vx(1,jj-1);
+    if strcmp('periodic',leftGhost)
+
+    else
+        promptrGhost = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
+        rightGhost = input(promptrGhost, 's');
+    end
+    
+    if strcmp('linear extrap',leftGhost)
+        lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+            nxax(1),'linear','extrap');
+    end
+    
+    if strcmp('linear extrap',rightGhost)
+        rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+            nxax(npts),'linear','extrap');
+    end
+    
+    for jj=1:npts
+        
+        if jj==1
+            n_new(1,1) = lGhost;
+            nA(1,1) = 1.0;
+        elseif jj==npts
+            n_new(1,npts) = rGhost;
+            nA(npts,npts) = 1.0;
+        elseif ((vx(1,jj-1)+vx(1,jj))/2)>0
+            nA(jj,jj) = 1.0 - mult*vx(1,jj);
+            nA(jj,jj-1) = mult*vx(1,jj-1);
         elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-            nA(jj,jj) = 1.0 + alpha*vx(1,jj-1);
-            nA(jj,jj+1) = -alpha*vx(1,jj);
+            nA(jj,jj) = 1.0 + mult*vx(1,jj-1);
+            nA(jj,jj+1) = -mult*vx(1,jj);
+            
         end    
     end
 end
@@ -223,8 +253,8 @@ if upwind
                     vx(1,1) = vx(1,2) + dx*lBC_val;
                     vxA(1,1) = 1.0;
                 else
-                vxA(jj,jj) = 1 + alpha*vx(1,jj);
-                vxA(jj,jj+1) = -alpha*vx(1,jj);
+                    vxA(jj,jj) = 1 + mult*vx(1,jj);
+                    vxA(jj,jj+1) = -mult*vx(1,jj);
                 end
             elseif jj==npts-1
                 if rdirichlet
@@ -234,15 +264,15 @@ if upwind
                     vx(1,end) = vx(1,end-1) + dx*rBC_val;
                     vxA(end,end) = 1.0;
                 else 
-                    vxA(jj,jj) = 1 - alpha*vx(1,jj);
-                    vxA(jj,jj-1) = alpha*vx(1,jj);
+                    vxA(jj,jj) = 1 - mult*vx(1,jj);
+                    vxA(jj,jj-1) = mult*vx(1,jj);
                 end
             elseif vx(1,jj)>0
-                vxA(jj,jj) = 1 - alpha*vx(1,jj);
-                vxA(jj,jj-1) = alpha*vx(1,jj);
+                vxA(jj,jj) = 1 - mult*vx(1,jj);
+                vxA(jj,jj-1) = mult*vx(1,jj);
             elseif vx(1,jj)<0
-                vxA(jj,jj) = 1 + alpha*vx(1,jj);
-                vxA(jj,jj+1) = -alpha*vx(1,jj);
+                vxA(jj,jj) = 1 + mult*vx(1,jj);
+                vxA(jj,jj+1) = -mult*vx(1,jj);
             end
 
         end
@@ -251,6 +281,7 @@ if upwind
         vx_new = vx_new';
     
     end
+    
 elseif central
     for ii=1:nmax
         
@@ -267,8 +298,8 @@ elseif central
                     vx(1,1) = vx(1,2) + dx*lBC_val;
                     vxA(1,1) = 1.0;
                 else
-                    vxA(jj,jj) = 1 + alpha*vx(1,jj);
-                    vxA(jj,jj+1) = -alpha*vx(1,jj);
+                    vxA(jj,jj) = 1 + mult*vx(1,jj);
+                    vxA(jj,jj+1) = -mult*vx(1,jj);
                 end
             elseif jj==npts-1
                 if rdirichlet
@@ -278,13 +309,13 @@ elseif central
                     vx(1,end) = vx(1,end-1) + dx*rBC_val;
                     vxA(end,end) = 1.0;
                 else 
-                    vxA(jj,jj) = 1 - alpha*vx(1,jj);
-                    vxA(jj,jj-1) = alpha*vx(1,jj);
+                    vxA(jj,jj) = 1 - mult*vx(1,jj);
+                    vxA(jj,jj-1) = mult*vx(1,jj);
                 end
             else
-                vxA(jj,jj) = (alpha/dx)*2.0*nu;
-                vxA(jj,jj-1) = -(vx(1,jj-1))*alpha/2.0 - (nu*alpha)/dx + 1/2;
-                vxA(jj,jj+1) = (vx(1,jj+1))*alpha/2.0 - (nu*alpha)/dx + 1/2;
+                vxA(jj,jj) = (mult/dx)*2.0*nu;
+                vxA(jj,jj-1) = -(vx(1,jj-1))*mult/2.0 - (nu*mult)/dx + 1/2;
+                vxA(jj,jj+1) = (vx(1,jj+1))*mult/2.0 - (nu*mult)/dx + 1/2;
             end
         end
         
