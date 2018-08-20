@@ -32,7 +32,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 64;
+npts = 32;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -103,10 +103,6 @@ vx_source = zeros(npts-1,1);
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
-vxA(1,2) = -1.0;
-nA(1,1) = 1.0;
-nA(1,2) = -1.0;
-nA(end,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 1.0e-3;
@@ -122,6 +118,7 @@ end
 dt = cfl_fact*dx/cs;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
+mult = dt/dx;
 
 %%
 
