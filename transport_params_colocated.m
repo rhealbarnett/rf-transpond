@@ -19,20 +19,20 @@ m = mp;
 Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
-% cs = sqrt((Te + Ti)*e/m);
-cs = 10;
-nu = 0.0;%1000.0;
+cs = sqrt((Te + Ti)*e/m);
+% cs = 10;
+nu = 1000.0;
 
 %------
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.1;
+xmax = 1.0;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 64;
+npts = 32;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin,xmax,npts);
 vxax = linspace(xmin,xmax,npts);
@@ -52,7 +52,9 @@ tmin = 0;
 %-- initial density profile
 Nmax = 16;
 Nmin = 15;
-n_new = (Nmax)*ones(1,npts);
+n_new = normpdf(nxax,(xmax)/2,(xmax)/30);
+n_new = (10^Nmax)*n_new/max(n_new);
+% n_new = (Nmax)*ones(1,npts);
 
 %-- density source
 rate_coeff = 10e-14;
@@ -78,9 +80,13 @@ n_source = zeros((npts),1);
 % end
 
 %-- initial velocity
-vx_ax = linspace(0,1,npts);
-vx_new = (cs/2)*vx_ax + cs/2;
-vx_new(1,1) = cs/2;
+% vx_ax = linspace(0,1,npts);
+% vx_new = (cs/2)*vx_ax + cs/2;
+% vx_new(1,1) = cs/2;
+vx_new = zeros(1,npts);
+vx_new(1:npts/2) = -cs;
+vx_new(npts/2:npts) = cs;
+
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
@@ -91,9 +97,9 @@ vx_source = zeros(npts,1);
 %-- fill boundary conditions in coefficient matrix
 %-- Dirichlet conditions on velocity 
 vxA(1,1) = 1.0;
-% nA(1,1) = -3.0;
-% nA(1,2) = 4.0;
-% nA(1,3) = -1.0;
+vxA(1,end) = 1.0;
+nA(1,1) = 1.0;
+nA(1,end) = 1.0;
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 1.0e-3;
