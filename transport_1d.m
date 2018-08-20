@@ -29,16 +29,40 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-% test parameters
-nu = 2;
-npts = 32;
-vx_new = zeros(1,npts-1);
-vx_new(1:31) = 1.0;
-vxA = zeros(npts-1,npts-1);
-dx = 1.0;
-dt = 1.0;
-alpha = dt/dx;
-nmax = 5;
+transport_params_colocated;
+
+promptGrid = 'Staggered or collocated grid? ';
+grid = input(promptGrid, 's');
+
+if strcmp(grid,'staggered')
+    staggered = 1;
+    collocated = 0;
+else
+    staggered = 0;
+    collocated = 1;
+end
+
+if staggered && size(vx_new)==size(n_new)
+    fprintf("Check velocity and array density sizes for staggered grid.\n")
+    return
+elseif collocated && size(vx_new)~=size(n_new)
+    fprintf("Check velocity and array density sizes for collocated grid.\n")
+    return
+end
+
+if staggered
+    
+    
+    for jj=2:npts-2
+        if ((vx(1,jj-1)+vx(1,jj))/2)>0
+            nA(jj,jj) = 1.0 - alpha*vx(1,jj);
+            nA(jj,jj-1) = alpha*vx(1,jj-1);
+        elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+            nA(jj,jj) = 1.0 + alpha*vx(1,jj-1);
+            nA(jj,jj+1) = -alpha*vx(1,jj);
+        end    
+    end
+end
 
 upwind = NaN;
 central = NaN;
@@ -187,6 +211,7 @@ if upwind
     for ii=1:nmax
         
         vx = vx_new;
+        n = n_new;
         
         for jj=1:npts-1
 
@@ -226,7 +251,49 @@ if upwind
         vx_new = vx_new';
     
     end
+elseif central
+    for ii=1:nmax
+        
+        vx = vx_new;
+        n = n_new;
+        
+        for jj=1:npts-1
+
+            if jj==1
+                if ldirichlet
+                    vx(1,1) = lBC_val;
+                    vxA(1,1) = 1.0;
+                elseif lneumann
+                    vx(1,1) = vx(1,2) + dx*lBC_val;
+                    vxA(1,1) = 1.0;
+                else
+                    vxA(jj,jj) = 1 + alpha*vx(1,jj);
+                    vxA(jj,jj+1) = -alpha*vx(1,jj);
+                end
+            elseif jj==npts-1
+                if rdirichlet
+                    vx(1,end) = rBC_val;
+                    vxA(end,end) = 1.0;
+                elseif rneumann
+                    vx(1,end) = vx(1,end-1) + dx*rBC_val;
+                    vxA(end,end) = 1.0;
+                else 
+                    vxA(jj,jj) = 1 - alpha*vx(1,jj);
+                    vxA(jj,jj-1) = alpha*vx(1,jj);
+                end
+            else
+                vxA(jj,jj) = (alpha/dx)*2.0*nu;
+                vxA(jj,jj-1) = -(vx(1,jj-1))*alpha/2.0 - (nu*alpha)/dx + 1/2;
+                vxA(jj,jj+1) = (vx(1,jj+1))*alpha/2.0 - (nu*alpha)/dx + 1/2;
+            end
+        end
+        
+        vx_new = vxA*vx';
+        vx_new = vx_new';
+    end
 end
+        
+        
 
 
 
