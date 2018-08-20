@@ -34,6 +34,14 @@ transport_realistic;
 vx = vx_new;
 n = n_new;
 
+staggered = NaN;
+collocated = NaN;
+ldirichlet = NaN;
+rdirichlet = NaN;
+rneumann = NaN;
+lneumann = NaN;
+periodic = NaN;
+
 promptGrid = 'Staggered or collocated grid? ';
 grid = input(promptGrid, 's');
 
@@ -74,25 +82,53 @@ if staggered
         rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
             nxax(npts),'linear','extrap');
     end
+end
+
+if collocated
     
-    for jj=1:npts
-        
-        if jj==1
-            n_new(1,1) = lGhost;
-            nA(1,1) = 1.0;
-        elseif jj==npts
-            n_new(1,npts) = rGhost;
-            nA(npts,npts) = 1.0;
-        elseif ((vx(1,jj-1)+vx(1,jj))/2)>0
-            nA(jj,jj) = 1.0 - mult*vx(1,jj);
-            nA(jj,jj-1) = mult*vx(1,jj-1);
-        elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-            nA(jj,jj) = 1.0 + mult*vx(1,jj-1);
-            nA(jj,jj+1) = -mult*vx(1,jj);
-            
-        end    
+    if vx_new(1,2) > 0
+        promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
+        leftBC = input(promptlBC, 's');
+        if strcmp('dirichlet',leftBC)
+            ldirichlet = 1;              
+            lneumann = 0;
+            periodic = 0;
+        elseif strcmp('neumann',leftBC)
+            ldirichlet = 0;                
+            lneumann = 1; 
+            periodic = 0;
+        end
+        promptlBCval = 'Left BC value? ';
+        lBC_val = input(promptlBCval);
+    elseif vx_new(1,2) < 0 
+        fprintf("Left BC not required\n")
+        ldirichlet = 0;
+        lneumann = 0;
+        periodic = 0;
+    end
+    if vx_new(1,end-1) < 0
+        promptrBC = 'Right BC type? (dirichlet, neumann, periodic) ';
+        rightBC = input(promptrBC, 's');
+        if strcmp('dirichlet',rightBC)
+            rdirichlet = 1;              
+            rneumann = 0;
+            periodic = 0;
+        elseif strcmp('neumann',rightBC)
+            rdirichlet = 0;                
+            rneumann = 1; 
+            periodic = 0;
+        end
+        promptrBCval = 'Right BC value? ';
+        rBC_val = input(promptrBCval);
+    elseif vx_new(1,end-1) > 0 
+        fprintf("Right BC not required\n")
+        rdirichlet = 0;
+        rneumann = 0;
+        periodic = 0;
     end
 end
+
+%%
 
 upwind = NaN;
 central = NaN;
@@ -120,11 +156,6 @@ end
 % 1: to be able to specify the type of BC -- string
 % 2: to be able to then set the value -- float
 
-ldirichlet = NaN;
-rdirichlet = NaN;
-rneumann = NaN;
-lneumann = NaN;
-periodic = NaN;
 
 %----- need a prompt here to check whether the velocity is positive or
 % negative next to the boundary, as this will determine whether left or right (or both)
@@ -235,14 +266,41 @@ elseif upwind
     end
     
 end
-%%
 
-if upwind
-    for ii=1:nmax
+%%
+%--------------------------------------------------------------------------------------------------------------%
+% START TIME STEPPING
+%--------------------------------------------------------------------------------------------------------------%
+
+for ii=1:nmax
+    
+    n = n_new;
+    vx = vx_new;
+    
+    if staggered
+
+        for jj=1:npts
+
+            if jj==1
+                n_new(1,1) = lGhost;
+                nA(1,1) = 1.0;
+            elseif jj==npts
+                n_new(1,npts) = rGhost;
+                nA(npts,npts) = 1.0;
+            elseif ((vx(1,jj-1)+vx(1,jj))/2)>0
+                nA(jj,jj) = 1.0 - mult*vx(1,jj);
+                nA(jj,jj-1) = mult*vx(1,jj-1);
+            elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+                nA(jj,jj) = 1.0 + mult*vx(1,jj-1);
+                nA(jj,jj+1) = -mult*vx(1,jj);
+
+            end    
+        end
         
-        vx = vx_new;
-        n = n_new;
-        
+    end
+
+    if upwind
+
         for jj=1:npts-1
 
             if jj==1
@@ -276,18 +334,9 @@ if upwind
             end
 
         end
-        
-        vx_new = vxA*vx';
-        vx_new = vx_new';
-    
-    end
-    
-elseif central
-    for ii=1:nmax
-        
-        vx = vx_new;
-        n = n_new;
-        
+
+    elseif central
+
         for jj=1:npts-1
 
             if jj==1
@@ -318,12 +367,12 @@ elseif central
                 vxA(jj,jj+1) = (vx(1,jj+1))*mult/2.0 - (nu*mult)/dx + 1/2;
             end
         end
-        
-        vx_new = vxA*vx';
-        vx_new = vx_new';
     end
+    
+    vx_new = vxA*vx';
+    vx_new = vx_new';
+    
 end
-        
         
 
 
