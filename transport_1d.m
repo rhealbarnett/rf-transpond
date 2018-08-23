@@ -332,7 +332,7 @@ end
 count = 1;
 timerVal = tic;
 
-for ii=1:15
+for ii=1:nmax
     
     n = n_new;
     vx = vx_new;
@@ -468,12 +468,6 @@ for ii=1:15
         elseif v_rneumann
             vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
         end 
-        
-                
-%         if dt*max(abs(vx_new))/dx >= 1.0
-%             fprintf('CFL condition violated, ii=%d\n',ii)
-%             return
-%         end
 
     elseif central
 
@@ -528,7 +522,7 @@ for ii=1:15
     end
 
     
-    if ii==count*round(15/5)
+    if ii==count*round((nmax)/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -541,7 +535,7 @@ for ii=1:15
         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-        plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+dx) max(nxax-dx)])
         hold on
         figure(2)
@@ -564,7 +558,7 @@ end
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
 legend('show','Location','south')
