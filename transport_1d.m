@@ -36,28 +36,38 @@ n = n_new;
 
 staggered = NaN;
 collocated = NaN;
-ldirichlet = NaN;
-rdirichlet = NaN;
-rneumann = NaN;
-lneumann = NaN;
-periodic = NaN;
+v_ldirichlet = NaN;
+v_rdirichlet = NaN;
+v_rneumann = NaN;
+v_lneumann = NaN;
+v_periodic = NaN;
+n_ldirichlet = NaN;
+n_rdirichlet = NaN;
+n_rneumann = NaN;
+n_lneumann = NaN;
+n_periodic = NaN;
 
-promptGrid = 'Staggered or collocated grid? ';
+promptGrid = 'staggered or collocated grid? ';
 grid = input(promptGrid, 's');
 
 if strcmp(grid,'staggered')
     staggered = 1;
     collocated = 0;
-else
+elseif strcmp(grid,'collocated')
     staggered = 0;
     collocated = 1;
 end
 
-if staggered & (size(vx_new)==size(n_new))
-    fprintf("Check velocity and array density sizes for staggered grid.\n")
+if (isnan(staggered)) || (isnan(collocated))
+    error("Check spelling and/or type of answer for %s.\n",'"staggered or collocated grid?"')
     return
-elseif collocated & size(vx_new)~=size(n_new)
-    fprintf("Check velocity and array density sizes for collocated grid.\n")
+end
+
+if staggered & (size(vxA)==size(nA))
+    error("Check velocity and array density sizes for staggered grid.")
+    return
+elseif collocated & size(vxA)~=size(nA)
+    error("Check velocity and array density sizes for collocated grid.")
     return
 end
 
@@ -76,55 +86,102 @@ if staggered
     if strcmp('linear extrap',leftGhost)
         lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
             nxax(1),'linear','extrap');
+        n_ldirichlet = 0;              
+        n_lneumann = 0;
+        n_periodic = 0;
+    elseif strcmp('dirichlet',leftGhost)
+        n_ldirichlet = 1;              
+        n_lneumann = 0;
+        n_periodic = 0;
+    elseif strcmp('neumann',leftGhost)
+        n_ldirichlet = 0;                
+        n_lneumann = 1; 
+        n_periodic = 0;
+    end  
+    
+    if (isnan(n_ldirichlet)) || (isnan(n_lneumann)) || (isnan(n_periodic))
+        error("Check spelling and/or type of answer for %s.\n",...
+            '"Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap)"')
+        return
+    end
+    
+    if strcmp('linear extrap',leftGhost)
+    else
+        promptlnBCval = 'Left (ghost) BC value for density? ';
+        lnBC_val = input(promptlnBCval);
     end
     
     if strcmp('linear extrap',rightGhost)
         rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
             nxax(npts),'linear','extrap');
+        n_rdirichlet = 0;                
+        n_rneumann = 0; 
+        n_periodic = 0;
+    elseif strcmp('dirichlet',rightGhost)
+        n_rdirichlet = 1;              
+        n_rneumann = 0;
+        n_periodic = 0;
+    elseif strcmp('neumann',rightGhost)
+        n_rdirichlet = 0;                
+        n_rneumann = 1; 
+        n_periodic = 0;
     end
+    
+    if strcmp('linear extrap',rightGhost)
+    else
+        promptrnBCval = 'Right (ghost) BC value for density? ';
+        rnBC_val = input(promptrnBCval);
+    end
+    
+    if (isnan(n_rdirichlet)) || (isnan(n_rneumann)) || (isnan(n_periodic))
+        error("Check spelling and/or type of answer for %s.\n",...
+            '"Right (ghost) BC type? (dirichlet, neumann, periodic)"')
+        return
+    end
+    
 end
 
 if collocated
     
     if vx_new(1,2) > 0
-        promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
-        leftBC = input(promptlBC, 's');
-        if strcmp('dirichlet',leftBC)
-            ldirichlet = 1;              
-            lneumann = 0;
-            periodic = 0;
-        elseif strcmp('neumann',leftBC)
-            ldirichlet = 0;                
-            lneumann = 1; 
-            periodic = 0;
+        promptlnBC = 'Left BC type for density? (dirichlet, neumann, periodic) ';
+        leftnBC = input(promptlnBC, 's');
+        if strcmp('dirichlet',leftnBC)
+            n_ldirichlet = 1;              
+            n_lneumann = 0;
+            n_periodic = 0;
+        elseif strcmp('neumann',leftnBC)
+            n_ldirichlet = 0;                
+            n_lneumann = 1; 
+            n_periodic = 0;
         end
-        promptlBCval = 'Left BC value? ';
-        lBC_val = input(promptlBCval);
+        promptlnBCval = 'Left BC value for density? ';
+        lnBC_val = input(promptlnBCval);
     elseif vx_new(1,2) < 0 
-        fprintf("Left BC not required\n")
-        ldirichlet = 0;
-        lneumann = 0;
-        periodic = 0;
+        fprintf("Left BC not required on density for the given flux direction.\n")
+        n_ldirichlet = 0;
+        n_lneumann = 0;
+        n_periodic = 0;
     end
     if vx_new(1,end-1) < 0
-        promptrBC = 'Right BC type? (dirichlet, neumann, periodic) ';
-        rightBC = input(promptrBC, 's');
-        if strcmp('dirichlet',rightBC)
-            rdirichlet = 1;              
-            rneumann = 0;
-            periodic = 0;
-        elseif strcmp('neumann',rightBC)
-            rdirichlet = 0;                
-            rneumann = 1; 
-            periodic = 0;
+        promptrnBC = 'Right BC type for density? (dirichlet, neumann, periodic) ';
+        rightnBC = input(promptrnBC, 's');
+        if strcmp('dirichlet',rightnBC)
+            n_rdirichlet = 1;              
+            n_rneumann = 0;
+            n_periodic = 0;
+        elseif strcmp('neumann',rightnBC)
+            n_rdirichlet = 0;                
+            n_rneumann = 1; 
+            n_periodic = 0;
         end
-        promptrBCval = 'Right BC value? ';
-        rBC_val = input(promptrBCval);
+        promptrnBCval = 'Right BC value for density? ';
+        rnBC_val = input(promptrnBCval);
     elseif vx_new(1,end-1) > 0 
-        fprintf("Right BC not required\n")
-        rdirichlet = 0;
-        rneumann = 0;
-        periodic = 0;
+        fprintf("Right BC not required on density for the given flux direction.\n")
+        n_rdirichlet = 0;
+        n_rneumann = 0;
+        n_periodic = 0;
     end
 end
 
@@ -133,7 +190,7 @@ end
 upwind = NaN;
 central = NaN;
 
-promptDiff = 'Spatial differencing scheme? (upwind or central) ';
+promptDiff = 'Spatial differencing scheme for momentum equation? (upwind or central) ';
 scheme = input(promptDiff, 's');
 
 if strcmp(scheme,'upwind')
@@ -163,106 +220,106 @@ end
 
 if central
 
-    promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
-    leftBC = input(promptlBC, 's');
-    if strcmp('periodic',leftBC)
+    promptlvBC = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
+    leftvBC = input(promptlvBC, 's');
+    if strcmp('periodic',leftvBC)
 
     else
-        promptrBC = 'Right BC type? (dirichlet or neumann) ';
-        rightBC = input(promptrBC, 's');
+        promptrvBC = 'Right BC type for velocity? (dirichlet or neumann) ';
+        rightvBC = input(promptrvBC, 's');
     end
 
-    if strcmp('dirichlet',leftBC)
-        ldirichlet = 1;               % this allows the use of ldirichlet as a logical 
-        lneumann = 0;
-        periodic = 0;
-    elseif strcmp('neumann',leftBC)
-        ldirichlet = 0;                
-        lneumann = 1; 
-        periodic = 0;
+    if strcmp('dirichlet',leftvBC)
+        v_ldirichlet = 1;               % this allows the use of ldirichlet as a logical 
+        v_lneumann = 0;
+        v_periodic = 0;
+    elseif strcmp('neumann',leftvBC)
+        v_ldirichlet = 0;                
+        v_lneumann = 1; 
+        v_periodic = 0;
     end
 
-    if strcmp('dirichlet',rightBC)
-        rdirichlet = 1;
-        rneumann = 0;
-        periodic = 0;
-    elseif strcmp('neumann',rightBC)
-        rneumann = 1;
-        rdirichlet = 0;
-        periodic = 0;
+    if strcmp('dirichlet',rightvBC)
+        v_rdirichlet = 1;
+        v_rneumann = 0;
+        v_periodic = 0;
+    elseif strcmp('neumann',rightvBC)
+        v_rneumann = 1;
+        v_rdirichlet = 0;
+        v_periodic = 0;
     end
 
-    if strcmp('periodic',leftBC)
-        rdirichlet = 0;
-        rneumann = 0;
-        ldirichlet = 0;
-        lneumann = 0;
-        periodic = 1;
+    if strcmp('periodic',leftvBC)
+        v_rdirichlet = 0;
+        v_rneumann = 0;
+        v_ldirichlet = 0;
+        v_lneumann = 0;
+        v_periodic = 1;
     end
 
-    promptlBCval = 'Left BC value? ';
-    lBC_val = input(promptlBCval);
-    if strcmp('periodic',leftBC)
+    promptlvBCval = 'Left BC value for velocity? ';
+    lvBC_val = input(promptlvBCval);
+    if strcmp('periodic',leftvBC)
 
     else
-        promptrBCval = 'Right BC value? ';
-        rBC_val = input(promptrBCval);
+        promptrvBCval = 'Right BC value for velocity? ';
+        rvBC_val = input(promptrvBCval);
     end
 
-    if ldirichlet && rdirichlet
-        fprintf("left and right BCs are dirichlet; lBC = %f, rBC = %f.\n", lBC_val, rBC_val)
-    elseif lneumann && rdirichlet
-        fprintf("left BC is neumann, lBC = %f; right BC is dirichlet, rBC = %f.\n", lBC_val, rBC_val)
-    elseif rneumann && ldirichlet
-        fprintf("left BC is dirichlet, lBC = %f; right BC is neumann, rBC = %f.\n", lBC_val, rBC_val)
-    elseif rneumann && lneumann
-        fprintf("left and right BCs are dirichlet; lBC = %f, rBC = %f.\n", lBC_val, rBC_val)
-    elseif periodic
-        fprintf("periodic BCs\n")
+    if v_ldirichlet && v_rdirichlet
+        fprintf("left and right velocity BCs are dirichlet; lBC = %f, rBC = %f.\n", lvBC_val, rvBC_val)
+    elseif v_lneumann && v_rdirichlet
+        fprintf("left velocity BC is neumann, lBC = %f; right velocity BC is dirichlet, rBC = %f.\n", lvBC_val, rvBC_val)
+    elseif v_rneumann && v_ldirichlet
+        fprintf("left velocity BC is dirichlet, lBC = %f; right velocity BC is neumann, rBC = %f.\n", lvBC_val, rvBC_val)
+    elseif v_rneumann && v_lneumann
+        fprintf("left and right velocity BCs are dirichlet; lBC = %f, rBC = %f.\n", lvBC_val, rvBC_val)
+    elseif v_periodic
+        fprintf("periodic velocity BCs\n")
     end
     
 elseif upwind
     
     if vx_new(1,2) > 0
-            promptlBC = 'Left BC type? (dirichlet, neumann, periodic) ';
-            leftBC = input(promptlBC, 's');
-            if strcmp('dirichlet',leftBC)
-                ldirichlet = 1;              
-                lneumann = 0;
-                periodic = 0;
-            elseif strcmp('neumann',leftBC)
-                ldirichlet = 0;                
-                lneumann = 1; 
-                periodic = 0;
+            promptlvBC = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
+            leftvBC = input(promptlvBC, 's');
+            if strcmp('dirichlet',leftvBC)
+                v_ldirichlet = 1;              
+                v_lneumann = 0;
+                v_periodic = 0;
+            elseif strcmp('neumann',leftvBC)
+                v_ldirichlet = 0;                
+                v_lneumann = 1; 
+                v_periodic = 0;
             end
-            promptlBCval = 'Left BC value? ';
-            lBC_val = input(promptlBCval);
+            promptlvBCval = 'Left BC value for velocity? ';
+            lvBC_val = input(promptlvBCval);
     elseif vx_new(1,2) < 0 
             fprintf("Left BC not required\n")
-            ldirichlet = 0;
-            lneumann = 0;
-            periodic = 0;
+            v_ldirichlet = 0;
+            v_lneumann = 0;
+            v_periodic = 0;
     end
     
     if vx_new(1,end-1) < 0
-            promptrBC = 'Right BC type? (dirichlet, neumann, periodic) ';
-            rightBC = input(promptrBC, 's');
-            if strcmp('dirichlet',rightBC)
-                rdirichlet = 1;              
-                rneumann = 0;
-                periodic = 0;
-            elseif strcmp('neumann',rightBC)
-                rdirichlet = 0;                
-                rneumann = 1; 
-                periodic = 0;
+            promptrvBC = 'Right BC type? (dirichlet, neumann, periodic) ';
+            rightvBC = input(promptrvBC, 's');
+            if strcmp('dirichlet',rightvBC)
+                v_rdirichlet = 1;              
+                v_rneumann = 0;
+                v_periodic = 0;
+            elseif strcmp('neumann',rightvBC)
+                v_rdirichlet = 0;                
+                v_rneumann = 1; 
+                v_periodic = 0;
             end
-            promptrBCval = 'Right BC value? ';
-            rBC_val = input(promptrBCval);
+            promptrvBCval = 'Right BC value? ';
+            rvBC_val = input(promptrvBCval);
     elseif vx_new(1,end-1) > 0 
             fprintf("Right BC not required\n")
-            rdirichlet = 0;
-            rneumann = 0;
-            periodic = 0;
+            v_rdirichlet = 0;
+            v_rneumann = 0;
+            v_periodic = 0;
     end
     
 end
@@ -272,31 +329,80 @@ end
 % START TIME STEPPING
 %--------------------------------------------------------------------------------------------------------------%
 
-for ii=1:nmax
+count = 1;
+timerVal = tic;
+
+for ii=1:15
     
     n = n_new;
     vx = vx_new;
     
     if staggered
 
-        for jj=1:npts
+        for jj=2:npts-1
 
-            if jj==1
-                n_new(1,1) = lGhost;
-                nA(1,1) = 1.0;
-            elseif jj==npts
-                n_new(1,npts) = rGhost;
-                nA(npts,npts) = 1.0;
-            elseif ((vx(1,jj-1)+vx(1,jj))/2)>0
+            if ((vx(1,jj-1)+vx(1,jj))/2)>=0
                 nA(jj,jj) = 1.0 - mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
                 nA(jj,jj) = 1.0 + mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
-
             end    
         end
         
+        n_new = nA*n' + dt*n_source;
+        n_new = n_new';
+        
+        if strcmp('linear extrap',leftGhost)
+            lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+            nxax(1),'linear','extrap');
+            n_new(1,1) = lGhost;
+        end
+        if strcmp('linear extrap',rightGhost)
+            rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+            nxax(npts),'linear','extrap');
+            n_new(1,end) = rGhost;
+        end
+        if n_lneumann && n_rneumann
+            n_new(1,1) = n_new(1,2) + dx*lnBC_val;
+            n_new(1,end) = n_new(1,end-1) + dx*rnBC_val;
+        end
+        
+      
+    elseif collocated
+        
+        for jj=1:npts-1
+            if jj==1
+                if n_rdirichlet || n_rneumann
+                    nA(jj,jj) = 1.0 + mult*vx(1,jj);
+                    nA(jj,jj+1) = -mult*vx(1,jj+1);  
+                end
+            elseif jj==npts-1
+                if n_ldirichlet || n_lneumann
+                    nA(jj,jj) = 1.0 - mult*vx(1,jj);
+                    nA(jj,jj-1) = mult*vx(1,jj-1); 
+                end
+            elseif vx(1,jj)>0
+                nA(jj,jj) = 1.0 - mult*vx(1,jj);
+                nA(jj,jj-1) = mult*vx(1,jj-1);
+            elseif vx(1,jj)<0
+                nA(jj,jj) = 1.0 + mult*vx(1,jj);
+                nA(jj,jj+1) = -mult*vx(1,jj+1);
+            end   
+        end
+        
+        n_new = nA*n' + dt*n_source;
+        n_new = n_new';
+        
+        if n_ldirichlet
+            n_new(1,1) = lnBC_val;
+        elseif n_lneumann
+            n_new(1,1) = n_new(1,2) + dx*lnBC_val;
+        elseif n_rdirichlet
+            n_new(1,end) = rnBC_val;
+        elseif n_rneumann
+            n_new(1,end) = n_new(1,end-1) + dx*rnBC_val;
+        end
     end
 
     if upwind
@@ -304,77 +410,181 @@ for ii=1:nmax
         for jj=1:npts-1
 
             if jj==1
-                if ldirichlet
-                    vx(1,1) = lBC_val;
-                    vxA(1,1) = 1.0;
-                elseif lneumann
-                    vx(1,1) = vx(1,2) + dx*lBC_val;
-                    vxA(1,1) = 1.0;
-                else
+                if v_rdirichlet || v_rneumann
                     vxA(jj,jj) = 1 + mult*vx(1,jj);
                     vxA(jj,jj+1) = -mult*vx(1,jj);
+                    if staggered
+                        vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+            pond_source(jj,1);
+                    elseif collocated
+                        vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
+                pond_source(jj,1);
+                    end
                 end
             elseif jj==npts-1
-                if rdirichlet
-                    vx(1,end) = rBC_val;
-                    vxA(end,end) = 1.0;
-                elseif rneumann
-                    vx(1,end) = vx(1,end-1) + dx*rBC_val;
-                    vxA(end,end) = 1.0;
-                else 
+                if v_ldirichlet || v_lneumann
                     vxA(jj,jj) = 1 - mult*vx(1,jj);
-                    vxA(jj,jj-1) = mult*vx(1,jj);
+                    vxA(jj,jj-1) = mult*vx(1,jj);  
+                    if staggered
+                        vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+                pond_source(jj,1);
+                    elseif collocated
+                        vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj) - n(1,jj-1))/dx) -...
+                pond_source(jj,1);
+                    end
                 end
             elseif vx(1,jj)>0
                 vxA(jj,jj) = 1 - mult*vx(1,jj);
                 vxA(jj,jj-1) = mult*vx(1,jj);
+                if collocated
+                    vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj) - n(1,jj-1))/dx) -...
+                        pond_source(jj,1);
+                end
             elseif vx(1,jj)<0
                 vxA(jj,jj) = 1 + mult*vx(1,jj);
                 vxA(jj,jj+1) = -mult*vx(1,jj);
+                if collocated
+                    vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
+                        pond_source(jj,1);
+                end
+            end
+            
+            if staggered
+                vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+        pond_source(jj,1);
             end
 
         end
+        
+        vx_new = vxA*vx' + dt*vx_source;
+        vx_new = vx_new';
+
+        if v_ldirichlet
+            vx_new(1,1) = lvBC_val;
+        elseif v_lneumann
+            vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+        elseif v_rdirichlet
+            vx_new(1,end) = rvBC_val;
+        elseif v_rneumann
+            vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+        end 
+        
+                
+%         if dt*max(abs(vx_new))/dx >= 1.0
+%             fprintf('CFL condition violated, ii=%d\n',ii)
+%             return
+%         end
 
     elseif central
 
-        for jj=1:npts-1
-
-            if jj==1
-                if ldirichlet
-                    vx(1,1) = lBC_val;
-                    vxA(1,1) = 1.0;
-                elseif lneumann
-                    vx(1,1) = vx(1,2) + dx*lBC_val;
-                    vxA(1,1) = 1.0;
-                else
-                    vxA(jj,jj) = 1 + mult*vx(1,jj);
-                    vxA(jj,jj+1) = -mult*vx(1,jj);
-                end
-            elseif jj==npts-1
-                if rdirichlet
-                    vx(1,end) = rBC_val;
-                    vxA(end,end) = 1.0;
-                elseif rneumann
-                    vx(1,end) = vx(1,end-1) + dx*rBC_val;
-                    vxA(end,end) = 1.0;
-                else 
-                    vxA(jj,jj) = 1 - mult*vx(1,jj);
-                    vxA(jj,jj-1) = mult*vx(1,jj);
-                end
-            else
-                vxA(jj,jj) = (mult/dx)*2.0*nu;
-                vxA(jj,jj-1) = -(vx(1,jj-1))*mult/2.0 - (nu*mult)/dx + 1/2;
-                vxA(jj,jj+1) = (vx(1,jj+1))*mult/2.0 - (nu*mult)/dx + 1/2;
+        for jj=2:npts-2
+            vxA(jj,jj) = 1.0 - mult*((2.0*nu)/dx);
+            vxA(jj,jj-1) = mult*((vx(1,jj)/2.0) + (nu/dx));
+            vxA(jj,jj+1) = mult*((nu/dx) - (vx(1,jj)/2.0));
+            if staggered
+                vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+            pond_source(jj,1);
+            elseif collocated 
+                vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj-1))/(2.0*dx)) -...
+            pond_source(jj,1);
             end
         end
+
+        vx_new = vxA*vx' + dt*vx_source;
+        vx_new = vx_new';
+    
+        if v_ldirichlet && v_rdirichlet
+            vx_new(1,1) = lvBC_val;
+            vx_new(1,end) = rvBC_val;
+        elseif v_lneumann && v_rneumann
+            vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+            vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+        elseif v_rdirichlet && v_lneumann
+            vx_new(1,end) = rvBC_val;
+            vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+        elseif v_rneumann && v_ldirichlet
+            vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+            vx_new(1,1) = lvBC_val;
+        end  
+    
+        if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+            dt = cfl_fact*(dx^2)/(2.0*nu);
+        elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+            dt = cfl_fact*dx/max(abs(vx_new));
+        end
+        
+        if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+            fprintf('CFL condition violated, ii=%d\n',ii)
+            return
+        end
+    
     end
     
-    vx_new = vxA*vx';
-    vx_new = vx_new';
+    nan_check = isnan(vx_new);
+    
+    if sum(nan_check) ~= 0
+        fprintf('unstable, ii=%d\n',ii)
+        return
+    end
+
+    
+    if ii==count*round(15/5)
+        fprintf('***--------------------***\n')
+        fprintf('ii=%d, count=%d\n', [ii count])
+        fprintf('dt=%ds\n', dt)
+        fprintf('total time=%ds\n', dt*ii)
+        fprintf('simulation time %d\n', toc(timerVal))
+        if dt == cfl_fact*(dx^2)/(2.0*nu)
+            fprintf('Diffusive CFL condition\n')
+        elseif dt == cfl_fact*dx/max(abs(vx_new))
+            fprintf('Convective CFL condition\n')
+        end
+        figure(1)
+        set(gcf,'Position',[563 925 560 420])
+        plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(nxax+dx) max(nxax-dx)])
+        hold on
+        figure(2)
+        set(gcf,'Position',[7 925 560 420])
+        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(vxax) max(vxax)])
+        hold on
+        figure(3)
+        set(gcf,'Position',[3 476 560 420])
+        plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(vxax) max(vxax)])
+        hold on
+        count = count + 1;
+    end
     
 end
-        
 
+        
+%%
+
+figure(1)
+set(gcf,'Position',[563 925 560 420])
+plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density m^{-3}','Fontsize',16)
+legend('show','Location','south')
+hold off
+
+figure(2)
+set(gcf,'Position',[7 925 560 420])
+plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Mach number','Fontsize',16)
+legend('show','Location','southeast')
+hold off
+
+figure(3)
+set(gcf,'Position',[3 476 560 420])
+plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Velocity source ms^{-1}','Fontsize',16)
+legend('show','Location','northwest')
+hold off
 
 
 
