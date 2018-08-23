@@ -21,19 +21,19 @@ Ti = 5.0;
 T = Te + Ti;
 cs = sqrt((Te + Ti)*e/m);
 % cs = 10;
-nu = 1000.0;
-% nu = 0.0;
+% nu = 1000.0;
+nu = 0.0;
 
 %------
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.001;
+xmax = 1.0/cs;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 64;
+npts = 2048;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -53,14 +53,8 @@ tmin = 0;
 %-- initial density profile
 Nmax = 16;
 Nmin = 15;
-% N_grad = (Nmax - Nmin)/(xmax - xmin);
-% slope = (Nmax - Nmin) ./ (xmax - xmin);
-% n_new = (N_grad)*exp(10*nxax(2:npts-1));
-% n_new = 10.^(N_grad*nxax(2:npts-1) + Nmax);
 n_new = (10^Nmax)*ones(1,npts);
-% n_new = normpdf(nxax,(xmax+0.5*dx)/2,(xmax+0.5*dx)/30);
-% n_new = (10^Nmax)*n_new/max(n_new);
-% dnx = gradient(n_new,nxax(2:npts-1));
+
 
 %-- density source
 rate_coeff = 10e-14;
@@ -70,14 +64,10 @@ neut_max = 16.2;
 neut_min = 14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
-% n_neut = (rate_max - rate_min)*exp(-90.0*nxax(1,1:end/2)) + rate_min;
 n_neut = zeros(1,npts-2);
-% n_neut(1:decay_index + 1) = 10.^(decay_gradient*nxax(1:decay_index + 1) + neut_max);
 n_neut(1:decay_index+1) = 10^neut_max*(cos(cosax)+1.01)/2;%.*exp(-4*cosax);
 n_neut(end-decay_index:end) = fliplr(n_neut(1:decay_index + 1));
-% % n_neut = [n_neut,fliplr(n_neut)];
 n_neut(decay_index+2:end-decay_index) = (n_neut(decay_index)/2);
-% n_neut = fliplr(n_neut);
 n_source = zeros((npts),1);
 
 for ii=2:npts-1
@@ -87,10 +77,6 @@ end
 %-- initial velocity
 vx_ax = linspace(-1,1,npts-1);
 vx_new = (cs)*vx_ax;
-% vx_new = cs*zeros(1,npts-1);
-% vx_new = 400*cs*vxax.^2 - 40*cs*vxax + cs;
-% vx_new = 400*cs*vxax.^2 - 40*cs*vxax;
-% vx_new = -400*cs*vxax.^2 + 40*cs*vxax - cs;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
@@ -100,7 +86,7 @@ vx_source = zeros(npts-1,1);
 
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.2e-4;
+tmax = 1.0e-4;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
@@ -133,6 +119,9 @@ Efield = [(zeros(1,npts-1-length(cosax))), Efield];
 Efield = Efield./max(Efield);
 Efield = Emax*Efield;
 Efield = Efield.^2;
+% ----------- %
+% set e field to zero for testing 
+% ----------- %
 Efield = zeros(1,npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
