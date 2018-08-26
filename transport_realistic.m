@@ -28,12 +28,12 @@ nu = 0.0;
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 1.0/cs;
+xmax = 1.0;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 2048;
+npts = 128;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
