@@ -29,7 +29,7 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-transport_realistic;
+transport_params_colocated;
 
 vx = vx_new;
 n = n_new;
@@ -332,7 +332,7 @@ end
 count = 1;
 timerVal = tic;
 
-for ii=1:nmax
+for ii=1:15
     
     n = n_new;
     vx = vx_new;
@@ -382,7 +382,7 @@ for ii=1:nmax
                     nA(jj,jj) = 1.0 - mult*vx(1,jj);
                     nA(jj,jj-1) = mult*vx(1,jj-1); 
                 end
-            elseif vx(1,jj)>0
+            elseif vx(1,jj)>=0
                 nA(jj,jj) = 1.0 - mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif vx(1,jj)<0
@@ -420,6 +420,9 @@ for ii=1:nmax
                         vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
                 pond_source(jj,1);
                     end
+                else 
+                    vxA(jj,jj) = 1 + mult*vx(1,jj);
+                    vxA(jj,jj+1) = -mult*vx(1,jj);                    
                 end
             elseif jj==npts-1
                 if v_ldirichlet || v_lneumann
@@ -432,6 +435,9 @@ for ii=1:nmax
                         vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj) - n(1,jj-1))/dx) -...
                 pond_source(jj,1);
                     end
+                else
+                    vxA(jj,jj) = 1 - mult*vx(1,jj);
+                    vxA(jj,jj-1) = mult*vx(1,jj);                     
                 end
             elseif vx(1,jj)>0
                 vxA(jj,jj) = 1 - mult*vx(1,jj);
@@ -522,7 +528,7 @@ for ii=1:nmax
     end
 
     
-    if ii==count*round((nmax)/5)
+    if ii==count*round(15/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
