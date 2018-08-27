@@ -19,8 +19,8 @@ m = mp;
 Te = 10.0;
 Ti = 5.0;
 T = Te + Ti;
-cs = sqrt((Te + Ti)*e/m);
-% cs = 10;
+% cs = sqrt((Te + Ti)*e/m);
+cs = 10;
 % nu = 1000.0;
 nu = 0.0;
 
@@ -33,7 +33,7 @@ xmax = 1.0;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 128;
+npts = 32;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -58,20 +58,20 @@ n_new = (10^Nmax)*ones(1,npts);
 
 %-- density source
 rate_coeff = 10e-14;
-decay_index = round((npts-2)/2.5);
-cosax = linspace(0,pi,decay_index+1);
-neut_max = 16.2;
+decay_index = round((npts));
+cosax = linspace(0,2*pi,decay_index);
+neut_max = 13.2;
 neut_min = 14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
-n_neut = zeros(1,npts-2);
-n_neut(1:decay_index+1) = 10^neut_max*(cos(cosax)+1.01)/2;%.*exp(-4*cosax);
-n_neut(end-decay_index:end) = fliplr(n_neut(1:decay_index + 1));
-n_neut(decay_index+2:end-decay_index) = (n_neut(decay_index)/2);
+n_neut = zeros(1,npts);
+n_neut(1:decay_index) = 10^neut_max*(cos(cosax)+1.01)/2;%.*exp(-4*cosax);
+% n_neut(end-decay_index:end) = fliplr(n_neut(1:decay_index + 1));
+% n_neut(decay_index+1:end-decay_index) = (n_neut(decay_index)/2);
 n_source = zeros((npts),1);
 
-for ii=2:npts-1
-    n_source(ii,1) = n_neut(1,ii-1)*n_neut(1,ii-1)*rate_coeff;
+for ii=1:npts
+    n_source(ii,1) = n_neut(1,ii)*n_neut(1,ii)*rate_coeff;
 end
 
 %-- initial velocity
@@ -86,7 +86,7 @@ vx_source = zeros(npts-1,1);
 
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-4;
+tmax = 2.0e-4;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
@@ -124,7 +124,7 @@ Efield = Efield.^2;
 % ----------- %
 Efield = zeros(1,npts-1);
 
-pond_const = (1.0/4.0)*((e^2)/(m*om^2));
-pond_source = zeros(npts-1,1);
+% pond_const = (1.0/4.0)*((e^2)/(m*om^2));
+% pond_source = zeros(npts-1,1);
 
 
