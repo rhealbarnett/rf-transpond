@@ -29,7 +29,7 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-transport_params_colocated;
+transport_realistic;
 
 vx = vx_new;
 n = n_new;
@@ -326,13 +326,53 @@ end
 
 %%
 %--------------------------------------------------------------------------------------------------------------%
+% INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
+%--------------------------------------------------------------------------------------------------------------%
+
+figure(1)
+set(gcf,'Position',[563 925 560 420])
+semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density m^{-3}','Fontsize',16)
+legend('show','Location','south')
+hold on
+
+figure(2)
+set(gcf,'Position',[7 925 560 420])
+plot(vxax,vx_new/cs,'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Mach number','Fontsize',16)
+legend('show','Location','southeast')
+hold on
+
+figure(3)
+set(gcf,'Position',[3 476 560 420])
+plot(vxax,vx_source*dt,'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Velocity source ms^{-1}','Fontsize',16)
+legend('show','Location','northwest')
+hold on
+
+figure(4)
+set(gcf,'Position',[563 476 560 420])
+plot(nxax,n_source*dt,'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density source ms^{-1}','Fontsize',16)
+legend('show','Location','northwest')
+hold on
+
+%%
+%--------------------------------------------------------------------------------------------------------------%
 % START TIME STEPPING
 %--------------------------------------------------------------------------------------------------------------%
 
 count = 1;
 timerVal = tic;
+grad(n_new,dx,npts)
+source(n,e,Te,Ti,m,npts,dx)
+pond_source(m,om,e,Efield,dx,npts-1)
 
-for ii=1:15
+for ii=1:20
     
     n = n_new;
     vx = vx_new;
@@ -341,7 +381,7 @@ for ii=1:15
 
         for jj=2:npts-1
 
-            if ((vx(1,jj-1)+vx(1,jj))/2)>=0
+            if ((vx(1,jj-1)+vx(1,jj))/2)>0
                 nA(jj,jj) = 1.0 - mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
@@ -376,19 +416,25 @@ for ii=1:15
                 if n_rdirichlet || n_rneumann
                     nA(jj,jj) = 1.0 + mult*vx(1,jj);
                     nA(jj,jj+1) = -mult*vx(1,jj+1);  
+                else
+                    nA(jj,jj) = 1.0 + mult*vx(1,jj);
+                    nA(jj,jj+1) = -mult*vx(1,jj+1);
                 end
             elseif jj==npts-1
                 if n_ldirichlet || n_lneumann
                     nA(jj,jj) = 1.0 - mult*vx(1,jj);
                     nA(jj,jj-1) = mult*vx(1,jj-1); 
+                else
+                    nA(jj,jj) = 1.0 - mult*vx(1,jj);
+                    nA(jj,jj-1) = mult*vx(1,jj-1);
                 end
-            elseif vx(1,jj)>=0
+            elseif vx(1,jj)>0
                 nA(jj,jj) = 1.0 - mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
-            elseif vx(1,jj)<0
+            elseif vx(1,jj)<=0
                 nA(jj,jj) = 1.0 + mult*vx(1,jj);
                 nA(jj,jj+1) = -mult*vx(1,jj+1);
-            end   
+            end
         end
         
         n_new = nA*n' + dt*n_source;
@@ -414,30 +460,34 @@ for ii=1:15
                     vxA(jj,jj) = 1 + mult*vx(1,jj);
                     vxA(jj,jj+1) = -mult*vx(1,jj);
                     if staggered
-                        vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-            pond_source(jj,1);
+                        vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+%             pond_source(jj,1);
                     elseif collocated
                         vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
                 pond_source(jj,1);
                     end
                 else 
                     vxA(jj,jj) = 1 + mult*vx(1,jj);
-                    vxA(jj,jj+1) = -mult*vx(1,jj);                    
+                    vxA(jj,jj+1) = -mult*vx(1,jj);   
+                    vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+%             pond_source(jj,1);
                 end
             elseif jj==npts-1
                 if v_ldirichlet || v_lneumann
                     vxA(jj,jj) = 1 - mult*vx(1,jj);
                     vxA(jj,jj-1) = mult*vx(1,jj);  
                     if staggered
-                        vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-                pond_source(jj,1);
+                        vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+%                 pond_source(jj,1);
                     elseif collocated
                         vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj) - n(1,jj-1))/dx) -...
                 pond_source(jj,1);
                     end
                 else
                     vxA(jj,jj) = 1 - mult*vx(1,jj);
-                    vxA(jj,jj-1) = mult*vx(1,jj);                     
+                    vxA(jj,jj-1) = mult*vx(1,jj);    
+                    vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+%             pond_source(jj,1);
                 end
             elseif vx(1,jj)>0
                 vxA(jj,jj) = 1 - mult*vx(1,jj);
@@ -450,14 +500,14 @@ for ii=1:15
                 vxA(jj,jj) = 1 + mult*vx(1,jj);
                 vxA(jj,jj+1) = -mult*vx(1,jj);
                 if collocated
-                    vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
-                        pond_source(jj,1);
+%                     vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
+%                         pond_source(jj,1);
                 end
             end
             
             if staggered
-                vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-        pond_source(jj,1);
+                vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
+%         pond_source(jj,1);
             end
 
         end
@@ -528,7 +578,7 @@ for ii=1:15
     end
 
     
-    if ii==count*round(15/5)
+    if ii==ii%*count*round()
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -553,6 +603,13 @@ for ii=1:15
         set(gcf,'Position',[3 476 560 420])
         plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
+        hold on
+        figure(4)
+        set(gcf,'Position',[563 476 560 420])
+        plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Density source ms^{-1}','Fontsize',16)
+        legend('show','Location','northwest')
         hold on
         count = count + 1;
     end
@@ -586,8 +643,32 @@ ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
+figure(4)
+set(gcf,'Position',[563 476 560 420])
+plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density source ms^{-1}','Fontsize',16)
+legend('show','Location','northwest')
+hold off
 
+%%
 
+function [ans] = grad(n,dx,npts)
+    ans = (n(2:npts) - n(1:npts-1))/dx;
+end
+
+function [ans] = avg(n,npts)
+    ans = (n(2:npts) + n(1:npts-1))/2.0;
+end
+
+function [ans] = pond_source(m,omega,q,Efield,dx,npts)
+    pond_const = (1.0/4.0)*((q^2)/(m*omega^2));
+    ans = (1.0/m)*pond_const*grad(Efield,dx,npts);
+end
+
+function [ans] = source(n,q,Te,Ti,m,npts,dx)
+    ans = -((Te + Ti)*q./(m*avg(n,npts))).*(grad(n,dx,npts));
+end
 
 
 
