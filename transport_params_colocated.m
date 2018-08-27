@@ -33,7 +33,7 @@ xmax = 1.0;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 32;
+npts = 128;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
@@ -61,7 +61,7 @@ n_new = (10^Nmax)*ones(1,npts-1);
 rate_coeff = 10e-14;
 decay_index = round((npts-1)/2.5);
 cosax = linspace(0,pi,decay_index+1);
-neut_max = 16.5;
+neut_max = 16.0;
 neut_min = 14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -72,13 +72,13 @@ n_neut(1:decay_index+1) = (10^neut_max)*(cos(cosax)+1.01)/2;
 n_neut(end-decay_index:end) = fliplr(n_neut(1:decay_index + 1));
 % % n_neut = [n_neut,fliplr(n_neut)];
 % n_neut = n_neut';
-% n_neut(1:end-decay_index) = (n_neut(decay_index)/2);
+n_neut(decay_index+2:end-decay_index-1) = (n_neut(decay_index)/2);
 % n_neut = fliplr(n_neut);
 n_source = zeros((npts-1),1);
 
-for ii=1:npts-1
-    n_source(ii,1) = n_neut(1,ii)*n_neut(1,ii)*rate_coeff;
-end
+% for ii=1:npts-1
+%     n_source(ii,1) = n_neut(1,ii)*n_neut(1,ii)*rate_coeff;
+% end
 
 %-- initial velocity
 vx_ax = linspace(-1,1,npts-1);
@@ -96,7 +96,7 @@ vxA = zeros(npts-1,npts-1);
 vx_source = zeros(npts-1,1);
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-4;
+tmax = 1.0e-5;
 cfl_fact = 0.8;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
