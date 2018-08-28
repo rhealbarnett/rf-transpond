@@ -329,6 +329,8 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
+vx_source = source(n_new,e,Te,Ti,m,npts,dx);
+
 figure(1)
 set(gcf,'Position',[563 925 560 420])
 semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
@@ -368,14 +370,15 @@ hold on
 
 count = 1;
 timerVal = tic;
-grad(n_new,dx,npts)
-source(n,e,Te,Ti,m,npts,dx)
-pond_source(m,om,e,Efield,dx,npts-1)
 
-for ii=1:20
+pond = pond_source(m,om,e,Efield,dx,npts-1);
+
+for ii=1:50
     
     n = n_new;
     vx = vx_new;
+    
+    vx_source = source(n,e,Te,Ti,m,npts,dx);
     
     if staggered
 
@@ -390,7 +393,7 @@ for ii=1:20
             end    
         end
         
-        n_new = nA*n' + dt*n_source;
+        n_new = nA*n' + dt*n_source';
         n_new = n_new';
         
         if strcmp('linear extrap',leftGhost)
@@ -459,62 +462,31 @@ for ii=1:20
                 if v_rdirichlet || v_rneumann
                     vxA(jj,jj) = 1 + mult*vx(1,jj);
                     vxA(jj,jj+1) = -mult*vx(1,jj);
-                    if staggered
-                        vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-%             pond_source(jj,1);
-                    elseif collocated
-                        vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
-                pond_source(jj,1);
-                    end
                 else 
                     vxA(jj,jj) = 1 + mult*vx(1,jj);
                     vxA(jj,jj+1) = -mult*vx(1,jj);   
-                    vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-%             pond_source(jj,1);
                 end
             elseif jj==npts-1
                 if v_ldirichlet || v_lneumann
                     vxA(jj,jj) = 1 - mult*vx(1,jj);
                     vxA(jj,jj-1) = mult*vx(1,jj);  
-                    if staggered
-                        vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-%                 pond_source(jj,1);
-                    elseif collocated
-                        vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj) - n(1,jj-1))/dx) -...
-                pond_source(jj,1);
-                    end
                 else
                     vxA(jj,jj) = 1 - mult*vx(1,jj);
                     vxA(jj,jj-1) = mult*vx(1,jj);    
-                    vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-%             pond_source(jj,1);
                 end
             elseif vx(1,jj)>0
                 vxA(jj,jj) = 1 - mult*vx(1,jj);
                 vxA(jj,jj-1) = mult*vx(1,jj);
-                if collocated
-                    vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj) - n(1,jj-1))/dx) -...
-                        pond_source(jj,1);
-                end
             elseif vx(1,jj)<0
                 vxA(jj,jj) = 1 + mult*vx(1,jj);
                 vxA(jj,jj+1) = -mult*vx(1,jj);
-                if collocated
-%                     vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj))/dx) -...
-%                         pond_source(jj,1);
-                end
-            end
-            
-            if staggered
-                vx_source(jj,1) = 0.0;%-((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-%         pond_source(jj,1);
             end
 
         end
         
-        vx_new = vxA*vx' + dt*vx_source;
+        vx_new = vxA*vx' + dt*vx_source';
         vx_new = vx_new';
-
+            
         if v_ldirichlet
             vx_new(1,1) = lvBC_val;
         elseif v_lneumann
@@ -578,7 +550,7 @@ for ii=1:20
     end
 
     
-    if ii==ii%*count*round()
+    if ii==ii%count*round(ii/2)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
