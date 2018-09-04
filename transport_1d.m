@@ -550,7 +550,7 @@ for ii=1:50
     end
 
     
-    if ii==ii%count*round(ii/2)
+    if ii==count*2%*round(ii/2)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
