@@ -11,18 +11,20 @@
 % constants %
 %------
 constants;
-m = mp;
+% m = mp;
+m = 1.0;
 
 %------
 % parameters %
 %------
-Te = 10.0;
-Ti = 5.0;
-T = Te + Ti;
-cs = sqrt((Te + Ti)*e/m);
-% cs = 10;
-nu = 1000.0;
-% nu = 0;
+Te = (1.0/e)*0.5;
+Ti = (1.0/e)*0.5;
+% T = Te + Ti;
+% T = 1.0/e;
+% cs = sqrt((Te + Ti)*e/m);
+cs = 0.5;
+nu = 1.0;
+% nu = 0.0;
 
 %------
 % spatial domain %
@@ -33,7 +35,7 @@ xmax = 1.0;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 128;
+npts = 64;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
@@ -51,11 +53,10 @@ tmin = 0;
 %-------------------------------------------------------------------------%
 
 %-- initial density profile
-Nmax = 16;
-Nmin = 15;
-% n_new = normpdf(nxax,(xmax)/2,(xmax)/30);
-% n_new = (10^Nmax)*n_new/max(n_new);
-n_new = (10^Nmax)*ones(1,npts-1);
+Nmax = 1;
+Nmin = 0.5;
+% n_new = (Nmax)*ones(1,npts);
+n_new = 0.5*nxax + 0.5;
 
 %-- density source
 rate_coeff = 10e-14;
@@ -81,23 +82,20 @@ n_source = zeros((npts-1),1);
 % end
 
 %-- initial velocity
-vx_ax = linspace(-1,1,npts-1);
-vx_new = cs*vx_ax;
-% vx_new(1,1) = -cs/2;
-% vx_new = zeros(1,npts-1);
-% vx_new(1:(npts-1)/2) = -cs;
-% vx_new((npts-1)/2:npts-1) = cs;
-
+vx_ax = linspace(0.5,1,npts-1);
+vx_new = (cs)*vx_ax;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
 nA = zeros(npts-1,npts-1);
-vxA = zeros(npts-1,npts-1);
-vx_source = zeros(npts-1,1);
+vx_pos = zeros(npts-1,npts-1);
+vx_neg = zeros(npts-1,npts-1);
+vx_diff = zeros(npts-1,npts-1);
+vx_I = eye(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-5;
-cfl_fact = 0.8;
+tmax = 2.0e-4;
+cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -107,9 +105,9 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-mult = dt/dx;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
+mult = dt/dx;
 
 %%
 
@@ -131,7 +129,11 @@ Efield = Emax*Efield;
 Efield = Efield.^2;
 Efield = zeros(1,npts);
 
-pond_const = (1.0/4.0)*((e^2)/(m*om^2));
-pond_source = zeros(npts,1);
+% pond_const = (1.0/4.0)*((e^2)/(m*om^2));
+pond_source = zeros(npts-1,1);
+
+vx_mat = zeros(nmax,npts-1);
+n_mat = zeros(nmax,npts-1);
+pressure_mat = zeros(nmax,npts-2);
 
 
