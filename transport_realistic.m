@@ -60,7 +60,7 @@ n_new = (Nmax)*ones(1,npts);
 rate_coeff = 14;
 decay_index = round(npts);
 cosax = linspace(0,2*pi,decay_index);
-neut_max = 162.;
+neut_max = 15.;
 neut_min = 14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -70,9 +70,9 @@ n_neut(1:decay_index) = neut_max*(cos(cosax)+1.01)/2;%.*exp(-4*cosax);
 % n_neut(decay_index+1:end-decay_index) = (n_neut(decay_index)/2);
 n_source = zeros(1,npts);
 
-% for ii=1:npts
-%     n_source(ii) = n_neut(ii)*n_neut(ii)*rate_coeff;
-% end
+for ii=1:npts
+    n_source(ii) = n_neut(ii)*n_neut(ii)*rate_coeff;
+end
 
 %-- initial velocity
 vx_ax = linspace(-1,1,npts-1);
@@ -123,6 +123,10 @@ Efield = Efield.^2;
 Efield = zeros(1,npts-1);
 
 % pond_const = (1.0/4.0)*((e^2)/(m*om^2));
-% pond_source = zeros(npts-1,1);
+pond_source = zeros(npts-1,1);
+
+vx_mat = zeros(nmax,npts-1);
+n_mat = zeros(nmax,npts);
+pressure_mat = zeros(nmax,npts-2);
 
 

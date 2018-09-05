@@ -349,7 +349,7 @@ hold on
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax,vx_source*dt,'DisplayName',['time = 0s'])
+semilogy(vxax,abs(vx_source*dt),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
@@ -371,8 +371,6 @@ hold on
 count = 1;
 timerVal = tic;
 
-pond = pond_source(m,om,e,Efield,dx,npts-1);
-
 for ii=1:50
     
     n = n_new;
@@ -390,6 +388,9 @@ for ii=1:50
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
                 nA(jj,jj) = 1.0 + mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
+%             elseif ((vx(1,jj-1)+vx(1,jj))/2)==0
+%                 nA(jj,jj+1) = 
+                
             end    
         end
         
@@ -480,7 +481,13 @@ for ii=1:50
             elseif vx(1,jj)<0
                 vxA(jj,jj) = 1 + mult*vx(1,jj);
                 vxA(jj,jj+1) = -mult*vx(1,jj);
+            elseif vx(1,jj)==0
+                vxA(jj,jj+1) = -(mult/2)*vx(1,jj);
+                vxA(jj,jj-1) = (mult/2)*vx(1,jj);
+                vxA(jj,jj) = 1.0;
             end
+            
+            vxA
 
         end
         
@@ -550,7 +557,8 @@ for ii=1:50
     end
 
     
-    if ii==count*2%*round(ii/2)
+
+    if ii==count%*round(ii/2)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -573,7 +581,7 @@ for ii=1:50
         hold on
         figure(3)
         set(gcf,'Position',[3 476 560 420])
-        plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(vxax,abs(vx_source*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
@@ -585,6 +593,10 @@ for ii=1:50
         hold on
         count = count + 1;
     end
+    
+    vx_mat(ii,:) = vx_new;
+    n_mat(ii,:) = n_new;
+    
     
 end
 
@@ -625,6 +637,38 @@ hold off
 
 %%
 
+% for jj=1:50
+%     for ii=1:npts
+%         pressure(jj,ii) = (Te + Ti)*n_mat(jj,ii)*e;
+%     end
+%     for ii=1:npts-1
+%         pressure_av(jj,ii) = 0.5*(pressure(jj,ii) + pressure(jj,ii+1));
+%         pressure_mat(jj,ii) = pressure_av(jj,ii) + (1/2)*0.5*(n_mat(jj,ii+1)+n_mat(jj,ii))*m*(vx_mat(jj,ii)^2);
+%     end
+% end
+% 
+% figure(7)
+% levels = linspace(round(min(vx_mat(:)),-3),round(max(vx_mat(:)),-3),25);
+% contourf(vxax,tax(1:50),vx_mat(1:50,:),levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+% 
+% figure(8)
+% % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
+% levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
+% contourf(nxax(2:npts-1),tax(1,1:50),n_mat(1:50,2:npts-1),levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+% 
+% figure(10)
+% % levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
+% levels = linspace(min(pressure_mat(:)),max(pressure_mat(:)),25);
+% contourf(vxax,tax(1,1:50),pressure_mat(1:50,:),levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+
+%%
+
 function [ans] = grad(n,dx,npts)
     ans = (n(2:npts) - n(1:npts-1))/dx;
 end
@@ -633,10 +677,10 @@ function [ans] = avg(n,npts)
     ans = (n(2:npts) + n(1:npts-1))/2.0;
 end
 
-function [ans] = pond_source(m,omega,q,Efield,dx,npts)
-    pond_const = (1.0/4.0)*((q^2)/(m*omega^2));
-    ans = (1.0/m)*pond_const*grad(Efield,dx,npts);
-end
+% function [ans] = pond_source(m,omega,q,Efield,dx,npts)
+%     pond_const = (1.0/4.0)*((q^2)/(m*omega^2));
+%     ans = (1.0/m)*pond_const*grad(Efield,dx,npts);
+% end
 
 function [ans] = source(n,q,Te,Ti,m,npts,dx)
     ans = -((Te + Ti)*q./(m*avg(n,npts))).*(grad(n,dx,npts));
