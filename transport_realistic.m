@@ -11,16 +11,18 @@
 % constants %
 %------
 constants;
-m = mp;
+% m = mp;
+m = 1.0;
 
 %------
 % parameters %
 %------
-Te = 10.0;
-Ti = 5.0;
-T = Te + Ti;
-cs = sqrt((Te + Ti)*e/m);
-% cs = 1.0;
+Te = (1.0/e)*0.5;
+Ti = (1.0/e)*0.5;
+% T = Te + Ti;
+% T = 1.0/e;
+% cs = sqrt((Te + Ti)*e/m);
+cs = 0.5;
 % nu = 1000.0;
 nu = 0.0;
 
@@ -51,9 +53,10 @@ tmin = 0;
 %-------------------------------------------------------------------------%
 
 %-- initial density profile
-Nmax = 16;
-Nmin = 15;
-n_new = (Nmax)*ones(1,npts);
+Nmax = 1;
+Nmin = 0.5;
+% n_new = (Nmax)*ones(1,npts);
+n_new = 0.5*nxax + 0.5;
 
 
 %-- density source
@@ -70,12 +73,12 @@ n_neut(1:decay_index) = neut_max*(cos(cosax)+1.01)/2;%.*exp(-4*cosax);
 % n_neut(decay_index+1:end-decay_index) = (n_neut(decay_index)/2);
 n_source = zeros(1,npts);
 
-for ii=1:npts
-    n_source(ii) = n_neut(ii)*n_neut(ii)*rate_coeff;
-end
+% for ii=1:npts
+%     n_source(ii) = n_neut(ii)*n_neut(ii)*rate_coeff;
+% end
 
 %-- initial velocity
-vx_ax = linspace(-1,1,npts-1);
+vx_ax = linspace(0.5,1,npts-1);
 vx_new = (cs)*vx_ax;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
