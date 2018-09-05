@@ -23,8 +23,8 @@ Ti = (1.0/e)*0.5;
 % T = 1.0/e;
 % cs = sqrt((Te + Ti)*e/m);
 cs = 0.5;
-% nu = 1000.0;
-nu = 0.0;
+nu = 1.0;
+% nu = 0.0;
 
 %------
 % spatial domain %
@@ -84,7 +84,10 @@ vx_new = (cs)*vx_ax;
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
 nA = zeros(npts,npts);
-vxA = zeros(npts-1,npts-1);
+vx_pos = zeros(npts-1,npts-1);
+vx_neg = zeros(npts-1,npts-1);
+vx_diff = zeros(npts-1,npts-1);
+vx_I = eye(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 2.0e-4;
