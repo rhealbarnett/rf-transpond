@@ -29,7 +29,9 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-transport_realistic;
+% function [n, vx] = transport_1d(npts,grid,nu,
+
+transport_params_colocated;
 
 vx = vx_new;
 n = n_new;
@@ -63,13 +65,13 @@ if (isnan(staggered)) || (isnan(collocated))
     return
 end
 
-if staggered & (size(vxA)==size(nA))
-    error("Check velocity and array density sizes for staggered grid.")
-    return
-elseif collocated & size(vxA)~=size(nA)
-    error("Check velocity and array density sizes for collocated grid.")
-    return
-end
+% if staggered & (size(vxA)==size(nA))
+%     error("Check velocity and array density sizes for staggered grid.")
+%     return
+% elseif collocated & size(vxA)~=size(nA)
+%     error("Check velocity and array density sizes for collocated grid.")
+%     return
+% end
 
 if staggered
     
@@ -329,7 +331,7 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-vx_source = source(n_new,e,Te,Ti,m,npts,dx);
+vx_source = source_col(n_new,e,Te,Ti,m,npts-1,dx);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -376,21 +378,17 @@ for ii=1:50
     n = n_new;
     vx = vx_new;
     
-    vx_source = source(n,e,Te,Ti,m,npts,dx);
-    
     if staggered
+        
+        vx_source = source_stagg(n,e,Te,Ti,m,npts,dx);
 
         for jj=2:npts-1
-
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
                 nA(jj,jj) = 1.0 - mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
                 nA(jj,jj) = 1.0 + mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
-%             elseif ((vx(1,jj-1)+vx(1,jj))/2)==0
-%                 nA(jj,jj+1) = 
-                
             end    
         end
         
@@ -415,6 +413,8 @@ for ii=1:50
       
     elseif collocated
         
+        vx_source = source_col(n,e,Te,Ti,m,npts-1,dx);
+        
         for jj=1:npts-1
             if jj==1
                 if n_rdirichlet || n_rneumann
@@ -435,7 +435,7 @@ for ii=1:50
             elseif vx(1,jj)>0
                 nA(jj,jj) = 1.0 - mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
-            elseif vx(1,jj)<=0
+            elseif vx(1,jj)<0
                 nA(jj,jj) = 1.0 + mult*vx(1,jj);
                 nA(jj,jj+1) = -mult*vx(1,jj+1);
             end
@@ -454,99 +454,88 @@ for ii=1:50
             n_new(1,end) = n_new(1,end-1) + dx*rnBC_val;
         end
     end
+    
+    for jj=1:npts-1
 
-    if upwind
-
-        for jj=1:npts-1
-
-            if jj==1
-                if v_rdirichlet || v_rneumann
-                    vxA(jj,jj) = 1 + mult*vx(1,jj);
-                    vxA(jj,jj+1) = -mult*vx(1,jj);
-                else 
-                    vxA(jj,jj) = 1 + mult*vx(1,jj);
-                    vxA(jj,jj+1) = -mult*vx(1,jj);   
-                end
-            elseif jj==npts-1
-                if v_ldirichlet || v_lneumann
-                    vxA(jj,jj) = 1 - mult*vx(1,jj);
-                    vxA(jj,jj-1) = mult*vx(1,jj);  
-                else
-                    vxA(jj,jj) = 1 - mult*vx(1,jj);
-                    vxA(jj,jj-1) = mult*vx(1,jj);    
-                end
-            elseif vx(1,jj)>0
-                vxA(jj,jj) = 1 - mult*vx(1,jj);
-                vxA(jj,jj-1) = mult*vx(1,jj);
-            elseif vx(1,jj)<0
-                vxA(jj,jj) = 1 + mult*vx(1,jj);
-                vxA(jj,jj+1) = -mult*vx(1,jj);
-            elseif vx(1,jj)==0
-                vxA(jj,jj+1) = -(mult/2)*vx(1,jj);
-                vxA(jj,jj-1) = (mult/2)*vx(1,jj);
-                vxA(jj,jj) = 1.0;
+        if jj==1
+            if v_rdirichlet || v_rneumann
+                vx_neg(jj,jj) = mult*vx(1,jj);
+                vx_neg(jj,jj+1) = -mult*vx(1,jj);
+            else 
+                vx_neg(jj,jj) = mult*vx(1,jj);
+                vx_neg(jj,jj+1) = -mult*vx(1,jj);   
             end
-            
-            vxA
-
+        elseif jj==npts-1
+            if v_ldirichlet || v_lneumann
+                vx_pos(jj,jj) = - mult*vx(1,jj);
+                vx_pos(jj,jj-1) = mult*vx(1,jj);  
+            else
+                vx_pos(jj,jj) = - mult*vx(1,jj);
+                vx_pos(jj,jj-1) = mult*vx(1,jj);    
+            end
+        elseif vx(1,jj)>0
+            vx_pos(jj,jj) = - mult*vx(1,jj);
+            vx_pos(jj,jj-1) = mult*vx(1,jj);
+        elseif vx(1,jj)<0
+            vx_neg(jj,jj) = mult*vx(1,jj);
+            vx_neg(jj,jj+1) = -mult*vx(1,jj);
+%             elseif vx(1,jj)==0
+%                 vxA(jj,jj+1) = -(mult/2)*vx(1,jj);
+%                 vxA(jj,jj-1) = (mult/2)*vx(1,jj);
+%                 vxA(jj,jj) = 1.0;
         end
-        
-        vx_new = vxA*vx' + dt*vx_source';
-        vx_new = vx_new';
-            
-        if v_ldirichlet
-            vx_new(1,1) = lvBC_val;
-        elseif v_lneumann
-            vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-        elseif v_rdirichlet
-            vx_new(1,end) = rvBC_val;
-        elseif v_rneumann
-            vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-        end 
 
+    end
+
+    for jj=2:npts-2
+        vx_diff(jj,jj) = - mult*((2.0*nu)/dx);
+        vx_diff(jj,jj-1) = mult*(nu/dx);
+        vx_diff(jj,jj+1) = mult*(nu/dx);
+    end
+          
+    if upwind 
+        vxA = vx_pos + vx_neg + vx_I;
     elseif central
-
-        for jj=2:npts-2
-            vxA(jj,jj) = 1.0 - mult*((2.0*nu)/dx);
-            vxA(jj,jj-1) = mult*((vx(1,jj)/2.0) + (nu/dx));
-            vxA(jj,jj+1) = mult*((nu/dx) - (vx(1,jj)/2.0));
-            if staggered
-                vx_source(jj,1) = -((Te + Ti)*e/(m*0.5*(n(1,jj+1)+n(1,jj))))*((n(1,jj+1) - n(1,jj))/dx) -...
-            pond_source(jj,1);
-            elseif collocated 
-                vx_source(jj,1) = -((Te + Ti)*e/(m*n(1,jj)))*((n(1,jj+1) - n(1,jj-1))/(2.0*dx)) -...
-            pond_source(jj,1);
-            end
-        end
-
-        vx_new = vxA*vx' + dt*vx_source;
-        vx_new = vx_new';
-    
-        if v_ldirichlet && v_rdirichlet
-            vx_new(1,1) = lvBC_val;
-            vx_new(1,end) = rvBC_val;
-        elseif v_lneumann && v_rneumann
-            vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-            vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-        elseif v_rdirichlet && v_lneumann
-            vx_new(1,end) = rvBC_val;
-            vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-        elseif v_rneumann && v_ldirichlet
-            vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-            vx_new(1,1) = lvBC_val;
-        end  
-    
-        if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-            dt = cfl_fact*(dx^2)/(2.0*nu);
-        elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-            dt = cfl_fact*dx/max(abs(vx_new));
-        end
+        vxA = vx_pos + vx_neg + vx_I + vx_diff;
+    end
+       
+    vx_new = vxA*vx' + dt*vx_source';
+    vx_new = vx_new';
         
-        if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-            fprintf('CFL condition violated, ii=%d\n',ii)
-            return
-        end
+    if v_ldirichlet
+        vx_new(1,1) = lvBC_val;
+    elseif v_lneumann
+        vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+    elseif v_rdirichlet
+        vx_new(1,end) = rvBC_val;
+    elseif v_rneumann
+        vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+    end 
+        
     
+    if v_ldirichlet && v_rdirichlet
+        vx_new(1,1) = lvBC_val;
+        vx_new(1,end) = rvBC_val;
+    elseif v_lneumann && v_rneumann
+        vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+        vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+    elseif v_rdirichlet && v_lneumann
+        vx_new(1,end) = rvBC_val;
+        vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+    elseif v_rneumann && v_ldirichlet
+        vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+        vx_new(1,1) = lvBC_val;
+    end  
+    
+    if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+        dt = cfl_fact*(dx^2)/(2.0*nu);
+    elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+        dt = cfl_fact*dx/max(abs(vx_new));
+    end
+
+    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+        fprintf('CFL condition violated, ii=%d\n',ii)
+        return
     end
     
     nan_check = isnan(vx_new);
@@ -555,8 +544,6 @@ for ii=1:50
         fprintf('unstable, ii=%d\n',ii)
         return
     end
-
-    
 
     if ii==count%*round(ii/2)
         fprintf('***--------------------***\n')
@@ -596,7 +583,6 @@ for ii=1:50
     
     vx_mat(ii,:) = vx_new;
     n_mat(ii,:) = n_new;
-    
     
 end
 
@@ -673,6 +659,13 @@ function [ans] = grad(n,dx,npts)
     ans = (n(2:npts) - n(1:npts-1))/dx;
 end
 
+function [ans] = grad2(n,dx,npts)
+    cen_diff = (n(3:npts) - n(1:npts-2))/(2.0*dx);
+    fwd_diff = (-3*n(1) + 4*n(2) - n(3))/(2.0*dx);
+    bwd_diff = (3*n(npts) - 4*n(npts-1) + n(npts-2))/(2.0*dx);
+    ans = [fwd_diff, cen_diff, bwd_diff];
+end
+
 function [ans] = avg(n,npts)
     ans = (n(2:npts) + n(1:npts-1))/2.0;
 end
@@ -682,8 +675,12 @@ end
 %     ans = (1.0/m)*pond_const*grad(Efield,dx,npts);
 % end
 
-function [ans] = source(n,q,Te,Ti,m,npts,dx)
+function [ans] = source_stag(n,q,Te,Ti,m,npts,dx)
     ans = -((Te + Ti)*q./(m*avg(n,npts))).*(grad(n,dx,npts));
+end
+
+function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
+    ans = -((Te + Ti)*q./(m*n)).*(grad2(n,dx,npts));
 end
 
 
