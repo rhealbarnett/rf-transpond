@@ -441,7 +441,8 @@ for ii=1:50
             end
         end
         
-        n_new = nA*n' + dt*n_source;
+%         n_new = nA*n' + dt*n_source;
+        n_new = nA\n' + dt*n_source;
         n_new = n_new';
         
         if n_ldirichlet
@@ -499,7 +500,8 @@ for ii=1:50
         vxA = vx_pos + vx_neg + vx_I + vx_diff;
     end
        
-    vx_new = vxA*vx' + dt*vx_source';
+%     vx_new = vxA*vx' + dt*vx_source';
+    vx_new = vxA\vx' + dt*vx_source';
     vx_new = vx_new';
         
     if v_ldirichlet
