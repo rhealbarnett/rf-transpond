@@ -380,7 +380,7 @@ for ii=1:50
     
     if staggered
         
-        vx_source = source_stagg(n,e,Te,Ti,m,npts,dx);
+        vx_source = source_stag(n,e,Te,Ti,m,npts,dx);
 
         for jj=2:npts-1
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
@@ -414,7 +414,7 @@ for ii=1:50
     elseif collocated
         
         vx_source = source_col(n,e,Te,Ti,m,npts-1,dx);
-        
+ 
         for jj=1:npts-1
             if jj==1
                 if n_rdirichlet || n_rneumann
@@ -479,10 +479,10 @@ for ii=1:50
         elseif vx(1,jj)<0
             vx_neg(jj,jj) = mult*vx(1,jj);
             vx_neg(jj,jj+1) = -mult*vx(1,jj);
-%             elseif vx(1,jj)==0
-%                 vxA(jj,jj+1) = -(mult/2)*vx(1,jj);
-%                 vxA(jj,jj-1) = (mult/2)*vx(1,jj);
-%                 vxA(jj,jj) = 1.0;
+%         elseif vx(1,jj)==0
+%             vxA(jj,jj+1) = -(mult/2)*vx(1,jj);
+%             vxA(jj,jj-1) = (mult/2)*vx(1,jj);
+%             vxA(jj,jj) = 1.0;
         end
 
     end
@@ -511,8 +511,7 @@ for ii=1:50
     elseif v_rneumann
         vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
     end 
-        
-    
+
     if v_ldirichlet && v_rdirichlet
         vx_new(1,1) = lvBC_val;
         vx_new(1,end) = rvBC_val;
