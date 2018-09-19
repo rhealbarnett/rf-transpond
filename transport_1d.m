@@ -31,7 +31,7 @@
 
 % function [n, vx] = transport_1d(npts,grid,nu,
 
-transport_params_colocated;
+transport_test;
 
 vx = vx_new;
 n = n_new;
@@ -331,7 +331,7 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-vx_source = source_col(n_new,e,Te,Ti,m,npts-1,dx);
+vx_source = source_stag(n_new,e,Te,Ti,m,npts,dx);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -373,7 +373,7 @@ hold on
 count = 1;
 timerVal = tic;
 
-for ii=1:50
+for ii=1:nmax
     
     n = n_new;
     vx = vx_new;
@@ -441,8 +441,8 @@ for ii=1:50
             end
         end
         
-%         n_new = nA*n' + dt*n_source;
-        n_new = nA\n' + dt*n_source;
+        n_new = nA*n' + dt*n_source;
+%         n_new = nA\n' + dt*n_source;
         n_new = n_new';
         
         if n_ldirichlet
@@ -500,8 +500,8 @@ for ii=1:50
         vxA = vx_pos + vx_neg + vx_I + vx_diff;
     end
        
-%     vx_new = vxA*vx' + dt*vx_source';
-    vx_new = vxA\vx' + dt*vx_source';
+    vx_new = vxA*vx' + dt*vx_source';
+%     vx_new = vxA\vx' + dt*vx_source';
     vx_new = vx_new';
         
     if v_ldirichlet
@@ -546,7 +546,7 @@ for ii=1:50
         return
     end
 
-    if ii==count%*round(ii/2)
+    if ii==count*round(nmax/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
