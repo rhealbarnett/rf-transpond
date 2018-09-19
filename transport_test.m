@@ -23,7 +23,7 @@ Ti = (1.0/e)*50.0;
 % T = 1.0/e;
 % cs = sqrt((Te + Ti)*e/m);
 cs = 50.0;
-nu = 2.0;
+nu = 0.2;
 % nu = 0.0;
 
 %------
@@ -83,15 +83,16 @@ vx_new = (cs)*vx_ax;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
-nA = zeros(npts,npts);
-vx_pos = zeros(npts-1,npts-1);
-vx_neg = zeros(npts-1,npts-1);
-vx_diff = zeros(npts-1,npts-1);
+nA = sparse(npts,npts);
+nI = eye(npts,npts);
+vx_pos = sparse(npts-1,npts-1);
+vx_neg = sparse(npts-1,npts-1);
+vx_diff = sparse(npts-1,npts-1);
 vx_I = eye(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 5.0e-2;
-cfl_fact = 0.99;
+cfl_fact = 0.5;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -103,7 +104,7 @@ end
 
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
-mult = dt/dx;
+mult = 1.0/dx;
 
 %%
 
@@ -131,8 +132,8 @@ Efield = zeros(1,npts-1);
 % pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 pond_source = zeros(npts-1,1);
 
-vx_mat = zeros(nmax,npts-1);
-n_mat = zeros(nmax,npts);
-pressure_mat = zeros(nmax,npts-2);
+vx_mat = sparse(nmax,npts-1);
+n_mat = sparse(nmax,npts);
+pressure_mat = sparse(nmax,npts-2);
 
 
