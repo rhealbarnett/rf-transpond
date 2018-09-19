@@ -373,7 +373,7 @@ hold on
 count = 1;
 timerVal = tic;
 
-for ii=1:nmax
+for ii=1:3000
     
     n = n_new;
     vx = vx_new;
@@ -546,7 +546,7 @@ for ii=1:nmax
         return
     end
 
-    if ii==count*round(nmax/5)
+    if ii==count*round(3000/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
