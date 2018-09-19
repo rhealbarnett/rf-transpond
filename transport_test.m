@@ -12,18 +12,18 @@
 %------
 constants;
 % m = mp;
-m = 0.1;
+m = 0.01;
 
 %------
 % parameters %
 %------
-Te = (1.0/e)*5.0;
-Ti = (1.0/e)*5.0;
+Te = (1.0/e)*50.0;
+Ti = (1.0/e)*50.0;
 % T = Te + Ti;
 % T = 1.0/e;
 % cs = sqrt((Te + Ti)*e/m);
-cs = 5.0;
-nu = 0.2;
+cs = 50.0;
+nu = 2.0;
 % nu = 0.0;
 
 %------
@@ -35,7 +35,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 128;
+npts = 256;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -53,8 +53,8 @@ tmin = 0;
 %-------------------------------------------------------------------------%
 
 %-- initial density profile
-Nmax = 10;
-Nmin = 5;
+Nmax = 100;
+Nmin = 50;
 % n_new = (Nmax)*ones(1,npts);
 n_new = 0.5*nxax + 0.5;
 
@@ -78,7 +78,7 @@ n_source = zeros(1,npts);
 % end
 
 %-- initial velocity
-vx_ax = linspace(0.5,1,npts-1);
+vx_ax = linspace(1.0,0.5,npts-1);
 vx_new = (cs)*vx_ax;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
