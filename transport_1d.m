@@ -373,7 +373,7 @@ hold on
 count = 1;
 timerVal = tic;
 
-for ii=1:3000
+for ii=1:520
     
     n = n_new;
     vx = vx_new;
@@ -384,15 +384,15 @@ for ii=1:3000
 
         for jj=2:npts-1
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
-                nA(jj,jj) = 1.0 - mult*vx(1,jj);
+                nA(jj,jj) = - mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-                nA(jj,jj) = 1.0 + mult*vx(1,jj-1);
+                nA(jj,jj) = mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
             end    
         end
         
-        n_new = nA*n' + dt*n_source';
+        n_new = (nI + dt*nA)*n' + dt*n_source';
         n_new = n_new';
         
         if strcmp('linear extrap',leftGhost)
@@ -480,10 +480,6 @@ for ii=1:3000
         elseif vx(1,jj)<0
             vx_neg(jj,jj) = mult*vx(1,jj);
             vx_neg(jj,jj+1) = -mult*vx(1,jj);
-%         elseif vx(1,jj)==0
-%             vxA(jj,jj+1) = -(mult/2)*vx(1,jj);
-%             vxA(jj,jj-1) = (mult/2)*vx(1,jj);
-%             vxA(jj,jj) = 1.0;
         end
 
     end
@@ -495,12 +491,12 @@ for ii=1:3000
     end
           
     if upwind 
-        vxA = vx_pos + vx_neg + vx_I;
+        vxA = vx_pos + vx_neg;
     elseif central
-        vxA = vx_pos + vx_neg + vx_I + vx_diff;
+        vxA = vx_pos + vx_neg + vx_diff;
     end
        
-    vx_new = vxA*vx' + dt*vx_source';
+    vx_new = (vx_I + vxA*dt)*vx' + dt*vx_source';
 %     vx_new = vxA\vx' + dt*vx_source';
     vx_new = vx_new';
         
@@ -546,7 +542,7 @@ for ii=1:3000
         return
     end
 
-    if ii==count*round(3000/5)
+    if ii==count*round(520/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
