@@ -29,7 +29,9 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-% function [n, vx] = transport_1d(npts,grid,nu,
+% function [n, vx] =
+% transport_1d(npts,grid,nu,spatial_scheme,temp_method,...
+%   ln_bound,rn_bound,lv_bound,rv_bound)
 
 transport_test;
 
@@ -48,6 +50,8 @@ n_rdirichlet = NaN;
 n_rneumann = NaN;
 n_lneumann = NaN;
 n_periodic = NaN;
+explicit = NaN;
+implicit = NaN;
 
 promptGrid = 'staggered or collocated grid? ';
 grid = input(promptGrid, 's');
@@ -392,7 +396,20 @@ for ii=1:520
             end    
         end
         
-        n_new = (nI + dt*nA)*n' + dt*n_source';
+        if n_lneumann && n_rneumann
+%             n_new(1,1) = n_new(1,2) + dx*lnBC_val;
+%             n_new(1,end) = n_new(1,end-1) + dx*rnBC_val;
+            nA(1,1) = -1.0/dt; nA(1,2) = 1.0/dt;
+            n(1,1) = dx*lnBC_val;
+            nA(end,end) = -1.0/dt; nA(end,end-1) = 1.0/dt;
+            n(1,end) = dx*rnBC_val;
+        end
+        
+        nI(1,1) = 0.0;
+        nI(end,end) = 0.0;
+        
+        n_new_exp = (nI + dt*nA)*n' + dt*n_source';
+        n_new_imp = (nI - dt*nA)\(n' + dt*n_source');
         n_new = n_new';
         
         if strcmp('linear extrap',leftGhost)
@@ -404,10 +421,6 @@ for ii=1:520
             rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
             nxax(npts),'linear','extrap');
             n_new(1,end) = rGhost;
-        end
-        if n_lneumann && n_rneumann
-            n_new(1,1) = n_new(1,2) + dx*lnBC_val;
-            n_new(1,end) = n_new(1,end-1) + dx*rnBC_val;
         end
         
       
@@ -441,8 +454,8 @@ for ii=1:520
             end
         end
         
-        n_new = nA*n' + dt*n_source;
-%         n_new = nA\n' + dt*n_source;
+%         n_new = nA*n' + dt*n_source;
+%         n_new = nA\(n' + dt*n_source);
         n_new = n_new';
         
         if n_ldirichlet
@@ -456,35 +469,30 @@ for ii=1:520
         end
     end
     
-    for jj=1:npts-1
-
-        if jj==1
-            if v_rdirichlet || v_rneumann
-                vx_neg(jj,jj) = mult*vx(1,jj);
-                vx_neg(jj,jj+1) = -mult*vx(1,jj);
-            else 
-                vx_neg(jj,jj) = mult*vx(1,jj);
-                vx_neg(jj,jj+1) = -mult*vx(1,jj);   
-            end
-        elseif jj==npts-1
-            if v_ldirichlet || v_lneumann
-                vx_pos(jj,jj) = - mult*vx(1,jj);
-                vx_pos(jj,jj-1) = mult*vx(1,jj);  
-            else
-                vx_pos(jj,jj) = - mult*vx(1,jj);
-                vx_pos(jj,jj-1) = mult*vx(1,jj);    
-            end
-        elseif vx(1,jj)>0
+    for jj=2:npts-2
+%         if jj==1
+%             if v_rdirichlet || v_rneumann
+%                 vx_neg(jj,jj) = mult*vx(1,jj);
+%                 vx_neg(jj,jj+1) = -mult*vx(1,jj);
+%             else 
+%                 vx_neg(jj,jj) = mult*vx(1,jj);
+%                 vx_neg(jj,jj+1) = -mult*vx(1,jj);   
+%             end
+%         elseif jj==npts-1
+%             if v_ldirichlet || v_lneumann
+%                 vx_pos(jj,jj) = - mult*vx(1,jj);
+%                 vx_pos(jj,jj-1) = mult*vx(1,jj);  
+%             else
+%                 vx_pos(jj,jj) = - mult*vx(1,jj);
+%                 vx_pos(jj,jj-1) = mult*vx(1,jj);    
+%             end
+        if vx(1,jj)>0
             vx_pos(jj,jj) = - mult*vx(1,jj);
             vx_pos(jj,jj-1) = mult*vx(1,jj);
         elseif vx(1,jj)<0
             vx_neg(jj,jj) = mult*vx(1,jj);
             vx_neg(jj,jj+1) = -mult*vx(1,jj);
         end
-
-    end
-
-    for jj=2:npts-2
         vx_diff(jj,jj) = - mult*((2.0*nu)/dx);
         vx_diff(jj,jj-1) = mult*(nu/dx);
         vx_diff(jj,jj+1) = mult*(nu/dx);
@@ -495,34 +503,56 @@ for ii=1:520
     elseif central
         vxA = vx_pos + vx_neg + vx_diff;
     end
+    
+    if v_ldirichlet && v_rdirichlet
+        vxA(1,1) = -1.0/dt;
+        vx(1,1) = lvBC_val;
+        vxA(end,end) = -1.0/dt;
+        vx(1,end) = rvBC_val;
+    elseif v_rdirichlet
+        vxA(end,end) = -1.0/dt;
+        vx(1,end) = rvBC_val;
+    elseif v_lneumann
+        vxA(1,1) = 1.0; vxA(1,2) = -1.0;
+        vx(1,1) = dx*lvBC_val;
+    elseif v_rneumann
+        vxA(end,end) = 1.0; vxA(end,end-1) = -1.0;
+        vx(1,end) = dx*rvBC_val;
+    end
+      
+    vx_I(1,1) = 0.0;
+    vx_I(end,end) = 0.0;
+    vx_source(1,1) = 0.0;
+    vx_source(1,end) = 0.0;
+
        
-    vx_new = (vx_I + vxA*dt)*vx' + dt*vx_source';
-%     vx_new = vxA\vx' + dt*vx_source';
+    vx_new_exp = (vx_I + vxA*dt)*vx' + dt*vx_source';
+    vx_new_imp = (vx_I - vxA*dt)\vx' - (vx_I - vxA*dt)\(dt*vx_source');
     vx_new = vx_new';
         
-    if v_ldirichlet
-        vx_new(1,1) = lvBC_val;
-    elseif v_lneumann
-        vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-    elseif v_rdirichlet
-        vx_new(1,end) = rvBC_val;
-    elseif v_rneumann
-        vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-    end 
-
-    if v_ldirichlet && v_rdirichlet
-        vx_new(1,1) = lvBC_val;
-        vx_new(1,end) = rvBC_val;
-    elseif v_lneumann && v_rneumann
-        vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-        vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-    elseif v_rdirichlet && v_lneumann
-        vx_new(1,end) = rvBC_val;
-        vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-    elseif v_rneumann && v_ldirichlet
-        vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-        vx_new(1,1) = lvBC_val;
-    end  
+%     if v_ldirichlet
+%         vx_new(1,1) = lvBC_val;
+%     elseif v_lneumann
+%         vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+%     elseif v_rdirichlet
+%         vx_new(1,end) = rvBC_val;
+%     elseif v_rneumann
+%         vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+%     end 
+% 
+%     if v_ldirichlet && v_rdirichlet
+%         vx_new(1,1) = lvBC_val;
+%         vx_new(1,end) = rvBC_val;
+%     elseif v_lneumann && v_rneumann
+%         vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+%         vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+%     elseif v_rdirichlet && v_lneumann
+%         vx_new(1,end) = rvBC_val;
+%         vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
+%     elseif v_rneumann && v_ldirichlet
+%         vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
+%         vx_new(1,1) = lvBC_val;
+%     end  
     
     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
         dt = cfl_fact*(dx^2)/(2.0*nu);
