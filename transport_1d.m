@@ -64,6 +64,7 @@ elseif strcmp(grid,'collocated')
     collocated = 1;
 end
 
+
 if (isnan(staggered)) || (isnan(collocated))
     error("Check spelling and/or type of answer for %s.\n",'"staggered or collocated grid?"')
     return
@@ -397,19 +398,19 @@ for ii=1:520
         end
         
         if n_lneumann && n_rneumann
-%             n_new(1,1) = n_new(1,2) + dx*lnBC_val;
-%             n_new(1,end) = n_new(1,end-1) + dx*rnBC_val;
-            nA(1,1) = -1.0/dt; nA(1,2) = 1.0/dt;
-            n(1,1) = dx*lnBC_val;
-            nA(end,end) = -1.0/dt; nA(end,end-1) = 1.0/dt;
-            n(1,end) = dx*rnBC_val;
+            n_bound(1,2) = -1.0;
+            nb(1,1) = -dx*lnBC_val;
+            n_bound(end,end-1) = -1.0;
+            nb(end,1) = dx*rnBC_val;
         end
         
-        nI(1,1) = 0.0;
-        nI(end,end) = 0.0;
-        
-        n_new_exp = (nI + dt*nA)*n' + dt*n_source';
-        n_new_imp = (nI - dt*nA)\(n' + dt*n_source');
+        n_new_exp = (nI + dt*nA)*n' + nb + dt*n_source';
+        n_new_exp(1,1) = n_new_exp(2,1);
+        n_new_exp(end,1) = n_new_exp(end-1,1);
+        n(1,1) = 0.0;
+        n(1,end) = 0.0;
+        n_new_imp = (nI - dt*nA + n_bound)\(n' + dt*n_source');
+        n_new = n_new_imp;
         n_new = n_new';
         
         if strcmp('linear extrap',leftGhost)
@@ -454,8 +455,6 @@ for ii=1:520
             end
         end
         
-%         n_new = nA*n' + dt*n_source;
-%         n_new = nA\(n' + dt*n_source);
         n_new = n_new';
         
         if n_ldirichlet
@@ -470,22 +469,6 @@ for ii=1:520
     end
     
     for jj=2:npts-2
-%         if jj==1
-%             if v_rdirichlet || v_rneumann
-%                 vx_neg(jj,jj) = mult*vx(1,jj);
-%                 vx_neg(jj,jj+1) = -mult*vx(1,jj);
-%             else 
-%                 vx_neg(jj,jj) = mult*vx(1,jj);
-%                 vx_neg(jj,jj+1) = -mult*vx(1,jj);   
-%             end
-%         elseif jj==npts-1
-%             if v_ldirichlet || v_lneumann
-%                 vx_pos(jj,jj) = - mult*vx(1,jj);
-%                 vx_pos(jj,jj-1) = mult*vx(1,jj);  
-%             else
-%                 vx_pos(jj,jj) = - mult*vx(1,jj);
-%                 vx_pos(jj,jj-1) = mult*vx(1,jj);    
-%             end
         if vx(1,jj)>0
             vx_pos(jj,jj) = - mult*vx(1,jj);
             vx_pos(jj,jj-1) = mult*vx(1,jj);
@@ -505,12 +488,7 @@ for ii=1:520
     end
     
     if v_ldirichlet && v_rdirichlet
-        vxA(1,1) = -1.0/dt;
         vx(1,1) = lvBC_val;
-        vxA(end,end) = -1.0/dt;
-        vx(1,end) = rvBC_val;
-    elseif v_rdirichlet
-        vxA(end,end) = -1.0/dt;
         vx(1,end) = rvBC_val;
     elseif v_lneumann
         vxA(1,1) = 1.0; vxA(1,2) = -1.0;
@@ -520,50 +498,24 @@ for ii=1:520
         vx(1,end) = dx*rvBC_val;
     end
       
-    vx_I(1,1) = 0.0;
-    vx_I(end,end) = 0.0;
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
-
        
     vx_new_exp = (vx_I + vxA*dt)*vx' + dt*vx_source';
-    vx_new_imp = (vx_I - vxA*dt)\vx' - (vx_I - vxA*dt)\(dt*vx_source');
+    vx_new_imp = (vx_I - vxA*dt)\(vx' - dt*vx_source');
+    vx_new = vx_new_imp;
     vx_new = vx_new';
-        
-%     if v_ldirichlet
-%         vx_new(1,1) = lvBC_val;
-%     elseif v_lneumann
-%         vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-%     elseif v_rdirichlet
-%         vx_new(1,end) = rvBC_val;
-%     elseif v_rneumann
-%         vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-%     end 
-% 
-%     if v_ldirichlet && v_rdirichlet
-%         vx_new(1,1) = lvBC_val;
-%         vx_new(1,end) = rvBC_val;
-%     elseif v_lneumann && v_rneumann
-%         vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-%         vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-%     elseif v_rdirichlet && v_lneumann
-%         vx_new(1,end) = rvBC_val;
-%         vx_new(1,1) = vx_new(1,2) + dx*lvBC_val;
-%     elseif v_rneumann && v_ldirichlet
-%         vx_new(1,end) = vx_new(1,end-1) + dx*rvBC_val;
-%         vx_new(1,1) = lvBC_val;
-%     end  
     
-    if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-        dt = cfl_fact*(dx^2)/(2.0*nu);
-    elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-        dt = cfl_fact*dx/max(abs(vx_new));
-    end
-
-    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-        fprintf('CFL condition violated, ii=%d\n',ii)
-        return
-    end
+%     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+%         dt = cfl_fact*(dx^2)/(2.0*nu);
+%     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+%         dt = cfl_fact*dx/max(abs(vx_new));
+%     end
+% 
+%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+%         fprintf('CFL condition violated, ii=%d\n',ii)
+%         return
+%     end
     
     nan_check = isnan(vx_new);
     
@@ -572,7 +524,7 @@ for ii=1:520
         return
     end
 
-    if ii==count*round(520/5)
+    if ii==ii;%count*round(520/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
