@@ -29,11 +29,13 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-% function [n, vx] =
-% transport_1d(npts,grid,nu,spatial_scheme,temp_method,...
-%   ln_bound,rn_bound,lv_bound,rv_bound)
 
-transport_test;
+function [n, vx] = transport_1d(grid_type,spatial_scheme,...
+  ln_bound_type,ln_bound_val,rn_bound_type,rn_bound_val,...
+  lv_bound_type,lv_bound_val,rv_bound_type,rv_bound_val,const,input_file)
+
+run(input_file);
+% transport_test;
 
 vx = vx_new;
 n = n_new;
@@ -53,8 +55,8 @@ n_periodic = NaN;
 explicit = NaN;
 implicit = NaN;
 
-promptGrid = 'staggered or collocated grid? ';
-grid = input(promptGrid, 's');
+% promptGrid = 'staggered or collocated grid? ';
+grid = input(grid_type, 's');
 
 if strcmp(grid,'staggered')
     staggered = 1;
@@ -80,14 +82,14 @@ end
 
 if staggered
     
-    promptlGhost = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
-    leftGhost = input(promptlGhost, 's');
+%     promptlGhost = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
+    leftGhost = input(ln_bound_type, 's');
     
     if strcmp('periodic',leftGhost)
 
     else
-        promptrGhost = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
-        rightGhost = input(promptrGhost, 's');
+%         promptrGhost = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
+        rightGhost = input(rn_bound_type, 's');
     end
     
     if strcmp('linear extrap',leftGhost)
@@ -114,8 +116,8 @@ if staggered
     
     if strcmp('linear extrap',leftGhost)
     else
-        promptlnBCval = 'Left (ghost) BC value for density? ';
-        lnBC_val = input(promptlnBCval);
+%         promptlnBCval = 'Left (ghost) BC value for density? ';
+        lnBC_val = input(ln_bound_val);
     end
     
     if strcmp('linear extrap',rightGhost)
@@ -136,8 +138,8 @@ if staggered
     
     if strcmp('linear extrap',rightGhost)
     else
-        promptrnBCval = 'Right (ghost) BC value for density? ';
-        rnBC_val = input(promptrnBCval);
+%         promptrnBCval = 'Right (ghost) BC value for density? ';
+        rnBC_val = input(rn_bound_val);
     end
     
     if (isnan(n_rdirichlet)) || (isnan(n_rneumann)) || (isnan(n_periodic))
@@ -197,8 +199,8 @@ end
 upwind = NaN;
 central = NaN;
 
-promptDiff = 'Spatial differencing scheme for momentum equation? (upwind or central) ';
-scheme = input(promptDiff, 's');
+% promptDiff = 'Spatial differencing scheme for momentum equation? (upwind or central) ';
+scheme = input(spatial_scheme, 's');
 
 if strcmp(scheme,'upwind')
     upwind = 1;
@@ -227,13 +229,13 @@ end
 
 if central
 
-    promptlvBC = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
-    leftvBC = input(promptlvBC, 's');
+%     promptlvBC = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
+    leftvBC = input(lv_bound_type, 's');
     if strcmp('periodic',leftvBC)
 
     else
-        promptrvBC = 'Right BC type for velocity? (dirichlet or neumann) ';
-        rightvBC = input(promptrvBC, 's');
+%         promptrvBC = 'Right BC type for velocity? (dirichlet or neumann) ';
+        rightvBC = input(rv_bound_type, 's');
     end
 
     if strcmp('dirichlet',leftvBC)
@@ -264,13 +266,13 @@ if central
         v_periodic = 1;
     end
 
-    promptlvBCval = 'Left BC value for velocity? ';
-    lvBC_val = input(promptlvBCval);
+%     promptlvBCval = 'Left BC value for velocity? ';
+    lvBC_val = input(lv_bound_val);
     if strcmp('periodic',leftvBC)
 
     else
-        promptrvBCval = 'Right BC value for velocity? ';
-        rvBC_val = input(promptrvBCval);
+%         promptrvBCval = 'Right BC value for velocity? ';
+        rvBC_val = input(rv_bound_val);
     end
 
     if v_ldirichlet && v_rdirichlet
@@ -399,20 +401,21 @@ for ii=1:520
                 nA(jj,jj+1) = -mult*vx(1,jj);
             end    
         end
+
+        An_exp = nI + dt*nA;
+        An_imp = nI - dt*nA;
         
-        if n_lneumann && n_rneumann
-            n_bound(1,2) = 1.0; n_bound(1,1) = -2.0;
-            nb(1,1) = -dx*lnBC_val;
-            n_bound(end,end-1) = 1.0; n_bound(end,end) = -2.0;
-            nb(end,1) = dx*rnBC_val;
-        end
-        
-        n_new_exp = (nI + dt*nA)*n' + nb + dt*n_source';
+        n_new_exp = An_exp*n' + dt*n_source';
         n_new_exp(1,1) = n_new_exp(2,1);
         n_new_exp(end,1) = n_new_exp(end-1,1);
+        
         n(1,1) = 0.0;
         n(1,end) = 0.0;
-        n_new_imp = (nI - dt*nA + n_bound)\(n' + dt*n_source');
+        An_imp(1,1) = 1.0; An_imp(1,2) = -1.0;
+        An_imp(end,end) = 1.0; An_imp(end,end-1) = -1.0;
+        n_new_imp = An_imp\(n' + dt*n_source');
+     
+        
         n_new = n_new_imp;
         n_new = n_new';
         
@@ -490,22 +493,27 @@ for ii=1:520
         vxA = vx_pos + vx_neg + vx_diff;
     end
     
-    if v_ldirichlet && v_rdirichlet
-        vx(1,1) = lvBC_val;
-        vx(1,end) = rvBC_val;
-    elseif v_lneumann
-        vxA(1,1) = 1.0; vxA(1,2) = -1.0;
-        vx(1,1) = dx*lvBC_val;
-    elseif v_rneumann
-        vxA(end,end) = 1.0; vxA(end,end-1) = -1.0;
-        vx(1,end) = dx*rvBC_val;
-    end
+%     if v_ldirichlet && v_rdirichlet
+%         vx(1,1) = lvBC_val;
+%         vx(1,end) = rvBC_val;
+%     elseif v_lneumann
+%         vxA(1,1) = 1.0; vxA(1,2) = -1.0;
+%         vx(1,1) = dx*lvBC_val;
+%     elseif v_rneumann
+%         vxA(end,end) = 1.0; vxA(end,end-1) = -1.0;
+%         vx(1,end) = dx*rvBC_val;
+%     end
       
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
+    
+    Avx_exp = vx_I + vxA*dt;
+    Avx_imp = vx_I - vxA*dt;
+    Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+    Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
        
-    vx_new_exp = (vx_I + vxA*dt)*vx' + dt*vx_source';
-    vx_new_imp = (vx_I - vxA*dt)\(vx' - dt*vx_source');
+    vx_new_exp = Avx_exp*vx' + dt*vx_source';
+    vx_new_imp = Avx_imp\(vx' - dt*vx_source');
     vx_new = vx_new_imp;
     vx_new = vx_new';
     
@@ -673,7 +681,7 @@ function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
     ans = -((Te + Ti)*q./(m*n)).*(grad2(n,dx,npts));
 end
 
-
+end
 
 
 
