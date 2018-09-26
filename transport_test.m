@@ -10,10 +10,9 @@
 %------
 % constants %
 %------
-constants;
+% constants;
 % m = mp;
 m = 0.01;
-
 %------
 % parameters %
 %------
@@ -35,7 +34,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 256;
+npts = 32;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -85,13 +84,10 @@ vx_new = (cs)*vx_ax;
 %-- rhs 'source' term
 nA = sparse(npts,npts);
 nI = eye(npts,npts);
-nb = sparse(npts,1);
-n_bound = sparse(npts,npts);
 vx_pos = sparse(npts-1,npts-1);
 vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
 vx_I = eye(npts-1,npts-1);
-vx_bound = sparse(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 5.0e-2;
