@@ -378,6 +378,9 @@ hold on
 count = 1;
 timerVal = tic;
 
+vx_rms = zeros(1,520);
+n_rms = zeros(1,520);
+
 for ii=1:520
     
     n = n_new;
@@ -398,9 +401,9 @@ for ii=1:520
         end
         
         if n_lneumann && n_rneumann
-            n_bound(1,2) = -1.0;
+            n_bound(1,2) = 1.0; n_bound(1,1) = -2.0;
             nb(1,1) = -dx*lnBC_val;
-            n_bound(end,end-1) = -1.0;
+            n_bound(end,end-1) = 1.0; n_bound(end,end) = -2.0;
             nb(end,1) = dx*rnBC_val;
         end
         
@@ -506,16 +509,16 @@ for ii=1:520
     vx_new = vx_new_imp;
     vx_new = vx_new';
     
-%     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*(dx^2)/(2.0*nu);
-%     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*dx/max(abs(vx_new));
-%     end
-% 
-%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-%         fprintf('CFL condition violated, ii=%d\n',ii)
-%         return
-%     end
+    if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+        dt = cfl_fact*(dx^2)/(2.0*nu);
+    elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+        dt = cfl_fact*dx/max(abs(vx_new));
+    end
+
+    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+        fprintf('CFL condition violated, ii=%d\n',ii)
+        return
+    end
     
     nan_check = isnan(vx_new);
     
@@ -524,7 +527,7 @@ for ii=1:520
         return
     end
 
-    if ii==ii;%count*round(520/5)
+    if ii==count*round(520/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -562,6 +565,8 @@ for ii=1:520
     
     vx_mat(ii,:) = vx_new;
     n_mat(ii,:) = n_new;
+    vx_rms(1,ii) = rms(vx_new);
+    n_rms(1,ii) = rms(n_new);
     
 end
 
