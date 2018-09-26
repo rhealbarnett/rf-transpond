@@ -105,7 +105,7 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-dt = 2.0e-6;
+% dt = 2.0e-6;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
