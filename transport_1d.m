@@ -543,11 +543,13 @@ for ii=1:520
         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+dx) max(nxax-dx)])
         hold on
+        semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
         figure(2)
         set(gcf,'Position',[7 925 560 420])
         plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
+        plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
         set(gcf,'Position',[3 476 560 420])
         semilogy(vxax,abs(vx_source*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
@@ -576,6 +578,8 @@ end
 figure(1)
 set(gcf,'Position',[563 925 560 420])
 semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+hold on
+semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
 legend('show','Location','south')
@@ -584,6 +588,8 @@ hold off
 figure(2)
 set(gcf,'Position',[7 925 560 420])
 plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+hold on
+plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
