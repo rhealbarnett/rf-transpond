@@ -85,13 +85,10 @@ vx_new = (cs)*vx_ax;
 %-- rhs 'source' term
 nA = sparse(npts,npts);
 nI = eye(npts,npts);
-nb = sparse(npts,1);
-n_bound = sparse(npts,npts);
 vx_pos = sparse(npts-1,npts-1);
 vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
 vx_I = eye(npts-1,npts-1);
-vx_bound = sparse(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 5.0e-2;
