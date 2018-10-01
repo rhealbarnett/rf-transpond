@@ -30,13 +30,16 @@
 % differenced/has diffusion term, there will need to be two BCs
 
 
-function [n, vx] = transport_1d(grid_type,spatial_scheme,...
-  ln_bound_type,ln_bound_val,rn_bound_type,rn_bound_val,...
-  lv_bound_type,lv_bound_val,rv_bound_type,rv_bound_val,const,input_file)
+% function [n, vx] = transport_1d(grid_type,spatial_scheme,...
+%   ln_bound_type,ln_bound_val,rn_bound_type,rn_bound_val,...
+%   lv_bound_type,lv_bound_val,rv_bound_type,rv_bound_val,const,input_file)
 
-run(input_file);
-% transport_test;
+% run(input_file);
 
+% import parameter file
+transport_test;
+
+% initialise velocity and density 
 vx = vx_new;
 n = n_new;
 
@@ -71,14 +74,6 @@ if (isnan(staggered)) || (isnan(collocated))
     error("Check spelling and/or type of answer for %s.\n",'"staggered or collocated grid?"')
     return
 end
-
-% if staggered & (size(vxA)==size(nA))
-%     error("Check velocity and array density sizes for staggered grid.")
-%     return
-% elseif collocated & size(vxA)~=size(nA)
-%     error("Check velocity and array density sizes for collocated grid.")
-%     return
-% end
 
 if staggered
     
@@ -384,14 +379,15 @@ vx_rms = zeros(1,520);
 n_rms = zeros(1,520);
 
 for ii=1:520
-    
+      
+    % set the vectors with the old value going into the next loop
     n = n_new;
     vx = vx_new;
     
     if staggered
         
-        vx_source = source_stag(n,e,Te,Ti,m,npts,dx);
-
+        % fill n coefficient matrix using the averaged value of the
+        % velocities on surrounding grid points
         for jj=2:npts-1
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
                 nA(jj,jj) = - mult*vx(1,jj);
@@ -402,23 +398,35 @@ for ii=1:520
             end    
         end
 
+
+        % build full coefficient matrices
         An_exp = nI + dt*nA;
         An_imp = nI - dt*nA;
         
+        % override values in top and bottom rows to reflect neumann
+        % boundary conditions for the implicit calculation
+        An_imp(1,1) = 1.0; An_imp(1,2) = -1.0;
+        An_imp(end,end) = 1.0; An_imp(end,end-1) = -1.0;        
+        
+        % calculate explicit solution
         n_new_exp = An_exp*n' + dt*n_source';
+        % directly override solution vector to include neumann boundary
+        % conditions for explicit method
         n_new_exp(1,1) = n_new_exp(2,1);
         n_new_exp(end,1) = n_new_exp(end-1,1);
         
+        % zero old rhs values for top and bottom boundary equations for
+        % implicit calculation
         n(1,1) = 0.0;
         n(1,end) = 0.0;
-        An_imp(1,1) = 1.0; An_imp(1,2) = -1.0;
-        An_imp(end,end) = 1.0; An_imp(end,end-1) = -1.0;
+        % implicit calculation
         n_new_imp = An_imp\(n' + dt*n_source');
-     
         
+        % transpose solution vector
         n_new = n_new_imp;
         n_new = n_new';
         
+        % only used for linearly extrapolated boundary conditions
         if strcmp('linear extrap',leftGhost)
             lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
             nxax(1),'linear','extrap');
@@ -430,10 +438,12 @@ for ii=1:520
             n_new(1,end) = rGhost;
         end
         
+
+%--------------------------------------------------------------------------------------------------------------%
+% COLLOCATED NOT CURRENTLY IN USE
+%--------------------------------------------------------------------------------------------------------------%
       
     elseif collocated
-        
-        vx_source = source_col(n,e,Te,Ti,m,npts-1,dx);
  
         for jj=1:npts-1
             if jj==1
@@ -474,6 +484,14 @@ for ii=1:520
         end
     end
     
+%--------------------------------------------------------------------------------------------------------------%
+% COLLOCATED (ABOVE) NOT IN USE
+% BELOW IS IN USE
+%--------------------------------------------------------------------------------------------------------------%
+    
+    % fill coefficient matrices for momentum equation, positive for v>0 and
+    % negative for v<0 on the convective term; differencing of the
+    % diffusion term is central and not dependent on flow direction
     for jj=2:npts-2
         if vx(1,jj)>0
             vx_pos(jj,jj) = - mult*vx(1,jj);
@@ -486,24 +504,31 @@ for ii=1:520
         vx_diff(jj,jj-1) = mult*(nu/dx);
         vx_diff(jj,jj+1) = mult*(nu/dx);
     end
-          
+         
+    % construct full coefficient matrix for momentum equation
     if upwind 
         vxA = vx_pos + vx_neg;
     elseif central
         vxA = vx_pos + vx_neg + vx_diff;
     end
     
-%     if v_ldirichlet && v_rdirichlet
-%         vx(1,1) = lvBC_val;
-%         vx(1,end) = rvBC_val;
-%     elseif v_lneumann
-%         vxA(1,1) = 1.0; vxA(1,2) = -1.0;
-%         vx(1,1) = dx*lvBC_val;
-%     elseif v_rneumann
-%         vxA(end,end) = 1.0; vxA(end,end-1) = -1.0;
-%         vx(1,end) = dx*rvBC_val;
-%     end
+    % build full coefficient matrices
+    Avx_exp = vx_I + dt*vxA;
+    Avx_imp = vx_I - dt*vxA;
+    % override top and bottom rows to include dirichlet boundary conditions
+    % for the momentum equation (explicit and implicit methods)
+    Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+    Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
+    
+    % calculate the source term
+    if staggered
+        vx_source = source_stag(n,e,Te,Ti,m,npts,dx);
+    elseif collocated
+        vx_source = source_col(n,e,Te,Ti,m,npts-1,dx);
+    end
       
+    % zero the source term at the boundaries as it is not used (dirichlet
+    % boundary conditions will override the source)
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
     
@@ -512,22 +537,30 @@ for ii=1:520
     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
     Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
        
+    % explicit calculation
     vx_new_exp = Avx_exp*vx' + dt*vx_source';
+    % implicit calculation
     vx_new_imp = Avx_imp\(vx' - dt*vx_source');
+    
+    % transpose solution vector
     vx_new = vx_new_imp;
     vx_new = vx_new';
     
+    % reset CFL condition based on the lowest dt out of the
+    % convective/diffusive CFLs
     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
         dt = cfl_fact*(dx^2)/(2.0*nu);
     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
         dt = cfl_fact*dx/max(abs(vx_new));
     end
 
+    % will stop running script if either of the CFL conditions is violated
     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
         fprintf('CFL condition violated, ii=%d\n',ii)
         return
     end
     
+    % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
     
     if sum(nan_check) ~= 0
@@ -535,6 +568,7 @@ for ii=1:520
         return
     end
 
+    % plot loop; every 1/5 of iterations
     if ii==count*round(520/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])

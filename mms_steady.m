@@ -133,10 +133,10 @@ end
 ratio_inf = l_inf(1:iter-1)./l_inf(2:iter);
 ratio_two = l_two(1:iter-1)./l_two(2:iter);
 
-figure(3)
-plot(xax, ex_sol, '*r')
-legend(['t = 1dt'],['t = ' num2str(nmax) 'dt'])
-hold off
+% figure(3)
+% plot(xax, ex_sol, '*r')
+% legend(['t = 1dt'],['t = ' num2str(nmax) 'dt'])
+% hold off
 
 %%
 %------ 
