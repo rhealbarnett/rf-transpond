@@ -519,6 +519,8 @@ for ii=1:520
     % for the momentum equation (explicit and implicit methods)
     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
     Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
+    % ensure that the velocity value at the boundaries is correct
+    vx(1,1) = lvBC_val; vx(1,end) = rvBC_val;
     
     % calculate the source term
     if staggered
@@ -531,11 +533,6 @@ for ii=1:520
     % boundary conditions will override the source)
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
-    
-    Avx_exp = vx_I + vxA*dt;
-    Avx_imp = vx_I - vxA*dt;
-    Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
-    Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
        
     % explicit calculation
     vx_new_exp = Avx_exp*vx' + dt*vx_source';
