@@ -25,7 +25,7 @@ m = 0.01;
 Te = (1.0/e)*50.0;
 Ti = (1.0/e)*50.0;
 cs = 50.0;
-nu = 0.2;
+
 
 
 %------
@@ -37,7 +37,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 1281;
+npts = 161;
 xax = linspace(xmin,xmax,npts);
 dx = (xmax - xmin)/(npts - 1);
 
@@ -45,10 +45,10 @@ dx = (xmax - xmin)/(npts - 1);
 % temporal domain %
 %------
 tmin = 0;
-tmax = 8.0e-4;
+
 dt = 8.0e-6;
 % nmax = 1.0e7;
-nmax = round(tmax/dt);
+
 
 %%
 
@@ -60,7 +60,8 @@ nmax = round(tmax/dt);
 
 u0 = 1.0;
 n0 = 2.0;
-om = 0.0;
+nu = 0.2;
+om = 1.0e3;
 epsilon = 0.001;
 
 vx_new = u0*(sin(xax.^2) + epsilon);
@@ -100,6 +101,8 @@ for kk=1:iter
 
 %     dx = (xmax - xmin)/(npts - 1);
 %     dx_arr(1,kk) = dx;
+    tmax = 4.0e-4;
+    nmax = round(tmax/dt);
     dt_arr(1,kk) = dt;
     xax = linspace(xmin,xmax,npts);
     fprintf('dt=%d\n',dt)
@@ -147,10 +150,8 @@ for kk=1:iter
         source_nx = -2.0*n0*xax.*sin(xax.^2);
 
         source = source_dt + source_dx - nu*source_dxx;
-%         source(1,1) = u0*(sin(xmin.^2 + om*dt*ii) + epsilon);
-%         source(1,end) = u0*(sin(xmax.^2 + om*dt*ii) + epsilon);
 
-        vx_new = Avx\(vx');% + source');
+        vx_new = Avx\(vx' + dt*source');
 
         vx_new = vx_new';
 
@@ -195,10 +196,10 @@ legend('vx', 'exact solution')
 hold off
 
 figure(2)
-loglog(dx_arr,l_two, '-*r') 
+loglog(dt_arr,l_two, '-*r') 
 hold on
-loglog(dx_arr,l_inf, '-ob')
-loglog(dx_arr, dx_arr, '--k')
+loglog(dt_arr,l_inf, '-ob')
+loglog(dt_arr, dt_arr, '--k')
 % xlim([5e-4 1e-1])
 % xlabel('dx')
 % ylabel('Error')
