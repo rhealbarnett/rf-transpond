@@ -10,14 +10,14 @@
 %------
 % constants %
 %------
-% constants;
+constants;
 % m = mp;
 m = 0.01;
 %------
 % parameters %
 %------
-Te = (1.0/e)*50.0;
-Ti = (1.0/e)*50.0;
+Te = (1.0/const.e)*50.0;
+Ti = (1.0/const.e)*50.0;
 % T = Te + Ti;
 % T = 1.0/e;
 % cs = sqrt((Te + Ti)*e/m);
@@ -77,7 +77,7 @@ n_source = zeros(1,npts);
 % end
 
 %-- initial velocity
-vx_ax = linspace(1.0,0.5,npts-1);
+vx_ax = linspace(0.5,1.0,npts-1);
 vx_new = (cs)*vx_ax;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -91,7 +91,7 @@ vx_I = eye(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 5.0e-2;
-cfl_fact = 0.5;
+cfl_fact = 1.0;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -101,7 +101,7 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-% dt = 2.0e-6;
+dt = dt*10.;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
