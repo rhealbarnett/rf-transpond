@@ -139,7 +139,8 @@ for kk=1:iter
         end
 
         vxA = vx_pos + vx_neg + vx_diff;
-        Avx = vx_I - dt*vxA;
+%         Avx = vx_I - dt*vxA;
+        Avx = vx_I + dt*vxA;
         Avx(1,1) = 1.0; Avx(end,end) = 1.0;
         vx(1,1) = u0*(sin(xmin^2 + om*dt*ii) + epsilon);
         vx(1,end) = u0*(sin(xmax^2 + om*dt*ii) + epsilon);
@@ -151,7 +152,8 @@ for kk=1:iter
 
         source = source_dt + source_dx - nu*source_dxx;
 
-        vx_new = Avx\(vx' + dt*source');
+%         vx_new = Avx\(vx' + dt*source');
+        vx_new = Avx*vx' + dt*source';
 
         vx_new = vx_new';
 
