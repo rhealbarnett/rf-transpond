@@ -58,8 +58,11 @@ n_periodic = NaN;
 explicit = NaN;
 implicit = NaN;
 
-% promptGrid = 'staggered or collocated grid? ';
+grid_type = 'staggered or collocated grid? ';
 grid = input(grid_type, 's');
+if isempty(grid)
+    grid = 'staggered';
+end
 
 if strcmp(grid,'staggered')
     staggered = 1;
@@ -77,14 +80,20 @@ end
 
 if staggered
     
-%     promptlGhost = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
+    ln_bound_type = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
     leftGhost = input(ln_bound_type, 's');
+    if isempty(leftGhost)
+        leftGhost = 'neumann';
+    end
     
     if strcmp('periodic',leftGhost)
 
     else
-%         promptrGhost = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
+        rn_bound_type = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
         rightGhost = input(rn_bound_type, 's');
+        if isempty(rightGhost)
+            rightGhost = 'neumann';
+        end
     end
     
     if strcmp('linear extrap',leftGhost)
@@ -111,8 +120,11 @@ if staggered
     
     if strcmp('linear extrap',leftGhost)
     else
-%         promptlnBCval = 'Left (ghost) BC value for density? ';
+        ln_bound_val = 'Left (ghost) BC value for density? ';
         lnBC_val = input(ln_bound_val);
+        if isempty(lnBC_val)
+            lnBC_val = 0;
+        end
     end
     
     if strcmp('linear extrap',rightGhost)
@@ -133,8 +145,11 @@ if staggered
     
     if strcmp('linear extrap',rightGhost)
     else
-%         promptrnBCval = 'Right (ghost) BC value for density? ';
+        rn_bound_val = 'Right (ghost) BC value for density? ';
         rnBC_val = input(rn_bound_val);
+        if isempty(rnBC_val)
+            rnBC_val = 0;
+        end
     end
     
     if (isnan(n_rdirichlet)) || (isnan(n_rneumann)) || (isnan(n_periodic))
@@ -179,8 +194,8 @@ if collocated
             n_rneumann = 1; 
             n_periodic = 0;
         end
-        promptrnBCval = 'Right BC value for density? ';
-        rnBC_val = input(promptrnBCval);
+        rn_bound_val = 'Right BC value for density? ';
+        rnBC_val = input(rn_bound_val);
     elseif vx_new(1,end-1) > 0 
         fprintf("Right BC not required on density for the given flux direction.\n")
         n_rdirichlet = 0;
@@ -194,8 +209,11 @@ end
 upwind = NaN;
 central = NaN;
 
-% promptDiff = 'Spatial differencing scheme for momentum equation? (upwind or central) ';
+spatial_scheme = 'Spatial differencing scheme for momentum equation? (upwind or central) ';
 scheme = input(spatial_scheme, 's');
+if isempty(scheme)
+    scheme = 'central';
+end
 
 if strcmp(scheme,'upwind')
     upwind = 1;
@@ -224,13 +242,19 @@ end
 
 if central
 
-%     promptlvBC = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
+    lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
     leftvBC = input(lv_bound_type, 's');
+    if isempty(leftvBC)
+        leftvBC = 'dirichlet';
+    end
     if strcmp('periodic',leftvBC)
 
     else
-%         promptrvBC = 'Right BC type for velocity? (dirichlet or neumann) ';
+        rv_bound_type = 'Right BC type for velocity? (dirichlet or neumann) ';
         rightvBC = input(rv_bound_type, 's');
+        if isempty(rightvBC)
+            rightvBC = 'dirichlet';
+        end
     end
 
     if strcmp('dirichlet',leftvBC)
@@ -261,13 +285,19 @@ if central
         v_periodic = 1;
     end
 
-%     promptlvBCval = 'Left BC value for velocity? ';
+    lv_bound_val = 'Left BC value for velocity? ';
     lvBC_val = input(lv_bound_val);
+    if isempty(lvBC_val)
+        lvBC_val = cs/2;
+    end
     if strcmp('periodic',leftvBC)
 
     else
-%         promptrvBCval = 'Right BC value for velocity? ';
+        rv_bound_val = 'Right BC value for velocity? ';
         rvBC_val = input(rv_bound_val);
+        if isempty(rvBC_val)
+            rvBC_val = cs;
+        end
     end
 
     if v_ldirichlet && v_rdirichlet
@@ -285,8 +315,8 @@ if central
 elseif upwind
     
     if vx_new(1,2) > 0
-            promptlvBC = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
-            leftvBC = input(promptlvBC, 's');
+            lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
+            leftvBC = input(lv_bound_type, 's');
             if strcmp('dirichlet',leftvBC)
                 v_ldirichlet = 1;              
                 v_lneumann = 0;
@@ -296,8 +326,8 @@ elseif upwind
                 v_lneumann = 1; 
                 v_periodic = 0;
             end
-            promptlvBCval = 'Left BC value for velocity? ';
-            lvBC_val = input(promptlvBCval);
+            lv_bound_val = 'Left BC value for velocity? ';
+            lvBC_val = input(lv_bound_val);
     elseif vx_new(1,2) < 0 
             fprintf("Left BC not required\n")
             v_ldirichlet = 0;
@@ -306,8 +336,8 @@ elseif upwind
     end
     
     if vx_new(1,end-1) < 0
-            promptrvBC = 'Right BC type? (dirichlet, neumann, periodic) ';
-            rightvBC = input(promptrvBC, 's');
+            rv_bound_type = 'Right BC type? (dirichlet, neumann, periodic) ';
+            rightvBC = input(rv_bound_type, 's');
             if strcmp('dirichlet',rightvBC)
                 v_rdirichlet = 1;              
                 v_rneumann = 0;
@@ -317,8 +347,8 @@ elseif upwind
                 v_rneumann = 1; 
                 v_periodic = 0;
             end
-            promptrvBCval = 'Right BC value? ';
-            rvBC_val = input(promptrvBCval);
+            rv_bound_val = 'Right BC value? ';
+            rvBC_val = input(rv_bound_val);
     elseif vx_new(1,end-1) > 0 
             fprintf("Right BC not required\n")
             v_rdirichlet = 0;
@@ -333,7 +363,7 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-vx_source = source_stag(n_new,e,Te,Ti,m,npts,dx);
+vx_source = source_stag(n_new,const.e,Te,Ti,m,npts,dx);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -375,10 +405,10 @@ hold on
 count = 1;
 timerVal = tic;
 
-vx_rms = zeros(1,520);
-n_rms = zeros(1,520);
+vx_rms = zeros(1,nmax);
+n_rms = zeros(1,nmax);
 
-for ii=1:520
+for ii=1:nmax
       
     % set the vectors with the old value going into the next loop
     n = n_new;
@@ -524,9 +554,9 @@ for ii=1:520
     
     % calculate the source term
     if staggered
-        vx_source = source_stag(n,e,Te,Ti,m,npts,dx);
+        vx_source = source_stag(n,const.e,Te,Ti,m,npts,dx);
     elseif collocated
-        vx_source = source_col(n,e,Te,Ti,m,npts-1,dx);
+        vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
     end
       
     % zero the source term at the boundaries as it is not used (dirichlet
@@ -537,7 +567,7 @@ for ii=1:520
     % explicit calculation
     vx_new_exp = Avx_exp*vx' + dt*vx_source';
     % implicit calculation
-    vx_new_imp = Avx_imp\(vx' - dt*vx_source');
+    vx_new_imp = Avx_imp\(vx' + dt*vx_source');
     
     % transpose solution vector
     vx_new = vx_new_imp;
@@ -545,17 +575,17 @@ for ii=1:520
     
     % reset CFL condition based on the lowest dt out of the
     % convective/diffusive CFLs
-    if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-        dt = cfl_fact*(dx^2)/(2.0*nu);
-    elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-        dt = cfl_fact*dx/max(abs(vx_new));
-    end
+%     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+%         dt = cfl_fact*(dx^2)/(2.0*nu);
+%     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+%         dt = cfl_fact*dx/max(abs(vx_new));
+%     end
 
     % will stop running script if either of the CFL conditions is violated
-    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-        fprintf('CFL condition violated, ii=%d\n',ii)
-        return
-    end
+%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+%         fprintf('CFL condition violated, ii=%d\n',ii)
+%         return
+%     end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
@@ -566,29 +596,29 @@ for ii=1:520
     end
 
     % plot loop; every 1/5 of iterations
-    if ii==count*round(520/5)
+    if ii==count*round(nmax/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
-        if dt == cfl_fact*(dx^2)/(2.0*nu)
-            fprintf('Diffusive CFL condition\n')
-        elseif dt == cfl_fact*dx/max(abs(vx_new))
-            fprintf('Convective CFL condition\n')
-        end
+%         if dt == cfl_fact*(dx^2)/(2.0*nu)
+%             fprintf('Diffusive CFL condition\n')
+%         elseif dt == cfl_fact*dx/max(abs(vx_new))
+%             fprintf('Convective CFL condition\n')
+%         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+dx) max(nxax-dx)])
         hold on
-        semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
+%         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
         figure(2)
         set(gcf,'Position',[7 925 560 420])
         plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
-        plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
+%         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
         set(gcf,'Position',[3 476 560 420])
         semilogy(vxax,abs(vx_source*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
@@ -618,7 +648,7 @@ figure(1)
 set(gcf,'Position',[563 925 560 420])
 semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
-semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
+% semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
 legend('show','Location','south')
@@ -628,7 +658,7 @@ figure(2)
 set(gcf,'Position',[7 925 560 420])
 plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
-plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
+% plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
@@ -712,7 +742,7 @@ function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
     ans = -((Te + Ti)*q./(m*n)).*(grad2(n,dx,npts));
 end
 
-end
+% end
 
 
 
