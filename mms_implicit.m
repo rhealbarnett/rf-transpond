@@ -203,7 +203,7 @@ loglog(dt_arr, dt_arr, '--k')
 % xlim([5e-4 1e-1])
 % xlabel('dx')
 % ylabel('Error')
-legend({'L_2', 'L_{\infty}', 'dx'},'Location','northwest')
+legend({'L_2', 'L_{\infty}', 'dt'},'Location','northwest')
 hold off
 
 
