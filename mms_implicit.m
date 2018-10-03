@@ -26,8 +26,6 @@ Te = (1.0/e)*50.0;
 Ti = (1.0/e)*50.0;
 cs = 50.0;
 
-
-
 %------
 % spatial domain %
 %------
@@ -37,7 +35,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 161;
+npts = 11;
 xax = linspace(xmin,xmax,npts);
 dx = (xmax - xmin)/(npts - 1);
 
@@ -46,8 +44,9 @@ dx = (xmax - xmin)/(npts - 1);
 %------
 tmin = 0;
 
-dt = 8.0e-6;
-% nmax = 1.0e7;
+% dt = 8.0e-6;
+nmax = 1.0e7;
+dt = 1.0;
 
 
 %%
@@ -61,7 +60,8 @@ dt = 8.0e-6;
 u0 = 1.0;
 n0 = 2.0;
 nu = 0.2;
-om = 1.0e3;
+% om = 1.0e3;
+om = 0.0;
 epsilon = 0.001;
 
 vx_new = u0*(sin(xax.^2) + epsilon);
@@ -99,13 +99,13 @@ for kk=1:iter
 
     fprintf('counter=%d\n',kk)
 
-%     dx = (xmax - xmin)/(npts - 1);
-%     dx_arr(1,kk) = dx;
-    tmax = 4.0e-4;
-    nmax = round(tmax/dt);
-    dt_arr(1,kk) = dt;
+    dx = (xmax - xmin)/(npts - 1);
+    dx_arr(1,kk) = dx;
+%     tmax = 4.0e-4;
+%     nmax = round(tmax/dt);
+%     dt_arr(1,kk) = dt;
     xax = linspace(xmin,xmax,npts);
-    fprintf('dt=%d\n',dt)
+    fprintf('dx=%d\n',dx)
 
      % initial conditions
     vx_new = u0*(sin(xax.^2) + epsilon);
@@ -139,8 +139,8 @@ for kk=1:iter
         end
 
         vxA = vx_pos + vx_neg + vx_diff;
-%         Avx = vx_I - dt*vxA;
-        Avx = vx_I + dt*vxA;
+        Avx = vx_I - dt*vxA;
+%         Avx = vx_I + dt*vxA;
         Avx(1,1) = 1.0; Avx(end,end) = 1.0;
         vx(1,1) = u0*(sin(xmin^2 + om*dt*ii) + epsilon);
         vx(1,end) = u0*(sin(xmax^2 + om*dt*ii) + epsilon);
@@ -151,30 +151,33 @@ for kk=1:iter
         source_nx = -2.0*n0*xax.*sin(xax.^2);
 
         source = source_dt + source_dx - nu*source_dxx;
-
+        
+        vx_new = Avx\(source');    
 %         vx_new = Avx\(vx' + dt*source');
-        vx_new = Avx*vx' + dt*source';
+%         vx_new = Avx*vx' + dt*source';
 
         vx_new = vx_new';
 
         l_inf(1,kk) = norm(ex_sol - vx_new, Inf);
         l_two(1,kk) = rms(ex_sol - vx_new);
 
-%         if rms(vx_new - vx)<=tol
-%             fprintf('tolerance reached, ii=%d\n',ii)
-%             break
+        if rms(vx_new - vx)<=tol
+            fprintf('tolerance reached, ii=%d\n',ii)
+            break
 %         elseif ii==count*100
 %             fprintf('ii=%d\n',ii)
 %             fprintf('rms=%d\n',rms(vx_new - vx))
 %             count = count + 1;
 %             continue
-%         end
+        else 
+            continue
+        end
         
         
     end
 
-%     npts = r*npts-1;
-    dt = dt/r;
+    npts = r*npts-1;
+%     dt = dt/r;
      
 end
 
@@ -198,14 +201,14 @@ legend('vx', 'exact solution')
 hold off
 
 figure(2)
-loglog(dt_arr,l_two, '-*r') 
+loglog(dx_arr,l_two, '-*r') 
 hold on
-loglog(dt_arr,l_inf, '-ob')
-loglog(dt_arr, dt_arr, '--k')
+loglog(dx_arr,l_inf, '-ob')
+loglog(dx_arr, dx_arr, '--k')
 % xlim([5e-4 1e-1])
 % xlabel('dx')
 % ylabel('Error')
-legend({'L_2', 'L_{\infty}', 'dt'},'Location','northwest')
+legend({'L_2', 'L_{\infty}', 'dx'},'Location','northwest')
 hold off
 
 
