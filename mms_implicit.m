@@ -46,7 +46,6 @@ tmin = 0;
 
 % dt = 8.0e-6;
 nmax = 1.0e7;
-dt = 1.0;
 
 
 %%
@@ -58,18 +57,12 @@ dt = 1.0;
 %-------------------------------------------------------------------------%
 
 u0 = 1.0;
-n0 = 2.0;
 nu = 0.2;
 % om = 1.0e3;
 om = 0.0;
 epsilon = 0.001;
 
 vx_new = u0*(sin(xax.^2) + epsilon);
-n_new = n0*cos(xax.^2);
-rhs = gradient(n_new);
-
-beta = -((Te + Ti)*e./(m*n_new));
-rhs = beta.*gradient(n_new);
 
 vx_pos = sparse(npts,npts);
 vx_neg = sparse(npts,npts);
@@ -109,8 +102,6 @@ for kk=1:iter
 
      % initial conditions
     vx_new = u0*(sin(xax.^2) + epsilon);
-    n_new = n0*cos(xax.^2);
-    rhs = gradient(n_new);
     vx_pos = sparse(npts,npts);
     vx_neg = sparse(npts,npts);
     vx_diff = sparse(npts,npts);
@@ -121,7 +112,7 @@ for kk=1:iter
      
     for ii=1:nmax
 
-        ex_sol = u0*(sin(xax.^2 + om*dt*ii) + epsilon);
+        ex_sol = u0*(sin(xax.^2) + epsilon);
 
         vx = vx_new;
        
@@ -139,18 +130,19 @@ for kk=1:iter
         end
 
         vxA = vx_pos + vx_neg + vx_diff;
-        Avx = vx_I - dt*vxA;
+        Avx = -vxA;
 %         Avx = vx_I + dt*vxA;
         Avx(1,1) = 1.0; Avx(end,end) = 1.0;
-        vx(1,1) = u0*(sin(xmin^2 + om*dt*ii) + epsilon);
-        vx(1,end) = u0*(sin(xmax^2 + om*dt*ii) + epsilon);
+%         vx(1,1) = u0*(sin(xmin^2) + epsilon);
+%         vx(1,end) = u0*(sin(xmax^2) + epsilon);
     
-        source_dt = u0*om*cos(xax.^2 + om*dt*ii);
-        source_dx = 2.0*u0*xax.*cos(xax.^2 + om*dt*ii)*u0.*(sin(xax.^2 + om*dt*ii) + epsilon);
-        source_dxx = 2.0*u0*(cos(xax.^2 + om*dt*ii) - 2.0*xax.^2.*sin(xax.^2 + om*dt*ii));
-        source_nx = -2.0*n0*xax.*sin(xax.^2);
+%         source_dt = u0*om*cos(xax.^2 + om*dt*ii);
+        source_dx = 2.0*u0*xax.*cos(xax.^2)*u0.*(sin(xax.^2) + epsilon);
+        source_dxx = 2.0*u0*(cos(xax.^2) - 2.0*xax.^2.*sin(xax.^2));
 
         source = source_dt + source_dx - nu*source_dxx;
+        source(1,1) = u0*(sin(xmin^2) + epsilon);
+        source(1,end) = u0*(sin(xmax^2) + epsilon);
         
         vx_new = Avx\(source');    
 %         vx_new = Avx\(vx' + dt*source');
@@ -164,11 +156,6 @@ for kk=1:iter
         if rms(vx_new - vx)<=tol
             fprintf('tolerance reached, ii=%d\n',ii)
             break
-%         elseif ii==count*100
-%             fprintf('ii=%d\n',ii)
-%             fprintf('rms=%d\n',rms(vx_new - vx))
-%             count = count + 1;
-%             continue
         else 
             continue
         end
