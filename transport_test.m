@@ -12,16 +12,19 @@
 %------
 constants;
 m = const.mp;
-% m = 0.001;
+e = const.e;
+% m = 1.0e-10;
 %------
 % parameters %
 %------
+% Te = (5.0/e)*1.0e-4;
+% Ti = (5.0/e)*1.0e-4;
 Te = 5.0;
 Ti = 5.0;
 % T = Te + Ti;
 % T = 1.0/e;
-% cs = sqrt((Te + Ti)*const.e/m);
-cs = 5000.0;
+cs = sqrt((Te + Ti)*e/m);
+% cs = 3.0e4;
 nu = 1.0;
 % nu = 0.0;
 
@@ -52,10 +55,10 @@ tmin = 0;
 %-------------------------------------------------------------------------%
 
 %-- initial density profile
-Nmax = 1.0e4;
-Nmin = 0.5e4;
+Nmax = 1.0e3;
+Nmin = 0.5e3;
 % n_new = (Nmax)*ones(1,npts);
-n_new = 0.5*nxax + 0.5;
+n_new = 1.0e18*nxax + 0.5e18;
 
 
 %-- density source
