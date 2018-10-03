@@ -34,7 +34,7 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 32;
+npts = 512;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -101,7 +101,7 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-dt = dt*10.;
+dt = dt*100.;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
