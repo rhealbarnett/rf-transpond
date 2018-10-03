@@ -12,17 +12,17 @@
 %------
 constants;
 % m = mp;
-m = 0.01;
+m = 0.001;
 %------
 % parameters %
 %------
-Te = (1.0/const.e)*50.0;
-Ti = (1.0/const.e)*50.0;
+Te = (1.0/const.e)*500.0;
+Ti = (1.0/const.e)*500.0;
 % T = Te + Ti;
 % T = 1.0/e;
 % cs = sqrt((Te + Ti)*e/m);
-cs = 50.0;
-nu = 0.2;
+cs = 500.0;
+nu = 1.0;
 % nu = 0.0;
 
 %------
@@ -52,8 +52,8 @@ tmin = 0;
 %-------------------------------------------------------------------------%
 
 %-- initial density profile
-Nmax = 100;
-Nmin = 50;
+Nmax = 1000;
+Nmin = 500;
 % n_new = (Nmax)*ones(1,npts);
 n_new = 0.5*nxax + 0.5;
 
@@ -91,7 +91,7 @@ vx_I = eye(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 5.0e-2;
-cfl_fact = 1.0;
+cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -101,7 +101,7 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-dt = dt*100.;
+% dt = 10.0*dt;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
