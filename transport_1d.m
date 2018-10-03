@@ -223,10 +223,10 @@ elseif strcmp(scheme, 'central')
     central = 1;
 end
 
-if central && nu==0
-    fprintf("nu==0: central difference scheme not stable.\n")
-    return
-end
+% if central && nu==0
+%     fprintf("nu==0: central difference scheme not stable.\n")
+%     return
+% end
 
 %%
 %--------------------------------------------------------------------------------------------------------------%
