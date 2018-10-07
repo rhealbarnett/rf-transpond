@@ -245,7 +245,7 @@ if central
     lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
     leftvBC = input(lv_bound_type, 's');
     if isempty(leftvBC)
-        leftvBC = 'dirichlet';
+        leftvBC = 'neumann';
     end
     if strcmp('periodic',leftvBC)
 
@@ -288,7 +288,7 @@ if central
     lv_bound_val = 'Left BC value for velocity? ';
     lvBC_val = input(lv_bound_val);
     if isempty(lvBC_val)
-        lvBC_val = cs/2;
+        lvBC_val = 0;
     end
     if strcmp('periodic',leftvBC)
 
