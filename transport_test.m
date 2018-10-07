@@ -65,7 +65,7 @@ n_new = Nmax*nxax + Nmin;
 rate_coeff = 10^-14;
 decay_index = round(npts/4);
 cosax = linspace(pi,2*pi,decay_index);
-neut_max = 10^18;
+neut_max = 10^15;
 neut_min = 10^14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -73,16 +73,16 @@ n_neut = zeros(1,npts);
 n_neut(end-decay_index+1:end) = neut_max*(cos(cosax)+1.01)/2;
 n_source = zeros(1,npts);
 
-for ii=1:npts
-    n_source(ii) = n_new(ii)*n_neut(ii)*rate_coeff;
-end
+% for jj=1:npts
+%     n_source(jj) = n_neut(jj)*n_neut(jj)*rate_coeff;
+% end
 
 const_n = zeros(1,npts);
-const_n(end-decay_index+1:end) = 10^21*(cos(fliplr(cosax))+1.01)/2;
-const_n(1:end-decay_index) = const_n(end-decay_index+1);
+% const_n(end-decay_index+1:end) = 1.0e19*(cos(fliplr(cosax))+1.01)/2;
+% const_n(1:end-decay_index) = const_n(end-decay_index+1);
 
 %-- initial velocity
-vx_ax = linspace(1.0,0.5,npts-1);
+vx_ax = linspace(0.5,1.0,npts-1);
 vx_new = (cs)*vx_ax;
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -95,7 +95,7 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = eye(npts-1,npts-1);
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 3.0e-5;
+tmax = 1.0e-5;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
