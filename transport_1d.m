@@ -391,7 +391,10 @@ hold on
 
 figure(4)
 set(gcf,'Position',[563 476 560 420])
-plot(nxax,n_source*dt,'DisplayName',['time = 0s'])
+plot(nxax(2:npts-1),(n_source(2:npts-1)+const_n(2:npts-1))*dt,'DisplayName',['time = 0s'])
+hold on
+% plot(nxax,(n_source)*dt,'--')
+% plot(nxax,(const_n)*dt,'.')
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
@@ -425,7 +428,8 @@ for ii=1:nmax
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
                 nA(jj,jj) = mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
-            end    
+            end
+%             n_source(1,jj) = n_neut(1,jj)*n_neut(1,jj)*rate_coeff;
         end
 
 
@@ -439,7 +443,7 @@ for ii=1:nmax
         An_imp(end,end) = 1.0; An_imp(end,end-1) = -1.0;        
         
         % calculate explicit solution
-        n_new_exp = An_exp*n' + dt*n_source';
+        n_new_exp = An_exp*n' + dt*(n_source' + const_n');
         % directly override solution vector to include neumann boundary
         % conditions for explicit method
         n_new_exp(1,1) = n_new_exp(2,1);
@@ -447,10 +451,10 @@ for ii=1:nmax
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
-        n(1,1) = 0.0;
-        n(1,end) = 0.0;
+        n(1,1) = lnBC_val;
+        n(1,end) = rnBC_val;
         % implicit calculation
-        n_new_imp = An_imp\(n' + dt*n_source');
+        n_new_imp = An_imp\(n' + dt*(n_source' + const_n'));
         
         % transpose solution vector
         n_new = n_new_imp;
@@ -548,9 +552,15 @@ for ii=1:nmax
     % override top and bottom rows to include dirichlet boundary conditions
     % for the momentum equation (explicit and implicit methods)
     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
-    Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
+%     Avx_imp(1,1) = 1.0; 
+    Avx_imp(end,end) = 1.0;
+    
+    % override values in top and bottom rows to reflect neumann
+    % boundary conditions for the implicit calculation
+    Avx_imp(1,1) = 1.0; Avx_imp(1,2) = -1.0;
     % ensure that the velocity value at the boundaries is correct
-    vx(1,1) = lvBC_val; vx(1,end) = rvBC_val;
+    vx(1,end) = rvBC_val;
+    
     
     % calculate the source term
     if staggered
@@ -567,6 +577,7 @@ for ii=1:nmax
     % explicit calculation
     vx_new_exp = Avx_exp*vx' + dt*vx_source';
     % implicit calculation
+    vx(1,1) = lvBC_val;
     vx_new_imp = Avx_imp\(vx' + dt*vx_source');
     
     % transpose solution vector
@@ -626,7 +637,10 @@ for ii=1:nmax
         hold on
         figure(4)
         set(gcf,'Position',[563 476 560 420])
-        plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax(2:npts-1),(n_source(2:npts-1)+const_n(2:npts-1))*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+%         plot(nxax,(n_source)*dt,'--')
+%         plot(nxax,(const_n)*dt,'.')
         xlabel('Position (m)','Fontsize',16)
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
@@ -674,7 +688,10 @@ hold off
 
 figure(4)
 set(gcf,'Position',[563 476 560 420])
-plot(nxax,n_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(nxax(2:npts-1),(n_source(2:npts-1)+const_n(2:npts-1))*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+hold on
+% plot(nxax,(n_source)*dt,'--')
+% plot(nxax,(const_n)*dt,'.')
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
