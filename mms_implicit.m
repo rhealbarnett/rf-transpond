@@ -45,7 +45,7 @@ dx = (xmax - xmin)/(npts - 1);
 tmin = 0;
 
 % dt = 8.0e-6;
-dt = 0.0;
+dt = 1.0;
 nmax = 1.0e7;
 
 
@@ -63,7 +63,11 @@ nu = 0.2;
 om = 0.0;
 epsilon = 0.001;
 
-vx_new = u0*(sin(xax.^2) + epsilon);
+% vx_new = u0*(sin(xax.^2) + epsilon);
+vx_new = zeros(1,npts);
+sig = 0.01;
+mean = xmax/4;
+ex_sol = (1.0/(2.0*pi*sqrt(sig^2)))*exp(-(xax - mean).^2/(2.0*sig^2));
 
 vx_pos = sparse(npts,npts);
 vx_neg = sparse(npts,npts);
@@ -103,7 +107,11 @@ for kk=1:iter
 %     fprintf('dt=%d\n',dt)
 
      % initial conditions
-    vx_new = u0*(sin(xax.^2) + epsilon);
+    vx_new = zeros(1,npts);
+%     vx_new(1,1) = u0*(sin(xmin.^2) + epsilon);
+%     vx_new(1,end) = u0*(sin(xmax.^2) + epsilon);
+    vx_new(1,1) = u0*(1.0/(sqrt(2.0*pi*sig^2)))*exp(-(xmin - mean)^2/(2.0*sig^2));
+    vx_new(1,end) = u0*(1.0/(sqrt(2.0*pi*sig^2)))*exp(-(xmax - mean)^2/(2.0*sig^2));
     vx_pos = sparse(npts,npts);
     vx_neg = sparse(npts,npts);
     vx_diff = sparse(npts,npts);
@@ -114,7 +122,8 @@ for kk=1:iter
      
     for ii=1:nmax
 
-        ex_sol = u0*(sin(xax.^2 + om*dt*ii) + epsilon);
+%         ex_sol = u0*(sin(xax.^2 + om*dt*ii) + epsilon);
+        ex_sol = u0*(1.0/(sqrt(2.0*pi*sig^2)))*exp(-(xax - mean).^2/(2.0*sig^2));
 
         vx = vx_new;
        
@@ -136,17 +145,21 @@ for kk=1:iter
 %         Avx = vx_I - dt*vxA;
 %         Avx = vx_I + dt*vxA;
         Avx(1,1) = 1.0; Avx(end,end) = 1.0;
-        Avx(1,2) = -1.0; Avx(end,end-1) = -1.0;
-        vx(1,1) = 0;%u0*(sin(xmin^2 + om*dt*ii) + epsilon);
-        vx(1,end) = 0;%u0*(sin(xmax^2 + om*dt*ii) + epsilon);
+        Avx(1,2) = -1.0;% Avx(end,end-1) = -1.0;
+%         vx(1,1) = 0;%u0*(sin(xmin^2 + om*dt*ii) + epsilon);
+%         vx(1,end) = 0;%u0*(sin(xmax^2 + om*dt*ii) + epsilon);
     
-        source_dt = u0*om*cos(xax.^2 + om*dt*ii);
-        source_dx = 2.0*u0*xax.*cos(xax.^2 + om*dt*ii)*u0.*(sin(xax.^2 + om*dt*ii) + epsilon);
-        source_dxx = 2.0*u0*(cos(xax.^2 + om*dt*ii) - 2.0*xax.^2.*sin(xax.^2 + om*dt*ii));
+%         source_dt = u0*om*cos(xax.^2 + om*dt*ii);
+%         source_dx = 2.0*u0*xax.*cos(xax.^2 + om*dt*ii)*u0.*(sin(xax.^2 + om*dt*ii) + epsilon);
+%         source_dxx = 2.0*u0*(cos(xax.^2 + om*dt*ii) - 2.0*xax.^2.*sin(xax.^2 + om*dt*ii));
+        source_dx = -u0*((xax - mean)/(sqrt(2*pi)*((sig^2)^(3/2)))).*exp(-(xax - mean).^2/(2.0*sig^2))*...
+            (1.0/(sqrt(2.0*pi*sig^2))).*exp(-(xax - mean).^2/(2.0*sig^2));
+        source_dxx = -u0*((sig^2 - (mean - xax).^2)/(sqrt(2*pi)*sig^4*sqrt(sig^2))).*...
+            exp(-(xax - mean).^2/(2.0*sig^2));
 
         source = source_dt + source_dx - nu*source_dxx;
-        source(1,1) = 0.0;%u0*(sin(xmin^2) + epsilon);
-        source(1,end) = 0.0;%u0*(sin(xmax^2) + epsilon);
+        source(1,1) = 0.0;%(1.0/(2.0*pi*sqrt(sig^2)))*exp(-(xmin - mean)^2/(2.0*sig^2));
+        source(1,end) = u0*(1.0/(2.0*pi*sqrt(sig^2)))*exp(-(xmax - mean)^2/(2.0*sig^2));
         
         vx_new = Avx\(source');    
 %         vx_new = Avx\(vx' + dt*source');
