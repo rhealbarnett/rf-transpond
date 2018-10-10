@@ -77,10 +77,6 @@ n_source = zeros(1,npts);
 %     n_source(jj) = n_neut(jj)*n_neut(jj)*rate_coeff;
 % end
 
-const_n = zeros(1,npts);
-% const_n(end-decay_index+1:end) = 1.0e19*(cos(fliplr(cosax))+1.01)/2;
-% const_n(1:end-decay_index) = const_n(end-decay_index+1);
-
 %-- initial velocity
 vx_ax = linspace(0.5,1.0,npts-1);
 vx_new = (cs)*vx_ax;
