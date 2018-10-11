@@ -13,20 +13,14 @@
 constants;
 m = const.mp;
 e = const.e;
-% m = 1.0e-10;
+
 %------
 % parameters %
 %------
-% Te = (5.0/e)*1.0e-4;
-% Ti = (5.0/e)*1.0e-4;
 Te = 10.0;
 Ti = 5.0;
-% T = Te + Ti;
-% T = 1.0/e;
 cs = sqrt((Te + Ti)*e/m);
-% cs = 3.0e4;
 nu = 1.0;
-% nu = 0.0;
 
 %------
 % spatial domain %
@@ -57,29 +51,43 @@ tmin = 0;
 %-- initial density profile
 Nmax = 1.0e18;
 Nmin = 0.5e18;
-% n_new = (Nmax)*ones(1,npts);
 n_new = Nmax*nxax + Nmin;
 
+%-- initial velocity
+vx_ax = linspace(0.5,1.0,npts-1);
+vx_new = (cs)*vx_ax;
+
+%-- flux at boundaries
+fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
+fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
+ft = fr - fl;
 
 %-- density source
 rate_coeff = 10^-14;
 decay_index = round(npts/4);
 cosax = linspace(pi,2*pi,decay_index);
-neut_max = 10^15;
-neut_min = 10^14;
+neut_max = 1.0e19;
+neut_min = 1.0e14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
 n_neut = zeros(1,npts);
-n_neut(end-decay_index+1:end) = neut_max*(cos(cosax)+1.01)/2;
+n_neut(end-decay_index+1:end) = neut_max*(cos(cosax) + 1)/2;
+n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
 n_source = zeros(1,npts);
 
-% for jj=1:npts
-%     n_source(jj) = n_neut(jj)*n_neut(jj)*rate_coeff;
-% end
+for jj=1:npts
+    n_source(jj) = n_new(jj)*n_neut(jj)*rate_coeff;
+end
 
-%-- initial velocity
-vx_ax = linspace(0.5,1.0,npts-1);
-vx_new = (cs)*vx_ax;
+source_int = trapz(n_source);
+
+if source_int~=ft
+    diff = ft - source_int;
+    bal = diff/(npts-1);
+    source_bal = bal*ones(1,npts);
+    n_source = n_source + source_bal;
+end
+    
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
