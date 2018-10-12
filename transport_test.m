@@ -66,7 +66,7 @@ ft = fr - fl;
 rate_coeff = 10^-14;
 decay_index = round(npts/4);
 cosax = linspace(pi,2*pi,decay_index);
-neut_max = 1.0e19;
+neut_max = 1.0e18;
 neut_min = 1.0e14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -75,7 +75,7 @@ n_neut(end-decay_index+1:end) = neut_max*(cos(cosax) + 1)/2;
 n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
 n_source = zeros(1,npts);
 
-for jj=1:npts
+for jj=2:npts-1
     n_source(jj) = n_new(jj)*n_neut(jj)*rate_coeff;
 end
 
@@ -83,9 +83,9 @@ source_int = trapz(n_source);
 
 if source_int~=ft
     diff = ft - source_int;
-    bal = diff/(npts-1);
-    source_bal = bal*ones(1,npts);
-    n_source = n_source + source_bal;
+    bal = diff/(npts-2);
+    source_bal = bal*ones(1,npts-2);
+    n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
 end
     
 
