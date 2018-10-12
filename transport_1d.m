@@ -83,7 +83,7 @@ if staggered
     ln_bound_type = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
     leftGhost = input(ln_bound_type, 's');
     if isempty(leftGhost)
-        leftGhost = 'neumann';
+        leftGhost = 'dirichlet';
     end
     
     if strcmp('periodic',leftGhost)
@@ -92,7 +92,7 @@ if staggered
         rn_bound_type = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
         rightGhost = input(rn_bound_type, 's');
         if isempty(rightGhost)
-            rightGhost = 'neumann';
+            rightGhost = 'dirichlet';
         end
     end
     
@@ -123,7 +123,7 @@ if staggered
         ln_bound_val = 'Left (ghost) BC value for density? ';
         lnBC_val = input(ln_bound_val);
         if isempty(lnBC_val)
-            lnBC_val = 0;
+            lnBC_val = Nmin;
         end
     end
     
@@ -148,7 +148,7 @@ if staggered
         rn_bound_val = 'Right (ghost) BC value for density? ';
         rnBC_val = input(rn_bound_val);
         if isempty(rnBC_val)
-            rnBC_val = 0;
+            rnBC_val = Nmax;
         end
     end
     
@@ -245,7 +245,7 @@ if central
     lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
     leftvBC = input(lv_bound_type, 's');
     if isempty(leftvBC)
-        leftvBC = 'neumann';
+        leftvBC = 'dirichlet';
     end
     if strcmp('periodic',leftvBC)
 
@@ -383,7 +383,7 @@ hold on
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-semilogy(vxax,abs(vx_source*dt),'DisplayName',['time = 0s'])
+semilogy(vxax(2:npts-2),abs(vx_source(2:npts-2)*dt),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
@@ -447,15 +447,15 @@ for ii=1:nmax
         
         % override values in top and bottom rows to reflect neumann
         % boundary conditions for the implicit calculation
-        An_imp(1,1) = 1.0; An_imp(1,2) = -1.0;
-        An_imp(end,end) = 1.0; An_imp(end,end-1) = -1.0;        
+        An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
+        An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
         
         % calculate explicit solution
         n_new_exp = An_exp*n' + dt*n_source';
         % directly override solution vector to include neumann boundary
         % conditions for explicit method
-        n_new_exp(1,1) = n_new_exp(2,1);
-        n_new_exp(end,1) = n_new_exp(end-1,1);
+%         n_new_exp(1,1) = n_new_exp(2,1);
+%         n_new_exp(end,1) = n_new_exp(end-1,1);
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
@@ -560,19 +560,19 @@ for ii=1:nmax
     % override top and bottom rows to include dirichlet boundary conditions
     % for the momentum equation (explicit and implicit methods)
     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
-%     Avx_imp(1,1) = 1.0; 
-    Avx_imp(end,end) = 1.0;
+    Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
     
     % override values in top and bottom rows to reflect neumann
     % boundary conditions for the implicit calculation
-    Avx_imp(1,1) = 1.0; Avx_imp(1,2) = -1.0;
+%     Avx_imp(1,1) = 1.0;% Avx_imp(1,2) = -1.0;
     % ensure that the velocity value at the boundaries is correct
+    vx(1,1) = lvBC_val;
     vx(1,end) = rvBC_val;
-    
     
     % calculate the source term
     if staggered
         vx_source = source_stag(n,const.e,Te,Ti,m,npts,dx);
+        vx_scale = max(abs(-nu*gradient(vx_new(2:npts-2))./vx_source(2:npts-2)));
     elseif collocated
         vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
     end
@@ -585,7 +585,6 @@ for ii=1:nmax
     % explicit calculation
     vx_new_exp = Avx_exp*vx' + dt*vx_source';
     % implicit calculation
-    vx(1,1) = lvBC_val;
     vx_new_imp = Avx_imp\(vx' + dt*vx_source');
     
     % transpose solution vector
@@ -640,7 +639,7 @@ for ii=1:nmax
 %         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
         set(gcf,'Position',[3 476 560 420])
-        semilogy(vxax,abs(vx_source*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(vxax(2:npts-2),abs(vx_source(2:npts-2)*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
@@ -691,7 +690,7 @@ hold off
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax,vx_source*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(vxax(2:npts-2),vx_source(2:npts-2)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
@@ -707,35 +706,35 @@ hold off
 
 %%
 
-% for ii=1:nmax
-for jj=1:npts
-    pressure(:,jj) = (Te + Ti)*n_mat(:,jj)*e;
-end
-for jj=1:npts-1
-    pressure_av(:,jj) = 0.5*(pressure(:,jj) + pressure(:,jj+1));
-    pressure_mat(:,jj) = pressure_av(:,jj) + (1/2)*0.5*(n_mat(:,jj+1)+n_mat(:,jj))*m.*(vx_mat(:,jj).^2);
-end
+% % for ii=1:nmax
+% for jj=1:npts
+%     pressure(:,jj) = (Te + Ti)*n_mat(:,jj)*e;
 % end
-
-figure(7)
-levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
-contourf(vxax,tax,vx_mat/cs,levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
-
-figure(8)
-% levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
-contourf(nxax(2:npts-1),tax,n_mat(:,2:npts-1),levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
-
-figure(10)
-% levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
-levels = linspace(min(pressure_mat(:)),max(pressure_mat(:)),25);
-contourf(vxax,tax,pressure_mat,levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
+% for jj=1:npts-1
+%     pressure_av(:,jj) = 0.5*(pressure(:,jj) + pressure(:,jj+1));
+%     pressure_mat(:,jj) = pressure_av(:,jj) + (1/2)*0.5*(n_mat(:,jj+1)+n_mat(:,jj))*m.*(vx_mat(:,jj).^2);
+% end
+% % end
+% 
+% figure(7)
+% levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
+% contourf(vxax,tax,vx_mat/cs,levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+% 
+% figure(8)
+% % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
+% levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
+% contourf(nxax(2:npts-1),tax,n_mat(:,2:npts-1),levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+% 
+% figure(10)
+% % levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
+% levels = linspace(min(pressure_mat(:)),max(pressure_mat(:)),25);
+% contourf(vxax,tax,pressure_mat,levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
 
 %%
 
