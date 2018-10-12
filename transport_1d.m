@@ -391,10 +391,7 @@ hold on
 
 figure(4)
 set(gcf,'Position',[563 476 560 420])
-plot(nxax(2:npts-1),(n_source(2:npts-1)+const_n(2:npts-1))*dt,'DisplayName',['time = 0s'])
-hold on
-% plot(nxax,(n_source)*dt,'--')
-% plot(nxax,(const_n)*dt,'.')
+plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
@@ -429,9 +426,20 @@ for ii=1:nmax
                 nA(jj,jj) = mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
             end
-%             n_source(1,jj) = n_neut(1,jj)*n_neut(1,jj)*rate_coeff;
+            n_source(1,jj) = n_new(1,jj)*n_neut(1,jj)*rate_coeff;
         end
+        
+        fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
+        fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
+        ft = fr - fl;
+        source_int = trapz(n_source);
 
+        if source_int~=ft
+            diff = ft - source_int;
+            bal = diff/(npts-2);
+            source_bal = bal*ones(1,npts-2);
+            n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
+        end
 
         % build full coefficient matrices
         An_exp = nI + dt*nA;
@@ -443,7 +451,7 @@ for ii=1:nmax
         An_imp(end,end) = 1.0; An_imp(end,end-1) = -1.0;        
         
         % calculate explicit solution
-        n_new_exp = An_exp*n' + dt*(n_source' + const_n');
+        n_new_exp = An_exp*n' + dt*n_source';
         % directly override solution vector to include neumann boundary
         % conditions for explicit method
         n_new_exp(1,1) = n_new_exp(2,1);
@@ -454,7 +462,7 @@ for ii=1:nmax
         n(1,1) = lnBC_val;
         n(1,end) = rnBC_val;
         % implicit calculation
-        n_new_imp = An_imp\(n' + dt*(n_source' + const_n'));
+        n_new_imp = An_imp\(n' + dt*n_source');
         
         % transpose solution vector
         n_new = n_new_imp;
@@ -637,10 +645,7 @@ for ii=1:nmax
         hold on
         figure(4)
         set(gcf,'Position',[563 476 560 420])
-        plot(nxax(2:npts-1),(n_source(2:npts-1)+const_n(2:npts-1))*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        hold on
-%         plot(nxax,(n_source)*dt,'--')
-%         plot(nxax,(const_n)*dt,'.')
+        plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
@@ -654,6 +659,12 @@ for ii=1:nmax
     n_rms(1,ii) = rms(n_new);
     
 end
+
+fprintf('***--------------------***\n')
+fprintf('ii=%d, count=%d\n', [ii count])
+fprintf('dt=%ds\n', dt)
+fprintf('total time=%ds\n', dt*ii)
+fprintf('simulation time %d\n', toc(timerVal))
 
         
 %%
@@ -688,10 +699,7 @@ hold off
 
 figure(4)
 set(gcf,'Position',[563 476 560 420])
-plot(nxax(2:npts-1),(n_source(2:npts-1)+const_n(2:npts-1))*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-hold on
-% plot(nxax,(n_source)*dt,'--')
-% plot(nxax,(const_n)*dt,'.')
+plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
@@ -699,35 +707,35 @@ hold off
 
 %%
 
-% for jj=1:50
-%     for ii=1:npts
-%         pressure(jj,ii) = (Te + Ti)*n_mat(jj,ii)*e;
-%     end
-%     for ii=1:npts-1
-%         pressure_av(jj,ii) = 0.5*(pressure(jj,ii) + pressure(jj,ii+1));
-%         pressure_mat(jj,ii) = pressure_av(jj,ii) + (1/2)*0.5*(n_mat(jj,ii+1)+n_mat(jj,ii))*m*(vx_mat(jj,ii)^2);
-%     end
+% for ii=1:nmax
+for jj=1:npts
+    pressure(:,jj) = (Te + Ti)*n_mat(:,jj)*e;
+end
+for jj=1:npts-1
+    pressure_av(:,jj) = 0.5*(pressure(:,jj) + pressure(:,jj+1));
+    pressure_mat(:,jj) = pressure_av(:,jj) + (1/2)*0.5*(n_mat(:,jj+1)+n_mat(:,jj))*m.*(vx_mat(:,jj).^2);
+end
 % end
-% 
-% figure(7)
-% levels = linspace(round(min(vx_mat(:)),-3),round(max(vx_mat(:)),-3),25);
-% contourf(vxax,tax(1:50),vx_mat(1:50,:),levels,'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
-% 
-% figure(8)
-% % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-% levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
-% contourf(nxax(2:npts-1),tax(1,1:50),n_mat(1:50,2:npts-1),levels,'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
-% 
-% figure(10)
-% % levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
-% levels = linspace(min(pressure_mat(:)),max(pressure_mat(:)),25);
-% contourf(vxax,tax(1,1:50),pressure_mat(1:50,:),levels,'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
+
+figure(7)
+levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
+contourf(vxax,tax,vx_mat/cs,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
+
+figure(8)
+% levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
+levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
+contourf(nxax(2:npts-1),tax,n_mat(:,2:npts-1),levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
+
+figure(10)
+% levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
+levels = linspace(min(pressure_mat(:)),max(pressure_mat(:)),25);
+contourf(vxax,tax,pressure_mat,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
 
 %%
 
