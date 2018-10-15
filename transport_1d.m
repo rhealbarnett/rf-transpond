@@ -408,7 +408,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:1000
+for ii=1:nmax
       
     % set the vectors with the old value going into the next loop
     n = n_new;
@@ -426,8 +426,10 @@ for ii=1:1000
                 nA(jj,jj) = mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
             end
-            n_source(1,jj) = n_new(1,jj)*n_neut(1,jj)*rate_coeff;
+%             n_source(1,jj) = n_new(1,jj)*n_neut(1,jj)*rate_coeff;
         end
+        
+        n_source(1,2:npts-1) = n_new(1,2:npts-1).*n_neut(1,2:npts-1)*rate_coeff;
         
         fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
         fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
@@ -451,7 +453,7 @@ for ii=1:1000
         An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
         
         % calculate explicit solution
-        n_new_exp = An_exp*n' + dt*n_source';
+%         n_new_exp = An_exp*n' + dt*n_source';
         % directly override solution vector to include neumann boundary
         % conditions for explicit method
 %         n_new_exp(1,1) = n_new_exp(2,1);
@@ -462,10 +464,10 @@ for ii=1:1000
         n(1,1) = lnBC_val;
         n(1,end) = rnBC_val;
         % implicit calculation
-%         n_new_imp = An_imp\(n' + dt*n_source');
+        n_new_imp = An_imp\(n' + dt*n_source');
         
         % transpose solution vector
-        n_new = n_new_exp;
+        n_new = n_new_imp;
         n_new = n_new';
         
         % only used for linearly extrapolated boundary conditions
@@ -546,6 +548,19 @@ for ii=1:1000
         vx_diff(jj,jj-1) = mult*(nu/dx);
         vx_diff(jj,jj+1) = mult*(nu/dx);
     end
+    
+%     vx_diff(2:npts-2,2:npts-2) = - mult*((2.0*nu)/dx);
+%     vx_diff(2:npts-2,1:npts-3) = mult*(nu/dx);
+%     vx_diff(2:npts-2,3:npts-1) = mult*(nu/dx);
+   
+%     vx_diff = (gallery('tridiag',10,- mult*((2.0*nu)/dx),...
+%         mult*(nu/dx),mult*(nu/dx)));
+
+%     vx_ones = ones(1,npts-3);
+%     vx_ones = [0, vx_ones, 0];
+%     vx_diff = sparse(diag(- mult*((2.0*nu)/dx)*vx_ones,0) +...
+%         diag(vx_ones(2:npts-1)*mult*(nu/dx),-1) +...
+%         diag(vx_ones(1:npts-2)*mult*(nu/dx),1));
          
     % construct full coefficient matrix for momentum equation
     if upwind 
@@ -586,27 +601,27 @@ for ii=1:1000
     pf_source(1,end) = 0.0;
        
     % explicit calculation
-    vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
+%     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
     % implicit calculation
-%     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' + pf_source'));
+    vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
     
     % transpose solution vector
-    vx_new = vx_new_exp;
+    vx_new = vx_new_imp;
     vx_new = vx_new';
     
     % reset CFL condition based on the lowest dt out of the
     % convective/diffusive CFLs
-    if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-        dt = cfl_fact*(dx^2)/(2.0*nu);
-    elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-        dt = cfl_fact*dx/max(abs(vx_new));
-    end
-
-%     will stop running script if either of the CFL conditions is violated
-    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-        fprintf('CFL condition violated, ii=%d\n',ii)
-        return
-    end
+%     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+%         dt = cfl_fact*(dx^2)/(2.0*nu);
+%     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+%         dt = cfl_fact*dx/max(abs(vx_new));
+%     end
+% 
+% %     will stop running script if either of the CFL conditions is violated
+%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+%         fprintf('CFL condition violated, ii=%d\n',ii)
+%         return
+%     end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
@@ -617,7 +632,7 @@ for ii=1:1000
     end
 
     % plot loop; every 1/5 of iterations
-    if ii==count*round(1000/5)
+    if ii==count*round(nmax/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
