@@ -408,7 +408,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:nmax
+for ii=1:1000
       
     % set the vectors with the old value going into the next loop
     n = n_new;
@@ -462,10 +462,10 @@ for ii=1:nmax
         n(1,1) = lnBC_val;
         n(1,end) = rnBC_val;
         % implicit calculation
-        n_new_imp = An_imp\(n' + dt*n_source');
+%         n_new_imp = An_imp\(n' + dt*n_source');
         
         % transpose solution vector
-        n_new = n_new_imp;
+        n_new = n_new_exp;
         n_new = n_new';
         
         % only used for linearly extrapolated boundary conditions
@@ -573,6 +573,8 @@ for ii=1:nmax
     if staggered
         vx_source = source_stag(n,const.e,Te,Ti,m,npts,dx);
         vx_scale = max(abs(-nu*gradient(vx_new(2:npts-2))./vx_source(2:npts-2)));
+        pf_source = pond_source(m,om,const.e,Efield,dx,npts-1);
+        pf_source = [0,pf_source];
     elseif collocated
         vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
     end
@@ -581,29 +583,30 @@ for ii=1:nmax
     % boundary conditions will override the source)
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
+    pf_source(1,end) = 0.0;
        
     % explicit calculation
-    vx_new_exp = Avx_exp*vx' + dt*vx_source';
+    vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
     % implicit calculation
-    vx_new_imp = Avx_imp\(vx' + dt*vx_source');
+%     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' + pf_source'));
     
     % transpose solution vector
-    vx_new = vx_new_imp;
+    vx_new = vx_new_exp;
     vx_new = vx_new';
     
     % reset CFL condition based on the lowest dt out of the
     % convective/diffusive CFLs
-%     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*(dx^2)/(2.0*nu);
-%     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*dx/max(abs(vx_new));
-%     end
+    if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+        dt = cfl_fact*(dx^2)/(2.0*nu);
+    elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+        dt = cfl_fact*dx/max(abs(vx_new));
+    end
 
-    % will stop running script if either of the CFL conditions is violated
-%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-%         fprintf('CFL condition violated, ii=%d\n',ii)
-%         return
-%     end
+%     will stop running script if either of the CFL conditions is violated
+    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+        fprintf('CFL condition violated, ii=%d\n',ii)
+        return
+    end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
@@ -614,7 +617,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if ii==count*round(nmax/5)
+    if ii==count*round(1000/5)
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -652,10 +655,10 @@ for ii=1:nmax
         count = count + 1;
     end
     
-    vx_mat(ii,:) = vx_new;
-    n_mat(ii,:) = n_new;
-    vx_rms(1,ii) = rms(vx_new);
-    n_rms(1,ii) = rms(n_new);
+%     vx_mat(ii,:) = vx_new;
+%     n_mat(ii,:) = n_new;
+%     vx_rms(1,ii) = rms(vx_new);
+%     n_rms(1,ii) = rms(n_new);
     
 end
 
@@ -753,10 +756,10 @@ function [ans] = avg(n,npts)
     ans = (n(2:npts) + n(1:npts-1))/2.0;
 end
 
-% function [ans] = pond_source(m,omega,q,Efield,dx,npts)
-%     pond_const = (1.0/4.0)*((q^2)/(m*omega^2));
-%     ans = (1.0/m)*pond_const*grad(Efield,dx,npts);
-% end
+function [ans] = pond_source(m,omega,q,Efield,dx,npts)
+    pond_const = (1.0/4.0)*((q^2)/(m*omega^2));
+    ans = (1.0/m)*pond_const*grad(Efield,dx,npts);
+end
 
 function [ans] = source_stag(n,q,Te,Ti,m,npts,dx)
     ans = -((Te + Ti)*q./(m*avg(n,npts))).*(grad(n,dx,npts));
