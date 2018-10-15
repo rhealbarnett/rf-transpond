@@ -100,8 +100,8 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 5.0e-8;
-cfl_fact = 0.5;
+tmax = 1.0e-5;
+cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -111,7 +111,7 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-% dt = 2.0*dt;
+dt = 2.0*dt;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
@@ -124,7 +124,7 @@ mult = 1.0/dx;
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 3.0e4;
+Emax = 6.0e4;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
