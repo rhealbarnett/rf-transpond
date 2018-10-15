@@ -26,7 +26,7 @@ nu = 1.0;
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.2;
+xmax = 0.1;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
@@ -93,15 +93,15 @@ end
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
 nA = sparse(npts,npts);
-nI = eye(npts,npts);
+nI = sparse(eye(npts,npts));
 vx_pos = sparse(npts-1,npts-1);
 vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
-vx_I = eye(npts-1,npts-1);
+vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 5.0e-8;
-cfl_fact = 0.99;
+cfl_fact = 0.5;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -129,7 +129,7 @@ freq = 50.0e6;
 om = 2.0*pi*freq;
 
 % Efield = exp(1.0e3*vxax);
-Efield = (Emax/2)*(-cos(cosax)+1.01);
+Efield = (Emax/2)*(cos(cosax)+1.01);
 Efield = [(zeros(1,npts-1-length(cosax))), Efield];
 Efield = Efield./max(Efield);
 Efield = Emax*Efield;
@@ -137,10 +137,10 @@ Efield = Efield.^2;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
-Efield = zeros(1,npts-1);
+% Efield = zeros(1,npts-1);
 
-% pond_const = (1.0/4.0)*((e^2)/(m*om^2));
-pond_source = zeros(npts-1,1);
+pond_const = (1.0/4.0)*((e^2)/(m*om^2));
+% pond_source = zeros(1,npts-1);
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);
