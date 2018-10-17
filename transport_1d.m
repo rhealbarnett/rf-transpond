@@ -123,7 +123,7 @@ if staggered
         ln_bound_val = 'Left (ghost) BC value for density? ';
         lnBC_val = input(ln_bound_val);
         if isempty(lnBC_val)
-            lnBC_val = Nmin;
+            lnBC_val = Nmax;
         end
     end
     
@@ -148,7 +148,7 @@ if staggered
         rn_bound_val = 'Right (ghost) BC value for density? ';
         rnBC_val = input(rn_bound_val);
         if isempty(rnBC_val)
-            rnBC_val = Nmax;
+            rnBC_val = Nmin;
         end
     end
     
@@ -411,6 +411,9 @@ n_rms = zeros(1,nmax);
 for ii=1:nmax
       
     % set the vectors with the old value going into the next loop
+%     if trapz(n)~=trapz(n_new)
+%         ns_mult = trapz(n) - trapz(n_new);
+%     end
     n = n_new;
     vx = vx_new;
     
@@ -431,20 +434,25 @@ for ii=1:nmax
         
         n_source(1,2:npts-1) = n_new(1,2:npts-1).*n_neut(1,2:npts-1)*rate_coeff;
         
-        fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
-        fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
-        ft = fr - fl;
-        source_int = trapz(n_source);
+%         fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
+%         fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
+%         ft = fr - fl;
+%         n_avg = avg(n,npts);
+%         flux = vx_new.*n_avg;
+%         source_int = trapz(n_source);
+%         flux_int = trapz(flux);
+        ns_mult = n_neut(end-1)/n_new(end-1);
+        n_source = n_source*ns_mult;
 
-        if source_int~=ft
-            diff = ft - source_int;
-            bal = diff/(npts-2);
-            source_bal = bal*ones(1,npts-2);
-            n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
-        end
+%         if source_int~=ft
+%             diff = ft - source_int;
+%             bal = diff/(npts-2);
+%             source_bal = bal*ones(1,npts-2);
+%             n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
+%         end
 
         % build full coefficient matrices
-        An_exp = nI + dt*nA;
+%         An_exp = nI + dt*nA;
         An_imp = nI - dt*nA;
         
         % override values in top and bottom rows to reflect neumann
@@ -570,11 +578,11 @@ for ii=1:nmax
     end
     
     % build full coefficient matrices
-    Avx_exp = vx_I + dt*vxA;
+%     Avx_exp = vx_I + dt*vxA;
     Avx_imp = vx_I - dt*vxA;
     % override top and bottom rows to include dirichlet boundary conditions
     % for the momentum equation (explicit and implicit methods)
-    Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+%     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
     Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
     
     % override values in top and bottom rows to reflect neumann
@@ -632,7 +640,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if ii==count*round(nmax/5)
+    if mod(ii,round(nmax/5))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
