@@ -51,7 +51,8 @@ tmin = 0;
 %-- initial density profile
 Nmax = 1.0e18;
 Nmin = 0.5e18;
-n_new = Nmin*(nxax/max(nxax)) + Nmin;
+n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
+n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
 
 %-- initial velocity
 vx_new = (cs)*(vxax/max(vxax));
@@ -62,12 +63,13 @@ vx_new = (cs)*(vxax/max(vxax));
 fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
 fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
 ft = fr - fl;
+flux = vx_new.*n_avg;
 
 %-- density source
 rate_coeff = 10^-14;
 decay_index = round(npts/4);
 cosax = linspace(pi,2*pi,decay_index);
-neut_max = 1.0e18;
+neut_max = 0.5e18;
 neut_min = 1.0e14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
@@ -82,12 +84,16 @@ end
 
 source_int = trapz(n_source);
 
-if source_int~=ft
-    diff = ft - source_int;
-    bal = diff/(npts-2);
-    source_bal = bal*ones(1,npts-2);
-    n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
-end
+% flux_int = trapz(flux);
+ns_mult = n_neut(end-1)/n_new(end-1);
+n_source = n_source*ns_mult;
+
+% if source_int~=ft
+%     diff = ft - source_int;
+%     bal = diff/(npts-2);
+%     source_bal = bal*ones(1,npts-2);
+%     n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
+% end
     
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -129,15 +135,16 @@ freq = 50.0e6;
 om = 2.0*pi*freq;
 
 % Efield = exp(1.0e3*vxax);
-Efield = (Emax/2)*(cos(cosax)+1.01);
-Efield = [(zeros(1,npts-1-length(cosax))), Efield];
+% Efield = (Emax/2)*(cos(cosax)+1.01);
+% Efield = [(zeros(1,npts-1-length(cosax))), Efield];
+Efield = exp(100*vxax);
 Efield = Efield./max(Efield);
 Efield = Emax*Efield;
 Efield = Efield.^2;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
-% Efield = zeros(1,npts-1);
+Efield = zeros(1,npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 % pond_source = zeros(1,npts-1);
