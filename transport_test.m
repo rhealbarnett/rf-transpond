@@ -51,7 +51,7 @@ tmin = 0;
 %-- initial density profile
 Nmax = 1.0e18;
 Nmin = 0.5e18;
-n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
+n_new = Nmin*((nxax)/max(nxax)) + Nmin;
 n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
 
 %-- initial velocity
@@ -85,15 +85,15 @@ end
 source_int = trapz(n_source);
 
 % flux_int = trapz(flux);
-ns_mult = n_neut(end-1)/n_new(end-1);
-n_source = n_source*ns_mult;
+% ns_mult = n_neut(end-1)/n_new(end-1);
+% n_source = n_source*ns_mult;
 
-% if source_int~=ft
-%     diff = ft - source_int;
-%     bal = diff/(npts-2);
-%     source_bal = bal*ones(1,npts-2);
-%     n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
-% end
+if source_int~=ft
+    diff = ft - source_int;
+    bal = diff/(npts-2);
+    source_bal = bal*ones(1,npts-2);
+    n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
+end
     
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -107,7 +107,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 1.0e-5;
-cfl_fact = 0.99;
+cfl_fact = 0.5;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
