@@ -123,7 +123,7 @@ if staggered
         ln_bound_val = 'Left (ghost) BC value for density? ';
         lnBC_val = input(ln_bound_val);
         if isempty(lnBC_val)
-            lnBC_val = Nmax;
+            lnBC_val = Nmin;
         end
     end
     
@@ -148,7 +148,7 @@ if staggered
         rn_bound_val = 'Right (ghost) BC value for density? ';
         rnBC_val = input(rn_bound_val);
         if isempty(rnBC_val)
-            rnBC_val = Nmin;
+            rnBC_val = Nmax;
         end
     end
     
@@ -408,7 +408,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:nmax
+for ii=1:10200
       
     % set the vectors with the old value going into the next loop
 %     if trapz(n)~=trapz(n_new)
@@ -434,22 +434,22 @@ for ii=1:nmax
         
         n_source(1,2:npts-1) = n_new(1,2:npts-1).*n_neut(1,2:npts-1)*rate_coeff;
         
-%         fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
-%         fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
-%         ft = fr - fl;
+        fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
+        fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
+        ft = fr - fl;
 %         n_avg = avg(n,npts);
 %         flux = vx_new.*n_avg;
 %         source_int = trapz(n_source);
 %         flux_int = trapz(flux);
-        ns_mult = n_neut(end-1)/n_new(end-1);
-        n_source = n_source*ns_mult;
+%         ns_mult = n_neut(end-1)/n_new(end-1);
+%         n_source = n_source*ns_mult;
 
-%         if source_int~=ft
-%             diff = ft - source_int;
-%             bal = diff/(npts-2);
-%             source_bal = bal*ones(1,npts-2);
-%             n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
-%         end
+        if source_int~=ft
+            diff = ft - source_int;
+            bal = diff/(npts-2);
+            source_bal = bal*ones(1,npts-2);
+            n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
+        end
 
         % build full coefficient matrices
 %         An_exp = nI + dt*nA;
@@ -640,7 +640,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,round(nmax/5))==0
+    if mod(ii,300)==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -675,11 +675,10 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
+        vx_mat(count,:) = vx_new;
+        n_mat(count,:) = n_new;
         count = count + 1;
     end
-    
-    vx_mat(ii,:) = vx_new;
-    n_mat(ii,:) = n_new;
 %     vx_rms(1,ii) = rms(vx_new);
 %     n_rms(1,ii) = rms(n_new);
     
@@ -732,6 +731,8 @@ hold off
 
 %%
 
+tax = linspace(0,10200*dt,34);
+
 % % for ii=1:nmax
 % for jj=1:npts
 %     pressure(:,jj) = (Te + Ti)*n_mat(:,jj)*e;
@@ -741,20 +742,20 @@ hold off
 %     pressure_mat(:,jj) = pressure_av(:,jj) + (1/2)*0.5*(n_mat(:,jj+1)+n_mat(:,jj))*m.*(vx_mat(:,jj).^2);
 % end
 % % end
-% 
-% figure(7)
-% levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
-% contourf(vxax,tax,vx_mat/cs,levels,'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
-% 
-% figure(8)
-% % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-% levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
-% contourf(nxax(2:npts-1),tax,n_mat(:,2:npts-1),levels,'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
-% 
+
+figure(7)
+levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
+contourf(vxax,tax,vx_mat(1:34,1:npts-1)/cs,levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
+
+figure(8)
+% levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
+levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
+contourf(nxax(2:npts-1),tax,n_mat(1:34,2:npts-1),levels,'LineColor','none')
+xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+colorbar
+
 % figure(10)
 % % levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
 % levels = linspace(min(pressure_mat(:)),max(pressure_mat(:)),25);
