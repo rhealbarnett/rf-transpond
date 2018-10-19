@@ -678,8 +678,8 @@ for ii=1:nmax
         count = count + 1;
     end
     
-%     vx_mat(ii,:) = vx_new;
-%     n_mat(ii,:) = n_new;
+    vx_mat(ii,:) = vx_new;
+    n_mat(ii,:) = n_new;
 %     vx_rms(1,ii) = rms(vx_new);
 %     n_rms(1,ii) = rms(n_new);
     
