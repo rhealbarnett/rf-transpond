@@ -402,13 +402,13 @@ hold on
 % START TIME STEPPING
 %--------------------------------------------------------------------------------------------------------------%
 
-count = 1;
+count = 2;
 timerVal = tic;
 
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:10200
+for ii=1:nmax
       
     % set the vectors with the old value going into the next loop
 %     if trapz(n)~=trapz(n_new)
@@ -640,7 +640,7 @@ for ii=1:10200
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,300)==0
+    if mod(ii,100)==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -683,6 +683,9 @@ for ii=1:10200
 %     n_rms(1,ii) = rms(n_new);
     
 end
+
+vx_mat(count,:) = vx_new;
+n_mat(count,:) = n_new;
 
 fprintf('***--------------------***\n')
 fprintf('ii=%d, count=%d\n', [ii count])
@@ -731,7 +734,7 @@ hold off
 
 %%
 
-tax = linspace(0,10200*dt,34);
+tax = linspace(0,nmax*dt,34);
 
 % % for ii=1:nmax
 % for jj=1:npts
