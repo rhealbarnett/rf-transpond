@@ -26,7 +26,7 @@ nu = 1.0;
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.1;
+xmax = 0.2;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
@@ -106,7 +106,7 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-5;
+tmax = 3.0e-7;
 cfl_fact = 0.5;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
@@ -117,7 +117,7 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-dt = 2.0*dt;
+% dt = 2.0*dt;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
@@ -130,7 +130,7 @@ mult = 1.0/dx;
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 6.0e4;
+Emax = 3.0e4;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
@@ -152,5 +152,9 @@ pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);
 pressure_mat = sparse(nmax,npts-2);
+
+vx_mat(1,:) = vx_new;
+n_mat(1,:) = n_new;
+
 
 
