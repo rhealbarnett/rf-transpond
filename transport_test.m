@@ -144,7 +144,7 @@ Efield = Efield.^2;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
-Efield = zeros(1,npts-1);
+% Efield = zeros(1,npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 % pond_source = zeros(1,npts-1);
