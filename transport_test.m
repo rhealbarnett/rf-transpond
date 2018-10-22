@@ -26,7 +26,7 @@ nu = 1.0;
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.2;
+xmax = 0.1;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
@@ -51,7 +51,7 @@ tmin = 0;
 %-- initial density profile
 Nmax = 1.0e18;
 Nmin = 0.5e18;
-n_new = Nmin*((nxax)/max(nxax)) + Nmin;
+n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
 n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
 
 %-- initial velocity
@@ -84,16 +84,16 @@ end
 
 source_int = trapz(n_source);
 
-% flux_int = trapz(flux);
-% ns_mult = n_neut(end-1)/n_new(end-1);
-% n_source = n_source*ns_mult;
+flux_int = trapz(flux);
+ns_mult = n_neut(end-1)/n_new(end-1);
+n_source = n_source*ns_mult*15;
 
-if source_int~=ft
-    diff = ft - source_int;
-    bal = diff/(npts-2);
-    source_bal = bal*ones(1,npts-2);
-    n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
-end
+% if source_int~=ft
+%     diff = ft - source_int;
+%     bal = diff/(npts-2);
+%     source_bal = bal*ones(1,npts-2);
+%     n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
+% end
     
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -106,8 +106,8 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 3.0e-7;
-cfl_fact = 0.5;
+tmax = 1.0e-4;
+cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);
@@ -117,10 +117,13 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-% dt = 2.0*dt;
+dt = 2.0*dt;
+% nmax = 20400;   
 nmax = round(tmax/dt);
+% tmax = nmax*dt;
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
+tol = 1.0e-2;
 
 %%
 
@@ -130,7 +133,7 @@ mult = 1.0/dx;
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 3.0e4;
+Emax = 6.0e4;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
@@ -144,7 +147,7 @@ Efield = Efield.^2;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
-% Efield = zeros(1,npts-1);
+Efield = zeros(1,npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 % pond_source = zeros(1,npts-1);
