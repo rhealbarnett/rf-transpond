@@ -83,7 +83,7 @@ if staggered
     ln_bound_type = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
     leftGhost = input(ln_bound_type, 's');
     if isempty(leftGhost)
-        leftGhost = 'dirichlet';
+        leftGhost = 'linear extrap';
     end
     
     if strcmp('periodic',leftGhost)
@@ -92,7 +92,7 @@ if staggered
         rn_bound_type = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
         rightGhost = input(rn_bound_type, 's');
         if isempty(rightGhost)
-            rightGhost = 'dirichlet';
+            rightGhost = 'linear extrap';
         end
     end
     
@@ -123,7 +123,7 @@ if staggered
         ln_bound_val = 'Left (ghost) BC value for density? ';
         lnBC_val = input(ln_bound_val);
         if isempty(lnBC_val)
-            lnBC_val = Nmin;
+            lnBC_val = lGhost;
         end
     end
     
@@ -148,7 +148,7 @@ if staggered
         rn_bound_val = 'Right (ghost) BC value for density? ';
         rnBC_val = input(rn_bound_val);
         if isempty(rnBC_val)
-            rnBC_val = Nmax;
+            rnBC_val = rGhost;
         end
     end
     
@@ -416,6 +416,10 @@ for ii=1:nmax
 %     end
     n = n_new;
     vx = vx_new;
+    rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+        nxax(npts),'linear','extrap');   
+    lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+        nxax(1),'linear','extrap');
     
     if staggered
         
@@ -434,22 +438,22 @@ for ii=1:nmax
         
         n_source(1,2:npts-1) = n_new(1,2:npts-1).*n_neut(1,2:npts-1)*rate_coeff;
         
-        fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
-        fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
-        ft = fr - fl;
+%         fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
+%         fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
+%         ft = fr - fl;
 %         n_avg = avg(n,npts);
 %         flux = vx_new.*n_avg;
 %         source_int = trapz(n_source);
 %         flux_int = trapz(flux);
-%         ns_mult = n_neut(end-1)/n_new(end-1);
-%         n_source = n_source*ns_mult;
+        ns_mult = n_neut(end-1)/n_new(end-1);
+        n_source = n_source*ns_mult*15;
 
-        if source_int~=ft
-            diff = ft - source_int;
-            bal = diff/(npts-2);
-            source_bal = bal*ones(1,npts-2);
-            n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
-        end
+%         if source_int~=ft
+%             diff = ft - source_int;
+%             bal = diff/(npts-2);
+%             source_bal = bal*ones(1,npts-2);
+%             n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
+%         end
 
         % build full coefficient matrices
 %         An_exp = nI + dt*nA;
@@ -469,8 +473,8 @@ for ii=1:nmax
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
-        n(1,1) = lnBC_val;
-        n(1,end) = rnBC_val;
+        n(1,1) = lGhost;
+        n(1,end) = rGhost;
         % implicit calculation
         n_new_imp = An_imp\(n' + dt*n_source');
         
@@ -479,16 +483,16 @@ for ii=1:nmax
         n_new = n_new';
         
         % only used for linearly extrapolated boundary conditions
-        if strcmp('linear extrap',leftGhost)
-            lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
-            nxax(1),'linear','extrap');
-            n_new(1,1) = lGhost;
-        end
-        if strcmp('linear extrap',rightGhost)
-            rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
-            nxax(npts),'linear','extrap');
-            n_new(1,end) = rGhost;
-        end
+%         if strcmp('linear extrap',leftGhost)
+%             lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+%             nxax(1),'linear','extrap');
+%             n_new(1,1) = lGhost;
+%         end
+%         if strcmp('linear extrap',rightGhost)
+%             rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+%             nxax(npts),'linear','extrap');
+%             n_new(1,end) = rGhost;
+%         end
         
 
 %--------------------------------------------------------------------------------------------------------------%
@@ -640,7 +644,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,100)==0
+    if mod(ii,int64(nmax/10))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -678,6 +682,13 @@ for ii=1:nmax
         vx_mat(count,:) = vx_new;
         n_mat(count,:) = n_new;
         count = count + 1;
+    end
+    
+    if rms(n_new - n)<=tol
+        fprintf('tolerance reached, ii=%d\n',ii)
+        break
+    else
+        continue
     end
 %     vx_rms(1,ii) = rms(vx_new);
 %     n_rms(1,ii) = rms(n_new);
@@ -734,7 +745,7 @@ hold off
 
 %%
 
-tax = linspace(0,nmax*dt,34);
+tax = linspace(0,nmax*dt,35);
 
 % % for ii=1:nmax
 % for jj=1:npts
@@ -746,18 +757,19 @@ tax = linspace(0,nmax*dt,34);
 % end
 % % end
 
-figure(7)
-levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
-contourf(vxax,tax,vx_mat(1:34,1:npts-1)/cs,levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
-
-figure(8)
-% levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
-contourf(nxax(2:npts-1),tax,n_mat(1:34,2:npts-1),levels,'LineColor','none')
-xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-colorbar
+% figure(7)
+% levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
+% contourf(vxax,tax,vx_mat(1:35,1:npts-1)/cs,levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
+% 
+% figure(8)
+% % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
+% levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
+% set(gca,'colorscale','log')
+% contourf(nxax(2:npts-1),tax,n_mat(1:35,2:npts-1),levels,'LineColor','none')
+% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
+% colorbar
 
 % figure(10)
 % % levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
