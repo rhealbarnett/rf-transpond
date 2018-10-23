@@ -48,16 +48,21 @@ tmin = 0;
 % Initialise coefficient matrices                                         %
 %-------------------------------------------------------------------------%
 
+plot_num = 10;
+equib = load('equib.mat');
+
 %-- initial density profile
-Nmax = 1.0e18;
-Nmin = 0.5e18;
-n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
-n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
+% Nmax = 1.0e18;
+% Nmin = 0.5e18;
+% n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
+% n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
+n_new = equib.n(plot_num+2,:);
 
 %-- initial velocity
-vx_new = (cs)*(vxax/max(vxax));
+% vx_new = (cs)*(vxax/max(vxax));
 % vx_new = zeros(1,npts-1);
 % vx_new(1,end) = cs;
+vx_new = equib.vx(plot_num+2,:);
 
 %-- flux at boundaries
 fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
@@ -120,6 +125,7 @@ end
 dt = 2.0*dt;
 % nmax = 20400;   
 nmax = round(tmax/dt);
+plot_freq = int64(nmax/plot_num);
 % tmax = nmax*dt;
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
@@ -133,7 +139,7 @@ tol = 1.0e-2;
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 6.0e4;
+Emax = 3.0e4;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
@@ -147,7 +153,7 @@ Efield = Efield.^2;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
-Efield = zeros(1,npts-1);
+% Efield = zeros(1,npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 % pond_source = zeros(1,npts-1);
