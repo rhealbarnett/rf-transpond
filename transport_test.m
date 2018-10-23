@@ -106,7 +106,7 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-4;
+tmax = 4.0e-5;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
