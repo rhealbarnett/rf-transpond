@@ -745,7 +745,7 @@ hold off
 
 %%
 
-tax = linspace(0,nmax*dt,35);
+tax = linspace(0,nmax*dt,plot_num+1);
 
 % % for ii=1:nmax
 % for jj=1:npts
@@ -758,16 +758,16 @@ tax = linspace(0,nmax*dt,35);
 % % end
 
 % figure(7)
-% levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),25);
-% contourf(vxax,tax,vx_mat(1:35,1:npts-1)/cs,levels,'LineColor','none')
+% levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),100);
+% contourf(vxax,tax,vx_mat(1:plot_num+1,1:npts-1)/cs,levels,'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar
 % 
 % figure(8)
 % % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-% levels = linspace(min(n_mat(:)),max(n_mat(:)),25);
+% levels = linspace(min(n_mat(:)),max(n_mat(:)),100);
 % set(gca,'colorscale','log')
-% contourf(nxax(2:npts-1),tax,n_mat(1:35,2:npts-1),levels,'LineColor','none')
+% contourf(nxax(2:npts-1),tax,n_mat(1:plot_num+1,2:npts-1),levels,'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar
 
