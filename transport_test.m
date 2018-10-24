@@ -55,14 +55,16 @@ equib = load('equib.mat');
 % Nmax = 1.0e18;
 % Nmin = 0.5e18;
 % n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
-% n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
 n_new = equib.n(plot_num+2,:);
+n_new = full(n_new);
+n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
 
 %-- initial velocity
 % vx_new = (cs)*(vxax/max(vxax));
 % vx_new = zeros(1,npts-1);
 % vx_new(1,end) = cs;
 vx_new = equib.vx(plot_num+2,:);
+vx_new = full(vx_new);
 
 %-- flux at boundaries
 fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
@@ -111,7 +113,7 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 4.0e-5;
+tmax = 1.0e-6;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
@@ -139,7 +141,7 @@ tol = 1.0e-2;
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 3.0e4;
+Emax = 3.0e5;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
