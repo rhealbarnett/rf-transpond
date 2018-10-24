@@ -410,10 +410,13 @@ n_rms = zeros(1,nmax);
 
 for ii=1:nmax
       
-    % set the vectors with the old value going into the next loop
-%     if trapz(n)~=trapz(n_new)
-%         ns_mult = trapz(n) - trapz(n_new);
-%     end
+    if trapz(n)~=trapz(n_new)
+        ns_mult = (trapz(n) - trapz(n_new));
+    else
+        ns_mult = 1.0;
+    end
+    
+%     set the vectors with the old value going into the next loop
     n = n_new;
     vx = vx_new;
     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -445,8 +448,12 @@ for ii=1:nmax
 %         flux = vx_new.*n_avg;
 %         source_int = trapz(n_source);
 %         flux_int = trapz(flux);
-        ns_mult = n_neut(end-1)/n_new(end-1);
-        n_source = n_source*ns_mult*15;
+%         ns_mult = n_neut(end-1)/n_new(end-1);
+%         n_source = n_source*ns_mult*15;
+
+        source_int = trapz(n_source);
+        source_norm = n_source/source_int;
+        n_source = (ns_mult/dt)*source_norm;
 
 %         if source_int~=ft
 %             diff = ft - source_int;
@@ -650,6 +657,7 @@ for ii=1:nmax
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
+        fprintf('number of particles %d\n', trapz(n_new))
 %         if dt == cfl_fact*(dx^2)/(2.0*nu)
 %             fprintf('Diffusive CFL condition\n')
 %         elseif dt == cfl_fact*dx/max(abs(vx_new))
@@ -758,16 +766,22 @@ tax = linspace(0,nmax*dt,plot_num+1);
 % % end
 
 % figure(7)
-% levels = linspace((min(vx_mat(:)/cs)),(max(vx_mat(:)/cs)),100);
-% contourf(vxax,tax,vx_mat(1:plot_num+1,1:npts-1)/cs,levels,'LineColor','none')
+% % levels = linspace((min(vx_mat(:))/(vx_init(2))),(max(vx_mat(:))/max(vx_init)),100);
+% % levels = levels/cs;
+% levels = linspace(-1.2e-2,0,100);
+% % set(gca,'colorscale','log')
+% contourf(vxax(2:npts-1),tax,(vx_mat(1:plot_num+1,2:npts-1) - vx_init(2:npts-1))/cs,...
+%     levels,'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar
 % 
 % figure(8)
 % % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-% levels = linspace(min(n_mat(:)),max(n_mat(:)),100);
-% set(gca,'colorscale','log')
-% contourf(nxax(2:npts-1),tax,n_mat(1:plot_num+1,2:npts-1),levels,'LineColor','none')
+% % levels = linspace(min(n_mat(:)),max(n_mat(:)),100);
+% levels = linspace(-1.5e14,2.5e14,100);
+% % set(gca,'colorscale','log')
+% contourf(nxax(2:npts-1),tax,n_mat(1:plot_num+1,2:npts-1) - n_init(2:npts-1),...
+%     levels,'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar
 

@@ -52,25 +52,21 @@ plot_num = 10;
 equib = load('equib.mat');
 
 %-- initial density profile
-% Nmax = 1.0e18;
-% Nmin = 0.5e18;
-% n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
-n_new = equib.n(plot_num+2,:);
-n_new = full(n_new);
+Nmax = 1.0e18;
+Nmin = 0.5e18;
+n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
+% n_new = equib.n(plot_num+2,:);
+% n_new = full(n_new);
 n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
+n_init = n_new;
 
 %-- initial velocity
-% vx_new = (cs)*(vxax/max(vxax));
+vx_new = (cs)*(vxax/max(vxax));
 % vx_new = zeros(1,npts-1);
 % vx_new(1,end) = cs;
-vx_new = equib.vx(plot_num+2,:);
-vx_new = full(vx_new);
-
-%-- flux at boundaries
-fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
-fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
-ft = fr - fl;
-flux = vx_new.*n_avg;
+% vx_new = equib.vx(plot_num+2,:);
+% vx_new = full(vx_new);
+vx_init = vx_new;
 
 %-- density source
 rate_coeff = 10^-14;
@@ -90,10 +86,8 @@ for jj=2:npts-1
 end
 
 source_int = trapz(n_source);
-
-flux_int = trapz(flux);
-ns_mult = n_neut(end-1)/n_new(end-1);
-n_source = n_source*ns_mult*15;
+source_norm = n_source/source_int;
+n_int = trapz(n_new)
 
 % if source_int~=ft
 %     diff = ft - source_int;
@@ -113,7 +107,7 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-6;
+tmax = 4.0e-6;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
@@ -124,7 +118,8 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-dt = 2.0*dt;
+% dt = cfl_fact*dx/max(abs(vx_new));
+% dt = 2.0*dt;
 % nmax = 20400;   
 nmax = round(tmax/dt);
 plot_freq = int64(nmax/plot_num);
@@ -141,7 +136,7 @@ tol = 1.0e-2;
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 3.0e5;
+Emax = 3.0e4;
 freq = 50.0e6;
 om = 2.0*pi*freq;
 
@@ -155,7 +150,7 @@ Efield = Efield.^2;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
-% Efield = zeros(1,npts-1);
+Efield = zeros(1,npts-1);
 
 pond_const = (1.0/4.0)*((e^2)/(m*om^2));
 % pond_source = zeros(1,npts-1);
