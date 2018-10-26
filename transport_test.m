@@ -87,7 +87,7 @@ end
 
 source_int = trapz(n_source);
 source_norm = n_source/source_int;
-n_int = trapz(n_new)
+n_int = trapz(n_new);
 
 % if source_int~=ft
 %     diff = ft - source_int;
