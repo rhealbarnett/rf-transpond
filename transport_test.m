@@ -48,14 +48,14 @@ tmin = 0;
 % Initialise coefficient matrices                                         %
 %-------------------------------------------------------------------------%
 
-plot_num = 10;
+plot_num = 5;
 equib = load('equib.mat');
 
 %-- initial density profile
 Nmax = 1.0e18;
 Nmin = 0.5e18;
 n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
-% n_new = equib.n(plot_num+2,:);
+% n_new = equib.n(plot_num+2+5,:);
 % n_new = full(n_new);
 n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
 n_init = n_new;
@@ -64,7 +64,7 @@ n_init = n_new;
 vx_new = (cs)*(vxax/max(vxax));
 % vx_new = zeros(1,npts-1);
 % vx_new(1,end) = cs;
-% vx_new = equib.vx(plot_num+2,:);
+% vx_new = equib.vx(plot_num+2+5,:);
 % vx_new = full(vx_new);
 vx_init = vx_new;
 
@@ -86,8 +86,10 @@ for jj=2:npts-1
 end
 
 source_int = trapz(n_source);
-source_norm = n_source/source_int;
-n_int = trapz(n_new);
+% source_norm = n_source/source_int;
+% n_int = trapz(n_new);
+ns_mult = n_neut(end-1)/n_new(end-1);
+n_source = n_source*ns_mult*30;
 
 % if source_int~=ft
 %     diff = ft - source_int;
@@ -107,8 +109,8 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 4.0e-6;
-cfl_fact = 0.99;
+tmax = 4.0e-5;
+cfl_fact = 0.5;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
     dt = cfl_fact*(dx^2)/(2.0*nu);

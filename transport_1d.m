@@ -383,7 +383,7 @@ hold on
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-semilogy(vxax(2:npts-2),abs(vx_source(2:npts-2)*dt),'DisplayName',['time = 0s'])
+plot(vxax(2:npts-2),(vx_source(2:npts-2)*dt),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
@@ -410,11 +410,11 @@ n_rms = zeros(1,nmax);
 
 for ii=1:nmax
       
-    if trapz(n)~=trapz(n_new)
-        ns_mult = (trapz(n) - trapz(n_new));
-    else
-        ns_mult = 1.0;
-    end
+%     if trapz(n)~=trapz(n_new)
+%         ns_mult = (trapz(n) - trapz(n_new));
+%     else
+%         ns_mult = 0.0;
+%     end
     
 %     set the vectors with the old value going into the next loop
     n = n_new;
@@ -448,12 +448,12 @@ for ii=1:nmax
 %         flux = vx_new.*n_avg;
 %         source_int = trapz(n_source);
 %         flux_int = trapz(flux);
-%         ns_mult = n_neut(end-1)/n_new(end-1);
-%         n_source = n_source*ns_mult*15;
+        ns_mult = n_neut(end-1)/n_new(end-1);
+        n_source = n_source*ns_mult*30;
 
         source_int = trapz(n_source);
-        source_norm = n_source/source_int;
-        n_source = (ns_mult/dt)*source_norm;
+%         source_norm = n_source/source_int;
+%         n_source = (ns_mult/dt)*source_norm;
 
 %         if source_int~=ft
 %             diff = ft - source_int;
@@ -677,7 +677,7 @@ for ii=1:nmax
 %         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
         set(gcf,'Position',[3 476 560 420])
-        semilogy(vxax(2:npts-2),abs(vx_source(2:npts-2)*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax(2:npts-2),(vx_source(2:npts-2)*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
