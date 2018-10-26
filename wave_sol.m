@@ -15,8 +15,6 @@ A = zeros(3*npts, 3*npts);
 ii = 4;
 kk = 1;
 
-ex_sol = 
-
 for eq1=4:3:3*(npts-1)
     
     eq2 = eq1+1;
