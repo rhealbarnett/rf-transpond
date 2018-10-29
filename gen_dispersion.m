@@ -12,6 +12,9 @@ syms kx
 kx_arr = zeros(npts, 4);
 kx_arr = complex(kx_arr);
 
+kz = k_para;
+ky = 0.0;
+
 %-- 
 % k matrix
 a11 = ky^2 + kz^2;
@@ -82,7 +85,7 @@ k4 = kx_arr(:,4);
 %--
 % plot kx's
 
-imme = find(imag(me)==0);
+imme = find(imag(m)==0);
 imme = imme(end)+1;
 
 
@@ -97,34 +100,34 @@ y4 = sign(k4).*log10(abs(k4));
 
 %%
 figure(7)
-plot(log10(N0),real(y1),'.k')
+plot(log10(n_new),real(y1),'.k')
 
 hold on
 
-plot(log10(N0),imag(y1),'.r')
-plot(log10(N0),real(y3),'dk','MarkerSize',3)
-plot(log10(N0),imag(y3),'dr','MarkerSize',3)
+plot(log10(n_new),imag(y1),'.r')
+plot(log10(n_new),real(y3),'dk','MarkerSize',3)
+plot(log10(n_new),imag(y3),'dr','MarkerSize',3)
 legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
-xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-vline(log10(N0(imme)),'--k')
+xlabel('log_{10}|n |','Fontsize',16)
+% vline(log10(n_new(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log$_{10}|$k$_x|$','Fontsize',16)
+ylabel('log_{10}|k_x|','Fontsize',16)
 
 hold off
 
 figure(8)
-plot(log10(N0),real(y2),'.k')
+plot(log10(n_new),real(y2),'.k')
 
 hold on
 
-plot(log10(N0),imag(y2),'.r')
-plot(log10(N0),real(y4),'dk','MarkerSize',3)
-plot(log10(N0),imag(y4),'dr','MarkerSize',3)
+plot(log10(n_new),imag(y2),'.r')
+plot(log10(n_new),real(y4),'dk','MarkerSize',3)
+plot(log10(n_new),imag(y4),'dr','MarkerSize',3)
 legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
-xlabel('log$_{10}|$N$_0|$','Fontsize',16)
-vline(log10(N0(imme)),'--k')
+xlabel('log_{10}|n |','Fontsize',16)
+% vline(log10(n_new(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log$_{10}|$k$_x|$','Fontsize',16)
+ylabel('log_{10}|k_x|','Fontsize',16)
 
 hold off
 
@@ -142,7 +145,7 @@ legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
 xlabel('Position','Fontsize',16)
 % vline(log10(N0(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log$_{10}|$k$_x|$','Fontsize',16)
+ylabel('log_{10}|k_x|','Fontsize',16)
 
 hold off
 
@@ -158,6 +161,6 @@ legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
 xlabel('Position','Fontsize',16)
 % vline(log10(N0(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log$_{10}|$k$_x|$','Fontsize',16)
+ylabel('log_{10}|k_x|','Fontsize',16)
 
 hold off
