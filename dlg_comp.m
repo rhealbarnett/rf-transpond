@@ -6,16 +6,19 @@
 
 %--
 % driver terms
-freq = 42.0e6;
+% freq = 42.0e6;
+freq = 5.9973e+09;
+om = 2*pi*freq;
 source_width = 0.01;
-source_loc = 1.5;
+source_loc = 1.45;
 dampFac = 10.0;
 
 %--
 % define wavenumbers ky and kz (/m); use values given in van eester section IV?? No
 % others mentioned
-ky = 10.0;
+ky = 10.0 + 10.0i;
 kz = 0.0;
+k0 = om/const.c0;
 
 %--
 % "common local derivatives for N0, v||^2, static potential and
@@ -26,7 +29,7 @@ lambz = 0.0;
 %--
 % spatial domain
 npts = 256;
-xmin = 1.15;
+xmin = 1.2;
 xmax = 1.7;
 dx = (xmax - xmin)/(npts - 1);
 % npts = ((xmax - xmin)/dx);
@@ -37,7 +40,8 @@ xax = linspace(xmin, xmax, npts);
 %--
 % magnetic field (tesla)
 R0 = 1.32;
-B0 = 2.6*R0./xax;
+% B0 = 2.6*R0./xax;
+B0 = 0.0;
 
 %--
 % temperature
@@ -47,7 +51,8 @@ T_ev = 15.0;
 % background density -- set to zero for vacuum case
 Nmax = 50.0e19;
 % Nmin = 50.0e16;
-N0 = Nmax*ones(1,npts);
+% N0 = Nmax*ones(1,npts);
+N0 = 0.0;
 % m = (Nmax - Nmin) ./ (xmax - xmin);
 % N0 = 10.^(m*xax + Nmin);
 
