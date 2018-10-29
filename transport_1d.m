@@ -409,13 +409,9 @@ vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
 for ii=1:nmax
-      
-%     if trapz(n)~=trapz(n_new)
-%         ns_mult = (trapz(n) - trapz(n_new));
-%     else
-%         ns_mult = 0.0;
-%     end
-    
+
+%     ns_mult = (trapz(n) - trapz(n_new));
+
 %     set the vectors with the old value going into the next loop
     n = n_new;
     vx = vx_new;
@@ -449,11 +445,12 @@ for ii=1:nmax
 %         source_int = trapz(n_source);
 %         flux_int = trapz(flux);
         ns_mult = n_neut(end-1)/n_new(end-1);
-        n_source = n_source*ns_mult*30;
+        n_source = (n_source*ns_mult*150);
+%         n_source = reshape(n_source,1,npts);
 
-        source_int = trapz(n_source);
+%         source_int = trapz(n_source);
 %         source_norm = n_source/source_int;
-%         n_source = (ns_mult/dt)*source_norm;
+%         n_source = (ns_mult)*source_norm;
 
 %         if source_int~=ft
 %             diff = ft - source_int;
