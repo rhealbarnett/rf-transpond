@@ -20,7 +20,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q,B0,n,m,om,eps0,npts)
         om_c(ii,:) = cyclo_freq(q,B0,m(ii));
     end
 
-    s = 1.0 - sum((om_p(:).^2)./(om^2 - om_c.^2),1);
+    s = 1.0 - sum((om_p.^2)./(om^2 - om_c.^2),1);
     d = sum(om_c.*om_p.^2./(om*(om^2 - om_c.^2)),1);
     p  = 1.0 - sum((om_p.^2/om^2),1);
 
@@ -37,8 +37,5 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q,B0,n,m,om,eps0,npts)
     cpdt(3,3,:) = p;
 
 %     cpdt_arr(:,:,nn) = rot'*cpdt_arr(:,:,nn)*rot;
-
-    r_arr = s_arr + d_arr;
-    l_arr = s_arr - d_arr;
 
 end
