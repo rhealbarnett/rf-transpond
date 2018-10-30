@@ -17,6 +17,9 @@ kp2_arr = zeros(npts, 1);
 % kpara = kz;
 npara = c0*k_para/om;
 
+r_arr = s_arr + d_arr;
+l_arr = s_arr - d_arr;
+
 a1 = s_arr;
 b1 = r_arr.*l_arr + p_arr.*s_arr - npara^2*(p_arr + s_arr);
 c1 = p_arr.*((npara^2 - r_arr).*(npara^2 - l_arr));
@@ -38,6 +41,15 @@ kperp_arr(:,1) = kp11;
 kperp_arr(:,2) = kp12;
 kperp_arr(:,3) = kp21;
 kperp_arr(:,4) = kp22;
+
+ns_s = -(npara.^2 - s_arr).*(p_arr./s_arr);
+ns_f = -((npara.^2 - r_arr).*(npara.^2 - l_arr))./(npara.^2 - s_arr);
+n_s1 = sqrt(ns_s); n_s2 = -sqrt(ns_s); 
+n_f1 = sqrt(ns_f); n_f2 = -sqrt(ns_f);
+
+k_s1 = n_s1*om/c0; k_s2 = n_s2*om/c0; 
+k_f1 = n_f1*om/c0; k_f2 = n_f2*om/c0;
+
 %%
 %--
 % plot kperps's
@@ -50,6 +62,11 @@ yp11 = sign(kp11).*log10(abs(kp11));
 yp12 = sign(kp12).*log10(abs(kp12));
 yp21 = sign(kp21).*log10(abs(kp21));
 yp22 = sign(kp22).*log10(abs(kp22));
+
+ks1 = sign(k_s1).*log10(abs(k_s1));
+ks2 = sign(k_s2).*log10(abs(k_s2));
+kf1 = sign(k_f1).*log10(abs(k_f1));
+kf2 = sign(k_f2).*log10(abs(k_f2));
 
 %%
 
@@ -65,6 +82,7 @@ legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
 xlabel('log_{10}|n|','Fontsize',16)
 % vline(log10(N0(imme)),'--k')
 ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
+xlim([log10(min(n_new)),log10(max(n_new))]);
 
 hold off
 
@@ -80,6 +98,41 @@ legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
 xlabel('log_{10}|n|','Fontsize',16)
 % vline(log10(N0(imme)),'--k') 
 ylabel('log_{10}|k_{\perp2}|','Fontsize',16)
+xlim([log10(min(n_new)),log10(max(n_new))]);
+
+hold off
+
+%%
+
+figure(11)
+plot(log10(n_new),real(ks1),'.k')
+
+hold on
+
+plot(log10(n_new),imag(ks1),'.r')
+plot(log10(n_new),real(ks2),'dk','MarkerSize',3)
+plot(log10(n_new),imag(ks2),'dr','MarkerSize',3)
+legend('Re[k_{s1}]', 'Im[k_{s1}]', 'Re[k_{s1}]', 'Im[k_{s1}]')
+xlabel('log_{10}|n|','Fontsize',16)
+% vline(log10(N0(imme)),'--k')
+ylabel('log_{10}|k_{s1}|','Fontsize',16)
+xlim([log10(min(n_new)),log10(max(n_new))]);
+
+hold off
+
+figure(12)
+plot(log10(n_new),real(kf1),'.k')
+
+hold on
+
+plot(log10(n_new),imag(kf1),'.r')
+plot(log10(n_new),real(kf2),'dk','MarkerSize',3)
+plot(log10(n_new),imag(kf2),'dr','MarkerSize',3)
+legend('Re[k_{f2}]', 'Im[k_{f2}]', 'Re[k_{f2}]', 'Im[k_{f2}]')
+xlabel('log_{10}|n|','Fontsize',16)
+% vline(log10(N0(imme)),'--k') 
+ylabel('log_{10}|k_{f2}|','Fontsize',16)
+xlim([log10(min(n_new)),log10(max(n_new))]);
 
 hold off
 
