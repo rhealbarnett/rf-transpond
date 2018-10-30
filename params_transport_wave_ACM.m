@@ -20,18 +20,20 @@ eps0 = const.eps0;
 % transport parameters %
 %------
 Te = 5.0;
-Ti = 5.0;
+Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
 nu = 1.0;
 
 %------
 % wave solver parameters %
 %------
-freq = 4.6e9;
+freq = 80.0e6;
+% freq = 4.6e9;
 om = 2*pi*freq;
 k0 = om/c0;
-k_para = 183;
-B0 = 4.0;
+k_para = 12;
+% k_para = 183;
+B0 = 3.7;
 
 %------
 % spatial domain %
@@ -59,7 +61,7 @@ equib = load('equib.mat');
 
 %-- initial density profile
 n_new = equib.n(plot_num+2,:);
-n_new = full(n_new)*10;
+n_new = full(n_new)*100;
 n_init = n_new;
 
 %-- initial velocity
@@ -85,7 +87,7 @@ for jj=2:npts-1
 end
 
 ns_mult = n_neut(end-1)/n_new(end-1);
-n_source = (n_source*ns_mult*150);
+n_source = (n_source*ns_mult*1500);
 
 %%
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
