@@ -16,7 +16,8 @@ function [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kz,k0,om,mu0,cpdt,...
     dx = (xax(end)-xax(1))/(npts-1);
     A = sparse(3*npts, 3*npts);
     ii = 4;
-    kk = 1;
+    kk = 2;
+%     kz = sqrt(kz(1,:).*kz(2,:));
 
     for eq1=4:3:3*(npts-1)
 
@@ -37,31 +38,31 @@ function [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kz,k0,om,mu0,cpdt,...
         % fill matrix
         A(eq1,iiexm) = 0.0;
         A(eq1,iieym) = -1i*ky;
-        A(eq1,iiezm) = -1i*kz;
-        A(eq1,iiex) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,kk));
+        A(eq1,iiezm) = -1i*kz(kk-1);
+        A(eq1,iiex) = 2.0*dx*(ky^2 + kz(kk)^2 - k0^2*cpdt(1,1,kk));
         A(eq1,iiey) = -2.0*dx*k0^2*cpdt(1,2,kk);
         A(eq1,iiez) = -2.0*dx*k0^2*cpdt(1,3,kk);
         A(eq1,iiexp) = 0.0;
         A(eq1,iieyp) = 1i*ky;
-        A(eq1,iiezp) = 1i*kz;
+        A(eq1,iiezp) = 1i*kz(kk+1);
 
         A(eq2,iiexm) = -1i*ky*(dx/2.0);
         A(eq2,iieym) = -1.0;
         A(eq2,iiezm) = 0.0;
         A(eq2,iiex) = -dx^2*k0^2*cpdt(2,1,kk);
-        A(eq2,iiey) = dx^2*(kz^2 - k0^2*cpdt(2,2,kk)) + 2.0;
-        A(eq2,iiez) = -dx^2*(ky*kz + k0^2*cpdt(2,3,kk));
+        A(eq2,iiey) = dx^2*(kz(kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0;
+        A(eq2,iiez) = -dx^2*(ky*kz(kk) + k0^2*cpdt(2,3,kk));
         A(eq2,iiexp) = 1i*ky*(dx/2.0);
         A(eq2,iieyp) = -1.0;
         A(eq2,iiezp) = 0.0;
 
-        A(eq3,iiexm) = -1i*kz*(dx/2.0);
+        A(eq3,iiexm) = -1i*kz(kk-1)*(dx/2.0);
         A(eq3,iieym) = 0.0;
         A(eq3,iiezm) = -1.0;
         A(eq3,iiex) = -dx^2*k0^2*cpdt(3,1,kk);
-        A(eq3,iiey) = -dx^2*(ky*kz + k0^2*cpdt(3,2,kk));
+        A(eq3,iiey) = -dx^2*(ky*kz(kk) + k0^2*cpdt(3,2,kk));
         A(eq3,iiez) = dx^2*(ky^2 - k0^2*cpdt(3,3,kk)) + 2.0;
-        A(eq3,iiexp) = 1i*kz*(dx/2.0);
+        A(eq3,iiexp) = 1i*kz(kk+1)*(dx/2.0);
         A(eq3,iieyp) = 0.0;
         A(eq3,iiezp) = -1.0;
 
@@ -70,11 +71,36 @@ function [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kz,k0,om,mu0,cpdt,...
 
     end
 
+%     A(1,1) = 1.0;
+%     A(1,4) = -1.0;
+%     A(2,2) = 1.0;
+%     A(2,5) = -1.0;
+%     A(3,3) = 1.0;
+%     A(3,6) = -1.0;
+
+    A(1,1) = 2.0*dx*(ky^2 + kz(1)^2 - k0^2*cpdt(1,1,1));
+    A(1,2) = -2.0*dx*k0^2*cpdt(1,2,1);
+    A(1,3) = -2.0*dx*k0^2*cpdt(1,3,1);
+    A(1,4) = 0.0;
+    A(1,5) = 1i*ky;
+    A(1,6) = 1i*kz(2);
+
+    A(2,1) = -dx^2*k0^2*cpdt(2,1,1);
+    A(2,2) = dx^2*(kz(1)^2 - k0^2*cpdt(2,2,1)) + 2.0;
+    A(2,3) = -dx^2*(ky*kz(1) + k0^2*cpdt(2,3,1));
+    A(2,4) = 1i*ky*(dx/2.0);
+    A(2,5) = -1.0;
+    A(2,6) = 0.0;
+    
+    A(3,1) = -dx^2*k0^2*cpdt(3,1,1);
+    A(3,2) = -dx^2*(ky*kz(1) + k0^2*cpdt(3,2,1));
+    A(3,3) = dx^2*(ky^2 - k0^2*cpdt(3,3,1)) + 2.0;
+    A(3,4) = 1i*kz(2)*(dx/2.0);
+    A(3,5) = 0.0;
+    A(3,6) = -1.0;
+    
     %--
     % metallic wall BC
-    A(1,1) = 1.0;
-    A(2,2) = 1.0;
-    A(3,3) = 1.0;
     A(end-2,end-2) = 1.0;
     A(end-1,end-1) = 1.0;
     A(end,end) = 1.0;
