@@ -82,7 +82,8 @@ legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
 xlabel('log_{10}|n|','Fontsize',16)
 % vline(log10(N0(imme)),'--k')
 ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
-xlim([log10(min(n_new)),log10(max(n_new))]);
+xlim([log10(min(n_new)),log10(max(n_new))])
+set(gca,'XDir','reverse');
 
 hold off
 
@@ -98,78 +99,113 @@ legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
 xlabel('log_{10}|n|','Fontsize',16)
 % vline(log10(N0(imme)),'--k') 
 ylabel('log_{10}|k_{\perp2}|','Fontsize',16)
-xlim([log10(min(n_new)),log10(max(n_new))]);
+xlim([log10(min(n_new)),log10(max(n_new))])
+set(gca,'XDir','reverse');
 
 hold off
 
 %%
-
-figure(11)
-plot(log10(n_new),real(ks1),'.k')
-
-hold on
-
-plot(log10(n_new),imag(ks1),'.r')
-plot(log10(n_new),real(ks2),'dk','MarkerSize',3)
-plot(log10(n_new),imag(ks2),'dr','MarkerSize',3)
-legend('Re[k_{s1}]', 'Im[k_{s1}]', 'Re[k_{s1}]', 'Im[k_{s1}]')
-xlabel('log_{10}|n|','Fontsize',16)
-% vline(log10(N0(imme)),'--k')
-ylabel('log_{10}|k_{s1}|','Fontsize',16)
-xlim([log10(min(n_new)),log10(max(n_new))]);
-
-hold off
-
-figure(12)
-plot(log10(n_new),real(kf1),'.k')
-
-hold on
-
-plot(log10(n_new),imag(kf1),'.r')
-plot(log10(n_new),real(kf2),'dk','MarkerSize',3)
-plot(log10(n_new),imag(kf2),'dr','MarkerSize',3)
-legend('Re[k_{f2}]', 'Im[k_{f2}]', 'Re[k_{f2}]', 'Im[k_{f2}]')
-xlabel('log_{10}|n|','Fontsize',16)
-% vline(log10(N0(imme)),'--k') 
-ylabel('log_{10}|k_{f2}|','Fontsize',16)
-xlim([log10(min(n_new)),log10(max(n_new))]);
-
-hold off
-
-%%
-
-% %%
 % 
-% figure(9)
-% plot(xax(npts-imme+1:imme-1),real(kp11(npts-imme+1:imme-1)),'.k')
+% figure(11)
+% plot(log10(n_new),real(ks1),'.k')
 % 
 % hold on
 % 
-% plot(xax(npts-imme+1:imme-1),imag(kp11(npts-imme+1:imme-1)),'.r')
-% plot(xax(npts-imme+1:imme-1),real(kp12(npts-imme+1:imme-1)),'dk','MarkerSize',3)
-% plot(xax(npts-imme+1:imme-1),imag(kp12(npts-imme+1:imme-1)),'dr','MarkerSize',3)
-% legend('Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]', 'Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]')
-% xlabel('Position','Fontsize',16)
-% % vline(xax(imme),'--k')
-% ylabel('k$_{\perp1}$','Fontsize',16)
+% plot(log10(n_new),imag(ks1),'.r')
+% plot(log10(n_new),real(ks2),'dk','MarkerSize',3)
+% plot(log10(n_new),imag(ks2),'dr','MarkerSize',3)
+% legend('Re[k_{s1}]', 'Im[k_{s1}]', 'Re[k_{s1}]', 'Im[k_{s1}]')
+% xlabel('log_{10}|n|','Fontsize',16)
+% % vline(log10(N0(imme)),'--k')
+% ylabel('log_{10}|k_{s1}|','Fontsize',16)
+% xlim([log10(min(n_new)),log10(max(n_new))]);
+% 
+% hold off
+% 
+% figure(12)
+% plot(log10(n_new),real(kf1),'.k')
+% 
+% hold on
+% 
+% plot(log10(n_new),imag(kf1),'.r')
+% plot(log10(n_new),real(kf2),'dk','MarkerSize',3)
+% plot(log10(n_new),imag(kf2),'dr','MarkerSize',3)
+% legend('Re[k_{f2}]', 'Im[k_{f2}]', 'Re[k_{f2}]', 'Im[k_{f2}]')
+% xlabel('log_{10}|n|','Fontsize',16)
+% % vline(log10(N0(imme)),'--k') 
+% ylabel('log_{10}|k_{f2}|','Fontsize',16)
+% xlim([log10(min(n_new)),log10(max(n_new))]);
+% 
+% hold off
+% 
+% %%
+% 
+% figure(9)
+% plot(log10(n_new),real(kp11),'.k')
+% 
+% hold on
+% 
+% plot(log10(n_new),imag(kp11),'.r')
+% plot(log10(n_new),real(kp12),'dk','MarkerSize',3)
+% plot(log10(n_new),imag(kp12),'dr','MarkerSize',3)
+% legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
+% xlabel('log_{10}|n|','Fontsize',16)
+% % vline(log10(N0(imme)),'--k')
+% ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
+% % xlim([log10(min(n_new)),log10(max(n_new))]);
 % 
 % hold off
 % 
 % figure(10)
-% plot(xax(npts-imme+1:imme-1),real(kp21(npts-imme+1:imme-1)),'.k')
+% plot(log10(n_new),real(kp21),'.k')
 % 
 % hold on
 % 
-% plot(xax(npts-imme+1:imme-1),imag(kp21(npts-imme+1:imme-1)),'.r')
-% plot(xax(npts-imme+1:imme-1),real(kp22(npts-imme+1:imme-1)),'dk','MarkerSize',3)
-% plot(xax(npts-imme+1:imme-1),imag(kp22(npts-imme+1:imme-1)),'dr','MarkerSize',3)
-% legend('Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]', 'Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]')
-% xlabel('Position','Fontsize',16)
-% % vline(xax(imme),'--k')
-% ylabel('k$_{\perp2}$','Fontsize',16)
+% plot(log10(n_new),imag(kp21),'.r')
+% plot(log10(n_new),real(kp22),'dk','MarkerSize',3)
+% plot(log10(n_new),imag(kp22),'dr','MarkerSize',3)
+% legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
+% xlabel('log_{10}|n|','Fontsize',16)
+% % vline(log10(N0(imme)),'--k') 
+% ylabel('log_{10}|k_{\perp2}|','Fontsize',16)
+% % xlim([log10(min(n_new)),log10(max(n_new))]);
 % 
 % hold off
 % 
+% %%
 % 
-% 
-% 
+% % %%
+% % 
+% % figure(9)
+% % plot(xax(npts-imme+1:imme-1),real(kp11(npts-imme+1:imme-1)),'.k')
+% % 
+% % hold on
+% % 
+% % plot(xax(npts-imme+1:imme-1),imag(kp11(npts-imme+1:imme-1)),'.r')
+% % plot(xax(npts-imme+1:imme-1),real(kp12(npts-imme+1:imme-1)),'dk','MarkerSize',3)
+% % plot(xax(npts-imme+1:imme-1),imag(kp12(npts-imme+1:imme-1)),'dr','MarkerSize',3)
+% % legend('Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]', 'Re[k$_{\perp1}$]', 'Im[k$_{\perp1}$]')
+% % xlabel('Position','Fontsize',16)
+% % % vline(xax(imme),'--k')
+% % ylabel('k$_{\perp1}$','Fontsize',16)
+% % 
+% % hold off
+% % 
+% % figure(10)
+% % plot(xax(npts-imme+1:imme-1),real(kp21(npts-imme+1:imme-1)),'.k')
+% % 
+% % hold on
+% % 
+% % plot(xax(npts-imme+1:imme-1),imag(kp21(npts-imme+1:imme-1)),'.r')
+% % plot(xax(npts-imme+1:imme-1),real(kp22(npts-imme+1:imme-1)),'dk','MarkerSize',3)
+% % plot(xax(npts-imme+1:imme-1),imag(kp22(npts-imme+1:imme-1)),'dr','MarkerSize',3)
+% % legend('Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]', 'Re[k$_{\perp2}$]', 'Im[k$_{\perp2}$]')
+% % xlabel('Position','Fontsize',16)
+% % % vline(xax(imme),'--k')
+% % ylabel('k$_{\perp2}$','Fontsize',16)
+% % 
+% % hold off
+% % 
+% % 
+% % 
+% % 
