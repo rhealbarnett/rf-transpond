@@ -12,6 +12,7 @@
 %------
 constants;
 m = const.mp;
+me = const.me;
 e = const.e;
 c0 = const.c0;
 eps0 = const.eps0;
@@ -61,7 +62,7 @@ equib = load('equib.mat');
 
 %-- initial density profile
 n_new = equib.n(plot_num+2,:);
-n_new = full(n_new)*100;
+n_new = full(n_new)*10;
 n_init = n_new;
 
 %-- initial velocity
@@ -87,7 +88,7 @@ for jj=2:npts-1
 end
 
 ns_mult = n_neut(end-1)/n_new(end-1);
-n_source = (n_source*ns_mult*1500);
+n_source = (n_source*ns_mult*150);
 
 %%
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -146,6 +147,19 @@ pressure_mat = sparse(nmax,npts-2);
 
 vx_mat(1,:) = vx_new;
 n_mat(1,:) = n_new;
+
+%%
+
+dampFac = 0.4;
+np_bound = floor(0.2*npts);
+ax = linspace(0,pi,np_bound);
+damp0 = (cos(ax)+1)/2;
+damp = ones(1,npts);
+damp(1:np_bound) = damp(1:np_bound) + dampFac*i*damp0;
+% damp = damp*m;
+m = ones(1,npts)*m + damp*m;
+me = ones(1,npts)*me + damp*me;
+
 
 
 
