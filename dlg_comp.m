@@ -80,7 +80,7 @@ ax = linspace(0,pi,np_bound);
 damp0 = (cos(ax)+1)/2;
 damp = ones(1,npts);
 damp(1:np_bound) = damp(1:np_bound) + dampFac*i*damp0;
-damp(end-(np_bound-1):end) = damp(end-(np_bound-1):end) + dampFac*i*fliplr(damp0);
+% damp(1:end) = damp(end-(np_bound-1):end) + dampFac*i*fliplr(damp0);
 
 me = me .* damp;
 
