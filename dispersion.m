@@ -53,8 +53,6 @@ k_f1 = n_f1*om/c0; k_f2 = n_f2*om/c0;
 %%
 %--
 % plot kperps's
-imme = find(imag(m)==0);
-imme = imme(end)+1;
 
 %--
 % transform data for log plot
