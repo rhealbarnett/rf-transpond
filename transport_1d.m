@@ -59,15 +59,15 @@ explicit = NaN;
 implicit = NaN;
 
 grid_type = 'staggered or collocated grid? ';
-grid = input(grid_type, 's');
-if isempty(grid)
-    grid = 'staggered';
+gridt = input(grid_type, 's');
+if isempty(gridt)
+    gridt = 'staggered';
 end
 
-if strcmp(grid,'staggered')
+if strcmp(gridt,'staggered')
     staggered = 1;
     collocated = 0;
-elseif strcmp(grid,'collocated')
+elseif strcmp(gridt,'collocated')
     staggered = 0;
     collocated = 1;
 end
@@ -420,6 +420,8 @@ for ii=1:nmax
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
     
+%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
+    
     if staggered
         
         % fill n coefficient matrix using the averaged value of the
@@ -689,7 +691,7 @@ for ii=1:nmax
         count = count + 1;
     end
     
-    if rms(n_new - n)<=tol
+    if rms(n_new - n)<=1.0e-9*rms(n_new)
         fprintf('tolerance reached, ii=%d\n',ii)
         break
     else
@@ -750,7 +752,7 @@ hold off
 
 %%
 
-tax = linspace(0,nmax*dt,plot_num+1);
+tax = linspace(0,nmax*dt,plot_num+2);
 
 % % for ii=1:nmax
 % for jj=1:npts
@@ -761,23 +763,25 @@ tax = linspace(0,nmax*dt,plot_num+1);
 %     pressure_mat(:,jj) = pressure_av(:,jj) + (1/2)*0.5*(n_mat(:,jj+1)+n_mat(:,jj))*m.*(vx_mat(:,jj).^2);
 % end
 % % end
-
+% 
 % figure(7)
 % % levels = linspace((min(vx_mat(:))/(vx_init(2))),(max(vx_mat(:))/max(vx_init)),100);
 % % levels = levels/cs;
-% levels = linspace(-1.2e-2,0,100);
+% levels = linspace(-2.5e-2,0,100);
 % % set(gca,'colorscale','log')
-% contourf(vxax(2:npts-1),tax,(vx_mat(1:plot_num+1,2:npts-1) - vx_init(2:npts-1))/cs,...
+% contourf(vxax(2:npts-1),tax,(vx_mat(1:plot_num+2,2:npts-1) - vx_init(2:npts-1))/cs,...
 %     levels,'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
+% colorbar;
+% 
+% 
 % 
 % figure(8)
 % % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
 % % levels = linspace(min(n_mat(:)),max(n_mat(:)),100);
-% levels = linspace(-1.5e14,2.5e14,100);
+% levels = linspace(-3.0e15,3.0e15,100);
 % % set(gca,'colorscale','log')
-% contourf(nxax(2:npts-1),tax,n_mat(1:plot_num+1,2:npts-1) - n_init(2:npts-1),...
+% contourf(nxax(2:npts-1),tax,n_mat(1:plot_num+2,2:npts-1) - n_init(2:npts-1),...
 %     levels,'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar
