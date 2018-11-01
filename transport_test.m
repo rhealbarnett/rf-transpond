@@ -48,7 +48,7 @@ tmin = 0;
 % Initialise coefficient matrices                                         %
 %-------------------------------------------------------------------------%
 
-plot_num = 10;
+plot_num = 5;
 equib = load('equib.mat');
 
 %-- initial density profile
@@ -110,7 +110,7 @@ vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 4.0e-6;
+tmax = 1.25e-6;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
@@ -139,23 +139,24 @@ tol = 1.0e-2;
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
 
-Emax = 3.0e4;
-freq = 50.0e6;
+Emax = 6.0e4;
+freq = 80.0e6;
 om = 2.0*pi*freq;
 
 % Efield = exp(1.0e3*vxax);
 % Efield = (Emax/2)*(cos(cosax)+1.01);
 % Efield = [(zeros(1,npts-1-length(cosax))), Efield];
-Efield = exp(100*vxax);
-Efield = Efield./max(Efield);
-Efield = Emax*Efield;
+% Efield = exp(100*vxax);
+% Efield = Efield./max(Efield);
+% Efield = Emax*Efield;
+Efield = interp1(nxax,real(rf_ex),vxax);
 Efield = Efield.^2;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
-Efield = zeros(1,npts-1);
+% Efield = zeros(1,npts-1);
 
-pond_const = (1.0/4.0)*((e^2)/(m*om^2));
+pond_const = (1.0/4.0)*((e^2)/(const.mp*om^2));
 % pond_source = zeros(1,npts-1);
 
 vx_mat = sparse(nmax,npts-1);
