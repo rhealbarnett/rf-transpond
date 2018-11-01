@@ -111,6 +111,7 @@ function [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kz,k0,om,mu0,cpdt,...
     mult = 1.0/sqrt(2.0*pi*source_width);
     source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
     source = source / max(source);
+    source = source / 2000;
     rhs(1:3:3*npts) = 1i*om*mu0*source';
     rhs(2:3:3*npts) = 1i*om*mu0*source';
     rhs(3:3:3*npts) = 1i*om*mu0*source';
