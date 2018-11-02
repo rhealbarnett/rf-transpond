@@ -30,9 +30,11 @@ nu = 1.0;
 %------
 freq = 80.0e6;
 % freq = 4.6e9;
-om = 2*pi*freq;
+om = 2*pi*freq*(1-0.5i);
+lamb = 0.02/10;
 k0 = om/c0;
-k_para = 12;
+% k_para = 12;
+k_para = 2.0*pi/lamb;
 % k_para = 183;
 B0 = 3.7;
 
@@ -63,6 +65,7 @@ equib = load('equib.mat');
 %-- initial density profile
 n_new = equib.n(plot_num+2,:);
 n_new = full(n_new);
+% n_new = ones(1,npts)*max(n_new);
 % n_new = logspace(16,19,npts);
 n_init = n_new;
 
@@ -89,7 +92,7 @@ for jj=2:npts-1
 end
 
 ns_mult = n_neut(end-1)/n_new(end-1);
-n_source = (n_source*ns_mult*15);
+n_source = (n_source*ns_mult*105);
 
 %%
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
@@ -103,7 +106,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 
 %-- set dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 4.0e-6;
+tmax = 7.5e-7;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
@@ -128,19 +131,18 @@ mult = 1.0/dx;
 % Using E||,max = 300Vcm^-1 from J. Myra 2006 Nonlinear interactions paper    %
 % exponential decay away from antenna location                                %
 %-----------------------------------------------------------------------------%
+% 
+% Emax = 3.0e4;
 
-Emax = 3.0e4;
-
-Efield = exp(100*vxax);
-Efield = Efield./max(Efield);
-Efield = Emax*Efield;
-Efield = Efield.^2;
+% Efield = exp(100*vxax);
+% Efield = Efield./max(Efield);
+% Efield = Emax*Efield;
 % ----------- %
 % set e field to zero for testing 
 % ----------- %
 % Efield = zeros(1,npts-1);
 
-pond_const = (1.0/4.0)*((e^2)/(m*om^2));
+pond_const = (1.0/4.0)*((e^2)/(const.mp*om^2));
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);
@@ -151,18 +153,19 @@ n_mat(1,:) = n_new;
 
 %%
 
-dampFac = 0.4;
+dampFac = 0.2;
 np_bound = floor(0.2*npts);
 ax = linspace(0,pi,np_bound);
 damp0 = (cos(ax)+1)/2;
 damp = ones(1,npts);
 damp(1:np_bound) = damp(1:np_bound) + dampFac*i*damp0;
-damp(np_bound:end) = 1.0 + 0.05i;
+% damp(np_bound:end) = 1.0 + 0.01i;
 % damp = damp*m;
 m = damp.*m;
-me = damp.*me;
-% m = m + 0.1i*m;
-% me = me + 0.1i*me;
+% me = damp.*me;
+me = ones(1,npts)*const.me;
+% m = m - 1i*m;
+% me = me - 1i*me;
 
 
 
