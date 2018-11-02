@@ -37,7 +37,7 @@
 % run(input_file);
 
 % import parameter file
-transport_test;
+params_transport_wave_ACM;
 
 % initialise velocity and density 
 vx = vx_new;
@@ -363,7 +363,7 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-vx_source = source_stag(n_new,const.e,Te,Ti,m,npts,dx);
+vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -408,6 +408,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
+nmax=30;
 for ii=1:nmax
 
 %     ns_mult = (trapz(n) - trapz(n_new));
@@ -419,8 +420,14 @@ for ii=1:nmax
         nxax(npts),'linear','extrap');   
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
-    
-%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
+    [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
+    dispersion;
+    [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(nxax,real(kp22),0,k0,om,const.mu0,cpdt,...
+    xmax/100,xmax);
+
+    Efield = interp1(nxax,abs(rf_ex),...
+        vxax(2:npts-1),'linear');
+    Efield = Efield.^2;
     
     if staggered
         
@@ -604,10 +611,10 @@ for ii=1:nmax
     
     % calculate the source term
     if staggered
-        vx_source = source_stag(n,const.e,Te,Ti,m,npts,dx);
+        vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,dx);
         vx_scale = max(abs(-nu*gradient(vx_new(2:npts-2))./vx_source(2:npts-2)));
-        pf_source = pond_source(m,om,const.e,Efield,dx,npts-1);
-        pf_source = [0,pf_source];
+        pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
+        pf_source = [0,pf_source,0];
     elseif collocated
         vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
     end
@@ -650,7 +657,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,plot_freq)==0
+    if mod(ii,6)==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -684,6 +691,26 @@ for ii=1:nmax
         plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('Density source ms^{-1}','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+        figure(10)
+        plot(nxax,real(kp21),'.k')
+
+        hold on
+
+        plot(nxax,imag(kp21),'.r')
+        plot(nxax,real(kp22),'dk','MarkerSize',3)
+        plot(nxax,imag(kp22),'dr','MarkerSize',3)
+        legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
+        xlabel('log_{10}|n|','Fontsize',16)
+        % vline(log10(N0(imme)),'--k') 
+        ylabel('|k_{\perp2}|','Fontsize',16)
+        xlim([xmin,xmax])
+        hold off
+        figure(5)
+        plot(vxax(2:npts-2),sqrt(Efield(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Electric field (Vm^{-1})','Fontsize',16)
         legend('show','Location','northwest')
         hold on
         vx_mat(count,:) = vx_new;
@@ -750,6 +777,13 @@ ylabel('Density source ms^{-1}','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
+figure(5)
+plot(vxax(2:npts-2),sqrt(Efield(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Electric field (Vm^{-1})','Fontsize',16)
+legend('show','Location','northwest')
+hold off
+
 %%
 
 tax = linspace(0,nmax*dt,plot_num+2);
@@ -770,7 +804,7 @@ tax = linspace(0,nmax*dt,plot_num+2);
 % levels = linspace(-2.5e-2,0,100);
 % % set(gca,'colorscale','log')
 % contourf(vxax(2:npts-1),tax,(vx_mat(1:plot_num+2,2:npts-1) - vx_init(2:npts-1))/cs,...
-%     levels,'LineColor','none')
+%     'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar;
 % 
@@ -782,7 +816,7 @@ tax = linspace(0,nmax*dt,plot_num+2);
 % levels = linspace(-3.0e15,3.0e15,100);
 % % set(gca,'colorscale','log')
 % contourf(nxax(2:npts-1),tax,n_mat(1:plot_num+2,2:npts-1) - n_init(2:npts-1),...
-%     levels,'LineColor','none')
+%     'LineColor','none')
 % xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
 % colorbar
 
