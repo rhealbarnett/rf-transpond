@@ -37,7 +37,8 @@
 % run(input_file);
 
 % import parameter file
-params_transport_wave_ACM;
+% params_transport_wave_ACM;
+transport_test;
 
 % initialise velocity and density 
 vx = vx_new;
@@ -408,26 +409,26 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-nmax=30;
 for ii=1:nmax
 
 %     ns_mult = (trapz(n) - trapz(n_new));
 
 %     set the vectors with the old value going into the next loop
+%     nfact = trapz(n)/trapz(n_new)
     n = n_new;
     vx = vx_new;
     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
         nxax(npts),'linear','extrap');   
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
-    [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
-    dispersion;
-    [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(nxax,real(kp22),0,k0,om,const.mu0,cpdt,...
-    xmax/100,xmax);
-
-    Efield = interp1(nxax,abs(rf_ex),...
-        vxax(2:npts-1),'linear');
-    Efield = Efield.^2;
+%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
+%     dispersion;
+%     [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(nxax,real(kp22),0,k0,om,const.mu0,cpdt,...
+%     xmax/100,xmax);
+% 
+%     Efield = interp1(nxax,abs(rf_ex),...
+%         vxax(2:npts-1),'linear');
+%     Efield = Efield.^2;
     
     if staggered
         
@@ -446,6 +447,13 @@ for ii=1:nmax
         
         n_source(1,2:npts-1) = n_new(1,2:npts-1).*n_neut(1,2:npts-1)*rate_coeff;
         
+        n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
+        source_int = trapz(n_source);
+        ns_mult = source_int/(vx_new(end)*n_avg(end)) - 0.1;
+        n_source = n_source / ns_mult;
+%         ns_mult
+%         ns_mult
+        
 %         fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
 %         fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
 %         ft = fr - fl;
@@ -453,8 +461,8 @@ for ii=1:nmax
 %         flux = vx_new.*n_avg;
 %         source_int = trapz(n_source);
 %         flux_int = trapz(flux);
-        ns_mult = n_neut(end-1)/n_new(end-1);
-        n_source = (n_source*ns_mult*150);
+%         ns_mult = n_neut(end-1)/n_new(end-1);
+%         n_source = (n_source*ns_mult*150);
 %         n_source = reshape(n_source,1,npts);
 
 %         source_int = trapz(n_source);
@@ -657,13 +665,21 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,6)==0
+    if mod(ii,1694)==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
         fprintf('number of particles %d\n', trapz(n_new))
+%         fprintf('source multiplier before normalisation %d\n',ns_mult)
+        fprintf('flux out of RH boundary %d\n',vx_new(end)*n_avg(end))
+        source_int = trapz(n_source);
+%         ns_mult = source_int/(vx_new(end)*n_avg(end));
+%         fprintf('source multiplier after normalisation %d\n',ns_mult)
+%         fprintf('source integral after normalisation %d\n',source_int)
+        fprintf('neutral density integral %d\n',trapz(n_neut))
+        
 %         if dt == cfl_fact*(dx^2)/(2.0*nu)
 %             fprintf('Diffusive CFL condition\n')
 %         elseif dt == cfl_fact*dx/max(abs(vx_new))
@@ -693,26 +709,26 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
-        figure(10)
-        plot(nxax,real(kp21),'.k')
-
-        hold on
-
-        plot(nxax,imag(kp21),'.r')
-        plot(nxax,real(kp22),'dk','MarkerSize',3)
-        plot(nxax,imag(kp22),'dr','MarkerSize',3)
-        legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
-        xlabel('log_{10}|n|','Fontsize',16)
-        % vline(log10(N0(imme)),'--k') 
-        ylabel('|k_{\perp2}|','Fontsize',16)
-        xlim([xmin,xmax])
-        hold off
-        figure(5)
-        plot(vxax(2:npts-2),sqrt(Efield(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlabel('Position (m)','Fontsize',16)
-        ylabel('Electric field (Vm^{-1})','Fontsize',16)
-        legend('show','Location','northwest')
-        hold on
+%         figure(10)
+%         plot(nxax,real(kp21),'.k')
+% 
+%         hold on
+% 
+%         plot(nxax,imag(kp21),'.r')
+%         plot(nxax,real(kp22),'dk','MarkerSize',3)
+%         plot(nxax,imag(kp22),'dr','MarkerSize',3)
+%         legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
+%         xlabel('log_{10}|n|','Fontsize',16)
+%         % vline(log10(N0(imme)),'--k') 
+%         ylabel('|k_{\perp2}|','Fontsize',16)
+%         xlim([xmin,xmax])
+%         hold off
+%         figure(5)
+%         plot(vxax(2:npts-2),sqrt(Efield(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%         xlabel('Position (m)','Fontsize',16)
+%         ylabel('Electric field (Vm^{-1})','Fontsize',16)
+%         legend('show','Location','northwest')
+%         hold on
         vx_mat(count,:) = vx_new;
         n_mat(count,:) = n_new;
         count = count + 1;
