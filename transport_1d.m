@@ -364,7 +364,8 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
+% vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
+vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts,dx);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
