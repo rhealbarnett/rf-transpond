@@ -163,7 +163,7 @@ end
 
 if collocated
     
-%     if vx_new(1,2) > 0
+    if vx_new(1,2) > 0
         promptlnBC = 'Left BC type for density? (dirichlet, neumann, periodic) ';
         leftnBC = input(promptlnBC, 's');
         if strcmp('dirichlet',leftnBC)
@@ -177,13 +177,13 @@ if collocated
         end
         promptlnBCval = 'Left BC value for density? ';
         lnBC_val = input(promptlnBCval);
-%     elseif vx_new(1,2) < 0 
-%         fprintf("Left BC not required on density for the given flux direction.\n")
-%         n_ldirichlet = 0;
-%         n_lneumann = 0;
-%         n_periodic = 0;
-%     end
-%     if vx_new(1,end-1) < 0
+    elseif vx_new(1,2) < 0 
+        fprintf("Left BC not required on density for the given flux direction.\n")
+        n_ldirichlet = 0;
+        n_lneumann = 0;
+        n_periodic = 0;
+    end
+    if vx_new(1,end-1) < 0
         promptrnBC = 'Right BC type for density? (dirichlet, neumann, periodic) ';
         rightnBC = input(promptrnBC, 's');
         if strcmp('dirichlet',rightnBC)
@@ -197,12 +197,12 @@ if collocated
         end
         rn_bound_val = 'Right BC value for density? ';
         rnBC_val = input(rn_bound_val);
-%     elseif vx_new(1,end-1) > 0 
-%         fprintf("Right BC not required on density for the given flux direction.\n")
-%         n_rdirichlet = 0;
-%         n_rneumann = 0;
-%         n_periodic = 0;
-%     end
+    elseif vx_new(1,end-1) > 0 
+        fprintf("Right BC not required on density for the given flux direction.\n")
+        n_rdirichlet = 0;
+        n_rneumann = 0;
+        n_periodic = 0;
+    end
 end
 
 %%
@@ -410,7 +410,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:20
+for ii=1:40
 
 %     ns_mult = (trapz(n) - trapz(n_new));
 
@@ -452,30 +452,6 @@ for ii=1:20
         source_int = trapz(n_source);
         ns_mult = source_int/(vx_new(end)*n_avg(end)) - 0.1;
         n_source = n_source / ns_mult;
-%         ns_mult
-%         ns_mult
-        
-%         fl = vx_new(1,1)*((n_new(1,1)+n_new(1,2))/2);
-%         fr = vx_new(1,end)*((n_new(1,end) + n_new(1,end-1))/2);
-%         ft = fr - fl;
-%         n_avg = avg(n,npts);
-%         flux = vx_new.*n_avg;
-%         source_int = trapz(n_source);
-%         flux_int = trapz(flux);
-%         ns_mult = n_neut(end-1)/n_new(end-1);
-%         n_source = (n_source*ns_mult*150);
-%         n_source = reshape(n_source,1,npts);
-
-%         source_int = trapz(n_source);
-%         source_norm = n_source/source_int;
-%         n_source = (ns_mult)*source_norm;
-
-%         if source_int~=ft
-%             diff = ft - source_int;
-%             bal = diff/(npts-2);
-%             source_bal = bal*ones(1,npts-2);
-%             n_source(2:npts-1) = n_source(2:npts-1) + source_bal;
-%         end
 
         % build full coefficient matrices
 %         An_exp = nI + dt*nA;
@@ -518,22 +494,21 @@ for ii=1:20
         end
         
         nA(end,end) = -mult*vx(1,end);
-        nA(end,end-1) = mult*vx(1,jj-1);
+        nA(end,end-1) = mult*vx(1,end-1);
         
 %         An_exp = nI + dt*nA;
         An_imp = nI - dt*nA;
         
-        An_imp(1,1) = 1.0; An_imp(1,2) = -1.0;
-        An_imp(end,end) = 1.0;
+        An_imp(1,1) = 1.0;
         
         n(1,1) = lnBC_val;
-        n(1,end) = rnBC_val;
         
         n_source = n.*n_neut*rate_coeff;
         source_int = trapz(nxax, n_source);
         rflux = vx(end)*n(end);
-        ns_mult = source_int/rflux;
-        n_source = n_source / ns_mult;
+        ns_mult = rflux/source_int;
+        n_source = n_source*ns_mult;
+        n_source(1,1) = 0.0;
         
 %         if trapz(nxax,n_source) - rflux ~= 0
 %             error("Flux at RH boundary and density source integral are not equal\n")
@@ -600,7 +575,7 @@ for ii=1:20
     
     % override values in top and bottom rows to reflect neumann
     % boundary conditions for the implicit calculation
-    Avx_imp(1,2) = -1.0; Avx_imp(end,end-1) = -1.0;
+%     Avx_imp(1,2) = -1.0; Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
     vx(1,1) = lvBC_val;
     vx(1,end) = rvBC_val;
@@ -654,19 +629,20 @@ for ii=1:20
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,2)==0
+    if mod(ii,4)==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
-        fprintf('number of particles %d\n', trapz(n_new))
+        fprintf('number of particles %d\n', trapz(nxax,n_new))
+        fprintf('particle balance check %d\n', trapz(nxax,n) - trapz(nxax,n_new))
 %         fprintf('source multiplier before normalisation %d\n',ns_mult)
         fprintf('flux out of RH boundary %d\n',rflux)
 %         ns_mult = source_int/(vx_new(end)*n_avg(end));
 %         fprintf('source multiplier after normalisation %d\n',ns_mult)
-%         fprintf('source integral after normalisation %d\n',source_int)
-        fprintf('neutral density integral %d\n',trapz(n_neut))
+        fprintf('source integral %d\n',source_int)
+%         fprintf('neutral density integral %d\n',trapz(n_neut))
         
 %         if dt == cfl_fact*(dx^2)/(2.0*nu)
 %             fprintf('Diffusive CFL condition\n')
