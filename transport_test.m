@@ -33,7 +33,8 @@ xmax = 0.1;
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
 npts = 4096;
 dx = (xmax - xmin)/(npts - 1);
-nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
+% nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
+nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
 
 %------
@@ -57,7 +58,7 @@ Nmin = 0.5e18;
 n_new = Nmin*(fliplr(nxax)/max(nxax)) + Nmin;
 % n_new = equib.n(plot_num+2,:);
 % n_new = full(n_new)*10;
-n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
+% n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
 
 %-- initial velocity
@@ -69,26 +70,36 @@ vx_new = (cs)*(vxax/max(vxax));
 vx_init = vx_new;
 
 %-- density source
-rate_coeff = 1.*10^-14;
-decay_index = round(npts/4);
+rate_coeff = 1.0e-14;
+decay_index = round((npts-1)/4);
 cosax = linspace(pi,2*pi,decay_index);
-neut_max = 0.5e18;
-% neut_max = 0.5e20;
+neut_max = 1.0e18;
 neut_min = 1.0e14;
 decay_length = 0.4;
 decay_gradient = (neut_min - neut_max)/decay_length;
-n_neut = zeros(1,npts);
+n_neut = zeros(1,npts-1);
 n_neut(end-decay_index+1:end) = neut_max*(cos(cosax) + 1)/2;
 n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
-n_source = zeros(1,npts);
+n_source = zeros(1,npts-1);
 
-for jj=2:npts-1
+for jj=1:npts-1
     n_source(jj) = n_new(jj)*n_neut(jj)*rate_coeff;
 end
 
-source_int = trapz(n_source);
-ns_mult = source_int/(vx_new(end)*n_avg(end)) - 0.1;
+% source_avg = interp1(nxax,n_source,vxax);
+source_int = trapz(nxax,n_source);
+% source_avg_int = trapz(source_avg);
+rflux = n_new(end)*vx_new(end);
+ns_mult = source_int/rflux;
 n_source = (n_source / ns_mult);
+% n_source = interp1(vxax,n_source,nxax(2:npts-1));
+% n_source = [0, n_source, 0];
+
+fprintf('Initial flux leaving RH boundary %d\n',rflux)
+fprintf('Initial density source integral %d\n',source_int)
+fprintf('Density source integral after normalisation %d\n',trapz(nxax,n_source))
+fprintf('Initial total number of particles %d\n',trapz(n_new))
+
 % source_int = trapz(n_source);
 % ns_mult = source_int/(vx_new(end)*n_avg(end))
 % source_norm = n_source/source_int;
@@ -164,7 +175,7 @@ pond_const = (1.0/4.0)*((e^2)/(const.mp*om^2));
 % pond_source = zeros(1,npts-1);
 
 vx_mat = sparse(nmax,npts-1);
-n_mat = sparse(nmax,npts);
+n_mat = sparse(nmax,npts-1);
 pressure_mat = sparse(nmax,npts-2);
 
 vx_mat(1,:) = vx_new;
