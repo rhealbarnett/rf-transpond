@@ -117,8 +117,8 @@ fprintf('Initial total number of particles %d\n',trapz(n_new))
 
 %-- initialise coefficient matrices for density, velocity, and momentum equation 
 %-- rhs 'source' term
-nA = sparse(npts,npts);
-nI = sparse(eye(npts,npts));
+nA = sparse(npts-1,npts-1);
+nI = sparse(eye(npts-1,npts-1));
 vx_pos = sparse(npts-1,npts-1);
 vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
