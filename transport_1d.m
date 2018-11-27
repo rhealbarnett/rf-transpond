@@ -163,7 +163,7 @@ end
 
 if collocated
     
-    if vx_new(1,2) > 0
+%     if vx_new(1,2) > 0
         promptlnBC = 'Left BC type for density? (dirichlet, neumann, periodic) ';
         leftnBC = input(promptlnBC, 's');
         if strcmp('dirichlet',leftnBC)
@@ -177,13 +177,13 @@ if collocated
         end
         promptlnBCval = 'Left BC value for density? ';
         lnBC_val = input(promptlnBCval);
-    elseif vx_new(1,2) < 0 
-        fprintf("Left BC not required on density for the given flux direction.\n")
-        n_ldirichlet = 0;
-        n_lneumann = 0;
-        n_periodic = 0;
-    end
-    if vx_new(1,end-1) < 0
+%     elseif vx_new(1,2) < 0 
+%         fprintf("Left BC not required on density for the given flux direction.\n")
+%         n_ldirichlet = 0;
+%         n_lneumann = 0;
+%         n_periodic = 0;
+%     end
+%     if vx_new(1,end-1) < 0
         promptrnBC = 'Right BC type for density? (dirichlet, neumann, periodic) ';
         rightnBC = input(promptrnBC, 's');
         if strcmp('dirichlet',rightnBC)
@@ -197,12 +197,12 @@ if collocated
         end
         rn_bound_val = 'Right BC value for density? ';
         rnBC_val = input(rn_bound_val);
-    elseif vx_new(1,end-1) > 0 
-        fprintf("Right BC not required on density for the given flux direction.\n")
-        n_rdirichlet = 0;
-        n_rneumann = 0;
-        n_periodic = 0;
-    end
+%     elseif vx_new(1,end-1) > 0 
+%         fprintf("Right BC not required on density for the given flux direction.\n")
+%         n_rdirichlet = 0;
+%         n_rneumann = 0;
+%         n_periodic = 0;
+%     end
 end
 
 %%
@@ -365,11 +365,11 @@ end
 %--------------------------------------------------------------------------------------------------------------%
 
 % vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
-vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts,dx);
+vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
+semilogy(nxax,n_new,'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
 legend('show','Location','south')
@@ -410,7 +410,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:nmax
+for ii=1:20
 
 %     ns_mult = (trapz(n) - trapz(n_new));
 
@@ -418,10 +418,10 @@ for ii=1:nmax
 %     nfact = trapz(n)/trapz(n_new)
     n = n_new;
     vx = vx_new;
-    rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
-        nxax(npts),'linear','extrap');   
-    lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
-        nxax(1),'linear','extrap');
+%     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+%         nxax(npts),'linear','extrap');   
+%     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+%         nxax(1),'linear','extrap');
 %     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
 %     dispersion;
 %     [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(nxax,real(kp22),0,k0,om,const.mu0,cpdt,...
@@ -504,62 +504,49 @@ for ii=1:nmax
         n_new = n_new_imp;
         n_new = n_new';
         
-        % only used for linearly extrapolated boundary conditions
-%         if strcmp('linear extrap',leftGhost)
-%             lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
-%             nxax(1),'linear','extrap');
-%             n_new(1,1) = lGhost;
-%         end
-%         if strcmp('linear extrap',rightGhost)
-%             rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
-%             nxax(npts),'linear','extrap');
-%             n_new(1,end) = rGhost;
-%         end
-        
-
-%--------------------------------------------------------------------------------------------------------------%
-% COLLOCATED NOT CURRENTLY IN USE
-%--------------------------------------------------------------------------------------------------------------%
-      
+     
     elseif collocated
  
-        for jj=1:npts-1
-            if jj==1
-                if n_rdirichlet || n_rneumann
-                    nA(jj,jj) = 1.0 + mult*vx(1,jj);
-                    nA(jj,jj+1) = -mult*vx(1,jj+1);  
-                else
-                    nA(jj,jj) = 1.0 + mult*vx(1,jj);
-                    nA(jj,jj+1) = -mult*vx(1,jj+1);
-                end
-            elseif jj==npts-1
-                if n_ldirichlet || n_lneumann
-                    nA(jj,jj) = 1.0 - mult*vx(1,jj);
-                    nA(jj,jj-1) = mult*vx(1,jj-1); 
-                else
-                    nA(jj,jj) = 1.0 - mult*vx(1,jj);
-                    nA(jj,jj-1) = mult*vx(1,jj-1);
-                end
-            elseif vx(1,jj)>0
-                nA(jj,jj) = 1.0 - mult*vx(1,jj);
+        for jj=2:npts-2
+            if vx(1,jj)>0
+                nA(jj,jj) = -mult*vx(1,jj);
                 nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif vx(1,jj)<0
-                nA(jj,jj) = 1.0 + mult*vx(1,jj);
+                nA(jj,jj) = mult*vx(1,jj);
                 nA(jj,jj+1) = -mult*vx(1,jj+1);
             end
         end
         
+        nA(end,end) = -mult*vx(1,end);
+        nA(end,end-1) = mult*vx(1,jj-1);
+        
+%         An_exp = nI + dt*nA;
+        An_imp = nI - dt*nA;
+        
+        An_imp(1,1) = 1.0; An_imp(1,2) = -1.0;
+        An_imp(end,end) = 1.0;
+        
+        n(1,1) = lnBC_val;
+        n(1,end) = rnBC_val;
+        
+        n_source = n.*n_neut*rate_coeff;
+        source_int = trapz(nxax, n_source);
+        rflux = vx(end)*n(end);
+        ns_mult = source_int/rflux;
+        n_source = n_source / ns_mult;
+        
+%         if trapz(nxax,n_source) - rflux ~= 0
+%             error("Flux at RH boundary and density source integral are not equal\n")
+%             return  
+%         end
+        
+        % implicit calculation
+        n_new_imp = An_imp\(n' + dt*n_source');
+        
+        % transpose solution vector
+        n_new = n_new_imp;
         n_new = n_new';
         
-        if n_ldirichlet
-            n_new(1,1) = lnBC_val;
-        elseif n_lneumann
-            n_new(1,1) = n_new(1,2) + dx*lnBC_val;
-        elseif n_rdirichlet
-            n_new(1,end) = rnBC_val;
-        elseif n_rneumann
-            n_new(1,end) = n_new(1,end-1) + dx*rnBC_val;
-        end
     end
     
 %--------------------------------------------------------------------------------------------------------------%
@@ -613,7 +600,7 @@ for ii=1:nmax
     
     % override values in top and bottom rows to reflect neumann
     % boundary conditions for the implicit calculation
-%     Avx_imp(1,1) = 1.0;% Avx_imp(1,2) = -1.0;
+    Avx_imp(1,2) = -1.0; Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
     vx(1,1) = lvBC_val;
     vx(1,end) = rvBC_val;
@@ -632,12 +619,13 @@ for ii=1:nmax
     % boundary conditions will override the source)
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
-    pf_source(1,end) = 0.0;
+%     pf_source(1,end) = 0.0;
        
     % explicit calculation
 %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
     % implicit calculation
-    vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
+%     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
+    vx_new_imp = Avx_imp\(vx' + dt*vx_source');
     
     % transpose solution vector
     vx_new = vx_new_imp;
@@ -666,7 +654,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,1694)==0
+    if mod(ii,2)==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -674,8 +662,7 @@ for ii=1:nmax
         fprintf('simulation time %d\n', toc(timerVal))
         fprintf('number of particles %d\n', trapz(n_new))
 %         fprintf('source multiplier before normalisation %d\n',ns_mult)
-        fprintf('flux out of RH boundary %d\n',vx_new(end)*n_avg(end))
-        source_int = trapz(n_source);
+        fprintf('flux out of RH boundary %d\n',rflux)
 %         ns_mult = source_int/(vx_new(end)*n_avg(end));
 %         fprintf('source multiplier after normalisation %d\n',ns_mult)
 %         fprintf('source integral after normalisation %d\n',source_int)
@@ -688,7 +675,7 @@ for ii=1:nmax
 %         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-        semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+dx) max(nxax-dx)])
         hold on
 %         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
@@ -760,7 +747,7 @@ fprintf('simulation time %d\n', toc(timerVal))
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
 % semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
