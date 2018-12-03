@@ -246,7 +246,7 @@ if central
     lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
     leftvBC = input(lv_bound_type, 's');
     if isempty(leftvBC)
-        leftvBC = 'dirichlet';
+        leftvBC = 'neumann';
     end
     if strcmp('periodic',leftvBC)
 
@@ -420,10 +420,17 @@ for ii=1:nmax
 %     set the vectors with the old value going into the next loop
     n = n_new;
     vx = vx_new;
-%     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
-%         nxax(npts),'linear','extrap');   
-%     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
-%         nxax(1),'linear','extrap');
+    rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+        nxax(npts),'linear','extrap');   
+    lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+        nxax(1),'linear','extrap');
+    
+    %-------------------------------------------------------------%
+    % Call wave solver functions
+    % Need to run dielec_tens to calculate the cold plasma dielectric
+    % tensor (cpdt); call dispersion to detemine k's; call wave_sol to 
+    % calculate rf electric field
+    %-------------------------------------------------------------%
 %     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
 %     dispersion;
 %     [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(nxax,real(kp22),0,k0,om,const.mu0,cpdt,...
@@ -432,11 +439,12 @@ for ii=1:nmax
 %     Efield = interp1(nxax,abs(rf_ex),...
 %         vxax(2:npts-1),'linear');
 %     Efield = Efield.^2;
+    %-------------------------------------------------------------%
     
     if staggered
         
         % fill n coefficient matrix using the averaged value of the
-        % velocities on surrounding grid points
+        % velocities on adjacent grid points
         for jj=2:npts-1
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
                 nA(jj,jj) = - mult*vx(1,jj);
@@ -447,15 +455,21 @@ for ii=1:nmax
             end
         end
         
+        % calculate the density source term
         n_source = n.*n_neut*rate_coeff;
 
+        % check that the outward flux at the rh boundary is equal to the
+        % density source term (particle balance)
         source_avg = interp1(nxax,n_source,vxax);
         source_int = trapz(vxax,source_avg);
         n_avg = interp1(nxax,n,vxax);
         rflux = vx(end)*n_avg(end);
         ns_mult = rflux/source_int;
+        
+        % use reduced value (source = flux is not stable)
         n_source = n_source*ns_mult*0.5;
         
+        % set source density ghost points to zero 
         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
         % build full coefficient matrices
@@ -464,6 +478,7 @@ for ii=1:nmax
         
         % override values in top and bottom rows to reflect neumann
         % boundary conditions for the implicit calculation
+        
         An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
         An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
         
@@ -526,12 +541,7 @@ for ii=1:nmax
         n_new = n_new';
         
     end
-    
-%--------------------------------------------------------------------------------------------------------------%
-% COLLOCATED (ABOVE) NOT IN USE
-% BELOW IS IN USE
-%--------------------------------------------------------------------------------------------------------------%
-    
+  
     % fill coefficient matrices for momentum equation, positive for v>0 and
     % negative for v<0 on the convective term; differencing of the
     % diffusion term is central and not dependent on flow direction
@@ -547,20 +557,7 @@ for ii=1:nmax
         vx_diff(jj,jj-1) = mult*(nu/dx);
         vx_diff(jj,jj+1) = mult*(nu/dx);
     end
-    
-%     vx_diff(2:npts-2,2:npts-2) = - mult*((2.0*nu)/dx);
-%     vx_diff(2:npts-2,1:npts-3) = mult*(nu/dx);
-%     vx_diff(2:npts-2,3:npts-1) = mult*(nu/dx);
-   
-%     vx_diff = (gallery('tridiag',10,- mult*((2.0*nu)/dx),...
-%         mult*(nu/dx),mult*(nu/dx)));
 
-%     vx_ones = ones(1,npts-3);
-%     vx_ones = [0, vx_ones, 0];
-%     vx_diff = sparse(diag(- mult*((2.0*nu)/dx)*vx_ones,0) +...
-%         diag(vx_ones(2:npts-1)*mult*(nu/dx),-1) +...
-%         diag(vx_ones(1:npts-2)*mult*(nu/dx),1));
-         
     % construct full coefficient matrix for momentum equation
     if upwind 
         vxA = vx_pos + vx_neg;
@@ -578,7 +575,7 @@ for ii=1:nmax
     
     % override values in top and bottom rows to reflect neumann
     % boundary conditions for the implicit calculation
-%     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
+    Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
     vx(1,1) = lvBC_val;
     vx(1,end) = rvBC_val;
@@ -586,7 +583,6 @@ for ii=1:nmax
     % calculate the source term
     if staggered
         vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,dx);
-        vx_scale = max(abs(-nu*gradient(vx_new(2:npts-2))./vx_source(2:npts-2)));
         pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
         pf_source = [0,pf_source,0];
     elseif collocated
@@ -597,7 +593,6 @@ for ii=1:nmax
     % boundary conditions will override the source)
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
-%     pf_source(1,end) = 0.0;
        
     % explicit calculation
 %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
@@ -672,33 +667,10 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
-%         figure(10)
-%         plot(nxax,real(kp21),'.k')
-% 
-%         hold on
-% 
-%         plot(nxax,imag(kp21),'.r')
-%         plot(nxax,real(kp22),'dk','MarkerSize',3)
-%         plot(nxax,imag(kp22),'dr','MarkerSize',3)
-%         legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
-%         xlabel('log_{10}|n|','Fontsize',16)
-%         % vline(log10(N0(imme)),'--k') 
-%         ylabel('|k_{\perp2}|','Fontsize',16)
-%         xlim([xmin,xmax])
-%         hold off
-%         figure(5)
-%         plot(vxax(2:npts-2),sqrt(Efield(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-%         xlabel('Position (m)','Fontsize',16)
-%         ylabel('Electric field (Vm^{-1})','Fontsize',16)
-%         legend('show','Location','northwest')
-%         hold on
         vx_mat(count,:) = vx_new;
         n_mat(count,:) = n_new;
         count = count + 1;
     end
-
-%     vx_rms(1,ii) = rms(vx_new);
-%     n_rms(1,ii) = rms(n_new);
     
 end
 
