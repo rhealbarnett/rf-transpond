@@ -364,15 +364,16 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-% vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
-vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
+vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
+% vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax,n_new,'DisplayName',['time = 0s'])
+semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Density m^{-3}','Fontsize',16)
+ylabel('Density (m^{-3})','Fontsize',16)
 legend('show','Location','south')
+grid on
 hold on
 
 figure(2)
@@ -381,22 +382,25 @@ plot(vxax,vx_new/cs,'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
+grid on
 hold on
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
 plot(vxax(2:npts-2),(vx_source(2:npts-2)*dt),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Velocity source ms^{-1}','Fontsize',16)
+ylabel('Velocity source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
+grid on
 hold on
 
 figure(4)
 set(gcf,'Position',[563 476 560 420])
 plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Density source ms^{-1}','Fontsize',16)
+ylabel('Density source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
+grid on
 hold on
 
 %%
@@ -410,12 +414,10 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:40
-
-%     ns_mult = (trapz(n) - trapz(n_new));
+nmax = round(nmax/40);
+for ii=1:nmax
 
 %     set the vectors with the old value going into the next loop
-%     nfact = trapz(n)/trapz(n_new)
     n = n_new;
     vx = vx_new;
 %     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -443,15 +445,18 @@ for ii=1:40
                 nA(jj,jj) = mult*vx(1,jj-1);
                 nA(jj,jj+1) = -mult*vx(1,jj);
             end
-%             n_source(1,jj) = n_new(1,jj)*n_neut(1,jj)*rate_coeff;
         end
         
-        n_source(1,2:npts-1) = n_new(1,2:npts-1).*n_neut(1,2:npts-1)*rate_coeff;
+        n_source = n.*n_neut*rate_coeff;
+
+        source_avg = interp1(nxax,n_source,vxax);
+        source_int = trapz(vxax,source_avg);
+        n_avg = interp1(nxax,n,vxax);
+        rflux = vx(end)*n_avg(end);
+        ns_mult = rflux/source_int;
+        n_source = n_source*ns_mult*0.5;
         
-        n_avg = (n_new(1:npts-1) + n_new(2:npts))/2.0;
-        source_int = trapz(n_source);
-        ns_mult = source_int/(vx_new(end)*n_avg(end)) - 0.1;
-        n_source = n_source / ns_mult;
+        n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
         % build full coefficient matrices
 %         An_exp = nI + dt*nA;
@@ -504,16 +509,14 @@ for ii=1:40
         n(1,1) = lnBC_val;
         
         n_source = n.*n_neut*rate_coeff;
+
         source_int = trapz(nxax, n_source);
+
         rflux = vx(end)*n(end);
         ns_mult = rflux/source_int;
         n_source = n_source*ns_mult;
-        n_source(1,1) = 0.0;
         
-%         if trapz(nxax,n_source) - rflux ~= 0
-%             error("Flux at RH boundary and density source integral are not equal\n")
-%             return  
-%         end
+        n_source(1,1) = 0.0;
         
         % implicit calculation
         n_new_imp = An_imp\(n' + dt*n_source');
@@ -575,7 +578,7 @@ for ii=1:40
     
     % override values in top and bottom rows to reflect neumann
     % boundary conditions for the implicit calculation
-%     Avx_imp(1,2) = -1.0; Avx_imp(end,end-1) = -1.0;
+%     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
     vx(1,1) = lvBC_val;
     vx(1,end) = rvBC_val;
@@ -629,21 +632,17 @@ for ii=1:40
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,4)==0
+    if mod(ii,round(nmax/5))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
-        fprintf('number of particles %d\n', trapz(nxax,n_new))
-        fprintf('particle balance check %d\n', trapz(nxax,n) - trapz(nxax,n_new))
-%         fprintf('source multiplier before normalisation %d\n',ns_mult)
-        fprintf('flux out of RH boundary %d\n',rflux)
-%         ns_mult = source_int/(vx_new(end)*n_avg(end));
-%         fprintf('source multiplier after normalisation %d\n',ns_mult)
-        fprintf('source integral %d\n',source_int)
-%         fprintf('neutral density integral %d\n',trapz(n_neut))
-        
+        fprintf('total number of particles %e\n', trapz(nxax,n_new))
+        fprintf('particle balance check %e\n', trapz(nxax,n) - trapz(nxax,n_new))
+        fprintf('density source and flux balance check %e\n', rflux -...
+            trapz(vxax,source_avg*ns_mult))
+   
 %         if dt == cfl_fact*(dx^2)/(2.0*nu)
 %             fprintf('Diffusive CFL condition\n')
 %         elseif dt == cfl_fact*dx/max(abs(vx_new))
@@ -651,7 +650,7 @@ for ii=1:40
 %         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-        semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+dx) max(nxax-dx)])
         hold on
 %         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
@@ -697,13 +696,7 @@ for ii=1:40
         n_mat(count,:) = n_new;
         count = count + 1;
     end
-    
-    if rms(n_new - n)<=1.0e-9*rms(n_new)
-        fprintf('tolerance reached, ii=%d\n',ii)
-        break
-    else
-        continue
-    end
+
 %     vx_rms(1,ii) = rms(vx_new);
 %     n_rms(1,ii) = rms(n_new);
     
@@ -723,7 +716,7 @@ fprintf('simulation time %d\n', toc(timerVal))
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
 % semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
@@ -737,7 +730,7 @@ plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
 % plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Mach number','Fontsize',16)
+ylabel('Mach number (v/c_s)','Fontsize',16)
 legend('show','Location','southeast')
 hold off
 
@@ -745,7 +738,7 @@ figure(3)
 set(gcf,'Position',[3 476 560 420])
 plot(vxax(2:npts-2),vx_source(2:npts-2)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Velocity source ms^{-1}','Fontsize',16)
+ylabel('Velocity source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
@@ -753,7 +746,7 @@ figure(4)
 set(gcf,'Position',[563 476 560 420])
 plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Density source ms^{-1}','Fontsize',16)
+ylabel('Density source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
@@ -766,7 +759,7 @@ hold off
 
 %%
 
-tax = linspace(0,nmax*dt,plot_num+2);
+% tax = linspace(0,nmax*dt,plot_num+2);
 
 % % for ii=1:nmax
 % for jj=1:npts
