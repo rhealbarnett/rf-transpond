@@ -31,44 +31,52 @@ xmax = 0.1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 129;
+npts = 4096;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 % nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
 
-offset = (xmax - xmin)/2.0 + xmin;
-sigma = 1.;
-norm = 1.0 / sqrt(2*pi*sigma^2);
-gauss = norm*exp(-(nxax-offset).^2/(sigma^2));
-gauss = 1.0 - gauss;
-cumulative = cumtrapz(gauss)*dx;
-nonuni_grid = interp1(cumulative,nxax,linspace(0,1,npts));
+%%
+%----------------------------------------------------------------------%
+% non uniform grid calculation
+% STILL TESTING
+%----------------------------------------------------------------------%
 
-xD = linspace(0,1,npts);
-figure() 
-offset = (xmax - xmin)/2.0 + xmin;
-lambda = 5;
-norm = 1.0 / sqrt(2*pi*sigma^2);
-gauss = exp(-lambda*xD);
-subplot(1,4,1)
-plot(xD,gauss,'-o');
-gauss = ( gauss + flip(gauss) ) / 2;
-subplot(1,4,2)
-plot(xD,gauss,'-o');
-cumulative = cumtrapz(gauss)*dx;
-subplot(1,4,3)
-plot(xD,cumulative,'-o');
-grid = interp1(cumulative,xD,linspace(0,cumulative(end),npts));
-subplot(1,4,4)
-plot(grid,grid*0,'-o');
-figure()
-dx = grid(2:end)-grid(1:end-1);
-plot(dx,'-o')
+% offset = (xmax - xmin)/2.0 + xmin;
+% sigma = 1.;
+% norm = 1.0 / sqrt(2*pi*sigma^2);
+% gauss = norm*exp(-(nxax-offset).^2/(sigma^2));
+% gauss = 1.0 - gauss;
+% cumulative = cumtrapz(gauss)*dx;
+% nonuni_grid = interp1(cumulative,nxax,linspace(0,1,npts));
+% 
+% xD = linspace(0,1,npts);
+% figure() 
+% offset = (xmax - xmin)/2.0 + xmin;
+% lambda = 5;
+% norm = 1.0 / sqrt(2*pi*sigma^2);
+% gauss = exp(-lambda*xD);
+% subplot(1,4,1)
+% plot(xD,gauss,'-o');
+% gauss = ( gauss + flip(gauss) ) / 2;
+% subplot(1,4,2)
+% plot(xD,gauss,'-o');
+% cumulative = cumtrapz(gauss)*dx;
+% subplot(1,4,3)
+% plot(xD,cumulative,'-o');
+% grid = interp1(cumulative,xD,linspace(0,cumulative(end),npts));
+% subplot(1,4,4)
+% plot(grid,grid*0,'-o');
+% figure()
+% dx = grid(2:end)-grid(1:end-1);
+% plot(dx,'-o')
+% 
+% for ii=2:npts-1
+%     nxax(ii) = nxax(ii-1) + dx(ii-1); 
+% end
 
-for ii=2:npts-1
-    nxax(ii) = nxax(ii-1) + dx(ii-1); 
-end
+%%
 
 %------
 % temporal domain %
@@ -81,7 +89,7 @@ tmin = 0;
 % Set initial and boundary values for n and v                             %
 %-------------------------------------------------------------------------%
 
-equib = load('equib2.mat');
+% equib = load('equib2.mat');
 
 %-- initial density profile
 Nmax = (1.0e18);
@@ -124,12 +132,9 @@ neut_max = (1.0e18);
 n_neut = zeros(1,npts);
 n_neut(end-decay_index+1:end) = neut_max*((cos(cosax) + 1)/2);
 n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
-% need to smooth the profile so no big discontinuities
-smooth_fact = exp(100*nxax)*1.0e16;
 
 % calculate density source
-n_source = (n_new.*(n_neut)*(rate_coeff));% + smooth_fact;
-% n_source = reshape(n_source,[1,npts]);
+n_source = (n_new.*(n_neut)*(rate_coeff));
 
 % interpolate source onto velocity grid
 source_avg = interp1(nxax,n_source,vxax);
@@ -169,6 +174,9 @@ vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
+%-------------------------------------------------------------------------%
+% Calculate time step                                                                  %
+%-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 tmax = 8.0e-5;
 cfl_fact = 0.99;
@@ -181,11 +189,8 @@ else
     dt = cfl_fact*dx/cs;
 end
 
-% dt = cfl_fact*dx/max(abs(vx_new));
 dt = 2.0*dt;
-% nmax = 20400;   
 nmax = round(tmax/dt);
-% tmax = nmax*dt;
 tax = linspace(tmin,tmax,nmax);
 mult = 1.0/dx;
 
