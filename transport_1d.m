@@ -29,16 +29,20 @@
 % --maybe this should go before the BCs, because if it is central
 % differenced/has diffusion term, there will need to be two BCs
 
-
 % function [n, vx] = transport_1d(grid_type,spatial_scheme,...
 %   ln_bound_type,ln_bound_val,rn_bound_type,rn_bound_val,...
-%   lv_bound_type,lv_bound_val,rv_bound_type,rv_bound_val,const,input_file)
+%   lv_bound_type,lv_bound_val,rv_bound_type,rv_bound_val)
 
-% run(input_file);
+
+% const = constants();
+% e = const.e;
+% m = const.mp;
 
 % import parameter file
 % params_transport_wave_ACM;
+% transport_vardx;
 transport_test;
+
 
 % initialise velocity and density 
 vx = vx_new;
@@ -414,7 +418,8 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-nmax = round(nmax/40);
+nmax = round(nmax/2);
+% nmax = 10;
 for ii=1:nmax
 
 %     set the vectors with the old value going into the next loop
@@ -447,11 +452,15 @@ for ii=1:nmax
         % velocities on adjacent grid points
         for jj=2:npts-1
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
-                nA(jj,jj) = - mult*vx(1,jj);
-                nA(jj,jj-1) = mult*vx(1,jj-1);
+%                 nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
+%                 nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
+                nA(jj,jj) = - (1.0/dx)*vx(1,jj);
+                nA(jj,jj-1) = (1.0/dx)*vx(1,jj-1);
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-                nA(jj,jj) = mult*vx(1,jj-1);
-                nA(jj,jj+1) = -mult*vx(1,jj);
+%                 nA(jj,jj) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
+%                 nA(jj,jj+1) = -(1.0/ndx(1,jj-1))*vx(1,jj);
+                nA(jj,jj) = (1.0/dx)*vx(1,jj-1);
+                nA(jj,jj+1) = -(1.0/dx)*vx(1,jj);
             end
         end
         
@@ -547,15 +556,22 @@ for ii=1:nmax
     % diffusion term is central and not dependent on flow direction
     for jj=2:npts-2
         if vx(1,jj)>0
-            vx_pos(jj,jj) = - mult*vx(1,jj);
-            vx_pos(jj,jj-1) = mult*vx(1,jj);
+%             vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+%             vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+            vx_pos(jj,jj) = - (1.0/dx)*vx(1,jj);
+            vx_pos(jj,jj-1) = (1.0/dx)*vx(1,jj);
         elseif vx(1,jj)<0
-            vx_neg(jj,jj) = mult*vx(1,jj);
-            vx_neg(jj,jj+1) = -mult*vx(1,jj);
+%             vx_neg(jj,jj) = (1.0/vdx(1,jj-1))*vx(1,jj);
+%             vx_neg(jj,jj+1) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+            vx_neg(jj,jj) = (1.0/dx)*vx(1,jj);
+            vx_neg(jj,jj+1) = - (1.0/dx)*vx(1,jj);
         end
-        vx_diff(jj,jj) = - mult*((2.0*nu)/dx);
-        vx_diff(jj,jj-1) = mult*(nu/dx);
-        vx_diff(jj,jj+1) = mult*(nu/dx);
+%         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+%         vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+%         vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+        vx_diff(jj,jj) = - (1.0/(dx^2))*(2.0*nu);
+        vx_diff(jj,jj-1) = (1.0/(dx^2))*nu;
+        vx_diff(jj,jj+1) = (1.0/(dx^2))*nu;
     end
 
     % construct full coefficient matrix for momentum equation
