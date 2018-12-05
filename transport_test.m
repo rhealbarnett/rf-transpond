@@ -10,17 +10,27 @@
 %------
 % constants %
 %------
-constants;
+
+
+% function [n_init, vx_init] = transport_test(params,xmin,xmax,npts)
+
+const = constants();
 m = const.mp;
 e = const.e;
 
 %------
 % parameters %
 %------
+% params = transport_params();
+% Te = params.Te;
+% Ti = params.Ti;
+% nu = params.nu;
+% cs = params.cs;
+
 Te = 5.0;
 Ti = 10.0;
-cs = sqrt((Te + Ti)*e/m);
 nu = 1.0;
+cs = sqrt((Te + Ti)*e/m);
 
 %------
 % spatial domain %
@@ -36,45 +46,6 @@ dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 % nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
-
-%%
-%----------------------------------------------------------------------%
-% non uniform grid calculation
-% STILL TESTING
-%----------------------------------------------------------------------%
-
-% offset = (xmax - xmin)/2.0 + xmin;
-% sigma = 1.;
-% norm = 1.0 / sqrt(2*pi*sigma^2);
-% gauss = norm*exp(-(nxax-offset).^2/(sigma^2));
-% gauss = 1.0 - gauss;
-% cumulative = cumtrapz(gauss)*dx;
-% nonuni_grid = interp1(cumulative,nxax,linspace(0,1,npts));
-% 
-% xD = linspace(0,1,npts);
-% figure() 
-% offset = (xmax - xmin)/2.0 + xmin;
-% lambda = 5;
-% norm = 1.0 / sqrt(2*pi*sigma^2);
-% gauss = exp(-lambda*xD);
-% subplot(1,4,1)
-% plot(xD,gauss,'-o');
-% gauss = ( gauss + flip(gauss) ) / 2;
-% subplot(1,4,2)
-% plot(xD,gauss,'-o');
-% cumulative = cumtrapz(gauss)*dx;
-% subplot(1,4,3)
-% plot(xD,cumulative,'-o');
-% grid = interp1(cumulative,xD,linspace(0,cumulative(end),npts));
-% subplot(1,4,4)
-% plot(grid,grid*0,'-o');
-% figure()
-% dx = grid(2:end)-grid(1:end-1);
-% plot(dx,'-o')
-% 
-% for ii=2:npts-1
-%     nxax(ii) = nxax(ii-1) + dx(ii-1); 
-% end
 
 %%
 
@@ -178,15 +149,15 @@ vx_I = sparse(eye(npts-1,npts-1));
 % Calculate time step                                                                  %
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 8.0e-5;
+tmax = 2.0e-5;
 cfl_fact = 0.99;
 
-if ((cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new))))
-    dt = cfl_fact*(dx^2)/(2.0*nu);
-elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-    dt = cfl_fact*dx/max(abs(vx_new));
+if ((cfl_fact*((dx)^2)/(2.0*nu))<(cfl_fact*(dx)/max(abs(vx_new))))
+    dt = cfl_fact*((dx)^2)/(2.0*nu);
+elseif (cfl_fact*(dx)^2/(2.0*nu))>(cfl_fact*(dx)/max(abs(vx_new)))
+    dt = cfl_fact*(dx)/max(abs(vx_new));
 else
-    dt = cfl_fact*dx/cs;
+    dt = cfl_fact*(dx)/cs;
 end
 
 dt = 2.0*dt;
@@ -229,5 +200,5 @@ pressure_mat = sparse(nmax,npts-2);
 vx_mat(1,:) = vx_new;
 n_mat(1,:) = n_new;
 
-
+% end
 
