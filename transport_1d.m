@@ -250,7 +250,7 @@ if central
     lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
     leftvBC = input(lv_bound_type, 's');
     if isempty(leftvBC)
-        leftvBC = 'neumann';
+        leftvBC = 'dirichlet';
     end
     if strcmp('periodic',leftvBC)
 
@@ -418,8 +418,8 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-nmax = round(nmax/2);
-% nmax = 10;
+% nmax = round(nmax/4);
+% nmax = 6000;
 for ii=1:nmax
 
 %     set the vectors with the old value going into the next loop
@@ -454,13 +454,13 @@ for ii=1:nmax
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
 %                 nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
 %                 nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
-                nA(jj,jj) = - (1.0/dx)*vx(1,jj);
-                nA(jj,jj-1) = (1.0/dx)*vx(1,jj-1);
+                nA(jj,jj) = - mult*vx(1,jj);
+                nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
 %                 nA(jj,jj) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
 %                 nA(jj,jj+1) = -(1.0/ndx(1,jj-1))*vx(1,jj);
-                nA(jj,jj) = (1.0/dx)*vx(1,jj-1);
-                nA(jj,jj+1) = -(1.0/dx)*vx(1,jj);
+                nA(jj,jj) = mult*vx(1,jj-1);
+                nA(jj,jj+1) = -mult*vx(1,jj);
             end
         end
         
@@ -558,20 +558,20 @@ for ii=1:nmax
         if vx(1,jj)>0
 %             vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
 %             vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-            vx_pos(jj,jj) = - (1.0/dx)*vx(1,jj);
-            vx_pos(jj,jj-1) = (1.0/dx)*vx(1,jj);
+            vx_pos(jj,jj) = - mult*vx(1,jj);
+            vx_pos(jj,jj-1) = mult*vx(1,jj);
         elseif vx(1,jj)<0
 %             vx_neg(jj,jj) = (1.0/vdx(1,jj-1))*vx(1,jj);
 %             vx_neg(jj,jj+1) = - (1.0/vdx(1,jj-1))*vx(1,jj);
-            vx_neg(jj,jj) = (1.0/dx)*vx(1,jj);
-            vx_neg(jj,jj+1) = - (1.0/dx)*vx(1,jj);
+            vx_neg(jj,jj) = mult*vx(1,jj);
+            vx_neg(jj,jj+1) = - mult*vx(1,jj);
         end
 %         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
 %         vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
 %         vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-        vx_diff(jj,jj) = - (1.0/(dx^2))*(2.0*nu);
-        vx_diff(jj,jj-1) = (1.0/(dx^2))*nu;
-        vx_diff(jj,jj+1) = (1.0/(dx^2))*nu;
+        vx_diff(jj,jj) = - mult*((2.0*nu)/dx);
+        vx_diff(jj,jj-1) = mult*(nu/dx);
+        vx_diff(jj,jj+1) = mult*(nu/dx);
     end
 
     % construct full coefficient matrix for momentum equation
@@ -591,7 +591,7 @@ for ii=1:nmax
     
     % override values in top and bottom rows to reflect neumann
     % boundary conditions for the implicit calculation
-    Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
+%     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
     vx(1,1) = lvBC_val;
     vx(1,end) = rvBC_val;
