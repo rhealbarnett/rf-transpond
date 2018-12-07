@@ -76,8 +76,11 @@ n_init = n_new;
 
 %-- initial velocity
 % vx_new = (cs)*(vxax/max(vxax));
-vx_new = 1.0 + exp(vxax*100);
-vx_new = cs*(vx_new/max(vx_new));
+vx_mult = log(cs)/(xmax - xmin);
+vx_const = -exp(vx_mult*xmin);
+% vx_new = exp(vxax*100);
+% vx_new = cs*(vx_new/max(vx_new));
+vx_new = vx_const + exp(vx_mult*vxax);
 % vx_new = zeros(1,npts-1);
 % vx_new(1,end) = cs;
 % vx_new = equib.vx_new;
@@ -149,7 +152,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 % Calculate time step                                                                  %
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 2.0e-5;
+tmax = 4.0e-5;
 cfl_fact = 0.99;
 
 if ((cfl_fact*((dx)^2)/(2.0*nu))<(cfl_fact*(dx)/max(abs(vx_new))))
