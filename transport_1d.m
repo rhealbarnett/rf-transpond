@@ -465,18 +465,18 @@ for ii=1:nmax
         end
         
         % calculate the density source term
-        n_source = n.*n_neut*rate_coeff;
-
-        % check that the outward flux at the rh boundary is equal to the
-        % density source term (particle balance)
-        source_avg = interp1(nxax,n_source,vxax);
-        source_int = trapz(vxax,source_avg);
-        n_avg = interp1(nxax,n,vxax);
-        rflux = vx(end)*n_avg(end);
-        ns_mult = rflux/source_int;
-        
-        % use reduced value (source = flux is not stable)
-        n_source = n_source*ns_mult*0.5;
+%         n_source = n.*n_neut*rate_coeff;
+% 
+%         % check that the outward flux at the rh boundary is equal to the
+%         % density source term (particle balance)
+%         source_avg = interp1(nxax,n_source,vxax);
+%         source_int = trapz(vxax,source_avg);
+%         n_avg = interp1(nxax,n,vxax);
+%         rflux = vx(end)*n_avg(end);
+%         ns_mult = rflux/source_int;
+%         
+%         % use reduced value (source = flux is not stable)
+%         n_source = n_source*ns_mult*0.5;
         
         % set source density ghost points to zero 
         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
