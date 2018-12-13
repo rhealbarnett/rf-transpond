@@ -528,8 +528,6 @@ for ii=1:nmax
 %         An_exp = nI + dt*nA;
         An_imp = nI - dt*nA;
         
-        An_imp(1,1) = 1.0;
-        
         n(1,1) = lnBC_val;
         
         n_source = n.*n_neut*rate_coeff;
@@ -541,6 +539,11 @@ for ii=1:nmax
         n_source = n_source*ns_mult;
         
         n_source(1,1) = 0.0;
+%         if trapz(nxax,n_source) - rflux ~= 0
+%             error("Flux at RH boundary and density source integral are not equal\n")
+%             return  
+%         end
+
         
         % implicit calculation
         n_new_imp = An_imp\(n' + dt*n_source');
