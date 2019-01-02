@@ -40,8 +40,8 @@
 
 % import parameter file
 % params_transport_wave_ACM;
-% transport_vardx;
-transport_test;
+transport_vardx;
+% transport_test;
 
 
 % initialise velocity and density 
@@ -368,8 +368,9 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
+% vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
 % vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
+vx_source = zeros(1,npts-1);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -420,7 +421,10 @@ n_rms = zeros(1,nmax);
 
 % nmax = round(nmax/4);
 % nmax = 6000;
+nmax = 10;
 for ii=1:nmax
+    
+    ex_sol = u0*(sin(vxax.^2 + dt*ii*om) + epsilon);
 
 %     set the vectors with the old value going into the next loop
     n = n_new;
@@ -446,71 +450,72 @@ for ii=1:nmax
 %     Efield = Efield.^2;
     %-------------------------------------------------------------%
     
-    if staggered
-        
-        % fill n coefficient matrix using the averaged value of the
-        % velocities on adjacent grid points
-        for jj=2:npts-1
-            if ((vx(1,jj-1)+vx(1,jj))/2)>0
+%     if staggered
+%         
+%         % fill n coefficient matrix using the averaged value of the
+%         % velocities on adjacent grid points
+%         for jj=2:npts-1
+%             if ((vx(1,jj-1)+vx(1,jj))/2)>0
 %                 nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
 %                 nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
-                nA(jj,jj) = - mult*vx(1,jj);
-                nA(jj,jj-1) = mult*vx(1,jj-1);
-            elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-%                 nA(jj,jj) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
-%                 nA(jj,jj+1) = -(1.0/ndx(1,jj-1))*vx(1,jj);
-                nA(jj,jj) = mult*vx(1,jj-1);
-                nA(jj,jj+1) = -mult*vx(1,jj);
-            end
-        end
-        
-        % calculate the density source term
-%         n_source = n.*n_neut*rate_coeff;
-% 
-%         % check that the outward flux at the rh boundary is equal to the
-%         % density source term (particle balance)
-%         source_avg = interp1(nxax,n_source,vxax);
-%         source_int = trapz(vxax,source_avg);
-%         n_avg = interp1(nxax,n,vxax);
-%         rflux = vx(end)*n_avg(end);
-%         ns_mult = rflux/source_int;
+% %                 nA(jj,jj) = - mult*vx(1,jj);
+% %                 nA(jj,jj-1) = mult*vx(1,jj-1);
+%             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+%                 nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
+%                 nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
+% %                 nA(jj,jj) = mult*vx(1,jj-1);
+% %                 nA(jj,jj+1) = -mult*vx(1,jj);
+%             end
+%         end
 %         
-%         % use reduced value (source = flux is not stable)
-%         n_source = n_source*ns_mult*0.5;
-        
-        % set source density ghost points to zero 
-        n_source(1,1) = 0.0; n_source(1,end) = 0.0;
-
-        % build full coefficient matrices
-%         An_exp = nI + dt*nA;
-        An_imp = nI - dt*nA;
-        
-        % override values in top and bottom rows to reflect neumann
-        % boundary conditions for the implicit calculation
-        
-        An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
-        An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
-        
-        % calculate explicit solution
-%         n_new_exp = An_exp*n' + dt*n_source';
-        % directly override solution vector to include neumann boundary
-        % conditions for explicit method
-%         n_new_exp(1,1) = n_new_exp(2,1);
-%         n_new_exp(end,1) = n_new_exp(end-1,1);
-        
-        % zero old rhs values for top and bottom boundary equations for
-        % implicit calculation
-        n(1,1) = lGhost;
-        n(1,end) = rGhost;
-        % implicit calculation
-        n_new_imp = An_imp\(n' + dt*n_source');
-        
-        % transpose solution vector
-        n_new = n_new_imp;
-        n_new = n_new';
+%         % calculate the density source term
+% %         n_source = n.*n_neut*rate_coeff;
+% % 
+% %         % check that the outward flux at the rh boundary is equal to the
+% %         % density source term (particle balance)
+% %         source_avg = interp1(nxax,n_source,vxax);
+% %         source_int = trapz(vxax,source_avg);
+% %         n_avg = interp1(nxax,n,vxax);
+% %         rflux = vx(end)*n_avg(end);
+% %         ns_mult = rflux/source_int;
+% %         
+% %         % use reduced value (source = flux is not stable)
+% %         n_source = n_source*ns_mult*0.5;
+%         
+%         % set source density ghost points to zero 
+%         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+% 
+%         % build full coefficient matrices
+% %         An_exp = nI + dt*nA;
+%         An_imp = nI - dt*nA;
+%         
+%         % override values in top and bottom rows to reflect neumann
+%         % boundary conditions for the implicit calculation
+%         
+%         An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
+%         An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
+%         
+%         % calculate explicit solution
+% %         n_new_exp = An_exp*n' + dt*n_source';
+%         % directly override solution vector to include neumann boundary
+%         % conditions for explicit method
+% %         n_new_exp(1,1) = n_new_exp(2,1);
+% %         n_new_exp(end,1) = n_new_exp(end-1,1);
+%         
+%         % zero old rhs values for top and bottom boundary equations for
+%         % implicit calculation
+%         n(1,1) = lGhost;
+%         n(1,end) = rGhost;
+%         % implicit calculation
+%         n_new_imp = An_imp\(n' + dt*n_source');
+%         
+%         % transpose solution vector
+%         n_new = n_new_imp;
+%         n_new = n_new';
         
      
-    elseif collocated
+%     elseif collocated
+    if collocated
  
         for jj=2:npts-2
             if vx(1,jj)>0
@@ -559,22 +564,22 @@ for ii=1:nmax
     % diffusion term is central and not dependent on flow direction
     for jj=2:npts-2
         if vx(1,jj)>0
-%             vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
-%             vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-            vx_pos(jj,jj) = - mult*vx(1,jj);
-            vx_pos(jj,jj-1) = mult*vx(1,jj);
+            vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+            vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+%             vx_pos(jj,jj) = - mult*vx(1,jj);
+%             vx_pos(jj,jj-1) = mult*vx(1,jj);
         elseif vx(1,jj)<0
-%             vx_neg(jj,jj) = (1.0/vdx(1,jj-1))*vx(1,jj);
-%             vx_neg(jj,jj+1) = - (1.0/vdx(1,jj-1))*vx(1,jj);
-            vx_neg(jj,jj) = mult*vx(1,jj);
-            vx_neg(jj,jj+1) = - mult*vx(1,jj);
+            vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
+            vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+%             vx_neg(jj,jj) = mult*vx(1,jj);
+%             vx_neg(jj,jj+1) = - mult*vx(1,jj);
         end
-%         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-%         vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-%         vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-        vx_diff(jj,jj) = - mult*((2.0*nu)/dx);
-        vx_diff(jj,jj-1) = mult*(nu/dx);
-        vx_diff(jj,jj+1) = mult*(nu/dx);
+        vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+        vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+        vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+%         vx_diff(jj,jj) = - mult*((2.0*nu)/dx);
+%         vx_diff(jj,jj-1) = mult*(nu/dx);
+%         vx_diff(jj,jj+1) = mult*(nu/dx);
     end
 
     % construct full coefficient matrix for momentum equation
@@ -596,12 +601,16 @@ for ii=1:nmax
     % boundary conditions for the implicit calculation
 %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
-    vx(1,1) = lvBC_val;
-    vx(1,end) = rvBC_val;
+%     vx(1,1) = lvBC_val;
+    vx(1,1) = u0*(sin(xmin.^2 + om*dt*ii) + epsilon);
+%     vx(1,end) = rvBC_val;
+    vx(1,end) = u0*(sin(xmax.^2 + om*dt*ii) + epsilon);
     
     % calculate the source term
     if staggered
-        vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,dx);
+%         vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,dx);
+        vx_source = (om*u0*cos(vxax.^2 + om*dt*ii) + 2.0*u0^2*vxax.*cos(vxax.^2 + om*dt*ii).*(sin(vxax.^2 + dt*om*ii) +...
+                epsilon) - nu*2.0*u0*(cos(vxax.^2 + om*dt*ii) - 2.0*vxax.^2.*sin(vxax.^2 + om*dt*ii)));
         pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
         pf_source = [0,pf_source,0];
     elseif collocated
@@ -610,9 +619,8 @@ for ii=1:nmax
       
     % zero the source term at the boundaries as it is not used (dirichlet
     % boundary conditions will override the source)
-    vx_source(1,1) = 0.0;
-    vx_source(1,end) = 0.0;
-       
+%     vx_source(1,1) = 0.0;
+%     vx_source(1,end) = 0.0;
     % explicit calculation
 %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
     % implicit calculation
@@ -646,7 +654,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,round(nmax/5))==0
+    if mod(ii,round(nmax/10))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
