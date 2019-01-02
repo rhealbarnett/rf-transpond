@@ -20,7 +20,7 @@ e = const.e;
 Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
-nu = 1.0;
+% nu = 1.0;
 
 %------
 % spatial domain %
@@ -44,12 +44,13 @@ vdx = dx*ones(1,npts-2);
 % non uniform grid calculation
 % STILL TESTING
 %----------------------------------------------------------------------%
-% 
-% lambda = 8;
+
+% lambda = 5;
 % gauss = exp(-lambda*(nxax/(max(nxax))));
 % % subplot(1,4,1)
 % % plot(nxax,gauss,'-o');
-% gauss = ( gauss + flip(gauss) ) / 2;
+% % gauss = ( gauss + flip(gauss) ) / 2;
+% gauss = flip(gauss);
 % % subplot(1,4,2)
 % % plot(nxax,gauss,'-o');
 % cumulative = cumtrapz(gauss)*dx;
@@ -59,12 +60,12 @@ vdx = dx*ones(1,npts-2);
 % % subplot(1,4,4)
 % % plot(grid,grid*0,'-o');
 % % figure()
-% ndx = grid(2:end)-grid(1:end-1);
+% ndx = (grid(2:end)-grid(1:end-1));
 % clear gauss cumulative grid
 % % plot(dx,'-o')
 % 
 % gauss = exp(-lambda*(vxax/(max(vxax))));
-% gauss = ( gauss + flip(gauss) ) / 2;
+% % gauss = ( gauss + flip(gauss) ) / 2;
 % cumulative = cumtrapz(gauss)*dx;
 % grid = interp1(cumulative,vxax,linspace(0,cumulative(end),npts-1));
 % vdx = grid(2:end)-grid(1:end-1);
@@ -98,8 +99,18 @@ n_init = n_new;
 
 %-- initial velocity
 % vx_new = (cs)*(vxax/max(vxax));
-vx_new = 1.0 + exp(vxax*100);
-vx_new = cs*(vx_new/max(vx_new));
+vx_mult = log(cs)/(xmax - xmin);
+vx_const = -exp(vx_mult*xmin);
+% vx_new = exp(vxax*100);
+% vx_new = cs*(vx_new/max(vx_new));
+% vx_new = vx_const + exp(vx_mult*vxax);
+u0 = 1.0;
+epsilon = 0.001;
+nu = 0.7;
+% om = 1.0e3;
+om = 1.0e3;
+% ex_sol = u0*(sin(xax.^2 + dt*ii*om) + epsilon);
+vx_new = u0*(sin(vxax.^2) + epsilon);
 % vx_new = zeros(1,npts-1);
 % vx_new(1,end) = cs;
 % vx_new = equib.vx_new;
@@ -171,7 +182,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 % Calculate time step                                                                  %
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 2.0e-6;
+tmax = 4.0e-5;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
@@ -183,6 +194,7 @@ else
 end
 
 dt = 2.0*dt;
+% dt = (2.0*pi/om)*0.01;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 % mult = 1.0./dx;
@@ -197,7 +209,7 @@ tax = linspace(tmin,tmax,nmax);
 
 Emax = 6.0e4;
 freq = 80.0e6;
-om = 2.0*pi*freq;
+% om = 2.0*pi*freq;
 
 % Efield = exp(1.0e3*vxax);
 % Efield = (Emax/2)*(cos(cosax)+1.01);
