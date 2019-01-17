@@ -38,6 +38,19 @@ nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
 ndx = dx*ones(1,npts-1);
 vdx = dx*ones(1,npts-2);
+% r = 0.99;
+% 
+% for ii=2:npts-1
+%     nxax(ii) = nxax(ii-1) + r*dx;
+%     vxax(ii) = vxax(ii-1) + r*dx;
+% end
+% 
+% vxax(1) = xmin;
+% nxax(1) = nxax(2) - r*dx;
+% nxax(npts) = nxax(npts-1) + r*dx;
+% 
+% ndx = (nxax(2:npts) - nxax(1:npts-1)) / npts;
+% vdx = (vxax(2:npts-1) - vxax(1:npts-2)) / (npts-1);
 
 %%
 %----------------------------------------------------------------------%
@@ -45,30 +58,27 @@ vdx = dx*ones(1,npts-2);
 % STILL TESTING
 %----------------------------------------------------------------------%
 
-% lambda = 5;
-% gauss = exp(-lambda*(nxax/(max(nxax))));
-% % subplot(1,4,1)
-% % plot(nxax,gauss,'-o');
-% % gauss = ( gauss + flip(gauss) ) / 2;
-% gauss = flip(gauss);
-% % subplot(1,4,2)
-% % plot(nxax,gauss,'-o');
-% cumulative = cumtrapz(gauss)*dx;
-% % subplot(1,4,3)
-% % plot(nxax,cumulative,'-o');
-% grid = interp1(cumulative,nxax,linspace(0,cumulative(end),npts));
-% % subplot(1,4,4)
-% % plot(grid,grid*0,'-o');
-% % figure()
-% ndx = (grid(2:end)-grid(1:end-1));
-% clear gauss cumulative grid
-% % plot(dx,'-o')
-% 
-% gauss = exp(-lambda*(vxax/(max(vxax))));
-% % gauss = ( gauss + flip(gauss) ) / 2;
-% cumulative = cumtrapz(gauss)*dx;
-% grid = interp1(cumulative,vxax,linspace(0,cumulative(end),npts-1));
-% vdx = grid(2:end)-grid(1:end-1);
+% root order
+ro = 2.0;
+
+% initialise xi parameter array
+% spacing in the centre currently is 0.5*dx
+smax = 1.0;
+smin = 0.0;
+s = linspace(smin,smax,npts-1); 
+
+% calculate the x values from xi
+x = xmax*(s.^(1/ro));
+
+vxax = x;
+vdx = (vxax(2:end) - vxax(1:end-1));
+
+nxax(1) = vxax(1) - 0.5*vdx(1);
+nxax(end) = vxax(end) + 0.5*vdx(end);
+nxax(2:npts-1) = (vxax(2:npts-1) + vxax(1:npts-2))/2.0;
+ndx = nxax(2:end) - nxax(1:end-1);
+
+
 
 %%
 
@@ -85,6 +95,12 @@ tmin = 0;
 
 % equib = load('equib2.mat');
 
+mms_mult = 100.00;
+u0 = 1.0;
+epsilon = 0.001;
+nu = 1.0;
+om = 1.0e6;
+
 %-- initial density profile
 Nmax = (1.0e18);
 Nmin = (0.5e18);
@@ -95,6 +111,8 @@ n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax/max(nxax))*10));
 % n_new = interp1(nxax(2:npts-1),n_new(2:npts-1),nxax,'linear','extrap');
 % n_new = full(n_new)*10;
 n_avg = interp1(nxax,n_new,vxax);
+% n_init = n_new;
+% n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
 n_init = n_new;
 
 %-- initial velocity
@@ -103,14 +121,8 @@ vx_mult = log(cs)/(xmax - xmin);
 vx_const = -exp(vx_mult*xmin);
 % vx_new = exp(vxax*100);
 % vx_new = cs*(vx_new/max(vx_new));
-% vx_new = vx_const + exp(vx_mult*vxax);
-u0 = 1.0;
-epsilon = 0.001;
-nu = 0.7;
-% om = 1.0e3;
-om = 1.0e3;
-% ex_sol = u0*(sin(xax.^2 + dt*ii*om) + epsilon);
-vx_new = u0*(sin(vxax.^2) + epsilon);
+vx_new = vx_const + exp(vx_mult*vxax);
+% vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
 % vx_new = zeros(1,npts-1);
 % vx_new(1,end) = cs;
 % vx_new = equib.vx_new;
