@@ -62,6 +62,7 @@ n_lneumann = NaN;
 n_periodic = NaN;
 explicit = NaN;
 implicit = NaN;
+MMS = NaN;
 
 grid_type = 'staggered or collocated grid? ';
 gridt = input(grid_type, 's');
@@ -75,6 +76,18 @@ if strcmp(gridt,'staggered')
 elseif strcmp(gridt,'collocated')
     staggered = 0;
     collocated = 1;
+end
+
+test_type = 'run MMS (yes/no)? ';
+testt = input(test_type, 's');
+if isempty(testt)
+    testt = 'no';
+end
+
+if strcmp(testt,'yes')
+    MMS = 1;
+elseif strcmp(testt,'no')
+    MMS = 0;
 end
 
 
@@ -370,7 +383,7 @@ end
 
 % vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
 % vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
-vx_source = zeros(1,npts-1);
+vx_source = mms_source(vxax,dt,om,0,epsilon,nu,u0,mms_mult);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -421,10 +434,10 @@ n_rms = zeros(1,nmax);
 
 % nmax = round(nmax/4);
 % nmax = 6000;
-nmax = 10;
+nmax = 400;
 for ii=1:nmax
     
-    ex_sol = u0*(sin(vxax.^2 + dt*ii*om) + epsilon);
+    ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
 
 %     set the vectors with the old value going into the next loop
     n = n_new;
@@ -450,72 +463,77 @@ for ii=1:nmax
 %     Efield = Efield.^2;
     %-------------------------------------------------------------%
     
-%     if staggered
-%         
-%         % fill n coefficient matrix using the averaged value of the
-%         % velocities on adjacent grid points
-%         for jj=2:npts-1
-%             if ((vx(1,jj-1)+vx(1,jj))/2)>0
-%                 nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
-%                 nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
-% %                 nA(jj,jj) = - mult*vx(1,jj);
-% %                 nA(jj,jj-1) = mult*vx(1,jj-1);
-%             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-%                 nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
-%                 nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
-% %                 nA(jj,jj) = mult*vx(1,jj-1);
-% %                 nA(jj,jj+1) = -mult*vx(1,jj);
-%             end
-%         end
-%         
-%         % calculate the density source term
-% %         n_source = n.*n_neut*rate_coeff;
-% % 
-% %         % check that the outward flux at the rh boundary is equal to the
-% %         % density source term (particle balance)
-% %         source_avg = interp1(nxax,n_source,vxax);
-% %         source_int = trapz(vxax,source_avg);
-% %         n_avg = interp1(nxax,n,vxax);
-% %         rflux = vx(end)*n_avg(end);
-% %         ns_mult = rflux/source_int;
-% %         
-% %         % use reduced value (source = flux is not stable)
-% %         n_source = n_source*ns_mult*0.5;
-%         
-%         % set source density ghost points to zero 
-%         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+    if staggered
+        
+        % fill n coefficient matrix using the averaged value of the
+        % velocities on adjacent grid points
+        for jj=2:npts-1
+            if ((vx(1,jj-1)+vx(1,jj))/2)>0
+                nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
+                nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
+%                 nA(jj,jj) = - mult*vx(1,jj);
+%                 nA(jj,jj-1) = mult*vx(1,jj-1);
+            elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+                nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
+                nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
+%                 nA(jj,jj) = mult*vx(1,jj-1);
+%                 nA(jj,jj+1) = -mult*vx(1,jj);
+            end
+        end
+        
+        % calculate the density source term
+        if MMS
+            n_source = mms_source(nxax,dt,om,0,epsilon,0,u0,mms_mult);
+        end
+%         n_source = n.*n_neut*rate_coeff;
 % 
-%         % build full coefficient matrices
-% %         An_exp = nI + dt*nA;
-%         An_imp = nI - dt*nA;
+%         % check that the outward flux at the rh boundary is equal to the
+%         % density source term (particle balance)
+%         source_avg = interp1(nxax,n_source,vxax);
+%         source_int = trapz(vxax,source_avg);
+%         n_avg = interp1(nxax,n,vxax);
+%         rflux = vx(end)*n_avg(end);
+%         ns_mult = rflux/source_int;
 %         
-%         % override values in top and bottom rows to reflect neumann
-%         % boundary conditions for the implicit calculation
-%         
-%         An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
-%         An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
-%         
-%         % calculate explicit solution
-% %         n_new_exp = An_exp*n' + dt*n_source';
-%         % directly override solution vector to include neumann boundary
-%         % conditions for explicit method
-% %         n_new_exp(1,1) = n_new_exp(2,1);
-% %         n_new_exp(end,1) = n_new_exp(end-1,1);
-%         
-%         % zero old rhs values for top and bottom boundary equations for
-%         % implicit calculation
+%         % use reduced value (source = flux is not stable)
+%         n_source = n_source*ns_mult*0.5;
+        
+        % set source density ghost points to zero 
+        n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+
+        % build full coefficient matrices
+%         An_exp = nI + dt*nA;
+        An_imp = nI - dt*nA;
+        
+        % override values in top and bottom rows to reflect neumann
+        % boundary conditions for the implicit calculation
+        
+        An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
+        An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
+        
+        % calculate explicit solution
+%         n_new_exp = An_exp*n' + dt*n_source';
+        % directly override solution vector to include neumann boundary
+        % conditions for explicit method
+%         n_new_exp(1,1) = n_new_exp(2,1);
+%         n_new_exp(end,1) = n_new_exp(end-1,1);
+        
+        % zero old rhs values for top and bottom boundary equations for
+        % implicit calculation
 %         n(1,1) = lGhost;
+        n(1,1) = u0*(sin(mms_mult*(xmin - 0.5*dx)^2 + om*dt*ii) + epsilon);
 %         n(1,end) = rGhost;
-%         % implicit calculation
-%         n_new_imp = An_imp\(n' + dt*n_source');
-%         
-%         % transpose solution vector
-%         n_new = n_new_imp;
-%         n_new = n_new';
+        n(1,end) = u0*(sin(mms_mult*(xmax + 0.5*dx)^2 + om*dt*ii) + epsilon);
+        % implicit calculation
+        n_new_imp = An_imp\(n' + dt*n_source');
+        
+        % transpose solution vector
+        n_new = n_new_imp;
+        n_new = n_new';
         
      
-%     elseif collocated
-    if collocated
+    elseif collocated
+%     if collocated
  
         for jj=2:npts-2
             if vx(1,jj)>0
@@ -602,20 +620,23 @@ for ii=1:nmax
 %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
 %     vx(1,1) = lvBC_val;
-    vx(1,1) = u0*(sin(xmin.^2 + om*dt*ii) + epsilon);
 %     vx(1,end) = rvBC_val;
-    vx(1,end) = u0*(sin(xmax.^2 + om*dt*ii) + epsilon);
+    vx(1,1) = u0*(sin(mms_mult*xmin.^2 + om*dt*ii) + epsilon);
+    vx(1,end) = u0*(sin(mms_mult*xmax.^2 + om*dt*ii) + epsilon);
     
     % calculate the source term
-    if staggered
-%         vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,dx);
-        vx_source = (om*u0*cos(vxax.^2 + om*dt*ii) + 2.0*u0^2*vxax.*cos(vxax.^2 + om*dt*ii).*(sin(vxax.^2 + dt*om*ii) +...
-                epsilon) - nu*2.0*u0*(cos(vxax.^2 + om*dt*ii) - 2.0*vxax.^2.*sin(vxax.^2 + om*dt*ii)));
+    if staggered && ~MMS
+        vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,dx);
         pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
         pf_source = [0,pf_source,0];
+    elseif staggered && MMS
+        vx_source = mms_source(vxax,dt,om,ii,epsilon,nu,u0,mms_mult);
     elseif collocated
         vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
     end
+    
+    vx_source(1,1) = 0.0;
+    vx_source(1,end) = 0.0;
       
     % zero the source term at the boundaries as it is not used (dirichlet
     % boundary conditions will override the source)
@@ -631,19 +652,19 @@ for ii=1:nmax
     vx_new = vx_new_imp;
     vx_new = vx_new';
     
-    % reset CFL condition based on the lowest dt out of the
-    % convective/diffusive CFLs
+%     reset CFL condition based on the lowest dt out of the
+%     convective/diffusive CFLs
 %     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
 %         dt = cfl_fact*(dx^2)/(2.0*nu);
 %     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
 %         dt = cfl_fact*dx/max(abs(vx_new));
 %     end
-% 
-% %     will stop running script if either of the CFL conditions is violated
-%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-%         fprintf('CFL condition violated, ii=%d\n',ii)
-%         return
-%     end
+
+%     will stop running script if either of the CFL conditions is violated
+    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+        fprintf('CFL condition violated, ii=%d\n',ii)
+        return
+    end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
@@ -654,7 +675,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,round(nmax/10))==0
+    if mod(ii,round(nmax/5))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -672,15 +693,22 @@ for ii=1:nmax
 %         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-        semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+dx) max(nxax-dx)])
         hold on
+%         if MMS
+%             plot(nxax,ex_sol,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+%         end
 %         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
         figure(2)
         set(gcf,'Position',[7 925 560 420])
         plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
+        if MMS
+            plot(vxax,ex_sol/cs,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+        end
 %         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
         set(gcf,'Position',[3 476 560 420])
@@ -715,8 +743,12 @@ fprintf('simulation time %d\n', toc(timerVal))
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+% semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
+% if MMS
+%     plot(nxax,ex_sol,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+% end
 % semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
@@ -727,6 +759,9 @@ figure(2)
 set(gcf,'Position',[7 925 560 420])
 plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
+if MMS
+    plot(vxax,ex_sol/cs,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+end
 % plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number (v/c_s)','Fontsize',16)
@@ -827,6 +862,13 @@ end
 
 function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
     ans = -((Te + Ti)*q./(m*n)).*(grad2(n,dx,npts));
+end
+
+function [ans] = mms_source(xax,dt,om,ii,epsilon,nu,u0,mms_mult)
+    ans = om*u0*cos(mms_mult*xax.^2 + om*dt*ii) + 2.0*mms_mult*u0^2*xax.*cos(mms_mult*xax.^2 +...
+        om*dt*ii).*(sin(mms_mult*xax.^2 + dt*om*ii) +...
+        epsilon) - nu*2.0*mms_mult*u0*(cos(mms_mult*xax.^2 + om*dt*ii) -...
+        2.0*mms_mult*xax.^2.*sin(mms_mult*xax.^2 + om*dt*ii));
 end
 
 % end
