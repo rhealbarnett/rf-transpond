@@ -381,9 +381,9 @@ end
 % INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
 %--------------------------------------------------------------------------------------------------------------%
 
-% vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,dx);
+vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
 % vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
-vx_source = mms_source(vxax,dt,om,0,epsilon,nu,u0,mms_mult);
+% vx_source = mms_source(vxax,dt,om,0,epsilon,nu,u0,mms_mult);
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -434,7 +434,7 @@ n_rms = zeros(1,nmax);
 
 % nmax = round(nmax/4);
 % nmax = 6000;
-nmax = 400;
+% nmax = 400;
 for ii=1:nmax
     
     ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
@@ -484,8 +484,9 @@ for ii=1:nmax
         % calculate the density source term
         if MMS
             n_source = mms_source(nxax,dt,om,0,epsilon,0,u0,mms_mult);
+%         else
+%             n_source = n.*n_neut*rate_coeff;
         end
-%         n_source = n.*n_neut*rate_coeff;
 % 
 %         % check that the outward flux at the rh boundary is equal to the
 %         % density source term (particle balance)
@@ -499,7 +500,9 @@ for ii=1:nmax
 %         n_source = n_source*ns_mult*0.5;
         
         % set source density ghost points to zero 
-        n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+        if ~MMS
+            n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+        end
 
         % build full coefficient matrices
 %         An_exp = nI + dt*nA;
@@ -520,10 +523,14 @@ for ii=1:nmax
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
-%         n(1,1) = lGhost;
-        n(1,1) = u0*(sin(mms_mult*(xmin - 0.5*dx)^2 + om*dt*ii) + epsilon);
-%         n(1,end) = rGhost;
-        n(1,end) = u0*(sin(mms_mult*(xmax + 0.5*dx)^2 + om*dt*ii) + epsilon);
+        if MMS
+            n(1,1) = u0*(sin(mms_mult*(xmin - 0.5*dx)^2 + om*dt*ii) + epsilon);
+            n(1,end) = u0*(sin(mms_mult*(xmax + 0.5*dx)^2 + om*dt*ii) + epsilon);
+        else
+            n(1,1) = lGhost;
+            n(1,end) = rGhost;
+        end
+        
         % implicit calculation
         n_new_imp = An_imp\(n' + dt*n_source');
         
@@ -621,12 +628,17 @@ for ii=1:nmax
     % ensure that the velocity value at the boundaries is correct
 %     vx(1,1) = lvBC_val;
 %     vx(1,end) = rvBC_val;
-    vx(1,1) = u0*(sin(mms_mult*xmin.^2 + om*dt*ii) + epsilon);
-    vx(1,end) = u0*(sin(mms_mult*xmax.^2 + om*dt*ii) + epsilon);
+    if MMS
+        vx(1,1) = u0*(sin(mms_mult*xmin.^2 + om*dt*ii) + epsilon);
+        vx(1,end) = u0*(sin(mms_mult*xmax.^2 + om*dt*ii) + epsilon);
+    else
+        vx(1,1) = lvBC_val;
+        vx(1,end) = rvBC_val;
+    end
     
     % calculate the source term
     if staggered && ~MMS
-        vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,dx);
+        vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
         pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
         pf_source = [0,pf_source,0];
     elseif staggered && MMS
@@ -661,10 +673,10 @@ for ii=1:nmax
 %     end
 
 %     will stop running script if either of the CFL conditions is violated
-    if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-        fprintf('CFL condition violated, ii=%d\n',ii)
-        return
-    end
+%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+%         fprintf('CFL condition violated, ii=%d\n',ii)
+%         return
+%     end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
@@ -693,8 +705,8 @@ for ii=1:nmax
 %         end
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-%         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%         plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+dx) max(nxax-dx)])
         hold on
 %         if MMS
@@ -743,8 +755,8 @@ fprintf('simulation time %d\n', toc(timerVal))
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
-% semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+% plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
 % if MMS
 %     plot(nxax,ex_sol,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
@@ -837,7 +849,7 @@ hold off
 %%
 
 function [ans] = grad(n,dx,npts)
-    ans = (n(2:npts) - n(1:npts-1))/dx;
+    ans = (n(2:npts) - n(1:npts-1))./dx;
 end
 
 function [ans] = grad2(n,dx,npts)
