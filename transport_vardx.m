@@ -20,7 +20,7 @@ e = const.e;
 Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
-% nu = 1.0;
+nu = 1.0;
 
 %------
 % spatial domain %
@@ -33,6 +33,7 @@ xmax = 0.1;
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
 npts = 4096;
 dx = (xmax - xmin)/(npts - 1);
+% dx = dx/2.0;
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 % nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
@@ -98,7 +99,6 @@ tmin = 0;
 mms_mult = 100.00;
 u0 = 1.0;
 epsilon = 0.001;
-nu = 1.0;
 om = 1.0e6;
 
 %-- initial density profile
@@ -138,7 +138,10 @@ vx_init = vx_new;
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
-decay_index = round((npts)/4);
+decay_loc = 0.075;
+a = find(nxax >= decay_loc);
+decay_index = npts - a(1);
+% decay_index = round((npts)/4);
 % calculate shape of neutral profile
 cosax = linspace(pi,2*pi,decay_index);
 % max neutral value (at wall)
@@ -163,7 +166,7 @@ rflux = n_avg(end)*vx_new(end);
 % calculate the constant multiplier to match density out = in
 ns_mult = rflux/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*0.5;
+n_source = (n_source*ns_mult)*0.4;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
@@ -194,7 +197,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 % Calculate time step                                                                  %
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 4.0e-5;
+tmax = 1.0e-5;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
