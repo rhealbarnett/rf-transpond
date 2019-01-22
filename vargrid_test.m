@@ -23,7 +23,8 @@ ro = 2.0;
 % spacing in the centre currently is 0.5*dx
 smax = 1.0;
 smin = 0.0;
-s = smin:2.4e-4:smax; 
+% s = smin:2*2.4e-4:smax; 
+s = linspace(smin,smax,npts-1);
 
 % length of the x parameter, i.e. the number of points
 n = length(s);
