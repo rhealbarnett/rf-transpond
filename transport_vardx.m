@@ -20,7 +20,7 @@ e = const.e;
 Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
-nu = 1.0;
+nu = 0.0;
 
 %------
 % spatial domain %
@@ -28,9 +28,15 @@ nu = 1.0;
 xmin = 0.0;
 xmax = 0.1;
 
+%------
+% turn variable grid on (1) or off (0)
+%------
+variable = 1;
+
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
+% npts = 4096;
 npts = 4096;
 dx = (xmax - xmin)/(npts - 1);
 % dx = dx/2.0;
@@ -59,25 +65,35 @@ vdx = dx*ones(1,npts-2);
 % STILL TESTING
 %----------------------------------------------------------------------%
 
-% root order
-ro = 2.0;
+if variable
+    
+    clear vxax nxax
 
-% initialise xi parameter array
-% spacing in the centre currently is 0.5*dx
-smax = 1.0;
-smin = 0.0;
-s = linspace(smin,smax,npts-1); 
+    % root order
+    ro = 2.0;
 
-% calculate the x values from xi
-x = xmax*(s.^(1/ro));
+    % initialise xi parameter array
+    % spacing in the centre currently is 0.5*dx
+    smax = 1.0;
+    smin = 0.0;
+%     s = smin:20.0*dx:smax;
+    s = linspace(smin,smax,(npts/2)-1); 
 
-vxax = x;
-vdx = (vxax(2:end) - vxax(1:end-1));
+    % calculate the x values from xi
+    x = xmax*(s.^(1/ro));
 
-nxax(1) = vxax(1) - 0.5*vdx(1);
-nxax(end) = vxax(end) + 0.5*vdx(end);
-nxax(2:npts-1) = (vxax(2:npts-1) + vxax(1:npts-2))/2.0;
-ndx = nxax(2:end) - nxax(1:end-1);
+    vxax = x;
+    vdx = (vxax(2:end) - vxax(1:end-1));
+
+    npts = length(vxax) + 1;
+    nxax = zeros(1,npts);
+
+    nxax(1) = vxax(1) - 0.5*vdx(1);
+    nxax(end) = vxax(end) + 0.5*vdx(end);
+    nxax(2:end-1) = (vxax(2:end) + vxax(1:end-1))/2.0;
+    ndx = nxax(2:end) - nxax(1:end-1);
+    
+end
 
 
 
@@ -105,25 +121,25 @@ om = 1.0e6;
 Nmax = (1.0e18);
 Nmin = (0.5e18);
 % n_new = (Nmin*(fliplr(nxax)/max(nxax)) + Nmin);
-n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax/max(nxax))*10));
+n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
+% n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax/max(nxax))*10));
 % n_new = (Nmax*ones(1,npts));
 % n_new = equib.n_new;
 % n_new = interp1(nxax(2:npts-1),n_new(2:npts-1),nxax,'linear','extrap');
 % n_new = full(n_new)*10;
 n_avg = interp1(nxax,n_new,vxax);
 % n_init = n_new;
-% n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
 n_init = n_new;
 
 %-- initial velocity
 % vx_new = (cs)*(vxax/max(vxax));
-vx_mult = log(cs)/(xmax - xmin);
-vx_const = -exp(vx_mult*xmin);
+% vx_mult = log(cs)/(xmax - xmin);
+% vx_const = -exp(vx_mult*xmin);
 % vx_new = exp(vxax*100);
 % vx_new = cs*(vx_new/max(vx_new));
-vx_new = vx_const + exp(vx_mult*vxax);
+% vx_new = vx_const + exp(vx_mult*vxax);
 % vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
-% vx_new = zeros(1,npts-1);
+vx_new = ones(1,npts-1);
 % vx_new(1,end) = cs;
 % vx_new = equib.vx_new;
 % vx_new = full(vx_new);
@@ -134,7 +150,7 @@ vx_init = vx_new;
 %-------------------------------------------------------------------------%
 % CALCULATE DENSITY SOURCE                                                %
 %-------------------------------------------------------------------------%
-
+% 
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
@@ -166,7 +182,7 @@ rflux = n_avg(end)*vx_new(end);
 % calculate the constant multiplier to match density out = in
 ns_mult = rflux/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*0.4;
+n_source = (n_source*ns_mult);
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
