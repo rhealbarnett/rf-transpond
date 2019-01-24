@@ -20,13 +20,13 @@ e = const.e;
 Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
-nu = 0.0;
+nu = 1.0;
 
 %------
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.1;
+xmax = 1.0;
 
 %------
 % turn variable grid on (1) or off (0)
@@ -36,7 +36,6 @@ variable = 1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-% npts = 4096;
 npts = 4096;
 dx = (xmax - xmin)/(npts - 1);
 % dx = dx/2.0;
@@ -112,37 +111,18 @@ tmin = 0;
 
 % equib = load('equib2.mat');
 
-mms_mult = 100.00;
-u0 = 1.0;
-epsilon = 0.001;
-om = 1.0e6;
-
 %-- initial density profile
 Nmax = (1.0e18);
 Nmin = (0.5e18);
 % n_new = (Nmin*(fliplr(nxax)/max(nxax)) + Nmin);
-n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
-% n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax/max(nxax))*10));
-% n_new = (Nmax*ones(1,npts));
-% n_new = equib.n_new;
-% n_new = interp1(nxax(2:npts-1),n_new(2:npts-1),nxax,'linear','extrap');
-% n_new = full(n_new)*10;
+n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax/max(nxax))*10));
 n_avg = interp1(nxax,n_new,vxax);
-% n_init = n_new;
 n_init = n_new;
 
 %-- initial velocity
-% vx_new = (cs)*(vxax/max(vxax));
-% vx_mult = log(cs)/(xmax - xmin);
-% vx_const = -exp(vx_mult*xmin);
-% vx_new = exp(vxax*100);
-% vx_new = cs*(vx_new/max(vx_new));
-% vx_new = vx_const + exp(vx_mult*vxax);
-% vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
-vx_new = ones(1,npts-1);
-% vx_new(1,end) = cs;
-% vx_new = equib.vx_new;
-% vx_new = full(vx_new);
+vx_mult = log(cs)/(xmax - xmin);
+vx_const = -exp(vx_mult*xmin);
+vx_new = vx_const + exp(vx_mult*vxax);
 vx_init = vx_new;
 
 
@@ -154,9 +134,14 @@ vx_init = vx_new;
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
-decay_loc = 0.075;
+% decay_loc = 0.075;
+decay_loc = xmax - 0.2*xmax;
 a = find(nxax >= decay_loc);
-decay_index = npts - a(1);
+if xmax <= 1.0
+    decay_index = npts - a(1);
+elseif xmax > 1.0
+    decay_index = a(1);
+end
 % decay_index = round((npts)/4);
 % calculate shape of neutral profile
 cosax = linspace(pi,2*pi,decay_index);
@@ -182,9 +167,10 @@ rflux = n_avg(end)*vx_new(end);
 % calculate the constant multiplier to match density out = in
 ns_mult = rflux/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult);
+n_source = (n_source*ns_mult)*0.5;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+% n_source = zeros(1,npts);
 
 % n_source = equib.n_source;
 
@@ -213,7 +199,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 % Calculate time step                                                                  %
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
-tmax = 1.0e-5;
+tmax = 5.0e-7;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
@@ -240,7 +226,7 @@ tax = linspace(tmin,tmax,nmax);
 
 Emax = 6.0e4;
 freq = 80.0e6;
-% om = 2.0*pi*freq;
+om = 2.0*pi*freq;
 
 % Efield = exp(1.0e3*vxax);
 % Efield = (Emax/2)*(cos(cosax)+1.01);
