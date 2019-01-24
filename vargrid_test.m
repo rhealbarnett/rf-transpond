@@ -24,7 +24,7 @@ ro = 2.0;
 smax = 1.0;
 smin = 0.0;
 % s = smin:2*2.4e-4:smax; 
-s = linspace(smin,smax,npts-1);
+s = linspace(smin,smax,2048-1);
 
 % length of the x parameter, i.e. the number of points
 n = length(s);
