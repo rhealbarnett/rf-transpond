@@ -17,7 +17,7 @@ xc = L/2.0;
 A = 2.5;
 
 % root order
-ro = 2.0;
+ro = 0.5;
 
 % initialise xi parameter array
 % spacing in the centre currently is 0.5*dx
