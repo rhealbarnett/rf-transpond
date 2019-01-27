@@ -40,9 +40,9 @@
 
 % import parameter file
 % params_transport_wave_ACM;
-transport_vardx;
+% transport_vardx;
 % transport_test;
-% transport_mms;
+transport_mms;
 
 % initialise velocity and density 
 vx = vx_new;
@@ -387,7 +387,7 @@ elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
     vx_source = mms_source(vxax,dt,om,0,epsilon,nu,u0,mms_mult);
-    n_source = mms_source(nxax,dt,om,0,epsilon,0,u0,mms_mult);
+%     n_source = mms_source(nxax,dt,om,0,epsilon,0,u0,mms_mult);
 end
 
 figure(1)
@@ -444,7 +444,8 @@ n_rms = zeros(1,nmax);
 for ii=1:nmax
     
     if MMS
-        ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
+%         ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
+        ex_sol = exp(-mms_mult*vxax)*(sin(om*dt*ii) + epsilon);
     end
 %     set the vectors with the old value going into the next loop
     n = n_new;
@@ -474,78 +475,78 @@ for ii=1:nmax
         
         % fill n coefficient matrix using the averaged value of the
         % velocities on adjacent grid points
-        for jj=2:npts-1
-            if ((vx(1,jj-1)+vx(1,jj))/2)>0
-                nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
-                nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
-%                 nA(jj,jj) = - mult*vx(1,jj);
-%                 nA(jj,jj-1) = mult*vx(1,jj-1);
-            elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-                nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
-                nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
-%                 nA(jj,jj) = mult*vx(1,jj-1);
-%                 nA(jj,jj+1) = -mult*vx(1,jj);
-            end
-        end
-        
-        % calculate the density source term
-        if MMS
-            n_source = mms_source(nxax,dt,om,ii,epsilon,0,u0,mms_mult);
-%         else
-%             n_source = n.*n_neut*rate_coeff;
-        end
-% 
-%         % check that the outward flux at the rh boundary is equal to the
-%         % density source term (particle balance)
-%         source_avg = interp1(nxax,n_source,vxax);
-%         source_int = trapz(vxax,source_avg);
-%         n_avg = interp1(nxax,n,vxax);
-%         rflux = vx(end)*n_avg(end);
-%         ns_mult = rflux/source_int;
-%         
-%         % use reduced value (source = flux is not stable)
-%         n_source = n_source*ns_mult*0.5;
-        
-        % set source density ghost points to zero 
-%         if ~MMS
-        n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+%         for jj=2:npts-1
+%             if ((vx(1,jj-1)+vx(1,jj))/2)>0
+%                 nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
+%                 nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
+% %                 nA(jj,jj) = - mult*vx(1,jj);
+% %                 nA(jj,jj-1) = mult*vx(1,jj-1);
+%             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+%                 nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
+%                 nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
+% %                 nA(jj,jj) = mult*vx(1,jj-1);
+% %                 nA(jj,jj+1) = -mult*vx(1,jj);
+%             end
 %         end
-
-        % build full coefficient matrices
-%         An_exp = nI + dt*nA;
-        An_imp = nI - dt*nA;
-        
-        % override values in top and bottom rows to reflect neumann
-        % boundary conditions for the implicit calculation
-        
-        An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
-        An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
-        
-        % calculate explicit solution
-%         n_new_exp = An_exp*n' + dt*n_source';
-        % directly override solution vector to include neumann boundary
-        % conditions for explicit method
-%         n_new_exp(1,1) = n_new_exp(2,1);
-%         n_new_exp(end,1) = n_new_exp(end-1,1);
-        
-        % zero old rhs values for top and bottom boundary equations for
-        % implicit calculation
-        if MMS
-            n(1,1) = u0*(sin(mms_mult*(nxax(1))^2 + om*dt*ii) + epsilon);
-            n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
-        else
-            n(1,1) = lGhost;
-            n(1,end) = rGhost;
-        end
-        
-        % implicit calculation
-        n_new_imp = An_imp\(n' + dt*n_source');
-        
-        % transpose solution vector
-        n_new = n_new_imp;
-        n_new = n_new';
-        
-     
+%         
+%         % calculate the density source term
+%         if MMS
+%             n_source = mms_source(nxax,dt,om,ii,epsilon,0,u0,mms_mult);
+% %         else
+% %             n_source = n.*n_neut*rate_coeff;
+%         end
+% % 
+% %         % check that the outward flux at the rh boundary is equal to the
+% %         % density source term (particle balance)
+% %         source_avg = interp1(nxax,n_source,vxax);
+% %         source_int = trapz(vxax,source_avg);
+% %         n_avg = interp1(nxax,n,vxax);
+% %         rflux = vx(end)*n_avg(end);
+% %         ns_mult = rflux/source_int;
+% %         
+% %         % use reduced value (source = flux is not stable)
+% %         n_source = n_source*ns_mult*0.5;
+%         
+%         % set source density ghost points to zero 
+% %         if ~MMS
+%         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+% %         end
+% 
+%         % build full coefficient matrices
+% %         An_exp = nI + dt*nA;
+%         An_imp = nI - dt*nA;
+%         
+%         % override values in top and bottom rows to reflect neumann
+%         % boundary conditions for the implicit calculation
+%         
+%         An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
+%         An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
+%         
+%         % calculate explicit solution
+% %         n_new_exp = An_exp*n' + dt*n_source';
+%         % directly override solution vector to include neumann boundary
+%         % conditions for explicit method
+% %         n_new_exp(1,1) = n_new_exp(2,1);
+% %         n_new_exp(end,1) = n_new_exp(end-1,1);
+%         
+%         % zero old rhs values for top and bottom boundary equations for
+%         % implicit calculation
+%         if MMS
+%             n(1,1) = u0*(sin(mms_mult*(nxax(1))^2 + om*dt*ii) + epsilon);
+%             n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
+%         else
+%             n(1,1) = lGhost;
+%             n(1,end) = rGhost;
+%         end
+%         
+%         % implicit calculation
+%         n_new_imp = An_imp\(n' + dt*n_source');
+%         
+%         % transpose solution vector
+%         n_new = n_new_imp;
+%         n_new = n_new';
+%         
+%      
     elseif collocated
 %     if collocated
  
@@ -636,9 +637,11 @@ for ii=1:nmax
 %     vx(1,1) = lvBC_val;
 %     vx(1,end) = rvBC_val;
     if MMS
-        vx(1,1) = u0*(sin(mms_mult*xmin.^2 + om*dt*ii) + epsilon);
-        vx(1,end) = u0*(sin(mms_mult*xmax.^2 + om*dt*ii) + epsilon);
-    else
+%         vx(1,1) = u0*(sin(mms_mult*xmin.^2 + om*dt*ii) + epsilon);
+%         vx(1,end) = u0*(sin(mms_mult*xmax.^2 + om*dt*ii) + epsilon);
+        vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
+        vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
+    elseif ~MMS
         vx(1,1) = lvBC_val;
         vx(1,end) = rvBC_val;
     end
@@ -704,10 +707,6 @@ for ii=1:nmax
 %         fprintf('particle balance check %e\n', trapz(nxax,n) - trapz(nxax,n_new))
 %         fprintf('density source and flux balance check %e\n', rflux -...
 %             trapz(vxax,source_avg*ns_mult))
-        if MMS
-            l_inf(1,count) = norm(ex_sol - vx_new, Inf);
-            l_two(1,count) = rms(ex_sol - vx_new);
-        end
 %         if dt == cfl_fact*(dx^2)/(2.0*nu)
 %             fprintf('Diffusive CFL condition\n')
 %         elseif dt == cfl_fact*dx/max(abs(vx_new))
@@ -744,15 +743,20 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
-        vx_mat(count,:) = vx_new;
-        n_mat(count,:) = n_new;
+%         vx_mat(count,:) = vx_new;
+%         n_mat(count,:) = n_new;
         count = count + 1;
     end
     
 end
 
-vx_mat(count,:) = vx_new;
-n_mat(count,:) = n_new;
+% vx_mat(count,:) = vx_new;
+% n_mat(count,:) = n_new;
+
+if MMS
+    l_inf = norm(ex_sol - vx_new, Inf);
+    l_two = rms(ex_sol - vx_new);
+end
 
 fprintf('***--------------------***\n')
 fprintf('ii=%d, count=%d\n', [ii count])
@@ -887,10 +891,15 @@ function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
 end
 
 function [ans] = mms_source(xax,dt,om,ii,epsilon,nu,u0,mms_mult)
-    ans = om*u0*cos(mms_mult*xax.^2 + om*dt*ii) + 2.0*mms_mult*u0^2*xax.*cos(mms_mult*xax.^2 +...
-        om*dt*ii).*(sin(mms_mult*xax.^2 + dt*om*ii) +...
-        epsilon) - nu*2.0*mms_mult*u0*(cos(mms_mult*xax.^2 + om*dt*ii) -...
-        2.0*mms_mult*xax.^2.*sin(mms_mult*xax.^2 + om*dt*ii));
+%     ans = om*u0*cos(mms_mult*xax.^2 + om*dt*ii) + 2.0*mms_mult*u0^2*xax.*cos(mms_mult*xax.^2 +...
+%         om*dt*ii).*(sin(mms_mult*xax.^2 + dt*om*ii) +...
+%         epsilon) - nu*2.0*mms_mult*u0*(cos(mms_mult*xax.^2 + om*dt*ii) -...
+%         2.0*mms_mult*xax.^2.*sin(mms_mult*xax.^2 + om*dt*ii));
+    v0 = exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
+    Dvt = om*exp(-mms_mult*xax)*(cos(om*dt*ii));
+    Dvx = -mms_mult*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
+    DDvx = mms_mult^2*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
+    ans = Dvt + v0.*Dvx - nu*DDvx;
 end
 
 % end
