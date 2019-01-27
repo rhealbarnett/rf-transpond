@@ -21,12 +21,16 @@ Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
 nu = 1.0;
+om = 1.0e10;
+u0 = 1.0;
+mms_mult = 100.0;
+epsilon = 0.001;
 
 %------
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 1.0;
+xmax = 0.1;
 
 %------
 % turn variable grid on (1) or off (0)
@@ -120,9 +124,10 @@ n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
 
 %-- initial velocity
-vx_mult = log(cs)/(xmax - xmin);
-vx_const = -exp(vx_mult*xmin);
-vx_new = vx_const + exp(vx_mult*vxax);
+% vx_mult = log(cs)/(xmax - xmin);
+% vx_const = -exp(vx_mult*xmin);
+% vx_new = vx_const + exp(vx_mult*vxax);
+vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
 vx_init = vx_new;
 
 
@@ -226,7 +231,7 @@ tax = linspace(tmin,tmax,nmax);
 
 Emax = 6.0e4;
 freq = 80.0e6;
-om = 2.0*pi*freq;
+% om = 2.0*pi*freq;
 
 % Efield = exp(1.0e3*vxax);
 % Efield = (Emax/2)*(cos(cosax)+1.01);
