@@ -27,13 +27,12 @@ xmax = 0.1;
 %------
 % turn variable grid on (1) or off (0)
 %------
-variable = 0;
+variable = 1;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
 % npts = 4096;
-npts = 4096;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -58,35 +57,33 @@ if variable
     % spacing in the centre currently is 0.5*dx
     smax = 1.0;
     smin = 0.0;
-%     s = smin:20.0*dx:smax;
-    s = linspace(smin,smax,(npts/2)-1); 
+    s = linspace(smin,smax,npts-1); 
 
     % calculate the x values from xi
     x = xmax*(s.^(1/ro));
-%     x = (10.0/xmax)*s.^2;
-    
-    figure(1);
-    plot(s,x,'LineWidth',2);
-    hold on
-    
-    for ii=1:round(n/50):n
-        
-        figure(1)
-        hold on
-        plot([s(ii),s(ii)],[0.0, x(ii)]);
-        plot([0.0,s(ii)],[x(ii), x(ii)]);
-    
-    end
-    
-    xlabel('\xi','Fontsize',16) 
-    ylabel('x','Fontsize',16)
-    set(gca,'Box','on'); 
-    set(gca,'Fontsize',16, 'LineWidth',2)
-    plot([smin,smax],[0,L],'r')
-    % text(0.05,L-0.1,['A=',num2str(A),...
-    % ' x=',num2str(xc)],'Fontsize',18)
-
-    hold off;
+%     
+%     figure(1);
+%     plot(s,x,'LineWidth',2);
+%     hold on
+%     
+%     for ii=1:round(npts/50):npts
+%         
+%         figure(1)
+%         hold on
+%         plot([s(ii),s(ii)],[0.0, x(ii)]);
+%         plot([0.0,s(ii)],[x(ii), x(ii)]);
+%     
+%     end
+%     
+%     xlabel('\xi','Fontsize',16) 
+%     ylabel('x','Fontsize',16)
+%     set(gca,'Box','on'); 
+%     set(gca,'Fontsize',16, 'LineWidth',2)
+%     plot([smin,smax],[0,xmax],'r')
+%     % text(0.05,L-0.1,['A=',num2str(A),...
+%     % ' x=',num2str(xc)],'Fontsize',18)
+% 
+%     hold off;
 
     vxax = x;
     vdx = (vxax(2:end) - vxax(1:end-1));
@@ -114,25 +111,23 @@ end
 
 % equib = load('equib2.mat');
 
-decay_const = 300.0;
+% decay_const = 300.0;
 
-mms_mult = 100.00;
+mms_mult = 100000.0;
 u0 = 1.0;
-epsilon = 1.0;
-om = 1.0e10;
+% epsilon = 1.0;
+epsilon = 0.001;
+om = 1.0e6;
 
 %-- initial density profile
 n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
 n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
+n_source = zeros(1,npts);
 
 %-- initial velocity
 % vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
-% vx_mult = log(cs)/(xmax - xmin);
-% vx_const = -exp(vx_mult*xmin);
-% vx_new = vx_const + exp(vx_mult*vxax)*(0 + epsilon);
-% vx_new = 1.0e4*vx_new/max(vx_new);
-vx_new = exp(-decay_const*vxax)*(sin(0) + epsilon);
+vx_new = exp(-mms_mult*vxax)*(sin(0) + epsilon);
 vx_init = vx_new;
 
 
@@ -154,9 +149,6 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 
-tmin = 0;
-% tmax = 1.0e-5;
-tmax = 20*dt;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
@@ -168,20 +160,27 @@ else
 end
 
 dt = 2.0*dt;
+% dt = 5.9037e-10;
+% dt = 1.4768e-10;
+tmin = 0;
+tmax = 1.0e-7;
+% tmax = 20*dt;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 
-for ii=1:20
-    vx_new = exp(-decay_const*vxax)*(sin(om*dt*ii) + epsilon);
-%     vx_new = 1.0e4*vx_new/max(vx_new);
-    figure(2)
-    plot(vxax,vx_new)
-    pause(2)
-    hold on
-end
+% for ii=1:nmax
+%     vx_new = exp(-decay_const*vxax)*(sin(om*dt*ii) + epsilon);
+% %     vx_new = 1.0e4*vx_new/max(vx_new);
+%     figure(2)
+%     plot(vxax,vx_new)
+%     pause(2)
+%     hold on
+% end
 
-figure(2)
-hold on
-xlabel('Position (m)','Fontsize',16)
-ylabel('Exact solution','Fontsize',16)
-hold off
+% figure(2)
+% hold on
+% xlabel('Position (m)','Fontsize',16)
+% ylabel('Exact solution','Fontsize',16)
+% hold off
+
+Efield = zeros(1,npts-1);
