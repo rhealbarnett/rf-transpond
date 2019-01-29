@@ -89,7 +89,7 @@ if variable
     vdx = (vxax(2:end) - vxax(1:end-1));
     vdx = fliplr(vdx);
     vxax(1) = xmin;
-    for ii=2:(npts/2)-1
+    for ii=2:npts-1
         vxax(1,ii) = vxax(1,ii-1) + vdx(1,ii-1);
     end
 
@@ -159,12 +159,11 @@ else
     dt = cfl_fact*min(ndx)/cs;
 end
 
-dt = 2.0*dt;
+% dt = 2.0*dt;
 % dt = 5.9037e-10;
-% dt = 1.4768e-10;
+dt = 1.4768e-10;
 tmin = 0;
-tmax = 1.0e-7;
-% tmax = 20*dt;
+tmax = 20*dt;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
 
