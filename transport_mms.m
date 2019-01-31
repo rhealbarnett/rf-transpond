@@ -27,12 +27,12 @@ xmax = 0.1;
 %------
 % turn variable grid on (1) or off (0)
 %------
-variable = 1;
+variable = 0;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-% npts = 4096;
+npts = 4096;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -111,23 +111,31 @@ end
 
 % equib = load('equib2.mat');
 
-% decay_const = 300.0;
+% mms_mult = 100000.0;
 
-mms_mult = 100000.0;
 u0 = 1.0;
-% epsilon = 1.0;
-epsilon = 0.001;
+n0 = 2.0;
+
+ux = 2.0;
+nx = 0.7;
+
+knx = 1.0;
+kux = 1.0;
+
+% epsilon = 0.001;
 om = 1.0e6;
 
 %-- initial density profile
-n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
+% n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
+n_new = n0 + nx*sin(knx*nxax.^2);
 n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
-n_source = zeros(1,npts);
+% n_source = zeros(1,npts);
 
 %-- initial velocity
 % vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
-vx_new = exp(-mms_mult*vxax)*(sin(0) + epsilon);
+% vx_new = exp(-mms_mult*vxax)*(sin(0) + epsilon);
+vx_new = u0 + ux*cos(kux*vxax.^2);
 vx_init = vx_new;
 
 
