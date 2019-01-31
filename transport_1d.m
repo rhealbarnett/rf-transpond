@@ -386,8 +386,8 @@ if ~MMS && staggered
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
-    vx_source = mms_source(vxax,dt,om,0,epsilon,nu,u0,mms_mult);
-%     n_source = mms_source(nxax,dt,om,0,epsilon,0,u0,mms_mult);
+    vx_source = mms_source_mom(om,ux,kux,xax,dt,0,nu,vx_new);
+    n_source = mms_source_cont(om,nx,knx,nxax,dt,0,u,kux,ux,vxax,n_new);
 end
 
 figure(1)
@@ -446,9 +446,10 @@ for ii=1:nmax
     if MMS
 %         ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
 %         ex_sol = exp(-mms_mult*vxax)*(sin(om*dt*ii) + epsilon);
-        u = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
-        n = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
+        ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
+        ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
     end
+    
 %     set the vectors with the old value going into the next loop
     n = n_new;
     vx = vx_new;
@@ -481,19 +482,21 @@ for ii=1:nmax
             if ((vx(1,jj-1)+vx(1,jj))/2)>0
                 nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
                 nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
-%                 nA(jj,jj) = - mult*vx(1,jj);
-%                 nA(jj,jj-1) = mult*vx(1,jj-1);
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
                 nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
                 nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
-%                 nA(jj,jj) = mult*vx(1,jj-1);
-%                 nA(jj,jj+1) = -mult*vx(1,jj);
             end
         end
         
         % calculate the density source term
         if MMS
-            n_source = mms_source(nxax,dt,om,ii,epsilon,0,u0,mms_mult);
+            if ((vx(1,jj-1)+vx(1,jj))/2)>0
+                n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,ii,ex_solu,kux,ux,...
+                    vxax(2:npts-1),ex_soln);
+            elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+                n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,ii,ex_solu,kux,ux,...
+                    vxax(1:npts-2),ex_soln);
+            end
 %         else
 %             n_source = n.*n_neut*rate_coeff;
         end
@@ -511,7 +514,8 @@ for ii=1:nmax
         
         % set source density ghost points to zero 
 %         if ~MMS
-        n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+%         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+        n_source = [0, n_source, 0];
 %         end
 
         % build full coefficient matrices
@@ -534,8 +538,10 @@ for ii=1:nmax
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
         if MMS
-            n(1,1) = u0*(sin(mms_mult*(nxax(1))^2 + om*dt*ii) + epsilon);
-            n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
+%             n(1,1) = u0*(sin(mms_mult*(nxax(1))^2 + om*dt*ii) + epsilon);
+%             n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
+            n(1,1) = n0 + nx*sin(knx*min(nxax)^2 + om*dt*ii);
+            n(1,end) = n0 + nx*sin(knx*max(nxax)^2 + om*dt*ii);
         else
             n(1,1) = lGhost;
             n(1,end) = rGhost;
@@ -601,20 +607,13 @@ for ii=1:nmax
         if vx(1,jj)>0
             vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
             vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-%             vx_pos(jj,jj) = - mult*vx(1,jj);
-%             vx_pos(jj,jj-1) = mult*vx(1,jj);
         elseif vx(1,jj)<0
             vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
             vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
-%             vx_neg(jj,jj) = mult*vx(1,jj);
-%             vx_neg(jj,jj+1) = - mult*vx(1,jj);
         end
         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
         vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
         vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-%         vx_diff(jj,jj) = - mult*((2.0*nu)/dx);
-%         vx_diff(jj,jj-1) = mult*(nu/dx);
-%         vx_diff(jj,jj+1) = mult*(nu/dx);
     end
 
     % construct full coefficient matrix for momentum equation
@@ -639,10 +638,10 @@ for ii=1:nmax
 %     vx(1,1) = lvBC_val;
 %     vx(1,end) = rvBC_val;
     if MMS
-%         vx(1,1) = u0*(sin(mms_mult*xmin.^2 + om*dt*ii) + epsilon);
-%         vx(1,end) = u0*(sin(mms_mult*xmax.^2 + om*dt*ii) + epsilon);
-        vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
-        vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
+        vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+        vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+%         vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
+%         vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
     elseif ~MMS
         vx(1,1) = lvBC_val;
         vx(1,end) = rvBC_val;
@@ -654,7 +653,7 @@ for ii=1:nmax
         pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
         pf_source = [0,pf_source,0];
     elseif staggered && MMS
-        vx_source = mms_source(vxax,dt,om,ii,epsilon,nu,u0,mms_mult);
+        vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu);
     elseif collocated
         vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
     end
