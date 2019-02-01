@@ -35,7 +35,7 @@ xmax = 0.1;
 %------
 % turn variable grid on (1) or off (0)
 %------
-variable = 1;
+variable = 0;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
@@ -119,15 +119,15 @@ tmin = 0;
 Nmax = (1.0e18);
 Nmin = (0.5e18);
 % n_new = (Nmin*(fliplr(nxax)/max(nxax)) + Nmin);
-n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax/max(nxax))*10));
+n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax)*100));
 n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
 
 %-- initial velocity
-% vx_mult = log(cs)/(xmax - xmin);
-% vx_const = -exp(vx_mult*xmin);
-% vx_new = vx_const + exp(vx_mult*vxax);
-vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
+vx_mult = log(cs)/(xmax - xmin);
+vx_const = -exp(vx_mult*xmin);
+vx_new = vx_const + exp(vx_mult*vxax);
+% vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
 vx_init = vx_new;
 
 
@@ -139,8 +139,8 @@ vx_init = vx_new;
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
-% decay_loc = 0.075;
-decay_loc = xmax - 0.2*xmax;
+decay_loc = 0.075;
+% decay_loc = xmax - 0.2*xmax;
 a = find(nxax >= decay_loc);
 if xmax <= 1.0
     decay_index = npts - a(1);
@@ -151,12 +151,13 @@ end
 % calculate shape of neutral profile
 cosax = linspace(pi,2*pi,decay_index);
 % max neutral value (at wall)
-neut_max = (1.0e18);
+neut_max = (1.0clce18);
 
 % initialise and fill neutral density array
 n_neut = zeros(1,npts);
 n_neut(end-decay_index+1:end) = neut_max*((cos(cosax) + 1)/2);
-n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
+% n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
+n_neut(1:end-decay_index+1) = neut_max*((cos(pi) + 1)/2);
 
 % calculate density source
 n_source = (n_new.*(n_neut)*(rate_coeff));
@@ -255,6 +256,8 @@ pressure_mat = sparse(nmax,npts-2);
 
 vx_mat(1,:) = vx_new;
 n_mat(1,:) = n_new;
+  
+    
 
 
 
