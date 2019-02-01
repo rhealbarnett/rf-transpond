@@ -151,7 +151,7 @@ end
 % calculate shape of neutral profile
 cosax = linspace(pi,2*pi,decay_index);
 % max neutral value (at wall)
-neut_max = (1.0clce18);
+neut_max = (1.0e18);
 
 % initialise and fill neutral density array
 n_neut = zeros(1,npts);
