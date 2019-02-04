@@ -119,11 +119,12 @@ n0 = 1.0;
 ux = 0.7;
 nx = 2.0;
 
-knx = 1.0;
-kux = 1.0;
+knx = 1000.0;
+kux = 1000.0;
 
 % epsilon = 0.001;
-om = 1.0e6;
+om = 1.0e5;
+% om = 2.0e9;
 
 %-- initial density profile
 % n_new = u0*(sin(mms_mult*nxax.^2) + epsilon);
