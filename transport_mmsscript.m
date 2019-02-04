@@ -1,7 +1,7 @@
 % npts = 4096;
-pow = 3;
+pow = 4;
 
-for kk=1:3
+for kk=1:6
     
     npts = 2^pow;
     
@@ -10,6 +10,10 @@ for kk=1:3
     
     transport_1d
     
+%     ltwon_arr{kk} = l_twon;
+%     linfn_arr{kk} = l_infn;
+%     ltwou_arr{kk} = l_twou;
+%     linfu_arr{kk} = l_infu;
     ltwon_arr(1,kk) = l_twon;
     linfn_arr(1,kk) = l_infn;
     ltwou_arr(1,kk) = l_twou;
