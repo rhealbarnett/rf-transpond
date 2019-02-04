@@ -101,7 +101,7 @@ if staggered
     ln_bound_type = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
     leftGhost = input(ln_bound_type, 's');
     if isempty(leftGhost)
-        leftGhost = 'linear extrap';
+        leftGhost = 'dirichlet';
     end
     
     if strcmp('periodic',leftGhost)
@@ -110,7 +110,7 @@ if staggered
         rn_bound_type = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
         rightGhost = input(rn_bound_type, 's');
         if isempty(rightGhost)
-            rightGhost = 'linear extrap';
+            rightGhost = 'dirichlet';
         end
     end
     
@@ -141,7 +141,7 @@ if staggered
         ln_bound_val = 'Left (ghost) BC value for density? ';
         lnBC_val = input(ln_bound_val);
         if isempty(lnBC_val)
-            lnBC_val = lGhost;
+            lnBC_val = LnBC;
         end
     end
     
@@ -166,7 +166,7 @@ if staggered
         rn_bound_val = 'Right (ghost) BC value for density? ';
         rnBC_val = input(rn_bound_val);
         if isempty(rnBC_val)
-            rnBC_val = rGhost;
+            rnBC_val = RnBC;
         end
     end
     
@@ -306,7 +306,7 @@ if central
     lv_bound_val = 'Left BC value for velocity? ';
     lvBC_val = input(lv_bound_val);
     if isempty(lvBC_val)
-        lvBC_val = 0;
+        lvBC_val = LuBC;
     end
     if strcmp('periodic',leftvBC)
 
@@ -314,7 +314,7 @@ if central
         rv_bound_val = 'Right BC value for velocity? ';
         rvBC_val = input(rv_bound_val);
         if isempty(rvBC_val)
-            rvBC_val = cs;
+            rvBC_val = RuBC;
         end
     end
 
@@ -429,7 +429,7 @@ legend('show','Location','northwest')
 grid on
 hold on
 
-%%
+%
 %--------------------------------------------------------------------------------------------------------------%
 % START TIME STEPPING
 %--------------------------------------------------------------------------------------------------------------%
@@ -730,6 +730,10 @@ if MMS
     l_twon = rms(ex_soln - n_new);
     l_infu = norm(ex_solu - vx_new, Inf);
     l_twou = rms(ex_solu - vx_new);
+%     l_infn = ex_soln - n_new;
+%     l_twon = ex_soln - n_new;
+%     l_infu = ex_solu - vx_new;
+%     l_twou = ex_solu - vx_new;
 end
 
 fprintf('***--------------------***\n')
