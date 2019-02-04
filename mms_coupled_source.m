@@ -11,4 +11,5 @@ dnudx = diff(nu,x);
 dudt = diff(u,t);
 dudx = diff(u,x);
 d2udx = diff(u,x,2);
+dndx = diff(n,x);
 
