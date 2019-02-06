@@ -386,9 +386,10 @@ if ~MMS && staggered
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
-    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new);
+    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new,nxax,knx,nx,n_new,npts,lamx) -...
+            source_stag(n_new,1,1,1,1,npts,ndx);
     n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,0,vx_new(2:npts-1),...
-        kux,ux,vxax(2:npts-1),n_new(2:npts-1));
+        kux,ux,vxax(2:npts-1),n_new(2:npts-1),lamx);
     n_source = [0, n_source, 0];
 end
 
@@ -447,6 +448,8 @@ for ii=1:nmax
 %         ex_sol = exp(-mms_mult*vxax)*(sin(om*dt*ii) + epsilon);
         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
+%         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
+%         ex_soln = n0 + nx*cos(knx*nxax.^2 + om*dt*ii).*exp(-lamx*nxax);
     end
     
 %     set the vectors with the old value going into the next loop
@@ -483,14 +486,14 @@ for ii=1:nmax
                 nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
                 if MMS
                     n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
-                    ex_solu(1,jj),kux,ux,vxax(1,jj),ex_soln(1,jj));
+                    ex_solu(1,jj),kux,ux,vxax(1,jj),ex_soln(1,jj),lamx);
                 end
             elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
                 nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
                 nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
                 if MMS
                     n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
-                    ex_solu(1,jj-1),kux,ux,vxax(1,jj-1),ex_soln(1,jj));
+                    ex_solu(1,jj-1),kux,ux,vxax(1,jj-1),ex_soln(1,jj),lamx);
                 end                    
             end
         end
@@ -523,6 +526,8 @@ for ii=1:nmax
 %             n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
             n(1,1) = n0 + nx*sin(knx*min(nxax)^2 + om*dt*ii);
             n(1,end) = n0 + nx*sin(knx*max(nxax)^2 + om*dt*ii);
+%             n(1,1) = n0 + nx*cos(knx*min(nxax)^2 + om*dt*ii)*exp(-lamx*min(nxax));
+%             n(1,end) = n0 + nx*cos(knx*max(nxax)^2 + om*dt*ii)*exp(-lamx*max(nxax));
         else
             n(1,1) = lGhost;
             n(1,end) = rGhost;
@@ -587,9 +592,13 @@ for ii=1:nmax
             vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
             vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
         end
+%         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+%         vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+%         vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-        vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-        vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+        vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
+        vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+
     end
 
     % construct full coefficient matrix for momentum equation
@@ -612,6 +621,8 @@ for ii=1:nmax
 %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
     % ensure that the velocity value at the boundaries is correct
     if MMS
+%         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii)*exp(-lamx*min(vxax));
+%         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii)*exp(-lamx*max(vxax));
         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
 %         vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
@@ -627,7 +638,8 @@ for ii=1:nmax
         pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
         pf_source = [0,pf_source,0];
     elseif staggered && MMS
-        vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu);
+        vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) +...
+            source_stag(n,1,1,1,1,npts,ndx);
     elseif collocated
         vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
     end
@@ -869,7 +881,7 @@ function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
 end
 
 % function [ans] = mms_source_cont(xax,dt,om,ii,epsilon,nu,u0,mms_mult)
-function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n)
+function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n,lamx)
 %     ans = om*u0*cos(mms_mult*xax.^2 + om*dt*ii) + 2.0*mms_mult*u0^2*xax.*cos(mms_mult*xax.^2 +...
 %         om*dt*ii).*(sin(mms_mult*xax.^2 + dt*om*ii) +...
 %         epsilon) - nu*2.0*mms_mult*u0*(cos(mms_mult*xax.^2 + om*dt*ii) -...
@@ -881,11 +893,16 @@ function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n)
     dndt = om*nx*cos(knx*nxax.^2 + om*ii*dt);
     dnudx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii).*u -...
         2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii).*n;
+%     dndt = -nx*om*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii);
+%     dnudx = -u.*(lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii) -...
+%         2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii)) -...
+%         (lamx*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) +...
+%         2*kux*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii)).*n;
     ans = dndt + dnudx;
 end
 
 % function [ans] = mms_source_mom(xax,dt,om,ii,epsilon,nu,u0,mms_mult)
-function [ans] = mms_source_mom(om,ux,kux,xax,dt,ii,nu,u)
+function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lamx)
 %     ans = om*u0*cos(mms_mult*xax.^2 + om*dt*ii) + 2.0*mms_mult*u0^2*xax.*cos(mms_mult*xax.^2 +...
 %         om*dt*ii).*(sin(mms_mult*xax.^2 + dt*om*ii) +...
 %         epsilon) - nu*2.0*mms_mult*u0*(cos(mms_mult*xax.^2 + om*dt*ii) -...
@@ -894,11 +911,22 @@ function [ans] = mms_source_mom(om,ux,kux,xax,dt,ii,nu,u)
 %     Dvt = om*exp(-mms_mult*xax)*(cos(om*dt*ii));
 %     Dvx = -mms_mult*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
 %     DDvx = mms_mult^2*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
-    dudt = -om*ux*sin(kux*xax.^2 + om*dt*ii);
-    dudx = -2.0*kux*ux*xax.*sin(kux*xax.^2 + om*dt*ii);
-    d2udx = -2.0*kux*ux*sin(kux*xax.^2 + om*dt*ii) -...
-        4.0*kux^2*ux*xax.^2.*cos(kux*xax.^2 + om*dt*ii);
-    ans = dudt + u.*dudx - nu*d2udx;
+    dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
+    dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
+    d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
+        4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
+    dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
+%     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
+%     dudx = -lamx*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) - ...
+%         2*kux*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii);
+%     d2udx = lamx^2*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) -...
+%         2*kux*ux*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii) -...
+%         4*kux^2*ux*vxax.^2.*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) +...
+%         4*kux*lamx*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii);
+%     dndx = -2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii) -...
+%         lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii);
+    dndx = interp1(nxax,dndx,vxax);
+    ans = dudt + u.*dudx - nu*d2udx + (1.0./avg(n,npts)).*dndx;
 end
 
 
