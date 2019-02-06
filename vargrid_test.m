@@ -17,20 +17,21 @@ xc = L/2.0;
 A = 2.5;
 
 % root order
-ro = 0.5;
+ro = 1.2;
 
 % initialise xi parameter array
 % spacing in the centre currently is 0.5*dx
 smax = 1.0;
 smin = 0.0;
 % s = smin:2*2.4e-4:smax; 
-s = linspace(smin,smax,2048-1);
+s = linspace(smin,smax,16);
 
 % length of the x parameter, i.e. the number of points
 n = length(s);
 
 % calculate the x values from xi
-x = L*(s.^(1/ro));
+% x = L*((s).^(ro));
+x = exp(s.^1.5) - smax;
 % x = L*s+A*(xc-L*s).*s.*(1-s);
 
 % plots x as a funtion of xi
@@ -39,7 +40,8 @@ plot(s,x,'LineWidth',2);
 hold on
 
 % loop plots the lines along x(xi), visually shows dx sizing effectively
-for ii=1:round(n/50):n
+% for ii=1:round(n/50):n
+for ii=1:n
     
     plot([s(ii),s(ii)],[0.0, x(ii)]);
     plot([0.0,s(ii)],[x(ii), x(ii)]);
