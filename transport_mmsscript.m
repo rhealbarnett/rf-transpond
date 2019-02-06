@@ -5,10 +5,13 @@ for kk=1:6
     
     npts = 2^pow;
     
-    fprintf('Iteration %d\n',kk)
-    fprintf('Number of points %d\n',npts)
+    fprintf('Iteration %d\n', kk)
+    fprintf('Number of points %d\n', npts)
     
     transport_1d
+    
+    fprintf('Minimum dx %d\n', min(ndx))
+    fprintf('Maximum dx %d\n', max(ndx))
     
 %     ltwon_arr{kk} = l_twon;
 %     linfn_arr{kk} = l_infn;
