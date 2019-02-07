@@ -63,6 +63,8 @@ n_periodic = NaN;
 explicit = NaN;
 implicit = NaN;
 MMS = NaN;
+momentum = NaN;
+continuity = NaN;
 
 grid_type = 'staggered or collocated grid? ';
 gridt = input(grid_type, 's');
@@ -86,6 +88,18 @@ end
 
 if strcmp(testt,'yes')
     MMS = 1;
+    mms_type = 'continuity, momentum, or coupled? ';
+    mmst = input(mms_type, 's');
+    if strcmp(mmst,'continuity')
+        continuity = 1;
+        momentum = 0;
+    elseif strcmp(mmst,'momentum')
+        continuity = 0;
+        momentum = 1;
+    elseif strcmp(mmst,'coupled')
+        continuity = 1;
+        momentum = 1;
+    end
 elseif strcmp(testt,'no')
     MMS = 0;
 end
@@ -386,8 +400,8 @@ if ~MMS && staggered
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
-    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new,nxax,knx,nx,n_new,npts,lamx) -...
-            source_stag(n_new,1,1,1,1,npts,ndx);
+    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new,nxax,knx,nx,n_new,npts,lamx);% -...
+%             source_stag(n_new,1,1,1,1,npts,ndx);
     n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,0,vx_new(2:npts-1),...
         kux,ux,vxax(2:npts-1),n_new(2:npts-1),lamx);
     n_source = [0, n_source, 0];
@@ -405,7 +419,7 @@ hold on
 
 figure(2)
 set(gcf,'Position',[7 925 560 420])
-plot(vxax,vx_new/cs,'-o','DisplayName',['time = 0s'])
+plot(vxax,vx_new,'-o','DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
@@ -446,8 +460,10 @@ for ii=1:nmax
     if MMS
 %         ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
 %         ex_sol = exp(-mms_mult*vxax)*(sin(om*dt*ii) + epsilon);
-        ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
-        ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
+%         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
+%         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
+        ex_soln = nxax;
+        ex_solu = ii*dt*sin(pi*vxax);
 %         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
 %         ex_soln = n0 + nx*cos(knx*nxax.^2 + om*dt*ii).*exp(-lamx*nxax);
     end
@@ -476,7 +492,7 @@ for ii=1:nmax
 %     Efield = Efield.^2;
     %-------------------------------------------------------------%
     
-    if staggered
+    if staggered && continuity
         
         % fill n coefficient matrix using the averaged value of the
         % velocities on adjacent grid points
@@ -524,10 +540,12 @@ for ii=1:nmax
         if MMS
 %             n(1,1) = u0*(sin(mms_mult*(nxax(1))^2 + om*dt*ii) + epsilon);
 %             n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
-            n(1,1) = n0 + nx*sin(knx*min(nxax)^2 + om*dt*ii);
-            n(1,end) = n0 + nx*sin(knx*max(nxax)^2 + om*dt*ii);
+%             n(1,1) = n0 + nx*sin(knx*min(nxax)^2 + om*dt*ii);
+%             n(1,end) = n0 + nx*sin(knx*max(nxax)^2 + om*dt*ii);
 %             n(1,1) = n0 + nx*cos(knx*min(nxax)^2 + om*dt*ii)*exp(-lamx*min(nxax));
 %             n(1,end) = n0 + nx*cos(knx*max(nxax)^2 + om*dt*ii)*exp(-lamx*max(nxax));
+            n(1,1) = dt*ii*sin(pi*min(nxax));
+            n(1,end) = dt*ii*sin(pi*max(nxax));
         else
             n(1,1) = lGhost;
             n(1,end) = rGhost;
@@ -579,84 +597,90 @@ for ii=1:nmax
         n_new = n_new_imp;
         n_new = n_new';
         
+    elseif ~continuity
+        
     end
-  
-    % fill coefficient matrices for momentum equation, positive for v>0 and
-    % negative for v<0 on the convective term; differencing of the
-    % diffusion term is central and not dependent on flow direction
-    for jj=2:npts-2
-        if vx(1,jj)>0
-            vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
-            vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-        elseif vx(1,jj)<0
-            vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
-            vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+    
+    if momentum
+        % fill coefficient matrices for momentum equation, positive for v>0 and
+        % negative for v<0 on the convective term; differencing of the
+        % diffusion term is central and not dependent on flow direction
+        for jj=2:npts-2
+            if vx(1,jj)>0
+                vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+                vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+            elseif vx(1,jj)<0
+                vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
+                vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+            end
+            vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+            vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+            vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+%             vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+%             vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
+%             vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+
         end
-%         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-%         vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-%         vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-        vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-        vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
-        vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
 
-    end
+        % construct full coefficient matrix for momentum equation
+        if upwind 
+            vxA = vx_pos + vx_neg;
+        elseif central
+            vxA = vx_pos + vx_neg + vx_diff;
+        end
 
-    % construct full coefficient matrix for momentum equation
-    if upwind 
-        vxA = vx_pos + vx_neg;
-    elseif central
-        vxA = vx_pos + vx_neg + vx_diff;
+        % build full coefficient matrices
+    %     Avx_exp = vx_I + dt*vxA;
+        Avx_imp = vx_I - dt*vxA;
+        % override top and bottom rows to include dirichlet boundary conditions
+        % for the momentum equation (explicit and implicit methods)
+    %     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+        Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
+
+        % override values in top and bottom rows to reflect neumann
+        % boundary conditions for the implicit calculation
+    %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
+        % ensure that the velocity value at the boundaries is correct
+        if MMS
+    %         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii)*exp(-lamx*min(vxax));
+    %         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii)*exp(-lamx*max(vxax));
+%             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+%             vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+    %         vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
+    %         vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
+            vx(1,1) = dt*ii*sin(pi*min(vxax));
+            vx(1,end) = dt*ii*sin(pi*max(vxax));
+        elseif ~MMS
+            vx(1,1) = lvBC_val;
+            vx(1,end) = rvBC_val;
+        end
+
+        % calculate the source term
+        if staggered && ~MMS
+            vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
+            pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
+            pf_source = [0,pf_source,0];
+        elseif staggered && MMS
+            vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) ;%+...
+%                 source_stag(n,1,1,1,1,npts,ndx);
+        elseif collocated
+            vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
+        end
+
+        % zero the source term at the boundaries as it is not used (dirichlet
+        % boundary conditions will override the source)
+        vx_source(1,1) = 0.0;
+        vx_source(1,end) = 0.0;
+        % explicit calculation
+    %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
+        % implicit calculation
+    %     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
+        vx_new_imp = Avx_imp\(vx' + dt*vx_source');
+
+        % transpose solution vector
+        vx_new = vx_new_imp;
+        vx_new = vx_new';
     end
-    
-    % build full coefficient matrices
-%     Avx_exp = vx_I + dt*vxA;
-    Avx_imp = vx_I - dt*vxA;
-    % override top and bottom rows to include dirichlet boundary conditions
-    % for the momentum equation (explicit and implicit methods)
-%     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
-    Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
-    
-    % override values in top and bottom rows to reflect neumann
-    % boundary conditions for the implicit calculation
-%     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
-    % ensure that the velocity value at the boundaries is correct
-    if MMS
-%         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii)*exp(-lamx*min(vxax));
-%         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii)*exp(-lamx*max(vxax));
-        vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-        vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
-%         vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
-%         vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
-    elseif ~MMS
-        vx(1,1) = lvBC_val;
-        vx(1,end) = rvBC_val;
-    end
-    
-    % calculate the source term
-    if staggered && ~MMS
-        vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-        pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
-        pf_source = [0,pf_source,0];
-    elseif staggered && MMS
-        vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) +...
-            source_stag(n,1,1,1,1,npts,ndx);
-    elseif collocated
-        vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
-    end
-      
-    % zero the source term at the boundaries as it is not used (dirichlet
-    % boundary conditions will override the source)
-    vx_source(1,1) = 0.0;
-    vx_source(1,end) = 0.0;
-    % explicit calculation
-%     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
-    % implicit calculation
-%     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
-    vx_new_imp = Avx_imp\(vx' + dt*vx_source');
-    
-    % transpose solution vector
-    vx_new = vx_new_imp;
-    vx_new = vx_new';
     
 %     reset CFL condition based on the lowest dt out of the
 %     convective/diffusive CFLs
@@ -708,11 +732,11 @@ for ii=1:nmax
 %         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
         figure(2)
         set(gcf,'Position',[7 925 560 420])
-        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         if MMS
-            plot(vxax,ex_solu/cs,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+            plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
         end
 %         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
@@ -773,10 +797,10 @@ hold off
 
 figure(2)
 set(gcf,'Position',[7 925 560 420])
-plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
 if MMS
-    plot(vxax,ex_solu/cs,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+    plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
 end
 % plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
@@ -890,14 +914,16 @@ function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n,lamx)
 %     Dvt = om*exp(-mms_mult*xax)*(cos(om*dt*ii));
 %     Dvx = -mms_mult*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
 %     DDvx = mms_mult^2*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
-    dndt = om*nx*cos(knx*nxax.^2 + om*ii*dt);
-    dnudx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii).*u -...
-        2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii).*n;
+%     dndt = om*nx*cos(knx*nxax.^2 + om*ii*dt);
+%     dnudx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii).*u -...
+%         2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii).*n;
 %     dndt = -nx*om*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii);
 %     dnudx = -u.*(lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii) -...
 %         2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii)) -...
 %         (lamx*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) +...
 %         2*kux*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii)).*n;
+    dndt = sin(pi*nxax);
+    dnudx = dt*ii*sin(pi*nxax) + nxax*dt*ii*pi.*cos(pi*nxax);
     ans = dndt + dnudx;
 end
 
@@ -911,11 +937,11 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %     Dvt = om*exp(-mms_mult*xax)*(cos(om*dt*ii));
 %     Dvx = -mms_mult*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
 %     DDvx = mms_mult^2*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
-    dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
-    dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
-    d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
-        4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
-    dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
+%     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
+%     dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
+%     d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
+%         4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
+%     dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
 %     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
 %     dudx = -lamx*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) - ...
 %         2*kux*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii);
@@ -925,8 +951,11 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %         4*kux*lamx*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii);
 %     dndx = -2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii) -...
 %         lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii);
-    dndx = interp1(nxax,dndx,vxax);
-    ans = dudt + u.*dudx - nu*d2udx + (1.0./avg(n,npts)).*dndx;
+    dudt = sin(pi*vxax);
+    dudx = pi*dt*ii*cos(pi*vxax);
+    d2udx = -pi^2*dt*ii*sin(pi*vxax);
+%     dndx = interp1(nxax,dndx,vxax);
+    ans = dudt + u.*dudx - nu*d2udx;% + (1.0./avg(n,npts)).*dndx;
 end
 
 
