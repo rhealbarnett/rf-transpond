@@ -22,7 +22,7 @@ nu = 1.0;
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 0.1;
+xmax = 1.;
 
 %------
 % turn variable grid on (1) or off (0)
@@ -131,23 +131,31 @@ om = 1.0e5;
 % om = 2.0e9;
 
 %-- initial density profile
-n_new = n0 + nx*sin(knx*nxax.^2).*exp(-lamx*nxax);
-LnBC = n0 + nx*sin(knx*min(nxax)^2)*exp(-lamx*min(nxax));
-RnBC = n0 + nx*sin(knx*max(nxax)^2)*exp(-lamx*max(nxax));
+n_new = zeros(1,npts);
+LnBC = 0.0;
+RnBC = 0.0;
+% n_new = n0 + nx*sin(knx*nxax.^2).*exp(-lamx*nxax);
+% LnBC = n0 + nx*sin(knx*min(nxax)^2)*exp(-lamx*min(nxax));
+% RnBC = n0 + nx*sin(knx*max(nxax)^2)*exp(-lamx*max(nxax));
 % n_new = n0 + nx*sin(0)*exp(-lamx*nxax);
 % LnBC = n0 + nx*sin(0)*exp(-lamx*min(nxax));
 % RnBC = n0 + nx*sin(0)*exp(-lamx*max(nxax));
+n_new = nxax;
 n_init = n_new;
 n_avg = interp1(nxax,n_new,vxax);
 % n_source = zeros(1,npts);
 
 %-- initial velocity
-vx_new = u0 + ux*cos(kux*vxax.^2).*exp(-lamx*vxax);
-LuBC = u0 + ux*cos(kux*min(vxax)^2)*exp(-lamx*min(vxax));
-RuBC = u0 + ux*cos(kux*max(vxax)^2)*exp(-lamx*max(vxax));
+% vx_new = u0 + ux*cos(kux*vxax.^2).*exp(-lamx*vxax);
+% LuBC = u0 + ux*cos(kux*min(vxax)^2)*exp(-lamx*min(vxax));
+% RuBC = u0 + ux*cos(kux*max(vxax)^2)*exp(-lamx*max(vxax));
 % vx_new = u0 + ux*cos(kux*0)*exp(-lamx*vxax);
 % LuBC = u0 + ux*cos(kux*0)*exp(-lamx*min(vxax));
 % RuBC = u0 + ux*cos(kux*0)*exp(-lamx*max(vxax));
+vx_new = vxax; 
+vx_new = zeros(1,npts-1);
+LuBC = min(vxax);
+RuBC = max(vxax);
 vx_init = vx_new;
 
 
@@ -179,9 +187,10 @@ else
     dt = cfl_fact*min(ndx)/cs;
 end
 
-% dt = 2.0*dt;
+dt = 2.0*dt;
 % dt = 5.9037e-10;
-dt = 1.4768e-10;
+% dt = 1.4768e-10;
+% dt = 1.0;
 tmin = 0;
 tmax = 20*dt;
 nmax = round(tmax/dt);
