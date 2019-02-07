@@ -66,19 +66,6 @@ MMS = NaN;
 momentum = NaN;
 continuity = NaN;
 
-grid_type = 'staggered or collocated grid? ';
-gridt = input(grid_type, 's');
-if isempty(gridt)
-    gridt = 'staggered';
-end
-
-if strcmp(gridt,'staggered')
-    staggered = 1;
-    collocated = 0;
-elseif strcmp(gridt,'collocated')
-    staggered = 0;
-    collocated = 1;
-end
 
 test_type = 'run MMS (yes/no)? ';
 testt = input(test_type, 's');
@@ -102,6 +89,20 @@ if strcmp(testt,'yes')
     end
 elseif strcmp(testt,'no')
     MMS = 0;
+end
+
+grid_type = 'staggered or collocated grid? ';
+gridt = input(grid_type, 's');
+if isempty(gridt)
+    gridt = 'staggered';
+end
+
+if strcmp(gridt,'staggered')
+    staggered = 1;
+    collocated = 0;
+elseif strcmp(gridt,'collocated')
+    staggered = 0;
+    collocated = 1;
 end
 
 
@@ -492,7 +493,7 @@ for ii=1:nmax
 %     Efield = Efield.^2;
     %-------------------------------------------------------------%
     
-    if staggered && continuity
+    if staggered && (continuity || ~MMS)
         
         % fill n coefficient matrix using the averaged value of the
         % velocities on adjacent grid points
@@ -537,7 +538,7 @@ for ii=1:nmax
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
-        if MMS
+        if continuity
 %             n(1,1) = u0*(sin(mms_mult*(nxax(1))^2 + om*dt*ii) + epsilon);
 %             n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
 %             n(1,1) = n0 + nx*sin(knx*min(nxax)^2 + om*dt*ii);
@@ -546,7 +547,7 @@ for ii=1:nmax
 %             n(1,end) = n0 + nx*cos(knx*max(nxax)^2 + om*dt*ii)*exp(-lamx*max(nxax));
             n(1,1) = dt*ii*sin(pi*min(nxax));
             n(1,end) = dt*ii*sin(pi*max(nxax));
-        else
+        elseif ~MMS
             n(1,1) = lGhost;
             n(1,end) = rGhost;
         end
@@ -560,7 +561,6 @@ for ii=1:nmax
         
      
     elseif collocated
-%     if collocated
  
         for jj=2:npts-2
             if vx(1,jj)>0
@@ -597,11 +597,9 @@ for ii=1:nmax
         n_new = n_new_imp;
         n_new = n_new';
         
-    elseif ~continuity
-        
     end
     
-    if momentum
+    if momentum || ~MMS
         % fill coefficient matrices for momentum equation, positive for v>0 and
         % negative for v<0 on the convective term; differencing of the
         % diffusion term is central and not dependent on flow direction
@@ -641,7 +639,7 @@ for ii=1:nmax
         % boundary conditions for the implicit calculation
     %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
         % ensure that the velocity value at the boundaries is correct
-        if MMS
+        if momentum
     %         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii)*exp(-lamx*min(vxax));
     %         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii)*exp(-lamx*max(vxax));
 %             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
@@ -660,7 +658,7 @@ for ii=1:nmax
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
             pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
             pf_source = [0,pf_source,0];
-        elseif staggered && MMS
+        elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) ;%+...
 %                 source_stag(n,1,1,1,1,npts,ndx);
         elseif collocated
