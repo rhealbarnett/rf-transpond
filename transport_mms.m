@@ -22,17 +22,17 @@ nu = 1.0;
 % spatial domain %
 %------
 xmin = 0.0;
-xmax = 1.;
+xmax = 0.1;
 
 %------
 % turn variable grid on (1) or off (0)
 %------
-variable = 0;
+variable = 1;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 512;
+% npts = 32;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -60,9 +60,9 @@ if variable
     s = linspace(smin,smax,npts-1); 
 
     % calculate the x values from xi
-%     x = xmax*(s.^(1/ro));
-    x = exp(s.^1.5) - smax;
-    x = xmax*x/max(x);
+    x = xmax*(s.^(1/ro));
+%     x = exp(s.^1.5) - smax;
+%     x = xmax*x/max(x);
 %     
 %     figure(1);
 %     plot(s,x,'LineWidth',2);
@@ -188,9 +188,7 @@ else
 end
 
 dt = 2.0*dt;
-% dt = 5.9037e-10;
-% dt = 1.4768e-10;
-% dt = 1.0;
+dt = 1.4768e-10;
 tmin = 0;
 tmax = 20*dt;
 nmax = round(tmax/dt);

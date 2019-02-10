@@ -604,13 +604,13 @@ for ii=1:nmax
         % negative for v<0 on the convective term; differencing of the
         % diffusion term is central and not dependent on flow direction
         for jj=2:npts-2
-            if vx(1,jj)>0
-                vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
-                vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-            elseif vx(1,jj)<0
-                vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
-                vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
-            end
+%             if vx(1,jj)>0
+%                 vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+%                 vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+%             elseif vx(1,jj)<0
+%                 vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
+%                 vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+%             end
             vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
             vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
             vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
@@ -950,7 +950,8 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %     dndx = -2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii) -...
 %         lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii);
     dudt = sin(pi*vxax);
-    dudx = pi*dt*ii*cos(pi*vxax);
+%     dudx = pi*dt*ii*cos(pi*vxax);
+    dudx = 0.0;
     d2udx = -pi^2*dt*ii*sin(pi*vxax);
 %     dndx = interp1(nxax,dndx,vxax);
     ans = dudt + u.*dudx - nu*d2udx;% + (1.0./avg(n,npts)).*dndx;
