@@ -89,11 +89,11 @@ if variable
 
     vxax = x;
     vdx = (vxax(2:end) - vxax(1:end-1));
-    vdx = fliplr(vdx);
-    vxax(1) = xmin;
-    for ii=2:npts-1
-        vxax(1,ii) = vxax(1,ii-1) + vdx(1,ii-1);
-    end
+%     vdx = fliplr(vdx);
+%     vxax(1) = xmin;
+%     for ii=2:npts-1
+%         vxax(1,ii) = vxax(1,ii-1) + vdx(1,ii-1);
+%     end
 
     npts = length(vxax) + 1;
     nxax = zeros(1,npts);
@@ -134,28 +134,23 @@ om = 1.0e5;
 n_new = zeros(1,npts);
 LnBC = 0.0;
 RnBC = 0.0;
-% n_new = n0 + nx*sin(knx*nxax.^2).*exp(-lamx*nxax);
-% LnBC = n0 + nx*sin(knx*min(nxax)^2)*exp(-lamx*min(nxax));
-% RnBC = n0 + nx*sin(knx*max(nxax)^2)*exp(-lamx*max(nxax));
+n_new = n0 + nx*sin(knx*nxax.^2 + 0);
+LnBC = n0 + nx*sin(knx*min(nxax)^2 + 0);
+RnBC = n0 + nx*sin(knx*max(nxax)^2 + 0);
 % n_new = n0 + nx*sin(0)*exp(-lamx*nxax);
 % LnBC = n0 + nx*sin(0)*exp(-lamx*min(nxax));
 % RnBC = n0 + nx*sin(0)*exp(-lamx*max(nxax));
-n_new = nxax;
 n_init = n_new;
 n_avg = interp1(nxax,n_new,vxax);
 % n_source = zeros(1,npts);
 
 %-- initial velocity
-% vx_new = u0 + ux*cos(kux*vxax.^2).*exp(-lamx*vxax);
-% LuBC = u0 + ux*cos(kux*min(vxax)^2)*exp(-lamx*min(vxax));
-% RuBC = u0 + ux*cos(kux*max(vxax)^2)*exp(-lamx*max(vxax));
+vx_new = u0 + ux*cos(kux*vxax.^2 + 0);
+LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
+RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
 % vx_new = u0 + ux*cos(kux*0)*exp(-lamx*vxax);
 % LuBC = u0 + ux*cos(kux*0)*exp(-lamx*min(vxax));
 % RuBC = u0 + ux*cos(kux*0)*exp(-lamx*max(vxax));
-vx_new = vxax; 
-vx_new = zeros(1,npts-1);
-LuBC = min(vxax);
-RuBC = max(vxax);
 vx_init = vx_new;
 
 
