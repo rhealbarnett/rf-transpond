@@ -461,10 +461,8 @@ for ii=1:nmax
     if MMS
 %         ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
 %         ex_sol = exp(-mms_mult*vxax)*(sin(om*dt*ii) + epsilon);
-%         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
-%         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
-        ex_soln = nxax;
-        ex_solu = ii*dt*sin(pi*vxax);
+        ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
+        ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
 %         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
 %         ex_soln = n0 + nx*cos(knx*nxax.^2 + om*dt*ii).*exp(-lamx*nxax);
     end
@@ -642,12 +640,10 @@ for ii=1:nmax
         if momentum
     %         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii)*exp(-lamx*min(vxax));
     %         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii)*exp(-lamx*max(vxax));
-%             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-%             vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+            vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+            vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
     %         vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
     %         vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
-            vx(1,1) = dt*ii*sin(pi*min(vxax));
-            vx(1,end) = dt*ii*sin(pi*max(vxax));
         elseif ~MMS
             vx(1,1) = lvBC_val;
             vx(1,end) = rvBC_val;
@@ -935,10 +931,10 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %     Dvt = om*exp(-mms_mult*xax)*(cos(om*dt*ii));
 %     Dvx = -mms_mult*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
 %     DDvx = mms_mult^2*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
-%     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
+    dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
 %     dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
-%     d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
-%         4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
+    d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
+        4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
 %     dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
 %     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
 %     dudx = -lamx*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) - ...
@@ -949,12 +945,8 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %         4*kux*lamx*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii);
 %     dndx = -2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii) -...
 %         lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii);
-    dudt = sin(pi*vxax);
-%     dudx = pi*dt*ii*cos(pi*vxax);
-    dudx = 0.0;
-    d2udx = -pi^2*dt*ii*sin(pi*vxax);
 %     dndx = interp1(nxax,dndx,vxax);
-    ans = dudt + u.*dudx - nu*d2udx;% + (1.0./avg(n,npts)).*dndx;
+    ans = dudt - nu*d2udx;% + (1.0./avg(n,npts)).*dndx;
 end
 
 
