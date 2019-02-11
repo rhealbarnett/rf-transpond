@@ -602,19 +602,19 @@ for ii=1:nmax
         % negative for v<0 on the convective term; differencing of the
         % diffusion term is central and not dependent on flow direction
         for jj=2:npts-2
-%             if vx(1,jj)>0
-%                 vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
-%                 vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-%             elseif vx(1,jj)<0
-%                 vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
-%                 vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
-%             end
-            vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-            vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-            vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+            if vx(1,jj)>0
+                vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+                vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+            elseif vx(1,jj)<0
+                vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
+                vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+            end
 %             vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-%             vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
-%             vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+%             vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+%             vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
+            vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+            vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
+            vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
 
         end
 
@@ -932,7 +932,7 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %     Dvx = -mms_mult*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
 %     DDvx = mms_mult^2*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
-%     dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
+    dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
     d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
         4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
 %     dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
@@ -946,7 +946,7 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %     dndx = -2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii) -...
 %         lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii);
 %     dndx = interp1(nxax,dndx,vxax);
-    ans = dudt - nu*d2udx;% + (1.0./avg(n,npts)).*dndx;
+    ans = dudt + u.*dudx - nu*d2udx;% + (1.0./avg(n,npts)).*dndx;
 end
 
 
