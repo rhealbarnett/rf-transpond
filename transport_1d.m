@@ -401,8 +401,8 @@ if ~MMS && staggered
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
-    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new,nxax,knx,nx,n_new,npts,lamx);% -...
-%             source_stag(n_new,1,1,1,1,npts,ndx);
+    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new,nxax,knx,nx,n_new,npts,lamx) +...
+            source_stag(n_new,1,nx/2,nx/2,1,npts,ndx);
     n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,0,vx_new(2:npts-1),...
         kux,ux,vxax(2:npts-1),n_new(2:npts-1),lamx);
     n_source = [0, n_source, 0];
@@ -429,7 +429,9 @@ hold on
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:npts-2),(vx_source(2:npts-2)*dt),'DisplayName',['time = 0s'])
+plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
+hold on
+plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
@@ -456,6 +458,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
+nmax = 20;
 for ii=1:nmax
     
     if MMS
@@ -627,7 +630,8 @@ for ii=1:nmax
 
         % build full coefficient matrices
     %     Avx_exp = vx_I + dt*vxA;
-        Avx_imp = vx_I - dt*vxA;
+%         Avx_imp = vx_I - dt*vxA;
+        Avx_imp = -vxA;
         % override top and bottom rows to include dirichlet boundary conditions
         % for the momentum equation (explicit and implicit methods)
     %     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
@@ -640,8 +644,8 @@ for ii=1:nmax
         if momentum
     %         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii)*exp(-lamx*min(vxax));
     %         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii)*exp(-lamx*max(vxax));
-            vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-            vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+%             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+%             vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
     %         vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
     %         vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
         elseif ~MMS
@@ -655,21 +659,22 @@ for ii=1:nmax
             pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
             pf_source = [0,pf_source,0];
         elseif staggered && momentum
-            vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) ;%+...
-%                 source_stag(n,1,1,1,1,npts,ndx);
+            vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) +...
+                source_stag(n,1,nx/2,nx/2,1,npts,ndx);
         elseif collocated
             vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
         end
 
         % zero the source term at the boundaries as it is not used (dirichlet
         % boundary conditions will override the source)
-        vx_source(1,1) = 0.0;
-        vx_source(1,end) = 0.0;
+        vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+        vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
         % explicit calculation
     %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
         % implicit calculation
     %     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
-        vx_new_imp = Avx_imp\(vx' + dt*vx_source');
+%         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
+        vx_new_imp = Avx_imp\(vx_source');
 
         % transpose solution vector
         vx_new = vx_new_imp;
@@ -705,6 +710,7 @@ for ii=1:nmax
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
+        fprintf('Current rms tol calc %d\n', rms(vx - vx_new))
 %         fprintf('total number of particles %e\n', trapz(nxax,n_new))
 %         fprintf('particle balance check %e\n', trapz(nxax,n) - trapz(nxax,n_new))
 %         fprintf('density source and flux balance check %e\n', rflux -...
@@ -735,7 +741,9 @@ for ii=1:nmax
 %         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
         set(gcf,'Position',[3 476 560 420])
-        plot(vxax(2:npts-2),(vx_source(2:npts-2)*dt),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
@@ -748,6 +756,13 @@ for ii=1:nmax
 %         vx_mat(count,:) = vx_new;
 %         n_mat(count,:) = n_new;
         count = count + 1;
+        
+%     elseif rms(vx - vx_new)<=tol
+%         fprintf('tolerance reached, ii=%d\n',ii)
+%         break
+%     else 
+%         continue
+%     end
     end
     
 end
@@ -804,7 +819,9 @@ hold off
 
 figure(3)
 set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:npts-2),vx_source(2:npts-2)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(vxax(2:npts-2),vx_source(2:npts-2),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+hold on
+plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
@@ -916,8 +933,9 @@ function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n,lamx)
 %         2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii)) -...
 %         (lamx*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) +...
 %         2*kux*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii)).*n;
-    dndt = sin(pi*nxax);
-    dnudx = dt*ii*sin(pi*nxax) + nxax*dt*ii*pi.*cos(pi*nxax);
+    dndt = nx*om*cos(knx*nxax.^2 + om*dt*ii);
+    dnudx = 2*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii).*u -...
+        2*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii).*n;
     ans = dndt + dnudx;
 end
 
@@ -931,10 +949,6 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %     Dvt = om*exp(-mms_mult*xax)*(cos(om*dt*ii));
 %     Dvx = -mms_mult*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
 %     DDvx = mms_mult^2*exp(-mms_mult*xax)*(sin(om*dt*ii) + epsilon);
-    dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
-    dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
-    d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
-        4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
 %     dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
 %     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
 %     dudx = -lamx*ux*exp(-lamx*vxax).*cos(kux*vxax.^2 + om*dt*ii) - ...
@@ -945,8 +959,15 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts,lam
 %         4*kux*lamx*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii);
 %     dndx = -2*knx*nx*nxax.*exp(-lamx*nxax).*sin(knx*nxax.^2 + om*dt*ii) -...
 %         lamx*nx*exp(-lamx*nxax).*cos(knx*nxax.^2 + om*dt*ii);
-%     dndx = interp1(nxax,dndx,vxax);
-    ans = dudt + u.*dudx - nu*d2udx;% + (1.0./avg(n,npts)).*dndx;
+%     dndx = ones(1,npts);
+%     dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
+    dudt = zeros(1,npts-1);
+    dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
+    d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
+        4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
+    dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + 0);
+    dndx = interp1(nxax,dndx,vxax);
+    ans = dudt + u.*dudx - nu*d2udx + ((nx/2 + nx/2)./avg(n,npts)).*dndx;
 end
 
 
