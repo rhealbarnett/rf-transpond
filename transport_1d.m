@@ -105,6 +105,19 @@ elseif strcmp(gridt,'collocated')
     collocated = 1;
 end
 
+temporal_type = 'implicit or explicit? ';
+temporalt = input(temporal_type, 's');
+if isempty(temporalt)
+    temporalt = 'implicit';
+end
+
+if strcmp(temporalt,'implicit')
+    implicit = 1;
+    explicit = 0;
+elseif strcmp(temporalt,'explicit')
+    implicit = 0;
+    explicit = 1;
+end
 
 if (isnan(staggered)) || (isnan(collocated))
     error("Check spelling and/or type of answer for %s.\n",'"staggered or collocated grid?"')
@@ -501,41 +514,31 @@ for ii=1:nmax
         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
         % build full coefficient matrices
-%         An_exp = nI + dt*nA;
-        An_imp = nI - dt*nA;
         
-        % override values in top and bottom rows to reflect neumann
-        % boundary conditions for the implicit calculation
-        
-        An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
-        An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
-        
-        % calculate explicit solution
-%         n_new_exp = An_exp*n' + dt*n_source';
-        % directly override solution vector to include neumann boundary
-        % conditions for explicit method
-%         n_new_exp(1,1) = n_new_exp(2,1);
-%         n_new_exp(end,1) = n_new_exp(end-1,1);
-        
-        % zero old rhs values for top and bottom boundary equations for
-        % implicit calculation
-        if continuity
-            n(1,1) = dt*ii*sin(pi*min(nxax));
-            n(1,end) = dt*ii*sin(pi*max(nxax));
-        elseif ~MMS
-            n(1,1) = lGhost;
-            n(1,end) = rGhost;
+        if explicit
+            An_exp = nI + dt*nA;
+            n_new_exp = An_exp*n' + dt*n_source';
+            n_new_exp(1,1) = n_new_exp(2,1);
+            n_new_exp(end,1) = n_new_exp(end-1,1);
+            n_new = n_new_exp;
+        elseif implicit
+            An_imp = nI - dt*nA;
+            An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
+            An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0; 
+            if continuity
+                n(1,1) = dt*ii*sin(pi*min(nxax));
+                n(1,end) = dt*ii*sin(pi*max(nxax));
+            elseif ~MMS
+                n(1,1) = lGhost;
+                n(1,end) = rGhost;
+            end
+            n_new_imp = An_imp\(n' + dt*n_source');
+            n_new = n_new_imp;
         end
-        
-        % implicit calculation
-        n_new_imp = An_imp\(n' + dt*n_source');
-        
-        % transpose solution vector
-        n_new = n_new_imp;
+                
         n_new = n_new';
         
-     
-    elseif collocated
+     elseif collocated
  
         for jj=2:npts-2
             if vx(1,jj)>0
@@ -600,26 +603,40 @@ for ii=1:nmax
         end
 
         % build full coefficient matrices
-    %     Avx_exp = vx_I + dt*vxA;
-%         Avx_imp = vx_I - dt*vxA;
-        Avx_imp = -vxA;
-        % override top and bottom rows to include dirichlet boundary conditions
-        % for the momentum equation (explicit and implicit methods)
-    %     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
-        Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
-
-        % override values in top and bottom rows to reflect neumann
-        % boundary conditions for the implicit calculation
-    %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
-        % ensure that the velocity value at the boundaries is correct
-        if momentum
-            vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-            vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
-        elseif ~MMS
-            vx(1,1) = lvBC_val;
-            vx(1,end) = rvBC_val;
+        
+        if explicit
+            Avx_exp = vx_I + dt*vxA;
+            Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+            vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
+    %     reset CFL condition based on the lowest dt out of the
+    %     convective/diffusive CFLs
+            if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
+                dt = cfl_fact*(dx^2)/(2.0*nu);
+            elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
+                dt = cfl_fact*dx/max(abs(vx_new));
+            end
+    %     will stop running script if either of the CFL conditions is violated
+            if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
+                fprintf('CFL condition violated, ii=%d\n',ii)
+                return
+            end
+        elseif implicit
+            Avx_imp = vx_I - dt*vxA;
+            Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
+        %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
+            if momentum
+                vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+                vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+            elseif ~MMS
+                vx(1,1) = lvBC_val;
+                vx(1,end) = rvBC_val;
+            end
+            vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
+            vx_new_imp = Avx_imp\(vx' + dt*vx_source');
         end
-
+        
+        Avx_imp = -vxA; 
+    
         % calculate the source term
         if staggered && ~MMS
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
@@ -632,35 +649,14 @@ for ii=1:nmax
             vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
         end
 
-        % zero the source term at the boundaries as it is not used (dirichlet
-        % boundary conditions will override the source)
         vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
         vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
-        % explicit calculation
-    %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
-        % implicit calculation
-    %     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
-%         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
         vx_new_imp = Avx_imp\(vx_source');
 
         % transpose solution vector
         vx_new = vx_new_imp;
         vx_new = vx_new';
     end
-    
-%     reset CFL condition based on the lowest dt out of the
-%     convective/diffusive CFLs
-%     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*(dx^2)/(2.0*nu);
-%     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*dx/max(abs(vx_new));
-%     end
-
-%     will stop running script if either of the CFL conditions is violated
-%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-%         fprintf('CFL condition violated, ii=%d\n',ii)
-%         return
-%     end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
