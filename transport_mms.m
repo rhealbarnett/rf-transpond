@@ -43,7 +43,6 @@ vdx = dx*ones(1,npts-2);
 %%
 %----------------------------------------------------------------------%
 % non uniform grid calculation
-% STILL TESTING
 %----------------------------------------------------------------------%
 
 if variable
@@ -63,29 +62,6 @@ if variable
     x = xmax*(s.^(1/ro));
 %     x = exp(s.^1.5) - smax;
 %     x = xmax*x/max(x);
-%     
-%     figure(1);
-%     plot(s,x,'LineWidth',2);
-%     hold on
-%     
-%     for ii=1:round(npts/50):npts
-%         
-%         figure(1)
-%         hold on
-%         plot([s(ii),s(ii)],[0.0, x(ii)]);
-%         plot([0.0,s(ii)],[x(ii), x(ii)]);
-%     
-%     end
-%     
-%     xlabel('\xi','Fontsize',16) 
-%     ylabel('x','Fontsize',16)
-%     set(gca,'Box','on'); 
-%     set(gca,'Fontsize',16, 'LineWidth',2)
-%     plot([smin,smax],[0,xmax],'r')
-%     % text(0.05,L-0.1,['A=',num2str(A),...
-%     % ' x=',num2str(xc)],'Fontsize',18)
-% 
-%     hold off;
 
     vxax = x;
     vdx = (vxax(2:end) - vxax(1:end-1));
@@ -117,21 +93,21 @@ end
 % mms_mult = 100000.0;
 
 u0 = 5.0;
-n0 = 5.0;
+n0 = 500.0;
 
 ux = 2.0;
-nx = 2.0;
+nx = 200.0;
 
 knx = 2000.0;
 kux = 2000.0;
 lamx = 0.0;
 
 % epsilon = 0.001;
-om = 1.0e5;
+om = 1.0e6;
 % om = 2.0e9;
+om = 0;
 
 %-- initial density profile
-n_new = zeros(1,npts);
 LnBC = 0.0;
 RnBC = 0.0;
 n_new = n0 + nx*sin(knx*nxax.^2 + 0);
@@ -145,7 +121,7 @@ n_avg = interp1(nxax,n_new,vxax);
 % n_source = zeros(1,npts);
 
 %-- initial velocity
-vx_new = u0 + ux*cos(kux*vxax.^2 + 0);
+vx_new = (u0 + ux*cos(kux*vxax.^2 + 0))*0.01;
 LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
 RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
 % vx_new = u0 + ux*cos(kux*0)*exp(-lamx*vxax);
@@ -185,8 +161,11 @@ end
 dt = 2.0*dt;
 dt = 1.4768e-10;
 tmin = 0;
-tmax = 20*dt;
+dt = 0;
+tmax = 1000*dt;
 nmax = round(tmax/dt);
+nmax = 10000;
+tol = 1.0e-12;
 tax = linspace(tmin,tmax,nmax);
 
 % for ii=1:nmax
