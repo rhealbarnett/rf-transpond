@@ -462,12 +462,8 @@ nmax = 20;
 for ii=1:nmax
     
     if MMS
-%         ex_sol = u0*(sin(mms_mult*vxax.^2 + dt*ii*om) + epsilon);
-%         ex_sol = exp(-mms_mult*vxax)*(sin(om*dt*ii) + epsilon);
         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
-%         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii).*exp(-lamx*vxax);
-%         ex_soln = n0 + nx*cos(knx*nxax.^2 + om*dt*ii).*exp(-lamx*nxax);
     end
     
 %     set the vectors with the old value going into the next loop
@@ -477,22 +473,6 @@ for ii=1:nmax
         nxax(npts),'linear','extrap');   
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
-    
-    %-------------------------------------------------------------%
-    % Call wave solver functions
-    % Need to run dielec_tens to calculate the cold plasma dielectric
-    % tensor (cpdt); call dispersion to detemine k's; call wave_sol to 
-    % calculate rf electric field
-    %-------------------------------------------------------------%
-%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(e,B0,n_new,[m; me],om,eps0,npts);
-%     dispersion;
-%     [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(nxax,real(kp22),0,k0,om,const.mu0,cpdt,...
-%     xmax/100,xmax);
-% 
-%     Efield = interp1(nxax,abs(rf_ex),...
-%         vxax(2:npts-1),'linear');
-%     Efield = Efield.^2;
-    %-------------------------------------------------------------%
     
     if staggered && (continuity || ~MMS)
         
@@ -540,12 +520,6 @@ for ii=1:nmax
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
         if continuity
-%             n(1,1) = u0*(sin(mms_mult*(nxax(1))^2 + om*dt*ii) + epsilon);
-%             n(1,end) = u0*(sin(mms_mult*(nxax(end))^2 + om*dt*ii) + epsilon);
-%             n(1,1) = n0 + nx*sin(knx*min(nxax)^2 + om*dt*ii);
-%             n(1,end) = n0 + nx*sin(knx*max(nxax)^2 + om*dt*ii);
-%             n(1,1) = n0 + nx*cos(knx*min(nxax)^2 + om*dt*ii)*exp(-lamx*min(nxax));
-%             n(1,end) = n0 + nx*cos(knx*max(nxax)^2 + om*dt*ii)*exp(-lamx*max(nxax));
             n(1,1) = dt*ii*sin(pi*min(nxax));
             n(1,end) = dt*ii*sin(pi*max(nxax));
         elseif ~MMS
@@ -612,9 +586,6 @@ for ii=1:nmax
                 vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
                 vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
             end
-%             vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-%             vx_diff(jj,jj-1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
-%             vx_diff(jj,jj+1) = (1.0/(vdx(1,jj-1)*vdx(1,jj)))*nu;
             vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
             vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
             vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
@@ -642,12 +613,8 @@ for ii=1:nmax
     %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
         % ensure that the velocity value at the boundaries is correct
         if momentum
-    %         vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii)*exp(-lamx*min(vxax));
-    %         vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii)*exp(-lamx*max(vxax));
-%             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-%             vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
-    %         vx(1,1) = exp(-mms_mult*xmin)*(sin(om*dt*ii) + epsilon);
-    %         vx(1,end) = exp(-mms_mult*xmax)*(sin(om*dt*ii) + epsilon);
+            vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+            vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
         elseif ~MMS
             vx(1,1) = lvBC_val;
             vx(1,end) = rvBC_val;
@@ -753,32 +720,17 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
-%         vx_mat(count,:) = vx_new;
-%         n_mat(count,:) = n_new;
         count = count + 1;
         
-%     elseif rms(vx - vx_new)<=tol
-%         fprintf('tolerance reached, ii=%d\n',ii)
-%         break
-%     else 
-%         continue
-%     end
     end
     
 end
-
-% vx_mat(count,:) = vx_new;
-% n_mat(count,:) = n_new;
 
 if MMS
     l_infn = norm(ex_soln - n_new, Inf);
     l_twon = rms(ex_soln - n_new);
     l_infu = norm(ex_solu - vx_new, Inf);
     l_twou = rms(ex_solu - vx_new);
-%     l_infn = ex_soln - n_new;
-%     l_twon = ex_soln - n_new;
-%     l_infu = ex_solu - vx_new;
-%     l_twou = ex_solu - vx_new;
 end
 
 fprintf('***--------------------***\n')
