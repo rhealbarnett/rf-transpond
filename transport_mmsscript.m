@@ -1,11 +1,11 @@
 % npts = 4096;
 pow = 4;
 
-for kk=1:6
+for kk=1:9
     
     npts = 2^pow;
     
-    fprintf('Iteration %d\n', kk)
+    fprintf('kkation %d\n', kk)
     fprintf('Number of points %d\n', npts)
     
     transport_1d
@@ -23,5 +23,11 @@ for kk=1:6
     linfu_arr(1,kk) = l_infu;
     
     pow = pow + 1;
+    npts_arr(1,kk) = npts;
     
 end
+
+ratio_inf = linfu_arr(1:kk-1)./linfu_arr(2:kk);
+ratio_two = ltwou_arr(1:kk-1)./ltwou_arr(2:kk);
+oo_inf = log(ratio_inf)/log(2);
+oo_two = log(ratio_two)/log(2);
