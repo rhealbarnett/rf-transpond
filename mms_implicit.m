@@ -14,7 +14,7 @@
 %------
 % constants %
 %------
-constants;
+const = constants();
 e = const.e;
 % m = mp;
 m = 0.01;
@@ -44,8 +44,8 @@ dx = (xmax - xmin)/(npts - 1);
 %------
 tmin = 0;
 
-dt = 8.0e-6;
-% dt = 0.0;
+% dt = 8.0e-6;
+dt = 0.0;
 nmax = 1.0e7;
 
 
@@ -60,7 +60,7 @@ nmax = 1.0e7;
 u0 = 1.0;
 nu = 0.2;
 om = 1.0e3;
-% om = 0.0;
+om = 0.0;
 epsilon = 0.001;
 
 % vx_new = u0*(sin(xax.^2) + epsilon);
@@ -88,24 +88,25 @@ l_two = zeros(1,iter);
 dx_arr = zeros(1,iter);
 dt_arr = zeros(1,iter);
 
+
 for kk=1:iter
 
     fprintf('counter=%d\n',kk)
 
-%     dx = (xmax - xmin)/(npts - 1);
-%     dx_arr(1,kk) = dx;
-    tmax = 4.0e-4;
-    nmax = round(tmax/dt);
-    dt_arr(1,kk) = dt;
-%     xax = linspace(xmin,xmax,npts);
-%     fprintf('dx=%d\n',dx)
-    fprintf('dt=%d\n',dt)
+    dx = (xmax - xmin)/(npts - 1);
+    dx_arr(1,kk) = dx;
+%     tmax = 4.0e-4;
+%     nmax = round(tmax/dt);
+%     dt_arr(1,kk) = dt;
+    xax = linspace(xmin,xmax,npts);
+    fprintf('dx=%d\n',dx)
+%     fprintf('dt=%d\n',dt)
 
      % initial conditions
-%     vx_new = zeros(1,npts);
-%     vx_new(1,1) = u0*(sin(xmin.^2) + epsilon);
-%     vx_new(1,end) = u0*(sin(xmax.^2) + epsilon);
-    vx_new = u0*(sin(xax.^2) + epsilon);
+    vx_new = zeros(1,npts);
+    vx_new(1,1) = u0*(sin(xmin.^2) + epsilon);
+    vx_new(1,end) = u0*(sin(xmax.^2) + epsilon);
+%     vx_new = u0*(sin(xax.^2) + epsilon);
     vx_pos = sparse(npts,npts);
     vx_neg = sparse(npts,npts);
     vx_diff = sparse(npts,npts);
@@ -116,7 +117,7 @@ for kk=1:iter
      
     for ii=1:nmax
 
-        ex_sol = u0*(sin(xax.^2 + om*dt*ii) + epsilon);
+        ex_sol = u0*(sin(xax.^2) + epsilon);
 
         vx = vx_new;
        
@@ -134,25 +135,25 @@ for kk=1:iter
         end
 
         vxA = vx_pos + vx_neg + vx_diff;
-%         Avx = -vxA;
-        Avx = vx_I - dt*vxA;
+        Avx = -vxA;
+%         Avx = vx_I - dt*vxA;
 %         Avx = vx_I + dt*vxA;
         Avx(1,1) = 1.0; Avx(end,end) = 1.0;
-        Avx(1,2) = -1.0; 
+%         Avx(1,2) = -1.0; 
 %         Avx(end,end-1) = -1.0;
-        vx(1,1) = 0.0;%u0*(sin(xmin^2 + om*dt*ii) + epsilon);
-        vx(1,end) = u0*(sin(xmax^2 + om*dt*ii) + epsilon);
+%         vx(1,1) = u0*(sin(xmin^2 + om*dt*ii) + epsilon);
+%         vx(1,end) = u0*(sin(xmax^2 + om*dt*ii) + epsilon);
     
         source_dt = u0*om*cos(xax.^2 + om*dt*ii);
         source_dx = 2.0*u0*xax.*cos(xax.^2 + om*dt*ii)*u0.*(sin(xax.^2 + om*dt*ii) + epsilon);
         source_dxx = 2.0*u0*(cos(xax.^2 + om*dt*ii) - 2.0*xax.^2.*sin(xax.^2 + om*dt*ii));
 
         source = source_dt + source_dx - nu*source_dxx;
-        source(1,1) = 0.0;%u0*(sin(xmin^2 + om*dt*ii) + epsilon);
-        source(1,end) = 0.0;%u0*(sin(xmax^2 + om*dt*ii) + epsilon);
+        source(1,1) = u0*(sin(xmin^2 + om*dt*ii) + epsilon);
+        source(1,end) = u0*(sin(xmax^2 + om*dt*ii) + epsilon);
         
-%         vx_new = Avx\(source');    
-        vx_new = Avx\(vx' + dt*source');
+        vx_new = Avx\(source');    
+%         vx_new = Avx\(vx' + dt*source');
 %         vx_new = Avx*vx' + dt*source';
 
         vx_new = vx_new';
@@ -160,7 +161,7 @@ for kk=1:iter
         l_inf(1,kk) = norm(ex_sol - vx_new, Inf);
         l_two(1,kk) = rms(ex_sol - vx_new);
 
-        if rms(vx_new - vx)<=tol
+        if rms(vx_new - ex_sol)<=tol
             fprintf('tolerance reached, ii=%d\n',ii)
             break
         else 
@@ -170,8 +171,8 @@ for kk=1:iter
         
     end
 
-%     npts = r*npts-1;
-    dt = dt/r;
+    npts = r*npts-1;
+%     dt = dt/r;
      
 end
 
