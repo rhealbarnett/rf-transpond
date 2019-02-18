@@ -21,71 +21,57 @@ Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
 nu = 1.0;
-om = 1.0e10;
-u0 = 1.0;
-mms_mult = 100.0;
-epsilon = 0.001;
 
 %------
 % spatial domain %
 %------
-xmin = 0.0;
-xmax = 0.1;
+xmin = -9.5;
+xmax = 9.5;
 
 %------
 % turn variable grid on (1) or off (0)
 %------
-variable = 0;
+variable = 1;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 4096;
+npts = 1024;
 dx = (xmax - xmin)/(npts - 1);
-% dx = dx/2.0;
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
-% nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
 ndx = dx*ones(1,npts-1);
 vdx = dx*ones(1,npts-2);
-% r = 0.99;
-% 
-% for ii=2:npts-1
-%     nxax(ii) = nxax(ii-1) + r*dx;
-%     vxax(ii) = vxax(ii-1) + r*dx;
-% end
-% 
-% vxax(1) = xmin;
-% nxax(1) = nxax(2) - r*dx;
-% nxax(npts) = nxax(npts-1) + r*dx;
-% 
-% ndx = (nxax(2:npts) - nxax(1:npts-1)) / npts;
-% vdx = (vxax(2:npts-1) - vxax(1:npts-2)) / (npts-1);
+
 
 %%
 %----------------------------------------------------------------------%
 % non uniform grid calculation
-% STILL TESTING
 %----------------------------------------------------------------------%
+
+variable = 1;
 
 if variable
     
     clear vxax nxax
 
-    % root order
-    ro = 2.0;
+    % location of sign change
+    xc = (xmax - xmin)/2.0;
+    
+    %'strength' of grid refinement.
+    % sign also indicates whether refinement is in the centre or at the
+    % boundaries
+    A = -5.0;
 
-    % initialise xi parameter array
-    % spacing in the centre currently is 0.5*dx
+    % set up the unit spaced parameter, xi, that the grid is a function of
     smax = 1.0;
     smin = 0.0;
-%     s = smin:20.0*dx:smax;
-    s = linspace(smin,smax,(npts/2)-1); 
+    s = linspace(smin,smax,npts-1); 
 
     % calculate the x values from xi
-    x = xmax*(s.^(1/ro));
+    x = xc*(1.0 - tanh(A*(1.0 - 2.0*s))./tanh(A));
 
-    vxax = x;
+    vxax = x - 9.5;
     vdx = (vxax(2:end) - vxax(1:end-1));
 
     npts = length(vxax) + 1;
@@ -99,14 +85,6 @@ if variable
 end
 
 
-
-%%
-
-%------
-% temporal domain %
-%------
-tmin = 0;
-
 %%
 
 %-------------------------------------------------------------------------%
@@ -119,15 +97,22 @@ tmin = 0;
 Nmax = (1.0e18);
 Nmin = (0.5e18);
 % n_new = (Nmin*(fliplr(nxax)/max(nxax)) + Nmin);
-n_new = Nmax*(1.0 - (1.0e-5)*exp((nxax)*100));
+n_new = Nmax*(1.0 - (1.0e-42)*exp((nxax(end/2 + 1:end))*10));
+n_new = [fliplr(n_new), n_new];
 n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
 
 %-- initial velocity
 vx_mult = log(cs)/(xmax - xmin);
 vx_const = -exp(vx_mult*xmin);
-vx_new = vx_const + exp(vx_mult*vxax);
+% vx_new = cs*(1.0 + (1.0e-40)*exp((vxax(end/2 + 1:end))*10));
+% vx_new = [fliplr(vx_new),vx_new];
 % vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
+LuBC = -cs;
+RuBC = cs;
+vx_new = zeros(1,npts-1);
+vx_new(1,1) = LuBC;
+vx_new(1,end) = RuBC;
 vx_init = vx_new;
 
 
@@ -139,14 +124,11 @@ vx_init = vx_new;
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
-decay_loc = 0.075;
+decay_loc = xmax - 2.0;
 % decay_loc = xmax - 0.2*xmax;
 a = find(nxax >= decay_loc);
-if xmax <= 1.0
-    decay_index = npts - a(1);
-elseif xmax > 1.0
-    decay_index = a(1);
-end
+decay_index = npts - a(1);
+
 % decay_index = round((npts)/4);
 % calculate shape of neutral profile
 cosax = linspace(pi,2*pi,decay_index);
@@ -157,7 +139,8 @@ neut_max = (1.0e18);
 n_neut = zeros(1,npts);
 n_neut(end-decay_index+1:end) = neut_max*((cos(cosax) + 1)/2);
 % n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
-n_neut(1:end-decay_index+1) = neut_max*((cos(pi) + 1)/2);
+n_neut(end/2 + 1:end-decay_index+1) = neut_max*((cos(pi) + 1)/2);
+n_neut(1,1:end/2) = fliplr(n_neut(end/2 + 1:end));
 
 % calculate density source
 n_source = (n_new.*(n_neut)*(rate_coeff));
@@ -205,6 +188,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 % Calculate time step                                                                  %
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
+tmin = 0.0;
 tmax = 5.0e-7;
 cfl_fact = 0.99;
 
