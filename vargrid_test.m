@@ -6,7 +6,7 @@
 %---------------------------------------------------------------------%
 
 % sets xmax
-L = 0.1; 
+L = 20.0; 
 
 % for internal layer calculation
 % sign change at xc
@@ -14,7 +14,7 @@ xc = L/2.0;
 
 % "strength": concentrates points either at the centre of the domain (A>0)
 % or at the boundaries of the domain (A<0)
-A = 2.5;
+A = -5.0;
 
 % root order
 ro = 1.2;
@@ -24,15 +24,16 @@ ro = 1.2;
 smax = 1.0;
 smin = 0.0;
 % s = smin:2*2.4e-4:smax; 
-s = linspace(smin,smax,16);
+s = linspace(smin,smax,1024);
 
 % length of the x parameter, i.e. the number of points
 n = length(s);
 
 % calculate the x values from xi
 % x = L*((s).^(ro));
-x = exp(s.^1.5) - smax;
+% x = exp(s.^1.5) - smax;
 % x = L*s+A*(xc-L*s).*s.*(1-s);
+x = xc*(1.0 - tanh(A*(1.0 - 2.0*s))./tanh(A));
 
 % plots x as a funtion of xi
 figure(1);
@@ -40,8 +41,8 @@ plot(s,x,'LineWidth',2);
 hold on
 
 % loop plots the lines along x(xi), visually shows dx sizing effectively
-% for ii=1:round(n/50):n
-for ii=1:n
+for ii=1:round(n/50):n
+% for ii=1:n
     
     plot([s(ii),s(ii)],[0.0, x(ii)]);
     plot([0.0,s(ii)],[x(ii), x(ii)]);
@@ -58,3 +59,5 @@ plot([smin,smax],[0,L],'r')
 % ' x=',num2str(xc)],'Fontsize',18)
 
 hold off;
+
+
