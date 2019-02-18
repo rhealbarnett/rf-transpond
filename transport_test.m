@@ -35,17 +35,59 @@ cs = sqrt((Te + Ti)*e/m);
 %------
 % spatial domain %
 %------
-xmin = 0.0;
-xmax = 0.1;
+xmin = -9.5;
+xmax = 9.5;
 
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 4096;
+npts = 1024;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
-% nxax = linspace(xmin,xmax,npts-1);
 vxax = linspace(xmin,xmax,npts-1);
+ndx = dx*ones(1,npts-1);
+vdx = dx*ones(1,npts-2);
+
+
+%%
+%----------------------------------------------------------------------%
+% non uniform grid calculation
+%----------------------------------------------------------------------%
+
+variable = 1;
+
+if variable
+    
+    clear vxax nxax
+
+    % location of sign change
+    xc = (xmax - xmin)/2.0;
+    
+    %'strength' of grid refinement.
+    % sign also indicates whether refinement is in the centre or at the
+    % boundaries
+    A = -5.0;
+
+    % set up the unit spaced parameter, xi, that the grid is a function of
+    smax = 1.0;
+    smin = 0.0;
+    s = linspace(smin,smax,npts-1); 
+
+    % calculate the x values from xi
+    x = xc*(1.0 - tanh(A*(1.0 - 2.0*s))./tanh(A));
+
+    vxax = x - 9.5;
+    vdx = (vxax(2:end) - vxax(1:end-1));
+
+    npts = length(vxax) + 1;
+    nxax = zeros(1,npts);
+
+    nxax(1) = vxax(1) - 0.5*vdx(1);
+    nxax(end) = vxax(end) + 0.5*vdx(end);
+    nxax(2:end-1) = (vxax(2:end) + vxax(1:end-1))/2.0;
+    ndx = nxax(2:end) - nxax(1:end-1);
+    
+end
 
 %%
 
