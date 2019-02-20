@@ -159,7 +159,7 @@ ns_mult = rflux/source_int;
 n_source = (n_source*ns_mult)*0.5;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
-% n_source = zeros(1,npts);
+n_source = zeros(1,npts);
 
 % n_source = equib.n_source;
 
@@ -217,6 +217,7 @@ tax = linspace(tmin,tmax,nmax);
 Emax = 6.0e4;
 freq = 80.0e6;
 % om = 2.0*pi*freq;
+om = 0.0;
 
 % Efield = exp(1.0e3*vxax);
 % Efield = (Emax/2)*(cos(cosax)+1.01);
