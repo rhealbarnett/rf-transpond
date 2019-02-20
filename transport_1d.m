@@ -40,9 +40,9 @@
 
 % import parameter file
 % params_transport_wave_ACM;
-% transport_vardx;
+transport_vardx;
 % transport_test;
-transport_mms;
+% transport_mms;
 
 % initialise velocity and density 
 vx = vx_new;
@@ -89,6 +89,9 @@ if strcmp(testt,'yes')
     end
 elseif strcmp(testt,'no')
     MMS = 0;
+    continuity = 0;
+    momentum = 0;
+    coupled = 0;
 end
 
 grid_type = 'staggered or collocated grid? ';
@@ -115,7 +118,7 @@ if staggered
     ln_bound_type = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
     leftGhost = input(ln_bound_type, 's');
     if isempty(leftGhost)
-        leftGhost = 'dirichlet';
+        leftGhost = 'linear extrap';
     end
     
     if strcmp('periodic',leftGhost)
@@ -124,7 +127,7 @@ if staggered
         rn_bound_type = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
         rightGhost = input(rn_bound_type, 's');
         if isempty(rightGhost)
-            rightGhost = 'dirichlet';
+            rightGhost = 'linear extrap';
         end
     end
     
@@ -429,8 +432,10 @@ hold on
 figure(3)
 set(gcf,'Position',[3 476 560 420])
 plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
-hold on
-plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = 0s'])
+if MMS
+    hold on
+    plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = 0s'])
+end
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
@@ -457,7 +462,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-nmax = 20;
+nmax = 10;
 for ii=1:nmax
     
     if MMS
@@ -600,8 +605,8 @@ for ii=1:nmax
 
         % build full coefficient matrices
     %     Avx_exp = vx_I + dt*vxA;
-%         Avx_imp = vx_I - dt*vxA;
-        Avx_imp = -vxA;
+        Avx_imp = vx_I - dt*vxA;
+%         Avx_imp = -vxA;
         % override top and bottom rows to include dirichlet boundary conditions
         % for the momentum equation (explicit and implicit methods)
     %     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
@@ -627,20 +632,23 @@ for ii=1:nmax
         elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) +...
                 source_stag(n,1,nx/2,nx/2,1,npts,ndx);
+            vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+            vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
         elseif collocated
             vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
         end
 
         % zero the source term at the boundaries as it is not used (dirichlet
         % boundary conditions will override the source)
-        vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-        vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+        vx_source(1,1) = 0.0;
+        vx_source(1,end) = 0.0;
+
         % explicit calculation
     %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
         % implicit calculation
     %     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
-%         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
-        vx_new_imp = Avx_imp\(vx_source');
+        vx_new_imp = Avx_imp\(vx' + dt*vx_source');
+%         vx_new_imp = Avx_imp\(vx_source');
 
         % transpose solution vector
         vx_new = vx_new_imp;
@@ -708,8 +716,10 @@ for ii=1:nmax
         figure(3)
         set(gcf,'Position',[3 476 560 420])
         plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        hold on
-        plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        if MMS
+            hold on
+            plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        end
         xlim([min(vxax) max(vxax)])
         hold on
         figure(4)
@@ -771,8 +781,10 @@ hold off
 figure(3)
 set(gcf,'Position',[3 476 560 420])
 plot(vxax(2:npts-2),vx_source(2:npts-2),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-hold on
-plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+if MMS
+    hold on
+    plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+end
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
