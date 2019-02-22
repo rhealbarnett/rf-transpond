@@ -413,7 +413,7 @@ end
 figure(1)
 set(gcf,'Position',[563 925 560 420])
 % semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
-plot(nxax(2:npts-1),n_new(2:npts-1),'-*','DisplayName',['time = 0s'])
+plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density (m^{-3})','Fontsize',16)
 legend('show','Location','south')
@@ -422,7 +422,7 @@ hold on
 
 figure(2)
 set(gcf,'Position',[7 925 560 420])
-plot(vxax,vx_new,'-o','DisplayName',['time = 0s'])
+plot(vxax,vx_new/cs,'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
@@ -462,7 +462,6 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-nmax = 10;
 for ii=1:nmax
     
     if MMS
@@ -706,7 +705,7 @@ for ii=1:nmax
 %         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
         figure(2)
         set(gcf,'Position',[7 925 560 420])
-        plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
         if MMS
@@ -767,7 +766,7 @@ hold off
 
 figure(2)
 set(gcf,'Position',[7 925 560 420])
-plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 hold on
 if MMS
     plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
