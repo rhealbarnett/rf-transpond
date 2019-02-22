@@ -124,7 +124,7 @@ vx_init = vx_new;
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
-decay_loc = xmax - 2.0;
+decay_loc = xmax - 0.001*xmax;
 % decay_loc = xmax - 0.2*xmax;
 a = find(nxax >= decay_loc);
 decay_index = npts - a(1);
@@ -141,6 +141,7 @@ n_neut(end-decay_index+1:end) = neut_max*((cos(cosax) + 1)/2);
 % n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
 n_neut(end/2 + 1:end-decay_index+1) = neut_max*((cos(pi) + 1)/2);
 n_neut(1,1:end/2) = fliplr(n_neut(end/2 + 1:end));
+n_neut = interp1(linspace(xmin-0.5*dx,xmax+0.5*dx,npts),n_neut,nxax,'linear');
 
 % calculate density source
 n_source = (n_new.*(n_neut)*(rate_coeff));
@@ -156,10 +157,9 @@ rflux = n_avg(end)*vx_new(end);
 % calculate the constant multiplier to match density out = in
 ns_mult = rflux/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*0.5;
+n_source = (n_source*ns_mult)*0.4;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
-n_source = zeros(1,npts);
 
 % n_source = equib.n_source;
 
@@ -189,7 +189,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 5.0e-7;
+tmax = 2.0e-4;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
