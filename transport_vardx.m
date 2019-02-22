@@ -124,7 +124,7 @@ vx_init = vx_new;
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
-decay_loc = xmax - 0.001*xmax;
+decay_loc = xmax - 0.01*xmax;
 % decay_loc = xmax - 0.2*xmax;
 a = find(nxax >= decay_loc);
 decay_index = npts - a(1);
@@ -154,10 +154,11 @@ source_int = trapz(vxax,source_avg);
 % calculate flux at the rh boundary (wall)
 % rflux = n_avg(end)*vx_new(end);
 rflux = n_avg(end)*vx_new(end);
+lflux = n_avg(1)*vx_new(1);
 % calculate the constant multiplier to match density out = in
-ns_mult = rflux/source_int;
+ns_mult = (rflux-lflux)/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*0.4;
+n_source = (n_source*ns_mult)*0.1;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
@@ -167,8 +168,8 @@ fprintf('Initial outward flux at RH boundary %d\n',rflux)
 fprintf('Initial density source integral %d\n',source_int)
 fprintf('Density source integral after normalisation %e\n',trapz(nxax,n_source))
 fprintf('Initial total number of particles %e\n',trapz(nxax,n_new))
-fprintf(['Difference between outward flux at RH boundary and integral ' ...
-    ' of density source %e\n'], rflux - trapz(vxax,nv_source))    
+fprintf(['Difference between outward flux at boundaries and integral ' ...
+    ' of density source %e\n'], (rflux-lflux) - trapz(vxax,nv_source))    
 
 
 %%
@@ -189,7 +190,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 2.0e-4;
+tmax = 5.0e-4;
 cfl_fact = 0.99;
 
 if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
