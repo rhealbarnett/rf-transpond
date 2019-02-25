@@ -5,28 +5,27 @@
 % rlbarnett c3149416, 010218              %
 %-----------------------------------------%
 
-syms kz
+syms kx
 
 %--
 % initialise kx roots arrays, ensure they are complex
 kx_arr = zeros(npts, 4);
 kx_arr = complex(kx_arr);
 
-kx = k_para;
+kz = k_perp;
 ky = 0.0;
 
 %-- 
 % k matrix
-a11 = ky^2 + kx^2;
-a12 = -ky*kz;
-a13 = -kx*kz;
-a21 = -ky*kz;
-a22 = kx^2 + kz^2;
-a23 = -ky*kx;
-a31 = -kx*kz;
-a32 = -ky*kx;
-a33 = ky^2 + kz^2;
-
+a11 = ky^2 + kz^2;
+a12 = -ky*kx;
+a13 = -kz*kx;
+a21 = -ky*kx;
+a22 = kz^2 + kx^2;
+a23 = -ky*kz;
+a31 = -kz*kx;
+a32 = -ky*kz;
+a33 = ky^2 + kx^2;
 
 a = [[a11, a12, a13]
     [a21, a22, a23]
