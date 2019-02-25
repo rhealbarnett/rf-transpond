@@ -45,4 +45,7 @@ om = freq*2.0*pi;
 Nmax = 1.0e17;
 n = Nmax*ones(1,npts);
 
-
+% perpendicular wavenumber : just an approximation for now
+% say wavelength of about 1cm
+wavel = ;
+kz = 2.0*pi/wavel;
