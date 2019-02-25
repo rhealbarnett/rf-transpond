@@ -5,24 +5,50 @@
 % rlbarnett c3149416, 170817              %
 %-----------------------------------------%
 
-syms kperp
-
-%--
-% initialise kx roots arrays, ensure they are complex
-kperp_arr = zeros(npts, 4);
-kperp_arr = complex(kperp_arr);
-kp1_arr = zeros(npts, 1);
-kp2_arr = zeros(npts, 1);
-
-% kpara = kz;
-npara = c0*k_para/om;
+perp = 0;
+para = 1;
 
 r_arr = s_arr + d_arr;
 l_arr = s_arr - d_arr;
 
-a1 = s_arr;
-b1 = r_arr.*l_arr + p_arr.*s_arr - npara^2*(p_arr + s_arr);
-c1 = p_arr.*((npara^2 - r_arr).*(npara^2 - l_arr));
+kp1_arr = zeros(npts, 1);
+kp2_arr = zeros(npts, 1);
+
+
+if perp
+    
+    syms kperp
+
+    %--
+    % initialise kx roots arrays, ensure they are complex
+    kperp_arr = zeros(npts, 4);
+    kperp_arr = complex(kperp_arr);
+
+    % kpara = kz;
+    npara = c0*k_para/om;
+
+    a1 = s_arr;
+    b1 = r_arr.*l_arr + p_arr.*s_arr - npara^2*(p_arr + s_arr);
+    c1 = p_arr.*((npara^2 - r_arr).*(npara^2 - l_arr));
+
+    
+elseif para
+    
+    syms kpara
+
+    %--
+    % initialise kx roots arrays, ensure they are complex
+    kpara_arr = zeros(npts, 4);
+    kpara_arr = complex(kpara_arr);
+
+    % kpara = kz;
+    nperp = c0*k_perp/om;
+
+    a1 = p_arr;
+    b1 = 2.0*p_arr.*s_arr - n_perp^2*(p_arr + s_arr);
+    c1 = (n_perp^2 - p_arr).*(s_arr*n_perp^2 - r_arr.*l_arr);
+    
+end
 
 ns_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
 ns_p2 = (b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
@@ -52,7 +78,7 @@ k_f1 = n_f1*om/c0; k_f2 = n_f2*om/c0;
 
 %%
 %--
-% plot kperps's
+% plot k's
 
 %--
 % transform data for log plot
