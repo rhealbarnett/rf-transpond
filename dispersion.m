@@ -24,57 +24,71 @@ if perp
     kperp_arr = zeros(npts, 4);
     kperp_arr = complex(kperp_arr);
 
-    % kpara = kz;
-    npara = c0*k_para/om;
-
     a1 = s_arr;
     b1 = r_arr.*l_arr + p_arr.*s_arr - npara^2*(p_arr + s_arr);
     c1 = p_arr.*((npara^2 - r_arr).*(npara^2 - l_arr));
+    
+    ns_s = -(npara.^2 - s_arr).*(p_arr./s_arr);
+    ns_f = -((npara.^2 - r_arr).*(npara.^2 - l_arr))./(npara.^2 - s_arr);
+    n_s1 = sqrt(ns_s); n_s2 = -sqrt(ns_s); 
+    n_f1 = sqrt(ns_f); n_f2 = -sqrt(ns_f);
 
+    k_s1 = n_s1*om/c0; k_s2 = n_s2*om/c0; 
+    k_f1 = n_f1*om/c0; k_f2 = n_f2*om/c0;
+    
+    ks1 = sign(k_s1).*log10(abs(k_s1));
+    ks2 = sign(k_s2).*log10(abs(k_s2));
+    kf1 = sign(k_f1).*log10(abs(k_f1));
+    kf2 = sign(k_f2).*log10(abs(k_f2));
     
 elseif para
     
     syms kpara
 
+    kpara_arr = zeros(npts, 4, npts);
+    kpara_arr = complex(kpara_arr);
+    
     %--
     % initialise kx roots arrays, ensure they are complex
-    kpara_arr = zeros(npts, 4);
-    kpara_arr = complex(kpara_arr);
+    for ii=1:npts
 
-    % kpara = kz;
-    nperp = c0*k_perp/om;
+        a1 = p_arr;
+        b1 = 2.0*p_arr.*s_arr - n_perp(1,ii)^2*(p_arr + s_arr);
+        c1 = (n_perp(1,ii)^2 - p_arr).*(s_arr*n_perp(1,ii)^2 - r_arr.*l_arr);
+        
+        ns_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+        ns_p2 = (b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+        
+        np11 = sqrt(ns_p1);
+        np12 = -sqrt(ns_p1);
+        np21 = sqrt(ns_p2);
+        np22 = -sqrt(ns_p2);
 
-    a1 = p_arr;
-    b1 = 2.0*p_arr.*s_arr - n_perp^2*(p_arr + s_arr);
-    c1 = (n_perp^2 - p_arr).*(s_arr*n_perp^2 - r_arr.*l_arr);
+        kp11 = np11*om/c0;
+        kp12 = np12*om/c0;
+        kp21 = np21*om/c0;
+        kp22 = np22*om/c0;
+        
+        kpara_arr(:,1,ii) = kp11;
+        kpara_arr(:,2,ii) = kp12;
+        kpara_arr(:,3,ii) = kp21;
+        kpara_arr(:,4,ii) = kp22;
+        
+        kpara11(:,ii) = kp11;
+        kpara12(:,ii) = kp12;
+        kpara21(:,ii) = kp21;
+        kpara22(:,ii) = kp22;
+        
+    end
     
 end
 
-ns_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
-ns_p2 = (b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
-
-np11 = sqrt(ns_p1);
-np12 = -sqrt(ns_p1);
-np21 = sqrt(ns_p2);
-np22 = -sqrt(ns_p2);
-
-kp11 = np11*om/c0;
-kp12 = np12*om/c0;
-kp21 = np21*om/c0;
-kp22 = np22*om/c0;
 
 kperp_arr(:,1) = kp11;
 kperp_arr(:,2) = kp12;
 kperp_arr(:,3) = kp21;
 kperp_arr(:,4) = kp22;
 
-ns_s = -(npara.^2 - s_arr).*(p_arr./s_arr);
-ns_f = -((npara.^2 - r_arr).*(npara.^2 - l_arr))./(npara.^2 - s_arr);
-n_s1 = sqrt(ns_s); n_s2 = -sqrt(ns_s); 
-n_f1 = sqrt(ns_f); n_f2 = -sqrt(ns_f);
-
-k_s1 = n_s1*om/c0; k_s2 = n_s2*om/c0; 
-k_f1 = n_f1*om/c0; k_f2 = n_f2*om/c0;
 
 %%
 %--
@@ -87,46 +101,98 @@ yp12 = sign(kp12).*log10(abs(kp12));
 yp21 = sign(kp21).*log10(abs(kp21));
 yp22 = sign(kp22).*log10(abs(kp22));
 
-ks1 = sign(k_s1).*log10(abs(k_s1));
-ks2 = sign(k_s2).*log10(abs(k_s2));
-kf1 = sign(k_f1).*log10(abs(k_f1));
-kf2 = sign(k_f2).*log10(abs(k_f2));
 
 %%
+
+figure(9)
+plot(log10(n_new),real(yp11),'.k','Markersize',20)
+
+hold on
+
+plot(log10(n_new),imag(yp11),'.r','Markersize',20)
+plot(log10(n_new),real(yp12),'dk','MarkerSize',7)
+plot(log10(n_new),imag(yp12),'dr','MarkerSize',7)
+if perp
+    legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
+    ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
+elseif para
+    legend('Re[k_{||1}]', 'Im[k_{||1}]', 'Re[k_{||1}]', 'Im[k_{||1}]')
+    ylabel('log_{10}|k_{||1}|','Fontsize',16)
+end
+xlabel('log_{10}|n|','Fontsize',16)
+% vline(log10(N0(imme)),'--k')
+xlim([log10(min(n_new)),log10(max(n_new))])
+set(gca,'XDir','reverse');
+
+hold off
+
+figure(10)
+plot(log10(n_new),real(yp21),'.k','Markersize',20)
+
+hold on
+
+plot(log10(n_new),imag(yp21),'.r','Markersize',20)
+plot(log10(n_new),real(yp22),'dk','MarkerSize',7)
+plot(log10(n_new),imag(yp22),'dr','MarkerSize',7)
+if perp
+    legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
+    ylabel('log_{10}|k_{\perp2}|','Fontsize',16)
+elseif para
+    legend('Re[k_{||2}]', 'Im[k_{||2}]', 'Re[k_{||2}]', 'Im[k_{||2}]')
+    ylabel('log_{10}|k_{||2}|','Fontsize',16)
+end
+xlabel('log_{10}|n|','Fontsize',16)
+% vline(log10(N0(imme)),'--k') 
+xlim([log10(min(n_new)),log10(max(n_new))])
+set(gca,'XDir','reverse');
+
+hold off
+
+%%
+
+c = jet(64);
+
+levels = linspace(-max(real(kpara11(:))),max(real(kpara11(:))),50);
+levims = linspace(-max(imag(kpara11(:))),max(imag(kpara11(:))),50);
+
+subplot(2,1,1)
+contourf(log10(n_new),(k_perp),real(kpara11),levels,'Linecolor','none')
+colormap(gca,flipud(c(1:40,:)));
+rc11 = colorbar;
+% ylabel(rc11,'Re[k_{||11}] (m^{-1})')
+set(gca,'xtick',[])
+title('Re[k_{||}]')
+ylabel('k_{\perp} (m^{-1})')
+rc11.Ticks = linspace(0,14,5);
+
+
+subplot(2,1,2)
+contourf(log10(n_new),(k_perp),imag(kpara11),levims,'Linecolor','none')
+colormap(gca,flipud(c(1:40,:)));
+ic11 = colorbar;
+% ylabel(ic11,'Im[k_{||11}] (m^{-1})')
+% set(gca,'xtick',[])
+% set(gca,'ytick',[])
+title('Im[k_{||}]')
+ylabel('k_{\perp} (m^{-1})')
+xlabel('log_{10}n')
+ic11.Ticks = linspace(0,3,4);
+
+% subplot(2,2,3)
+% contourf(log10(n_new),(k_perp),real(kpara12),levels,'Linecolor','none')
+% colormap(gca,flipud(c(41:64,:)));
+% rc12 = colorbar;
+% ylabel(rc12,'Re[k_{||12}] (m^{-1})')
+% xlabel('log_{10} n')
+% ylabel('k_{\perp} (m^{-1})')
 % 
-% figure(9)
-% plot(log10(n_new),real(yp11),'.k')
-% 
-% hold on
-% 
-% plot(log10(n_new),imag(yp11),'.r')
-% plot(log10(n_new),real(yp12),'dk','MarkerSize',3)
-% plot(log10(n_new),imag(yp12),'dr','MarkerSize',3)
-% legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
-% xlabel('log_{10}|n|','Fontsize',16)
-% % vline(log10(N0(imme)),'--k')
-% ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
-% xlim([log10(min(n_new)),log10(max(n_new))])
-% set(gca,'XDir','reverse');
-% 
-% hold off
-% 
-% figure(10)
-% plot(log10(n_new),real(yp21),'.k')
-% 
-% hold on
-% 
-% plot(log10(n_new),imag(yp21),'.r')
-% plot(log10(n_new),real(yp22),'dk','MarkerSize',3)
-% plot(log10(n_new),imag(yp22),'dr','MarkerSize',3)
-% legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
-% xlabel('log_{10}|n|','Fontsize',16)
-% % vline(log10(N0(imme)),'--k') 
-% ylabel('log_{10}|k_{\perp2}|','Fontsize',16)
-% xlim([log10(min(n_new)),log10(max(n_new))])
-% set(gca,'XDir','reverse');
-% 
-% hold off
+% subplot(2,2,4)
+% contourf(log10(n_new),(k_perp),imag(kpara12),levims,'Linecolor','none')
+% colormap(gca,flipud(c(41:64,:)));
+% ic12 = colorbar;
+% ylabel(ic12,'Im[k_{||12}] (m^{-1})')
+% % set(gca,'ytick',[])
+% xlabel('log_{10} n')
 
 % %%
 % 
