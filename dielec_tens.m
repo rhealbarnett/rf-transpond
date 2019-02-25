@@ -18,8 +18,8 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q,B0,n,m,om,eps0,npts)
     msize = size(m);
 
     for ii=1:msize(1)
-        om_p(ii,:) = plasma_freq(q,n,m(ii,:),eps0);
-        om_c(ii,:) = cyclo_freq(q,B0,m(ii,:));
+        om_p(ii,:) = plasma_freq(q(ii,:),n,m(ii,:),eps0);
+        om_c(ii,:) = cyclo_freq(q(ii,:),B0,m(ii,:));
     end
 
     s = 1.0 - sum((om_p.^2)./(om^2 - om_c.^2),1);
