@@ -11,22 +11,24 @@
 % constants %
 %------
 const = constants();
-m = const.mp;
+mp = const.mp;
+amu = const.amu;
+m = 4.0*amu;
 e = const.e;
 
 %------
 % parameters %
 %------
 Te = 5.0;
-Ti = 10.0;
+Ti = 0.5;
 cs = sqrt((Te + Ti)*e/m);
 nu = 1.0;
 
 %------
 % spatial domain %
 %------
-xmin = -9.5;
-xmax = 9.5;
+xmin = -9.0;
+xmax = 9.0;
 
 %------
 % turn variable grid on (1) or off (0)
@@ -49,8 +51,6 @@ vdx = dx*ones(1,npts-2);
 % non uniform grid calculation
 %----------------------------------------------------------------------%
 
-variable = 1;
-
 if variable
     
     clear vxax nxax
@@ -71,7 +71,7 @@ if variable
     % calculate the x values from xi
     x = xc*(1.0 - tanh(A*(1.0 - 2.0*s))./tanh(A));
 
-    vxax = x - 9.5;
+    vxax = x - xmax;
     vdx = (vxax(2:end) - vxax(1:end-1));
 
     npts = length(vxax) + 1;
@@ -97,7 +97,7 @@ end
 Nmax = (1.0e18);
 Nmin = (0.5e18);
 % n_new = (Nmin*(fliplr(nxax)/max(nxax)) + Nmin);
-n_new = Nmax*(1.0 - (1.0e-42)*exp((nxax(end/2 + 1:end))*10));
+n_new = Nmax*(1.0 - (1.0e-40)*exp((nxax(end/2 + 1:end))*10));
 n_new = [fliplr(n_new), n_new];
 n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
@@ -124,7 +124,7 @@ vx_init = vx_new;
 % rate coefficient (constant)
 rate_coeff = (1.0e-14);
 % approx size of non-zero portion of neutral profile (1/4 domain)
-decay_loc = xmax - 0.01*xmax;
+decay_loc = xmax - 0.0001*xmax;
 % decay_loc = xmax - 0.2*xmax;
 a = find(nxax >= decay_loc);
 decay_index = npts - a(1);
@@ -158,7 +158,7 @@ lflux = n_avg(1)*vx_new(1);
 % calculate the constant multiplier to match density out = in
 ns_mult = (rflux-lflux)/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*0.1;
+n_source = (n_source*ns_mult)*5.0e-2;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
@@ -190,18 +190,19 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 5.0e-4;
+tmax = 2.0e-2;
 cfl_fact = 0.99;
 
-if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
-    dt = cfl_fact*(min(ndx)^2)/(2.0*nu);
-elseif (cfl_fact*min(ndx)^2/(2.0*nu))>(cfl_fact*min(ndx)/max(abs(vx_new)))
-    dt = cfl_fact*min(ndx)/max(abs(vx_new));
-else
-    dt = cfl_fact*min(ndx)/cs;
-end
+% if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
+%     dt = cfl_fact*(min(ndx)^2)/(2.0*nu);
+% elseif (cfl_fact*min(ndx)^2/(2.0*nu))>(cfl_fact*min(ndx)/max(abs(vx_new)))
+%     dt = cfl_fact*min(ndx)/max(abs(vx_new));
+% else
+%     dt = cfl_fact*min(ndx)/cs;
+% end
 
-dt = 2.0*dt;
+dt = cfl_fact*min(ndx)/max(abs(vx_new));
+dt = 3.0*dt;
 % dt = (2.0*pi/om)*0.01;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
@@ -242,8 +243,5 @@ pressure_mat = sparse(nmax,npts-2);
 
 vx_mat(1,:) = vx_new;
 n_mat(1,:) = n_new;
-  
-    
-
 
 
