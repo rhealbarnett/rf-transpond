@@ -38,7 +38,7 @@ function [A,source,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kz,k0,om,mu0,cpdt,...
         % fill matrix
         A(eq1,iiexm) = 0.0;
         A(eq1,iieym) = -1i*ky(kk-1);
-        A(eq1,iiezm) = -1i*kz;%(kk-1);
+        A(eq1,iiezm) = -1i*kz;
         A(eq1,iiex) = 2.0*dx*(ky(kk)^2 + kz^2 - k0^2*cpdt(1,1,kk));
         A(eq1,iiey) = -2.0*dx*k0^2*cpdt(1,2,kk);
         A(eq1,iiez) = -2.0*dx*k0^2*cpdt(1,3,kk);
