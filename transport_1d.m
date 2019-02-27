@@ -416,7 +416,7 @@ set(gcf,'Position',[563 925 560 420])
 plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density (m^{-3})','Fontsize',16)
-legend('show','Location','south')
+legend('show','Location','west')
 grid on
 hold on
 
@@ -674,6 +674,9 @@ for ii=1:nmax
     if sum(nan_check) ~= 0
         fprintf('unstable, ii=%d\n',ii)
         return
+    elseif rms(n_new)>=1.0e20
+        fprintf('Density value seems large.\n')
+        return
     end
 
     % plot loop; every 1/5 of iterations
@@ -729,7 +732,6 @@ for ii=1:nmax
         legend('show','Location','northwest')
         hold on
         count = count + 1;
-        
     end
     
 end
@@ -761,7 +763,7 @@ end
 % semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
 ylabel('Density m^{-3}','Fontsize',16)
-legend('show','Location','south')
+legend('show','Location','west')
 hold off
 
 figure(2)
