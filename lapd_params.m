@@ -13,6 +13,7 @@ e = -const.e;
 q = const.e;
 eps0 = const.eps0;
 c0 = const.c0;
+mu0 = const.mu0;
 
 charge = [e; q];
 
@@ -32,10 +33,11 @@ mar = 39.95*amu;
 
 m = [me; mhe];
 
-% plasma column is ~ 19 (m) 
-xmin = -9.5;
-xmax = 9.5;
+% plasma column is ~ 18 (m) 
+xmin = -9.;
+xmax = 9.;
 npts = 512;
+xax = linspace(xmin,xmax,npts);
 
 % driving frequency of the single strap, high power antenna (Hz)
 freq = 2.4e6;
@@ -44,7 +46,8 @@ om = freq*2.0*pi;
 % electron density range is (1.0e17 <= n <= 7.9e18) (m^-3)
 Nmax = 7.9e18;
 Nmin = 1.0e16;
-n_new = logspace(log10(Nmin),log10(Nmax),npts);
+% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+n_new = Nmin*ones(1,npts);
 
 % perpendicular wavenumber : just an approximation for now
 % see figure 10 in Martin 2016 poster for n_perp and
