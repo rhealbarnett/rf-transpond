@@ -27,8 +27,8 @@ nu = 1.0;
 %------
 % spatial domain %
 %------
-xmin = -9.0;
-xmax = 9.0;
+xmin = -4.0;
+xmax = 4.0;
 
 %------
 % turn variable grid on (1) or off (0)
@@ -38,7 +38,7 @@ variable = 1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 1024;
+npts = 512;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -97,7 +97,7 @@ end
 Nmax = (1.0e18);
 Nmin = (0.5e18);
 % n_new = (Nmin*(fliplr(nxax)/max(nxax)) + Nmin);
-n_new = Nmax*(1.0 - (1.0e-40)*exp((nxax(end/2 + 1:end))*10));
+n_new = Nmax*(1.0 - (5.0e-19)*exp((nxax(end/2 + 1:end))*10));
 n_new = [fliplr(n_new), n_new];
 n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
@@ -190,7 +190,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 2.0e-2;
+tmax = 1.0e-2;
 cfl_fact = 0.99;
 
 % if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
