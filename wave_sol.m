@@ -19,7 +19,6 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
     A = sparse(3*npts, 3*npts);
     ii = 4;
     kk = 2;
-%     kz = sqrt(kz(1,:).*kz(2,:));
 
     for eq1=4:3:3*(npts-1)
         
@@ -53,7 +52,7 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
         A(eq2,iiezm) = 0.0;
         A(eq2,iiex) = -k0^2*cpdt(2,1,kk);
         A(eq2,iiey) = (kz^2 - k0^2*cpdt(2,2,kk)) + 2.0/(dx^2);
-        A(eq2,iiez) = -(ky*kz + k0^2*cpdt(2,3,kk));
+        A(eq2,iiez) = -ky*kz - k0^2*cpdt(2,3,kk);
         A(eq2,iiexp) = 1i*ky/(2.0*dx);
         A(eq2,iieyp) = -1.0/(dx^2);
         A(eq2,iiezp) = 0.0;
@@ -62,7 +61,7 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
         A(eq3,iieym) = 0.0;
         A(eq3,iiezm) = -1.0/(dx^2);
         A(eq3,iiex) = -k0^2*cpdt(3,1,kk);
-        A(eq3,iiey) = -(ky*kz + k0^2*cpdt(3,2,kk));
+        A(eq3,iiey) = -ky*kz - k0^2*cpdt(3,2,kk);
         A(eq3,iiez) = (ky^2 - k0^2*cpdt(3,3,kk)) + 2.0/(dx^2);
         A(eq3,iiexp) = 1i*kz/(2.0*dx);
         A(eq3,iieyp) = 0.0;
@@ -73,12 +72,15 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
 
     end
 
+    %--
+    % metallic wall BC
     A(1,1) = 1.0;
-%     A(1,4) = -1.0;
     A(2,2) = 1.0;
-%     A(2,5) = -1.0;
     A(3,3) = 1.0;
-%     A(3,6) = -1.0;
+    A(end-2,end-2) = 1.0;
+    A(end-1,end-1) = 1.0;
+    A(end,end) = 1.0;
+    
 
 %     A(1,1) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,1));
 %     A(1,2) = -2.0*dx*k0^2*cpdt(1,2,1);
@@ -102,21 +104,16 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
 %     A(3,6) = -1.0;
     
     %--
-    % metallic wall BC
-    A(end-2,end-2) = 1.0;
-    A(end-1,end-1) = 1.0;
-    A(end,end) = 1.0;
-
-    %--
-    % set up rhs vector
+    % set up rhs vector (current source term)
     rhs = zeros(3*npts,1);
     mult = 1.0/sqrt(2.0*pi*source_width);
-    source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
-    source = source / max(source);
-    source = source / 35;
-%     rhs(1:3:3*npts,1) = 1i*om*mu0*source';
-%     rhs(2:3:3*npts,1) = 1i*om*mu0*source';
-%     rhs(3:3:3*npts,1) = 1i*om*mu0*source';
+%     source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
+%     source = source / max(source);
+%     source = source / 35;
+    source = zeros(1,npts);
+    rhs(1:3:3*npts,1) = 1i*om*mu0*source';
+    rhs(2:3:3*npts,1) = 1i*om*mu0*source';
+    rhs(3:3:3*npts,1) = 1i*om*mu0*source';
     
     if MMS
             
@@ -135,20 +132,24 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
             ex_sol(2:3:3*npts) = ex_soly;
             ex_sol(3:3:3*npts) = ex_solz;
             
+            source_x = zeros(1,npts);
+            source_y = zeros(1,npts);
+            source_z = zeros(1,npts);
+            
         for jj=1:npts
             
             source_x(1,jj) = 1i*ky*(1i*kx*ex_soly(1,jj)) +...
                 (ky^2 + kz^2)*ex_solx(1,jj) + 1i*kz*(1i*kx*ex_solz(1,jj)) -...
                 k0^2*(cpdt(1,1,jj).*ex_solx(1,jj) + cpdt(1,2,jj).*ex_soly(1,jj) +...
-                cpdt(1,3,jj).*ex_solz(1,jj));% + 1i*om*mu0*source(1,jj);
+                cpdt(1,3,jj).*ex_solz(1,jj)) + 1i*om*mu0*source(1,jj);
             source_y(1,jj) = 1i*ky*(1i*kx*ex_solx(1,jj)) +...
-                (kx^2 - kz^2)*ex_soly(1,jj) + ky*kz*ex_solz(1,jj) -...
+                (kx^2 - kz^2)*ex_soly(1,jj) - ky*kz*ex_solz(1,jj) -...
                 k0^2*(cpdt(2,1,jj).*ex_solx(1,jj) + cpdt(2,2,jj).*ex_soly(1,jj) +...
-                cpdt(2,3,jj).*ex_solz(1,jj));% + 1i*om*mu0*source(1,jj);
+                cpdt(2,3,jj).*ex_solz(1,jj)) + 1i*om*mu0*source(1,jj);
             source_z(1,jj) = 1i*kz*(1i*kx*ex_solx(1,jj)) +...
                 (kx^2 + ky^2)*ex_solz(1,jj) - ky*kz*ex_soly(1,jj) -...
                 k0^2*(cpdt(3,1,jj).*ex_solx(1,jj) + cpdt(3,2,jj).*ex_soly(1,jj) +...
-                cpdt(3,3,jj).*ex_solz(1,jj));% + 1i*om*mu0*source(1,jj);
+                cpdt(3,3,jj).*ex_solz(1,jj)) + 1i*om*mu0*source(1,jj);
             
         end
         
