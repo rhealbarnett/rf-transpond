@@ -18,7 +18,8 @@ mu0 = const.mu0;
 charge = [e; q];
 
 % magnetic field magnitude, 1000 G = 0.1 T
-B0 = 0.1;
+% B0 = 0.1;
+B0 = 0.8;
 
 % electron and ion temperatures, (eV)
 % multiply by e for temps in K
@@ -27,8 +28,8 @@ Ti = 6.0;
 
 % plasma column is ~ 18 (m) 
 xmin = 0.;
-xmax = 1.;
-% npts = 1024;
+xmax = 1.0;
+npts = 1024;
 xax = linspace(xmin,xmax,npts);
 
 % ion mass : there are 3 possible ions in LAPD, 
@@ -54,16 +55,18 @@ mhe = mhe*ones(1,npts);
 % 
 % me = me .* damp;
 
-m = [me; mp*ones(1,npts)];
+m = [me; 2*mp*ones(1,npts)];
 
 % driving frequency of the single strap, high power antenna (Hz)
-freq = 2.4e6;
+% freq = 2.4e6;
+freq = 13.0e6;
 % freq = c0/1.8;
 om = freq*2.0*pi;
 
 % electron density range is (1.0e17 <= n <= 7.9e18) (m^-3)
-Nmax = 7.9e18;
+% Nmax = 7.9e18;
 Nmin = 1.0e16;
+Nmax = 4.0e19;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
 n_new = Nmax*ones(1,npts);
 
