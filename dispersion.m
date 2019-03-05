@@ -50,7 +50,7 @@ elseif para
     
     %--
     % initialise kx roots arrays, ensure they are complex
-    for ii=1:npts
+    for ii=1:800
 
         a1 = p_arr;
         b1 = 2.0*p_arr.*s_arr - n_perp(1,ii)^2*(p_arr + s_arr);
@@ -156,7 +156,7 @@ levels = linspace(-max(real(kpara11(:))),max(real(kpara11(:))),50);
 levims = linspace(-max(imag(kpara11(:))),max(imag(kpara11(:))),50);
 
 subplot(2,2,1)
-contourf(log10(n_new),(k_perp),real(kpara11),levels,'Linecolor','none')
+contourf(log10(n_new),(k_perp),real(kpara11)',levels,'Linecolor','none')
 colormap(gca,flipud(c(1:40,:)));
 rc11 = colorbar;
 % ylabel(rc11,'Re[k_{||11}] (m^{-1})')
@@ -167,7 +167,7 @@ rc11.Ticks = linspace(0,14,5);
 
 
 subplot(2,2,2)
-contourf(log10(n_new),(k_perp),real(kpara12),levels,'Linecolor','none')
+contourf(log10(n_new),(k_perp),real(kpara12)',levels,'Linecolor','none')
 colormap(gca,flipud(c(41:64,:)));
 rc11 = colorbar;
 % ylabel(ic11,'Im[k_{||11}] (m^{-1})')
@@ -179,7 +179,7 @@ xlabel('log_{10}n')
 % rc11.Ticks = linspace(0,3,4);
 
 subplot(2,2,3)
-contourf(log10(n_new),(k_perp),real(kpara21),levels,'Linecolor','none')
+contourf(log10(n_new),(k_perp),real(kpara21)',levels,'Linecolor','none')
 colormap(gca,c);%flipud(c(1:40,:)));
 rc11 = colorbar;
 % ylabel(ic11,'Im[k_{||11}] (m^{-1})')
@@ -191,7 +191,7 @@ xlabel('log_{10}n')
 % rc11.Ticks = linspace(0,3,4);
 
 subplot(2,2,4)
-contourf(log10(n_new),(k_perp),real(kpara22),levels,'Linecolor','none')
+contourf(log10(n_new),(k_perp),real(kpara22)',levels,'Linecolor','none')
 colormap(gca,c);%flipud(c(1:40,:)));
 rc11 = colorbar;
 % ylabel(ic11,'Im[k_{||11}] (m^{-1})')
@@ -206,36 +206,36 @@ xlabel('log_{10}n')
 
 c = jet(64);
 
-levels = linspace(-max(real(kpara11(:))),max(real(kpara11(:))),50);
-levims = linspace(-max(imag(kpara11(:))),max(imag(kpara11(:))),50);
+levims11 = linspace(-max(abs(imag(kpara11(:)))),max(abs(imag(kpara11(:)))),50);
+levims22 = linspace(-max(abs(imag(kpara22(:)))),max(abs(imag(kpara22(:)))),50);
 
 figure(2)
 subplot(2,2,1)
-contourf(log10(n_new),(k_perp),imag(kpara11),levels,'Linecolor','none')
+contourf(log10(n_new),(k_perp),imag(kpara11)',levims11,'Linecolor','none')
 colormap(gca,flipud(c(1:40,:)));
 rc11 = colorbar;
 % ylabel(rc11,'Re[k_{||11}] (m^{-1})')
 set(gca,'xtick',[])
 title('Im[k_{||11}]')
 ylabel('k_{\perp} (m^{-1})')
-rc11.Ticks = linspace(0,14,5);
+% rc11.Ticks = linspace(0,14,5);
 
 
 subplot(2,2,2)
-contourf(log10(n_new),(k_perp),imag(kpara12),levels,'Linecolor','none')
+contourf(log10(n_new),(k_perp),imag(kpara12)',levims11,'Linecolor','none')
 colormap(gca,flipud(c(41:64,:)));
 rc11 = colorbar;
 % ylabel(ic11,'Im[k_{||11}] (m^{-1})')
-% set(gca,'xtick',[])
+set(gca,'xtick',[])
 % set(gca,'ytick',[])
 title('Im[k_{||12}]')
 ylabel('k_{\perp} (m^{-1})')
-xlabel('log_{10}n')
+% xlabel('log_{10}n')
 % rc11.Ticks = linspace(0,3,4);
 
 subplot(2,2,3)
-contourf(log10(n_new),(k_perp),imag(kpara21),levels,'Linecolor','none')
-colormap(gca,c);%flipud(c(1:40,:)));
+contourf(log10(n_new),(k_perp),imag(kpara21)',levims22,'Linecolor','none')
+colormap(gca,flipud(c(1:40,:)));
 rc11 = colorbar;
 % ylabel(ic11,'Im[k_{||11}] (m^{-1})')
 % set(gca,'xtick',[])
@@ -246,8 +246,8 @@ xlabel('log_{10}n')
 % rc11.Ticks = linspace(0,3,4);
 
 subplot(2,2,4)
-contourf(log10(n_new),(k_perp),imag(kpara22),levels,'Linecolor','none')
-colormap(gca,c);%flipud(c(1:40,:)));
+contourf(log10(n_new),(k_perp),imag(kpara22)',levims22,'Linecolor','none')
+colormap(gca,flipud(c(41:64,:)));
 rc11 = colorbar;
 % ylabel(ic11,'Im[k_{||11}] (m^{-1})')
 % set(gca,'xtick',[])
@@ -256,6 +256,84 @@ title('Im[k_{||22}]')
 ylabel('k_{\perp} (m^{-1})')
 xlabel('log_{10}n')
 % rc11.Ticks = linspace(0,3,4);
+
+%%
+
+c = jet(64);
+
+levels11 = linspace(-max(real(kpara11(:))),max(real(kpara11(:))),50);
+levims11 = linspace(-max(abs(imag(kpara11(:)))),max(abs(imag(kpara11(:)))),50);
+levels22 = linspace(-max(real(kpara21(:))),max(real(kpara21(:))),500);
+levims22 = linspace(-max(abs(imag(kpara21(:)))),max(abs(imag(kpara21(:)))),50);
+
+figure(3)
+subplot(2,2,1)
+contourf(log10(n_new),(k_perp),real(kpara11)',levels11,'Linecolor','none')
+colormap(gca,flipud(c(1:40,:)));
+rc11 = colorbar;
+% ylabel(rc11,'Re[k_{||11}] (m^{-1})')
+% set(gca,'xtick',[])
+title('Re[k_{||11}]')
+ylabel('k_{\perp} (m^{-1})')
+xlabel('log_{10}n')
+
+subplot(2,2,3)
+contourf(log10(n_new),(k_perp),imag(kpara11)',levims11,'Linecolor','none')
+colormap(gca,flipud(c(1:40,:)));
+rc11 = colorbar;
+% ylabel(rc11,'Re[k_{||11}] (m^{-1})')
+% set(gca,'xtick',[])
+title('Im[k_{||11}]')
+ylabel('k_{\perp} (m^{-1})')
+xlabel('log_{10}n')
+% rc11.Ticks = linspace(0,14,5);
+
+subplot(2,2,2)
+contourf(log10(n_new),(k_perp),real(kpara21)',levels22,'Linecolor','none')
+if real(kpara21(:))==0
+    shading flat
+    colormap(gca,flipud(c(1:40,:)));
+    rc11 = colorbar;
+    lim = caxis;
+    caxis([0 1]);
+else
+    colormap(gca,flipud(c(1:40,:)));
+    rc11 = colorbar;
+end
+%flipud(c(1:40,:)));
+% ylabel(ic11,'Im[k_{||11}] (m^{-1})')
+% set(gca,'xtick',[])
+% set(gca,'ytick',[])
+title('Re[k_{||21}]')
+ylabel('k_{\perp} (m^{-1})')
+xlabel('log_{10}n')
+% rc11.Ticks = linspace(0,3,4);
+
+subplot(2,2,4)
+contourf(log10(n_new),(k_perp),imag(kpara21)',levims22,'Linecolor','none')
+colormap(gca,flipud(c(1:40,:)));
+if imag(kpara21(:))==0
+    shading flat
+    colormap(gca,flipud(c(1:40,:)));
+    rc11 = colorbar;
+    lim = caxis;
+    caxis([0 1]);
+else
+    colormap(gca,flipud(c(1:40,:)));
+    rc11 = colorbar;
+end
+% ylabel(ic11,'Im[k_{||11}] (m^{-1})')
+% set(gca,'xtick',[])
+% set(gca,'ytick',[])
+title('Im[k_{||21}]')
+ylabel('k_{\perp} (m^{-1})')
+xlabel('log_{10}n')
+% rc11.Ticks = linspace(0,3,4);
+
+
+
+
+
 
 %%
 
