@@ -19,7 +19,7 @@ charge = [e; q];
 
 % magnetic field magnitude, 1000 G = 0.1 T
 % B0 = 0.1;
-B0 = 0.8;
+B0 = 1.0;
 
 % electron and ion temperatures, (eV)
 % multiply by e for temps in K
@@ -27,8 +27,8 @@ Te = 1.0;
 Ti = 6.0;
 
 % plasma column is ~ 18 (m) 
-xmin = 0.;
-xmax = 1.0;
+xmin = -4.;
+xmax = 4.0;
 npts = 1024;
 xax = linspace(xmin,xmax,npts);
 
@@ -55,32 +55,33 @@ mhe = mhe*ones(1,npts);
 % 
 % me = me .* damp;
 
-m = [me; 2*mp*ones(1,npts)];
+m = [me; mhe];
 
 % driving frequency of the single strap, high power antenna (Hz)
-% freq = 2.4e6;
-freq = 13.0e6;
-% freq = c0/1.8;
+freq = 24e6;
+% freq = 13.0e6;
 om = freq*2.0*pi;
 
 % electron density range is (1.0e17 <= n <= 7.9e18) (m^-3)
-% Nmax = 7.9e18;
-Nmin = 1.0e16;
-Nmax = 4.0e19;
-% n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = Nmax*ones(1,npts);
+Nmax = 1.0e20;
+Nmin = 1.0e14;
+n_new = logspace(log10(Nmin),log10(Nmax),npts);
+% n_new = Nmax*ones(1,npts);
 
 % perpendicular wavenumber : just an approximation for now
 % see figure 10 in Martin 2016 poster for n_perp and
 % n_para, n = c0*k/om
 % n_perp = linspace(0,800,npts);
+% n_perp = 
 % k_perp = om*n_perp./c0;
+k_perp = 20*ones(1,npts);
+n_perp = c0*k_perp./om;
 % wave_perp = 2.0*pi./k_perp;
 % k0 = om/c0;
 % wave0 = 2.0*pi/k0;
 
 % kx = 2.0*pi/wave;
-kx = 40.;
+% kx = 40.;
 
 ky = 0.;
 kz = 0.;
