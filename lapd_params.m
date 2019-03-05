@@ -28,7 +28,7 @@ Ti = 0.5;
 % plasma column is ~ 18 (m) 
 xmin = -4.;
 xmax = 4.0;
-npts = 1024;
+npts = 2048;
 xax = linspace(xmin,xmax,npts);
 
 % ion mass : there are 3 possible ions in LAPD, 
@@ -44,7 +44,7 @@ mhe = mhe*ones(1,npts);
 
 % DLG - since I don't have the license for "makedist"
 % I fixed your cos ramping function :)
-dampFac = 10.0e1;
+dampFac = 50.0e1;
 np_bound = floor(0.2*npts);
 ax = linspace(0,pi,np_bound);
 damp0 = (cos(ax)+1)/2;
@@ -65,16 +65,16 @@ om = freq*2.0*pi;
 Nmax = 7.9e18;
 Nmin = 1.0e17;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = Nmin*ones(1,npts);
+n_new = Nmax*ones(1,npts);
 
 % perpendicular wavenumber : just an approximation for now
 % see figure 10 in Martin 2016 poster for n_perp and
 % n_para, n = c0*k/om
-n_perp = linspace(0,800,800);
-% n_perp = 
-k_perp = om*n_perp./c0;
-% k_perp = 20*ones(1,npts);
-% n_perp = c0*k_perp./om;
+% n_perp = linspace(0,800,800);
+% n_perp = 200;
+% k_perp = om*n_perp./c0;
+k_perp = 5.;
+n_perp = c0*k_perp./om;
 % wave_perp = 2.0*pi./k_perp;
 % k0 = om/c0;
 % wave0 = 2.0*pi/k0;
@@ -83,7 +83,7 @@ k_perp = om*n_perp./c0;
 % kx = 40.;
 
 ky = 0.;
-kz = 5.;
+kz = k_perp;
 k0 = om/c0;
 
 source_width = 0.03;
