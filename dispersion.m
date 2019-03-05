@@ -50,7 +50,7 @@ elseif para
     
     %--
     % initialise kx roots arrays, ensure they are complex
-    for ii=1:800
+    for ii=1:length(n_perp)
 
         a1 = p_arr;
         b1 = 2.0*p_arr.*s_arr - n_perp(1,ii)^2*(p_arr + s_arr);
@@ -155,6 +155,7 @@ c = jet(64);
 levels = linspace(-max(real(kpara11(:))),max(real(kpara11(:))),50);
 levims = linspace(-max(imag(kpara11(:))),max(imag(kpara11(:))),50);
 
+figure(1)
 subplot(2,2,1)
 contourf(log10(n_new),(k_perp),real(kpara11)',levels,'Linecolor','none')
 colormap(gca,flipud(c(1:40,:)));
