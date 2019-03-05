@@ -38,7 +38,7 @@ variable = 1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 512;
+npts = 2048;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -158,9 +158,14 @@ lflux = n_avg(1)*vx_new(1);
 % calculate the constant multiplier to match density out = in
 ns_mult = (rflux-lflux)/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*5.0e-2;
+n_source = (n_source*ns_mult)*1.0e-2;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+
+equib = load('../../lapd_numdata/matlab/equibhe_8m.mat');
+equib_n_source = equib.n_source;
+equib_nxax = equib.nxax;
+n_source = interp1(equib_nxax,equib_n_source,nxax,'linear');
 
 % n_source = equib.n_source;
 
@@ -202,7 +207,7 @@ cfl_fact = 0.99;
 % end
 
 dt = cfl_fact*min(ndx)/max(abs(vx_new));
-dt = 3.0*dt;
+dt = 6.0*dt;
 % dt = (2.0*pi/om)*0.01;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
