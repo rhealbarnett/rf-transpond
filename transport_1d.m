@@ -674,9 +674,9 @@ for ii=1:nmax
     if sum(nan_check) ~= 0
         fprintf('unstable, ii=%d\n',ii)
         return
-    elseif rms(n_new)>=1.0e20
-        fprintf('Density value seems large.\n')
-        return
+%     elseif rms(n_new)>=1.0e20
+%         fprintf('Density value seems large.\n')
+%         return
     end
 
     % plot loop; every 1/5 of iterations
