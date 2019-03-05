@@ -9,7 +9,7 @@
 %------------------------------------------------------------------%
 
 
-function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
+function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
     om,mu0,cpdt,source_width,source_loc,MMS)
 
     npts = length(xax);
@@ -81,36 +81,13 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
     A(end-1,end-1) = 1.0;
     A(end,end) = 1.0;
     
-
-%     A(1,1) = 2.0*dx*(ky^2 + kz^2 - k0^2*cpdt(1,1,1));
-%     A(1,2) = -2.0*dx*k0^2*cpdt(1,2,1);
-%     A(1,3) = -2.0*dx*k0^2*cpdt(1,3,1);
-%     A(1,4) = 0.0;
-%     A(1,5) = 1i*ky;
-%     A(1,6) = 1i*kz;
-
-%     A(2,1) = -dx^2*k0^2*cpdt(2,1,1);
-%     A(2,2) = dx^2*(kz^2 - k0^2*cpdt(2,2,1)) + 2.0;
-%     A(2,3) = -dx^2*(ky*kz + k0^2*cpdt(2,3,1));
-%     A(2,4) = 1i*ky*(dx/2.0);
-%     A(2,5) = -1.0;
-%     A(2,6) = 0.0;
-%     
-%     A(3,1) = -dx^2*k0^2*cpdt(3,1,1);
-%     A(3,2) = -dx^2*(ky*kz + k0^2*cpdt(3,2,1));
-%     A(3,3) = dx^2*(ky^2 - k0^2*cpdt(3,3,1)) + 2.0;
-%     A(3,4) = 1i*kz*(dx/2.0);
-%     A(3,5) = 0.0;
-%     A(3,6) = -1.0;
-    
     %--
     % set up rhs vector (current source term)
     rhs = zeros(3*npts,1);
     mult = 1.0/sqrt(2.0*pi*source_width);
-%     source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
-%     source = source / max(source);
-%     source = source / 35;
-    source = zeros(1,npts);
+    source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
+    source = source / max(source);
+    source = source*5000;
     rhs(1:3:3*npts,1) = 1i*om*mu0*source';
     rhs(2:3:3*npts,1) = 1i*om*mu0*source';
     rhs(3:3:3*npts,1) = 1i*om*mu0*source';
@@ -171,15 +148,24 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,ex_sol] = wave_sol(xax,ky,kz,k0,...
         
     else
 
-        % --
-        % calculation solution as waveeq_mat^-1*rhs
         rf_e = (A)\rhs;
+        rf_e = rf_e';
         
     end
 
     rf_ex = rf_e(1,1:3:3*npts);
     rf_ey = rf_e(1,2:3:3*npts);
     rf_ez = rf_e(1,3:3:3*npts);
+    
+    exj_dot = rf_ex.*conj(source);
+    eyj_dot = rf_ey.*conj(source);
+    ezj_dot = rf_ez.*conj(source);
+    
+    diss_powx = (1.0/2.0)*real(trapz(xax,exj_dot));
+    diss_powy = (1.0/2.0)*real(trapz(xax,eyj_dot));
+    diss_powz = (1.0/2.0)*real(trapz(xax,ezj_dot));
+    
+    diss_pow = [diss_powx, diss_powy, diss_powz];
 
 end
 
