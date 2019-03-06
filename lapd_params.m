@@ -28,7 +28,7 @@ Ti = 0.5;
 % plasma column is ~ 18 (m) 
 xmin = -4.;
 xmax = 4.0;
-npts = 2048;
+npts = 512;
 xax = linspace(xmin,xmax,npts);
 
 % ion mass : there are 3 possible ions in LAPD, 
@@ -65,7 +65,7 @@ om = freq*2.0*pi;
 Nmax = 7.9e18;
 Nmin = 1.0e17;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = Nmax*ones(1,npts);
+n_new = Nmin*ones(1,npts);
 
 % perpendicular wavenumber : just an approximation for now
 % see figure 10 in Martin 2016 poster for n_perp and
