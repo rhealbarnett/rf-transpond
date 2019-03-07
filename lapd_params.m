@@ -28,7 +28,7 @@ Ti = 0.5;
 % plasma column is ~ 18 (m) 
 xmin = -4.;
 xmax = 4.0;
-npts = 512;
+% npts = 2048;
 xax = linspace(xmin,xmax,npts);
 
 % ion mass : there are 3 possible ions in LAPD, 
@@ -54,7 +54,7 @@ damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
 me = me .* damp;
 
-m = [me; mhe];
+m_s = [me; mhe];
 
 % driving frequency of the single strap, high power antenna (Hz)
 freq = 2.4e6;
@@ -62,10 +62,10 @@ freq = 2.4e6;
 om = freq*2.0*pi;
 
 % electron density range is (1.0e17 <= n <= 7.9e18) (m^-3)
-Nmax = 7.9e18;
-Nmin = 1.0e17;
+% Nmax = 7.9e18;
+% Nmin = 1.0e17;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = Nmin*ones(1,npts);
+% n_new = Nmin*ones(1,npts);
 
 % perpendicular wavenumber : just an approximation for now
 % see figure 10 in Martin 2016 poster for n_perp and
