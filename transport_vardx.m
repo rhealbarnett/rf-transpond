@@ -61,7 +61,7 @@ if variable
     %'strength' of grid refinement.
     % sign also indicates whether refinement is in the centre or at the
     % boundaries
-    A = -5.0;
+    A = -4.5;
 
     % set up the unit spaced parameter, xi, that the grid is a function of
     smax = 1.0;
@@ -158,14 +158,14 @@ lflux = n_avg(1)*vx_new(1);
 % calculate the constant multiplier to match density out = in
 ns_mult = (rflux-lflux)/source_int;
 % multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*1.0e-2;
+n_source = (n_source*ns_mult)*5.0e-3;
 nv_source = source_avg*ns_mult;
 n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
 equib = load('../../lapd_numdata/matlab/equibhe_8m.mat');
 equib_n_source = equib.n_source;
 equib_nxax = equib.nxax;
-n_source = interp1(equib_nxax,equib_n_source,nxax,'linear');
+n_source = interp1(equib_nxax,equib_n_source,nxax,'linear')*0.9;
 
 % n_source = equib.n_source;
 
@@ -207,7 +207,7 @@ cfl_fact = 0.99;
 % end
 
 dt = cfl_fact*min(ndx)/max(abs(vx_new));
-dt = 6.0*dt;
+dt = 2.0*dt;
 % dt = (2.0*pi/om)*0.01;
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
