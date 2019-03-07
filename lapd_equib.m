@@ -6,5 +6,189 @@
 
 equib = load('../../lapd_numdata/matlab/equibhe_8m.mat');
 
+const = constants();
+e = const.e;
+m = const.amu*4.00;
+
 vxax = equib.vxax;
+nxax = equib.nxax;
 vdx = equib.vdx;
+ndx = equib.ndx;
+n_neut = equib.n_neut;
+dt = equib.dt;
+Te = equib.Te;
+Ti = equib.Ti;
+nu = equib.nu;
+npts = equib.npts;
+m_s = equib.m;
+xmin = equib.xmin;
+xmax = equib.xmax;
+tmax = equib.tmax;
+vx_source = equib.vx_source;
+n_source = equib.n_source;
+vx_new = equib.vx_new;
+n_new = equib.n_new;
+vx = equib.vx;
+n = equib.n;
+
+%%
+
+plots = 0;
+
+if plots
+    figure(1)
+    plot(nxax,n_new);
+    hold on
+else
+end
+
+%%
+
+Nmax = 1.0e17;
+fact = Nmax/max(n_new);
+n_new = n_new*fact;
+n_source = n_source*fact;
+
+%%
+
+if plots 
+    figure(1)
+    plot(nxax,n_new);
+    xlabel('Position (m)')
+    ylabel('Density (m^{-3})')
+    xlim([xmin xmax])
+    hold off
+else
+end
+
+%%
+
+refine = 1;
+
+if refine
+
+    n_source(1,1) = interp1([nxax(3), nxax(2)], [n_source(3), n_source(2)],...
+            nxax(1),'linear','extrap'); 
+    n_source(1,end) = interp1([nxax(npts-2), nxax(npts-1)], [n_source(npts-2), n_source(npts-1)],...
+            nxax(npts),'linear','extrap');
+
+    figure(20);
+    plot(nxax(2:npts-1),n_source(2:npts-1))
+    hold on
+
+    NP = 2048;
+    variable = 1;
+
+    if variable
+
+        % location of sign change
+        xc = (xmax - xmin)/2.0;
+
+        %'strength' of grid refinement.
+        % sign also indicates whether refinement is in the centre or at the
+        % boundaries
+        A = -4.5;
+
+        % set up the unit spaced parameter, xi, that the grid is a function of
+        smax = 1.0;
+        smin = 0.0;
+        s = linspace(smin,smax,NP-1); 
+
+        % calculate the x values from xi
+        x = xc*(1.0 - tanh(A*(1.0 - 2.0*s))./tanh(A));
+
+        Vxax = x - xmax;
+        Vdx = (Vxax(2:end) - Vxax(1:end-1));
+
+        NP = length(Vxax) + 1;
+        Nxax = zeros(1,NP);
+
+        Nxax(1) = Vxax(1) - 0.5*Vdx(1);
+        Nxax(end) = Vxax(end) + 0.5*Vdx(end);
+        Nxax(2:end-1) = (Vxax(2:end) + Vxax(1:end-1))/2.0;
+        Ndx = Nxax(2:end) - Nxax(1:end-1);
+
+    end
+
+    cfl_fact = 0.99;
+    dt = cfl_fact*min(ndx)/max(abs(vx_new));
+    dt = 3.0*dt;
+
+    n_new = interp1(nxax,n_new,Nxax,'linear');
+    vx_new = interp1(vxax,vx_new,Vxax,'linear');
+    n_source = interp1(nxax,n_source,Nxax,'linear')*0.5;
+
+    n_source(1,1) = 0.0;
+    n_source(1,end) = 0.0;
+
+    vxax = Vxax;
+    nxax = Nxax;
+    ndx = Ndx;
+    vdx = Vdx;
+    npts = NP;
+
+    figure(20)
+    plot(nxax(2:npts-1),n_source(2:npts-1))
+    hold off
+    
+end
+
+
+%%
+
+cs = sqrt((Te+Ti)*e/m);
+LuBC = -cs;
+RuBC = cs;
+
+lapd_params;
+
+tmax = 1.0e-3;
+% period = 1.0/freq;
+% tmax = 100*period;
+nmax = round(tmax/dt);
+
+n_new_uni = interp1(nxax,n_new,xax,'linear');
+
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(charge,B0,n_new_uni,m_s,om,eps0,npts);
+[A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
+    om,mu0,cpdt,source_width,source_loc,0);
+
+Efield = real(rf_ex);
+Efield = Efield.^2;
+Efield = zeros(1,npts);
+
+%%
+
+if plots
+    figure(10)
+    plot(xax,sqrt(Efield),'-o')
+    hold on
+else
+end
+
+Efield = interp1(xax,Efield,vxax,'linear');
+
+if plots
+    figure(10)
+    plot(vxax,sqrt(Efield),'*-')
+    hold off
+else
+end
+
+%%
+
+pond_const = (1.0/4.0)*((e^2)/(const.me*om^2));
+
+vx_mat = sparse(nmax,npts-1);
+n_mat = sparse(nmax,npts);
+pressure_mat = sparse(nmax,npts-2);
+
+vx_mat(1,:) = vx_new;
+n_mat(1,:) = n_new;
+
+nA = sparse(npts,npts);
+nI = sparse(eye(npts,npts));
+vx_pos = sparse(npts-1,npts-1);
+vx_neg = sparse(npts-1,npts-1);
+vx_diff = sparse(npts-1,npts-1);
+vx_I = sparse(eye(npts-1,npts-1));
