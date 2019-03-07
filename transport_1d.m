@@ -40,9 +40,10 @@
 
 % import parameter file
 % params_transport_wave_ACM;
-transport_vardx;
+% transport_vardx;
 % transport_test;
 % transport_mms;
+lapd_equib;
 
 % initialise velocity and density 
 vx = vx_new;
@@ -400,6 +401,8 @@ end
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
+    pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
+    pf_source = [0,pf_source,0];
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
@@ -446,9 +449,23 @@ figure(4)
 set(gcf,'Position',[563 476 560 420])
 plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Density source (ms^{-1})','Fontsize',16)
+ylabel('Density source (m^{-3})','Fontsize',16)
 legend('show','Location','northwest')
 grid on
+hold on
+
+figure(5)
+plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+legend('show','Location','northwest')
+hold on
+
+figure(6)
+plot(xax,real(rf_ex),'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Re[Ex] (Vm^{-1})','Fontsize',16)
+legend('show','Location','northwest')
 hold on
 
 %
@@ -476,6 +493,17 @@ for ii=1:nmax
         nxax(npts),'linear','extrap');   
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
+    
+%     n_new_uni = interp1(nxax,n_new,xax,'linear');
+% 
+%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(charge,B0,n_new_uni,m_s,om,eps0,npts);
+%     [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
+%     om,mu0,cpdt,source_width,source_loc,0);
+% 
+%     Efield = real(rf_ex);
+%     Efield = Efield.^2;
+%     
+%     Efield = interp1(xax,Efield,vxax,'linear');
     
     if staggered && (continuity || ~MMS)
         
@@ -626,7 +654,7 @@ for ii=1:nmax
         % calculate the source term
         if staggered && ~MMS
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-            pf_source = pond_source(const.mp,om,const.e,Efield,dx,npts-2);
+            pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
             pf_source = [0,pf_source,0];
         elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts,lamx) +...
@@ -645,8 +673,8 @@ for ii=1:nmax
         % explicit calculation
     %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
         % implicit calculation
-    %     vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
-        vx_new_imp = Avx_imp\(vx' + dt*vx_source');
+        vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
+%         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
 %         vx_new_imp = Avx_imp\(vx_source');
 
         % transpose solution vector
@@ -700,7 +728,7 @@ for ii=1:nmax
         set(gcf,'Position',[563 925 560 420])
 %         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlim([min(nxax+dx) max(nxax-dx)])
+        xlim([min(nxax+ndx(1)) max(nxax-ndx(end))])
         hold on
         if MMS
             plot(nxax,ex_soln,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
@@ -729,6 +757,18 @@ for ii=1:nmax
         plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('Density source ms^{-1}','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+        figure(5)
+        plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+        figure(6)
+        plot(xax,real(rf_ex),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Re[Ex] (Vm^{-1})','Fontsize',16)
         legend('show','Location','northwest')
         hold on
         count = count + 1;
@@ -800,9 +840,16 @@ legend('show','Location','northwest')
 hold off
 
 figure(5)
-plot(vxax(2:npts-2),sqrt(Efield(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Electric field (Vm^{-1})','Fontsize',16)
+ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+legend('show','Location','northwest')
+hold off
+
+figure(6)
+plot(xax,real(rf_ex),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Re[Ex] (Vm^{-1})','Fontsize',16)
 legend('show','Location','northwest')
 hold off
 
@@ -866,9 +913,14 @@ function [ans] = avg(n,npts)
     ans = (n(2:npts) + n(1:npts-1))/2.0;
 end
 
-function [ans] = pond_source(m,omega,q,Efield,dx,npts)
-    pond_const = (1.0/4.0)*((q^2)/(m*omega^2));
-    ans = (1.0/m)*pond_const*grad(Efield,dx,npts);
+function [ans] = pond_source(me,mp,omega,q,Efield,dx)
+    pond_const = (1.0/4.0)*((q^2)/(me*omega^2));
+    for ii = 2:length(dx)
+        Ediff(1,ii-1) = -(dx(1,ii)/(dx(1,ii-1)*(dx(1,ii) + dx(1,ii-1))))*Efield(1,ii-1) +...
+            ((dx(1,ii) - dx(1,ii-1))/(dx(1,ii)*dx(1,ii-1)))*Efield(1,ii) +...
+            (dx(1,ii-1)/(dx(1,ii)*(dx(1,ii) + dx(1,ii-1))))*Efield(1,ii+1);
+    end
+    ans = (1.0/mp)*pond_const*Ediff;
 end
 
 function [ans] = source_stag(n,q,Te,Ti,m,npts,dx)
