@@ -4,7 +4,7 @@
 %------------------------------------------------------------------%
 
 
-equib = load('../../lapd_numdata/matlab/equibhe_8m.mat');
+equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 
 const = constants();
 e = const.e;
@@ -46,8 +46,8 @@ end
 
 Nmax = 1.0e17;
 fact = Nmax/max(n_new);
-% n_new = n_new*fact;
-% n_source = n_source*fact;
+n_new = n_new*fact;
+n_source = n_source*fact;
 n_init = n_new;
 
 %%
@@ -157,7 +157,7 @@ n_new_uni = interp1(nxax,n_new,xax,'linear');
     om,mu0,cpdt,source_width,source_loc,0,source_mult);
 
 
-rf_ex = zeros(1,npts); 
+% rf_ex = zeros(1,npts); 
 Efield = real(rf_ex);
 Emag = max(abs(Efield));
 Efield = Efield.^2;
