@@ -188,7 +188,6 @@ nI = sparse(eye(npts,npts));
 vx_pos = sparse(npts-1,npts-1);
 vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
-vx_sn = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
 %-------------------------------------------------------------------------%
