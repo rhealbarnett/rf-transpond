@@ -46,8 +46,8 @@ end
 
 Nmax = 1.0e17;
 fact = Nmax/max(n_new);
-n_new = n_new*fact;
-n_source = n_source*fact;
+% n_new = n_new*fact;
+% n_source = n_source*fact;
 
 %%
 
@@ -116,7 +116,7 @@ if refine
 
     n_new = interp1(nxax,n_new,Nxax,'linear');
     vx_new = interp1(vxax,vx_new,Vxax,'linear');
-    n_source = interp1(nxax,n_source,Nxax,'linear')*0.5;
+    n_source = interp1(nxax,n_source,Nxax,'linear')*0.01;
 
     n_source(1,1) = 0.0;
     n_source(1,end) = 0.0;
@@ -142,17 +142,18 @@ RuBC = cs;
 
 lapd_params;
 
-tmax = 1.0e-3;
+tmax = 4.0e-3;
 % period = 1.0/freq;
 % tmax = 100*period;
 nmax = round(tmax/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(charge,B0,n_new_uni,m_s,om,eps0,npts);
-[A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
-    om,mu0,cpdt,source_width,source_loc,0);
+% [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(charge,B0,n_new_uni,m_s,om,eps0,npts);
+% [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
+%     om,mu0,cpdt,source_width,source_loc,0);
 
+rf_ex = zeros(1,npts); 
 Efield = real(rf_ex);
 Efield = Efield.^2;
 Efield = zeros(1,npts);
