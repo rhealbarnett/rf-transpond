@@ -54,16 +54,16 @@ damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
 me = me .* damp;
 
-m_s = [me; mp*ones(1,npts)];
+m_s = [me; mhe];
 
 % driving frequency of the single strap, high power antenna (Hz)
-% freq = 2.4e6;
-freq = 40.0e6;
+freq = 2.4e6;
+% freq = 40.0e6;
 om = freq*2.0*pi;
 
 % electron density range is (1.0e17 <= n <= 7.9e18) (m^-3)
-Nmax = 1.0e19;
-Nmin = 1.0e16;
+Nmax = 7.9e18;
+Nmin = 1.0e17;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
 n_new = 1.0e17*ones(1,npts);
 
