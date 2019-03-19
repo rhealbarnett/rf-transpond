@@ -143,11 +143,11 @@ RuBC = cs;
 
 lapd_params;
 
-source_mult = 28000;
+% source_mult = 37000;
 
-tmax = 1.0e-5;
-% period = 1.0/freq;
-% tmax = 100*period;
+% tmax = 1.0e-5;
+period = 1.0/freq;
+tmax = 25*period;
 nmax = round(tmax/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
@@ -157,10 +157,11 @@ n_new_uni = interp1(nxax,n_new,xax,'linear');
     om,mu0,cpdt,source_width,source_loc,0,source_mult);
 
 
-% rf_ex = zeros(1,npts); 
-Efield = real(rf_ex);
-Emag = max(abs(Efield));
-Efield = Efield.^2;
+% rf_ex = zeros(1,npts);
+Efield = rf_ez.^2;
+Efield = abs(Efield);
+Emag = max(abs(sqrt(Efield)));
+% Efield = Efield.^2;
 % Efield = zeros(1,npts);
 
 

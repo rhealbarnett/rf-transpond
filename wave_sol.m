@@ -89,8 +89,8 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
     source = source / max(source);
     source = source*source_mult;
     rhs(1:3:3*npts,1) = 0.0;%1i*om*mu0*source';
-    rhs(2:3:3*npts,1) = 1i*om*mu0*source';
-    rhs(3:3:3*npts,1) = 0.0;%1i*om*mu0*source';
+    rhs(2:3:3*npts,1) = 0.0;%1i*om*mu0*source';
+    rhs(3:3:3*npts,1) = 1i*om*mu0*source';
     
     if MMS
             

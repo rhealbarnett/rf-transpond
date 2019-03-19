@@ -21,7 +21,7 @@ a11 = ky^2 + kz^2;
 a12 = -ky*kx;
 a13 = -kz*kx;
 a21 = -ky*kx;
-a22 = kz^2 + kx^2;
+a22 = -kz^2 + kx^2;
 a23 = -ky*kz;
 a31 = -kz*kx;
 a32 = -ky*kz;
@@ -107,11 +107,12 @@ hold on
 plot(log10(n_new),imag(y1),'.r')
 plot(log10(n_new),real(y3),'dk','MarkerSize',3)
 plot(log10(n_new),imag(y3),'dr','MarkerSize',3)
-legend('Re[k1]', 'Im[k1]', 'Re[k3]', 'Im[k3]')
+legend('Re[k_{||}]', 'Im[k_{||}]', 'Re[k_{||}]', 'Im[k_{||}]')
 xlabel('log_{10}|n |','Fontsize',16)
 % vline(log10(n_new(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log_{10}|k_x|','Fontsize',16)
+ylabel('log_{10}|k_{||}|','Fontsize',16)
+set(gca,'XDir','reverse');
 
 hold off
 
@@ -123,11 +124,14 @@ hold on
 plot(log10(n_new),imag(y2),'.r')
 plot(log10(n_new),real(y4),'dk','MarkerSize',3)
 plot(log10(n_new),imag(y4),'dr','MarkerSize',3)
-legend('Re[k2]', 'Im[k2]', 'Re[k4]', 'Im[k4]')
+plot(log10(Nmax)*ones(1,npts),log10(linspace(1.0e-4,1.0e4,npts)),'b','Linewidth',3)
+plot(log10(1.0e17)*ones(1,npts),log10(linspace(1.0e-4,1.0e4,npts)),'b','Linewidth',3)
+legend('Re[k_{||1}]', 'Im[k_{||1}]', 'Re[k_{||1}]', 'Im[k_{||1}]')
 xlabel('log_{10}|n |','Fontsize',16)
 % vline(log10(n_new(imme)),'--k')
 % yticklabels({'-10$^{3}$','-10$^{2}$','-10$^{1}$','10$^{0}$','10$^{1}$','10$^{2}$','10$^{3}$'})
-ylabel('log_{10}|k_x|','Fontsize',16)
+ylabel('log_{10}|k_{||}|','Fontsize',16)
+set(gca,'XDir','reverse');
 
 hold off
 

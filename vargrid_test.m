@@ -50,10 +50,10 @@ for ii=1:round(n/50):n
 end
 
 % plot parameters/labels
-xlabel('\xi','Fontsize',18) 
-ylabel('x','Fontsize',18)
+xlabel('\xi') 
+ylabel('x')
 set(gca,'Box','on'); 
-set(gca,'Fontsize',18, 'LineWidth',2)
+set(gca,'Fontsize',16, 'LineWidth',2)
 plot([smin,smax],[0,L],'r')
 % text(0.05,L-0.1,['A=',num2str(A),...
 % ' x=',num2str(xc)],'Fontsize',18)

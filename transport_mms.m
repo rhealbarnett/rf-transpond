@@ -121,7 +121,7 @@ n_avg = interp1(nxax,n_new,vxax);
 % n_source = zeros(1,npts);
 
 %-- initial velocity
-vx_new = (u0 + ux*cos(kux*vxax.^2 + 0))*0.01;
+vx_new = (u0 + ux*cos(kux*vxax.^2 + 0));
 LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
 RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
 % vx_new = u0 + ux*cos(kux*0)*exp(-lamx*vxax);

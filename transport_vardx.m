@@ -27,8 +27,8 @@ nu = 1.0;
 %------
 % spatial domain %
 %------
-xmin = -4.0;
-xmax = 4.0;
+xmin = 0.;
+xmax = 0.1;
 
 %------
 % turn variable grid on (1) or off (0)

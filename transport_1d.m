@@ -490,9 +490,9 @@ legend('show','Location','northwest')
 hold on
 
 figure(6)
-plot(xax,real(rf_ex),'DisplayName',['time = 0s'])
+plot(xax,abs(rf_ez),'DisplayName',['time = 0s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Re[Ex] (Vm^{-1})','Fontsize',16)
+ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
 legend('show','Location','northwest')
 hold on
 
@@ -507,7 +507,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-
+n = n_new;
 for ii=1:nmax
     
     if MMS
@@ -516,7 +516,7 @@ for ii=1:nmax
     end
     
 %     set the vectors with the old value going into the next loop
-    n = n_new;
+%     n = n_new;
     vx = vx_new;
     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
         nxax(npts),'linear','extrap');   
@@ -529,7 +529,7 @@ for ii=1:nmax
     [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
     om,mu0,cpdt,source_width,source_loc,0,source_mult);
 
-    Efield = real(rf_ex);
+    Efield = abs(rf_ez);
     Efield = Efield.^2;
     
     Efield = interp1(xax,Efield,vxax,'linear');
@@ -593,6 +593,7 @@ for ii=1:nmax
         % transpose solution vector
         n_new = n_new_imp;
         n_new = n_new';
+        n = n_new;
         
      
     elseif collocated
@@ -795,9 +796,9 @@ for ii=1:nmax
         legend('show','Location','northwest')
         hold on
         figure(6)
-        plot(xax,real(rf_ex),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlabel('Position (m)','Fontsize',16)
-        ylabel('Re[Ex] (Vm^{-1})','Fontsize',16)
+        ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
         legend('show','Location','northwest')
         hold on
         count = count + 1;
@@ -876,11 +877,14 @@ legend('show','Location','northwest')
 hold off
 
 figure(6)
-plot(xax,real(rf_ex),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 xlabel('Position (m)','Fontsize',16)
-ylabel('Re[Ex] (Vm^{-1})','Fontsize',16)
+ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
 legend('show','Location','northwest')
 hold off
+
+
+
 
 %%
 

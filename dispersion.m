@@ -53,7 +53,7 @@ elseif para
     for ii=1:length(n_perp)
 
         a1 = p_arr;
-        b1 = 2.0*p_arr.*s_arr - n_perp(1,ii)^2*(p_arr + s_arr);
+        b1 = (2.0*p_arr.*s_arr - n_perp(1,ii)^2*(p_arr + s_arr));
         c1 = (n_perp(1,ii)^2 - p_arr).*(s_arr*n_perp(1,ii)^2 - r_arr.*l_arr);
         
         ns_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
@@ -112,6 +112,8 @@ hold on
 plot(log10(n_new),imag(yp11),'.r','Markersize',20)
 plot(log10(n_new),real(yp12),'dk','MarkerSize',7)
 plot(log10(n_new),imag(yp12),'dr','MarkerSize',7)
+plot(log10(Nmax)*ones(1,npts),log10(linspace(0.01,100,npts)),'b','Linewidth',3)
+plot(log10(1.0e17)*ones(1,npts),log10(linspace(0.01,100,npts)),'b','Linewidth',3)
 if perp
     legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
     ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
@@ -120,7 +122,7 @@ elseif para
     ylabel('log_{10}|k_{||1}|','Fontsize',16)
 end
 xlabel('log_{10}|n|','Fontsize',16)
-% vline(log10(N0(imme)),'--k')
+% vline(log10(Nmin),'--b')
 xlim([log10(min(n_new)),log10(max(n_new))])
 set(gca,'XDir','reverse');
 
