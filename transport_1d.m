@@ -657,16 +657,17 @@ for ii=1:nmax
         if upwind 
             vxA = vx_pos + vx_neg;
         elseif central
-            vxA = vx_pos + vx_neg + vx_diff;
+            vxE = vx_pos + vx_neg;
+            vxI = vx_diff;
         end
 
         % build full coefficient matrices
-    %     Avx_exp = vx_I + dt*vxA;
-        Avx_imp = vx_I - dt*vxA;
+        Avx_exp = vx_I + dt*vxE;
+        Avx_imp = vx_I - dt*vxI;
 %         Avx_imp = -vxA;
         % override top and bottom rows to include dirichlet boundary conditions
         % for the momentum equation (explicit and implicit methods)
-    %     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+        Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
         Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
 
         % override values in top and bottom rows to reflect neumann
@@ -703,9 +704,11 @@ for ii=1:nmax
         % explicit calculation
     %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
         % implicit calculation
-        vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
+%         vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
 %         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
 %         vx_new_imp = Avx_imp\(vx_source');
+        vx_newE = Avx_exp*vx';
+        vx_new = Avx_imp\(vx_newE + dt*(vx_source'));
 
         % transpose solution vector
         vx_new = vx_new_imp;
