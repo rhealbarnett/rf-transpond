@@ -103,13 +103,11 @@ kux = 2000.0;
 lamx = 0.0;
 
 % epsilon = 0.001;
-om = 1.0e6;
+om = 1.0e2;
 % om = 2.0e9;
-om = 0;
+% om = 0;
 
 %-- initial density profile
-LnBC = 0.0;
-RnBC = 0.0;
 n_new = n0 + nx*sin(knx*nxax.^2 + 0);
 LnBC = n0 + nx*sin(knx*min(nxax)^2 + 0);
 RnBC = n0 + nx*sin(knx*max(nxax)^2 + 0);
@@ -149,24 +147,14 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-- set dt based on CFL conditions, check during loop if violated
 
 cfl_fact = 0.99;
-
-if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
-    dt = cfl_fact*(min(ndx)^2)/(2.0*nu);
-elseif (cfl_fact*min(ndx)^2/(2.0*nu))>(cfl_fact*min(ndx)/max(abs(vx_new)))
-    dt = cfl_fact*min(ndx)/max(abs(vx_new));
-else
-    dt = cfl_fact*min(ndx)/cs;
-end
-
-dt = 2.0*dt;
-dt = 1.4768e-10;
-tmin = 0;
-dt = 0;
-tmax = 1000*dt;
-nmax = round(tmax/dt);
-nmax = 10000;
-tol = 1.0e-12;
-tax = linspace(tmin,tmax,nmax);
+% 
+% if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
+%     dt = cfl_fact*(min(ndx)^2)/(2.0*nu);
+% elseif (cfl_fact*min(ndx)^2/(2.0*nu))>(cfl_fact*min(ndx)/max(abs(vx_new)))
+%     dt = cfl_fact*min(ndx)/max(abs(vx_new));
+% else
+%     dt = cfl_fact*min(ndx)/cs;
+% end
 
 % for ii=1:nmax
 %     vx_new = exp(-decay_const*vxax)*(sin(om*dt*ii) + epsilon);

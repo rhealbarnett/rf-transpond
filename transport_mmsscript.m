@@ -1,17 +1,24 @@
-% npts = 4096;
-pow = 4;
+npts = 4096*4;
+% pow = 4;
 
-for kk=1:9
+dt = 1.0e-3;
+tmin = 0;
+tmax = 1.0e-1;
+
+for kk=1:5
     
-    npts = 2^pow;
+%     npts = 2^pow;
+    nmax = round(tmax/dt);
     
-    fprintf('kkation %d\n', kk)
-    fprintf('Number of points %d\n', npts)
+    fprintf('iteration %d\n', kk)
+%     fprintf('Number of points %d\n', npts)
+    fprintf('Time step %d\n', dt)
+    fprintf('nmax, tmax %d, %d\n', [nmax tmax])
     
     transport_1d
     
-    fprintf('Minimum dx %d\n', min(ndx))
-    fprintf('Maximum dx %d\n', max(ndx))
+%     fprintf('Minimum dx %d\n', min(ndx))
+%     fprintf('Maximum dx %d\n', max(ndx))
     
 %     ltwon_arr{kk} = l_twon;
 %     linfn_arr{kk} = l_infn;
@@ -22,8 +29,11 @@ for kk=1:9
     ltwou_arr(1,kk) = l_twou;
     linfu_arr(1,kk) = l_infu;
     
-    pow = pow + 1;
-    npts_arr(1,kk) = npts;
+%     pow = pow + 1;
+%     npts_arr(1,kk) = npts;
+
+    dt_arr(1,kk) = dt;
+    dt = dt/2.0;
     
 end
 
