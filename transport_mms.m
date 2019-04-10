@@ -102,29 +102,20 @@ knx = 2000.0;
 kux = 2000.0;
 lamx = 0.0;
 
-% epsilon = 0.001;
-om = 1.0e2;
-% om = 2.0e9;
-% om = 0;
+om = 1.0e5;
 
 %-- initial density profile
 n_new = n0 + nx*sin(knx*nxax.^2 + 0);
 LnBC = n0 + nx*sin(knx*min(nxax)^2 + 0);
 RnBC = n0 + nx*sin(knx*max(nxax)^2 + 0);
-% n_new = n0 + nx*sin(0)*exp(-lamx*nxax);
-% LnBC = n0 + nx*sin(0)*exp(-lamx*min(nxax));
-% RnBC = n0 + nx*sin(0)*exp(-lamx*max(nxax));
 n_init = n_new;
 n_avg = interp1(nxax,n_new,vxax);
-% n_source = zeros(1,npts);
+
 
 %-- initial velocity
 vx_new = (u0 + ux*cos(kux*vxax.^2 + 0));
 LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
 RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
-% vx_new = u0 + ux*cos(kux*0)*exp(-lamx*vxax);
-% LuBC = u0 + ux*cos(kux*0)*exp(-lamx*min(vxax));
-% RuBC = u0 + ux*cos(kux*0)*exp(-lamx*max(vxax));
 vx_init = vx_new;
 
 
@@ -146,7 +137,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 
-cfl_fact = 0.99;
+% cfl_fact = 0.99;
 % 
 % if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
 %     dt = cfl_fact*(min(ndx)^2)/(2.0*nu);
@@ -155,6 +146,9 @@ cfl_fact = 0.99;
 % else
 %     dt = cfl_fact*min(ndx)/cs;
 % end
+
+% dt = cfl_fact*min(ndx)/max(abs(vx_new));
+
 
 % for ii=1:nmax
 %     vx_new = exp(-decay_const*vxax)*(sin(om*dt*ii) + epsilon);

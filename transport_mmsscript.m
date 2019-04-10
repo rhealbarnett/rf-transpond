@@ -1,10 +1,12 @@
-% npts = 4096*4;
-npts = 128;
+npts = 4096*4;
+% npts = 16;
 % pow = 4;
 
-dt = 1.0e-3;
+transport_mms;
+
+dt = 1.0e-7;
 tmin = 0;
-tmax = 1.0e-1;
+tmax = 1.0e-5;
 
 for kk=1:5
     
