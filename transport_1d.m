@@ -516,7 +516,7 @@ n_rms = zeros(1,nmax);
 for ii=1:nmax
     
     if MMS
-        ex_solu = u0 + ux*cos(kux*vxax.^2);
+        ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
     end
     
@@ -790,7 +790,7 @@ for ii=1:nmax
         plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         if MMS
             hold on
-%             plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         end
         xlim([min(vxax) max(vxax)])
         hold on
@@ -821,8 +821,8 @@ for ii=1:nmax
 end
 
 if MMS
-    l_infn = norm(ex_soln - n_new, Inf)/norm(ex_soln,Inf);
-    l_twon = rms(ex_soln - n_new)/rms(ex_soln);
+    l_infn = norm(ex_soln - n_new, Inf);
+    l_twon = rms(ex_soln - n_new);
     l_infu = norm(ex_solu - vx_new, Inf);
     l_twou = rms(ex_solu - vx_new);
 end
@@ -870,7 +870,7 @@ set(gcf,'Position',[3 476 560 420])
 plot(vxax(2:npts-2),vx_source(2:npts-2),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 if MMS
     hold on
-%     plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
 end
 xlabel('Position (m)','Fontsize',16)
 ylabel('Velocity source (ms^{-1})','Fontsize',16)
@@ -985,7 +985,7 @@ end
 function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n)
     dndt = nx*om*cos(knx*nxax.^2 + om*dt*ii);
     dnudx = 2*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii).*u -...
-        2*kux*ux.*vxax.*sin(kux*vxax.^2).*n;
+        2*kux*ux.*vxax.*sin(kux*vxax.^2 + om*dt*ii).*n;
     ans = dndt + dnudx;
 end
 
