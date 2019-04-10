@@ -513,12 +513,10 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-n = n_new;
-
 for ii=1:nmax
     
     if MMS
-        ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
+        ex_solu = u0 + ux*cos(kux*vxax.^2);
         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
     end
     
@@ -562,7 +560,6 @@ for ii=1:nmax
             end
         end
         
-       
         % set source density ghost points to zero 
         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
 
@@ -574,7 +571,9 @@ for ii=1:nmax
         % boundary conditions for the implicit calculation
         
         An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
-        An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;        
+        An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;   
+%         An_exp(1,1) = 1.0;
+%         An_exp(end,end) = 1.0;
         
         % calculate explicit solution
 %         n_new_exp = An_exp*n' + dt*n_source';
@@ -595,6 +594,8 @@ for ii=1:nmax
         
         % implicit calculation
         n_new_imp = An_imp\(n' + dt*n_source');
+%         n_new = An_exp*n' + dt*n_source';
+        
         
         % transpose solution vector
         n_new = n_new_imp;
@@ -1001,7 +1002,7 @@ function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n,lamx)
 %         2*kux*ux*vxax.*exp(-lamx*vxax).*sin(kux*vxax.^2 + om*dt*ii)).*n;
     dndt = nx*om*cos(knx*nxax.^2 + om*dt*ii);
     dnudx = 2*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii).*u -...
-        2*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii).*n;
+        2*kux*ux*vxax.*sin(kux*vxax.^2).*n;
     ans = dndt + dnudx;
 end
 
