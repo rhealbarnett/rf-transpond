@@ -144,6 +144,8 @@ RuBC = cs;
 
 lapd_params;
 
+dt = 0.99*min(ndx)/cs;
+
 source_mult = 37000;
 
 % tmax = 1.0e-5;
