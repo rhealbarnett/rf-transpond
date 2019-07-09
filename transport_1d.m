@@ -1,42 +1,18 @@
 %--------------------------------------------------------------------------------------------------------------%
 % solve coupled transport equations                                                                            %
 % continuity and momentum eqns                                                                                 %
-% CONSERVATIVE FORMS                                                                                           %
+% NON-CONSERVATIVE FORMS                                                                                           
 % (partial derivatives)                                                                                        %
-% dvz/dt + d(vz^2/2)/dz + (1/mn)(Te+Ti)dn/dz = 0                                                               %
-% dn/dt + d(n*vz)/dz = 0                                                                                       %
+% dvz/dt + vz*d(vz)/dz - nu*d^2(vz)/dz^2 = -(1/mn)(Te+Ti)dn/dz + PF                                                               
+% dn/dt + d(n*vz)/dz = Sn                                                                                      %
 % staggered n and vz grids                                                                                     %
-% momentum eqn central differenced                                                                             %
-% continuity eqn first order upwind (flux selecting)                                                           %
-% ghost points on density for mom source term                                                                  %
-%       -- first order neumann = 0                                                                             %
-% rlbarnett c3149416 140818                                                                                    %
-%--------------------------------------------------------------------------------------------------------------%
-% set up code to accept 'switches' for left and right boundary conditions
-% depending on the flux.
-%
-% need to use something like strcmp function to compare strings
-%
-% maybe also need to look into actually writing this as a function with
-% whatever inputs?
+% momentum eqn upwind convection, central differenced diffusion (IMEX)                                         %
+% continuity eqn first order upwind (explicit, flux selecting)                                                 %
+% ghost points on density                                                                                      %
+% rlbarnett c3149416 140818     
+% COMMENTS UPDATED 090719
 %--------------------------------------------------------------------------------------------------------------%
 %%
-%--------------------------------------------------------------------------------------------------------------%
-% --select differencing scheme
-% --central should only work if there is a diffusion term
-% --OR maybe set up so that the advetion term is always upwinded and the
-% diffusion term is central differenced?
-% --maybe this should go before the BCs, because if it is central
-% differenced/has diffusion term, there will need to be two BCs
-
-% function [n, vx] = transport_1d(grid_type,spatial_scheme,...
-%   ln_bound_type,ln_bound_val,rn_bound_type,rn_bound_val,...
-%   lv_bound_type,lv_bound_val,rv_bound_type,rv_bound_val)
-
-
-% const = constants();
-% e = const.e;
-% m = const.mp;
 
 % import parameter file
 % params_transport_wave_ACM;
@@ -92,9 +68,6 @@ lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
             nxax(1),'linear','extrap');
 lvBC_val = LuBC;
 rvBC_val = RuBC;
-
-
-
 
 test_type = 'run MMS (yes/no)? ';
 testt = input(test_type, 's');
@@ -294,10 +267,7 @@ end
 
 %%
 %--------------------------------------------------------------------------------------------------------------%
-% select boundary conditions -- start with simple dirichlet
-% what do you need?
-% 1: to be able to specify the type of BC -- string
-% 2: to be able to then set the value -- float
+% select boundary conditions 
 
 
 %----- need a prompt here to check whether the velocity is positive or
