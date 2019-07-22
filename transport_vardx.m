@@ -74,7 +74,7 @@ if variable
     vxax = x - xmax;
     vdx = (vxax(2:end) - vxax(1:end-1));
 
-    npts = length(vxax) + 1;
+%     npts = length(vxax) + 1;
     nxax = zeros(1,npts);
 
     nxax(1) = vxax(1) - 0.5*vdx(1);
