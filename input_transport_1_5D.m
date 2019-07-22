@@ -6,18 +6,20 @@
 %%
 
 %-------
-% call file containing physical constants. %
+% call file containing physical constants. 
 %-------
 const = constants();
 mp = const.mp;
 e = const.e;
+mu0 = const.mu0;
 
 %-------
-% define parameters. %
+% define parameters. 
 %-------
 Te = 5.0;
 Ti = 1.0;
 cs = sqrt((Te + Ti)*e/m);
+B0 = 1.0;
 
 eta_para = 1.0;
 
@@ -148,7 +150,42 @@ vx_new(1,1) = LuBC;
 vx_new(1,end) = RuBC;
 vx_init = vx_new;
 
+%%
+%-------
+% Initialise coefficient matrices.                                         
+%-------
 
+%-- Initialise all coefficient matrices as sparse matrices. 
+nA = sparse(npts,npts);
+nI = sparse(eye(npts,npts));
+vx_pos = sparse(npts-1,npts-1);
+vx_neg = sparse(npts-1,npts-1);
+vx_diff = sparse(npts-1,npts-1);
+vx_I = sparse(eye(npts-1,npts-1));
+
+%%
+%-------
+% Calculate time step                                                                  
+%-------
+
+%-- 
+% Explicit convective dt based on CFL conditions, check during loop if violated
+tmin = 0.0;
+tmax = 1.0e-7;
+
+%--
+% CFL condition multiplier. Keep close to unity, or dt will be very small.  
+cfl_fact = 0.99;
+
+%--
+% Calculate using the sound speed as that should be the maximum velocity. 
+% (Is that true? Or do we need to consider the Alfven velocity?).
+dt = cfl_fact*min(ndx)/cs;
+
+%--
+% Number of iterations (nmax) and time axis. 
+nmax = round(tmax/dt);
+tax = linspace(tmin,tmax,nmax);
 
 
 
