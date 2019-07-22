@@ -119,7 +119,34 @@ elseif ~variable
     
 end
 
+%%
+%-------
+% Initialise density and velocity.
+%-------
 
+%-- 
+% Max and min density values for the initial profile.
+Nmax = 1.0e18;
+Nmin = 0.5e18;
+
+%--
+% Calculate initial density profile. 
+n_new = Nmax*(1.0 - (5.0e-19)*exp((nxax(end/2 + 1:end))*10));
+n_new = [fliplr(n_new), n_new];
+n_avg = interp1(nxax,n_new,vxax);
+n_init = n_new;
+
+%--
+% Velocity boundary conditions. Set to +- the sound speed for metal walls. 
+LuBC = -cs;
+RuBC = cs;
+
+%-- 
+% Initial velocity
+vx_new = zeros(1,npts-1);
+vx_new(1,1) = LuBC;
+vx_new(1,end) = RuBC;
+vx_init = vx_new;
 
 
 
