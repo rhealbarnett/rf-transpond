@@ -140,14 +140,14 @@ n_init = n_new;
 
 %--
 % Velocity boundary conditions. Set to +- the sound speed for metal walls. 
-LuBC = -cs;
-RuBC = cs;
+LvBC = -cs;
+RvBC = cs;
 
 %-- 
 % Initial velocity
 vx_new = zeros(1,npts-1);
-vx_new(1,1) = LuBC;
-vx_new(1,end) = RuBC;
+vx_new(1,1) = LvBC;
+vx_new(1,end) = RvBC;
 vx_init = vx_new;
 
 %%
