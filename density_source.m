@@ -26,7 +26,14 @@ function [n_source] = density_source(rate_coeff,fact,nxax,vxax,npts,neut_max,vx_
     % Get maximum grid value from the density grid. 
     xmax = max(vxax);
     xmin = min(vxax);
+    
+    %--
+    % Define a uniform grid spacing.
     dx = (xmax - xmin)/(npts-1);
+    
+    %-- 
+    % Define a uniform grid. 
+    xax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 
     %--
     % Approximate size of non-zero portion of neutral profile.
@@ -34,7 +41,7 @@ function [n_source] = density_source(rate_coeff,fact,nxax,vxax,npts,neut_max,vx_
     
     %--
     % Determine the index for this density location. 
-    a = find(nxax >= decay_loc);
+    a = find(xax >= decay_loc);
     
     %--
     % Determine the number of points included in the non-zero region of the
@@ -61,8 +68,9 @@ function [n_source] = density_source(rate_coeff,fact,nxax,vxax,npts,neut_max,vx_
     n_neut(1,1:end/2) = fliplr(n_neut(end/2 + 1:end));
     
     %--
-    % Interpolate onto the variable density grid.
-    n_neut = interp1(linspace(xmin-0.5*dx,xmax+0.5*dx,npts),n_neut,nxax,'linear');
+    % Interpolate onto the variable density grid (makes no change if 
+    % uniform grid is used).
+    n_neut = interp1(xax,n_neut,nxax,'linear');
 
     %--
     % Calculate the density source.
