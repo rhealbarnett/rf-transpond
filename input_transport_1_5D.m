@@ -180,7 +180,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-- 
 % Explicit convective dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 1.0e-7;
+tmax = 1.0e-8;
 
 %--
 % CFL condition multiplier. Keep close to unity, or dt will be very small.  
