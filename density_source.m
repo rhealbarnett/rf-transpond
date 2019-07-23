@@ -30,7 +30,7 @@ function [n_source] = density_source(rate_coeff,fact,nxax,vxax,npts,neut_max,vx_
 
     %--
     % Approximate size of non-zero portion of neutral profile.
-    decay_loc = xmax - fact*xmax;
+    decay_loc = xmax - abs(fact*xmax);
     
     %--
     % Determine the index for this density location. 
