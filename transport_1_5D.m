@@ -113,9 +113,7 @@ for ii=1:nmax
     vx(1,1) = LvBC;
     vx(1,end) = RvBC;
 
-    vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-    pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
-    pf_source = [0,pf_source,0];
+    vx_source = pressure_source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
 
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
