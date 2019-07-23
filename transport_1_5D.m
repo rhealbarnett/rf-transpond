@@ -86,14 +86,14 @@ for ii=1:nmax
 
     for jj=2:npts-2
         if vx(1,jj)>0
-            vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) + (eta_perp/(mp*n(1,jj)) + D_perp)*...
-                (kap_x^2 + kap_y^2) - (vdrift_x*kap_x + vdrift_y*kap*y) -... 
-                (1.0/n(1,jj))*n_source(1,jj);
+            vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj); %+ (eta_perp/(mp*n(1,jj)) + D_perp)*...
+%                 (kap_x^2 + kap_y^2) - (vdrift_x*kap_x + vdrift_y*kap*y) -... 
+%                 (1.0/n(1,jj))*n_source(1,jj);
             vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
         elseif vx(1,jj)<0
-            vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) + (eta_perp/(mp*n(1,jj+1)) + D_perp)*...
-                (kap_x^2 + kap_y^2) - (vdrift_x*kap_x + vdrift_y*kap*y) -... 
-                (1.0/n(1,jj+1))*n_source(1,jj+1);
+            vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj); %+ (eta_perp/(mp*n(1,jj+1)) + D_perp)*...
+%                 (kap_x^2 + kap_y^2) - (vdrift_x*kap_x + vdrift_y*kap*y) -... 
+%                 (1.0/n(1,jj+1))*n_source(1,jj+1);
             vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
         end
         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*eta_para);
@@ -113,7 +113,7 @@ for ii=1:nmax
     vx(1,1) = LvBC;
     vx(1,end) = RvBC;
 
-    vx_source = pressure_source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
+    vx_source = pressure_source_stag(n,e,Te,Ti,mp,npts,ndx);
 
     vx_source(1,1) = 0.0;
     vx_source(1,end) = 0.0;
