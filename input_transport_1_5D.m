@@ -55,7 +55,7 @@ npts = 512;
 xmin = -4.0;
 xmax = 4.0;
 
-variable = 0;
+variable = 1;
 
 %--------
 % Calculate variable grid OR keep uniform grid.
