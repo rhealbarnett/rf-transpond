@@ -14,6 +14,9 @@ timerVal = tic;
 
 input_transport_1_5D;
 
+vx = vx_init;
+n = n_init;
+
 figure(1)
 set(gcf,'Position',[563 925 560 420])
 plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
