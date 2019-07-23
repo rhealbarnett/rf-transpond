@@ -18,7 +18,7 @@ mu0 = const.mu0;
 %-------
 Te = 5.0;
 Ti = 1.0;
-cs = sqrt((Te + Ti)*e/m);
+cs = sqrt((Te + Ti)*e/mp);
 B0 = 1.0;
 
 eta_para = 1.0;
@@ -52,8 +52,8 @@ vdrift_y = 0.0;
 %-------
 
 npts = 512;
-xmin = -0.1;
-xmax = 0.1;
+xmin = -4.0;
+xmax = 4.0;
 
 variable = 0;
 
@@ -186,6 +186,24 @@ dt = cfl_fact*min(ndx)/cs;
 % Number of iterations (nmax) and time axis. 
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
+
+%%
+%-------
+% Calculate density source term.
+%-------
+
+%--
+% Rate coefficient (need to double check this value for each ion species
+% and temperature... which textbook is this from? Stangeby?).
+rate_coeff = (1.0e-14);
+
+%--
+% Maximum neutral density value.
+neut_max = Nmax;
+
+%--
+% Call function to calculate the density source term. 
+n_source = density_source(rate_coeff,0.05,nxax,vxax,npts,neut_max,vx_init,n_init);
 
 
 
