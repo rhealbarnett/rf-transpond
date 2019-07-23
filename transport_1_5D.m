@@ -8,5 +8,136 @@
 % nabla = (kapx, kapy, dz)
 % rlbarnett c3149416 190723     
 %--------------------------------------------------------------------------------------------------------------%
-%%
 
+count = 2;
+timerVal = tic;
+
+vx_rms = zeros(1,nmax);
+n_rms = zeros(1,nmax);
+
+for ii=1:nmax
+
+    vx = vx_new;
+  
+    for jj=2:npts-1
+        if ((vx(1,jj-1)+vx(1,jj))/2)>0 
+            nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
+            nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
+        elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+            nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
+            nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);                
+        end
+    end
+
+    An_exp = nI + dt*nA;
+
+    An_exp(1,1) = 1.0;
+    An_exp(end,end) = 1.0;
+
+    n(1) = lGhost;
+    n(1,end) = rGhost;
+
+    n_new = An_exp*n' + dt*n_source';
+
+    n_new = n_new';
+    n = n_new;
+
+    for jj=2:npts-2
+        if vx(1,jj)>0
+            vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+            vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+        elseif vx(1,jj)<0
+            vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);
+            vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+        end
+        vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+        vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
+        vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+
+    end
+
+    vxE = vx_pos + vx_neg;
+    vxI = vx_diff;
+
+    Avx_exp = vx_I + dt*vxE;
+    Avx_imp = vx_I - dt*vxI;
+
+    Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+    Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
+
+    vx(1,1) = lvBC_val;
+    vx(1,end) = rvBC_val;
+
+    vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
+    pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
+    pf_source = [0,pf_source,0];
+
+    vx_source(1,1) = 0.0;
+    vx_source(1,end) = 0.0;
+
+    vx_newE = Avx_exp*vx';
+    vx_new = Avx_imp\(vx_newE + dt*(vx_source'));
+
+    vx_new = vx_new';
+
+    nan_check = isnan(vx_new);
+    
+    if sum(nan_check) ~= 0
+        fprintf('unstable, ii=%d\n',ii)
+        return
+    end
+
+    if mod(ii,round(nmax/5))==0
+        fprintf('***--------------------***\n')
+        fprintf('ii=%d, count=%d\n', [ii count])
+        fprintf('dt=%ds\n', dt)
+        fprintf('total time=%ds\n', dt*ii)
+        fprintf('simulation time %d\n', toc(timerVal))
+        fprintf('Current rms tol calc %d\n', rms(vx - vx_new))
+        figure(1)
+        set(gcf,'Position',[563 925 560 420])
+%         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(nxax+ndx(1)) max(nxax-ndx(end))])
+        hold on
+%         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
+        figure(2)
+        set(gcf,'Position',[7 925 560 420])
+        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(vxax) max(vxax)])
+        hold on
+%         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
+        figure(3)
+        set(gcf,'Position',[3 476 560 420])
+        plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlim([min(vxax) max(vxax)])
+        hold on
+        figure(4)
+        set(gcf,'Position',[563 476 560 420])
+        plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Density source ms^{-1}','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+        figure(5)
+        plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+        figure(6)
+        plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+        count = count + 1;
+    end
+    
+end
+
+fprintf('***--------------------***\n')
+fprintf('ii=%d, count=%d\n', [ii count])
+fprintf('dt=%ds\n', dt)
+fprintf('total time=%ds\n', dt*ii)
+fprintf('TOTAL simulation time %d\n', toc(timerVal))
