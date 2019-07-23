@@ -152,6 +152,15 @@ vx_init = vx_new;
 
 %%
 %-------
+% Calculate perpendicular viscosity coefficient using density.
+%-------
+
+%--
+% Starting with a constant estimated by one density value.
+eta_perp = D_perp*mp*Nmax;
+
+%%
+%-------
 % Initialise coefficient matrices.                                         
 %-------
 
