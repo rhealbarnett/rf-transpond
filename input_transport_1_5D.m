@@ -180,7 +180,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-- 
 % Explicit convective dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 1.0e-8;
+tmax = 1.0e-6;
 
 %--
 % CFL condition multiplier. Keep close to unity, or dt will be very small.  
@@ -212,7 +212,7 @@ neut_max = Nmax;
 
 %--
 % Call function to calculate the density source term. 
-n_source = density_source(rate_coeff,0.05,nxax,vxax,npts,neut_max,vx_init,n_init);
+n_source = density_source(rate_coeff,0.1,nxax,vxax,npts,neut_max,vx_init,n_init);
 
 
 
