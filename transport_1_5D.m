@@ -15,6 +15,44 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
+intput_transport_1_5D;
+
+figure(1)
+set(gcf,'Position',[563 925 560 420])
+plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density (m^{-3})','Fontsize',16)
+legend('show','Location','west')
+grid on
+hold on
+
+figure(2)
+set(gcf,'Position',[7 925 560 420])
+plot(vxax,vx_new/cs,'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Mach number','Fontsize',16)
+legend('show','Location','southeast')
+grid on
+hold on
+
+figure(3)
+set(gcf,'Position',[3 476 560 420])
+plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Velocity source (ms^{-1})','Fontsize',16)
+legend('show','Location','northwest')
+grid on
+hold on
+
+figure(4)
+set(gcf,'Position',[563 476 560 420])
+plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+xlabel('Position (m)','Fontsize',16)
+ylabel('Density source (m^{-3})','Fontsize',16)
+legend('show','Location','northwest')
+grid on
+hold on
+
 for ii=1:nmax
 
     vx = vx_new;
