@@ -106,17 +106,14 @@ for ii=1:nmax
         fprintf('Current rms tol calc %d\n', rms(vx - vx_new))
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-%         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+ndx(1)) max(nxax-ndx(end))])
         hold on
-%         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
         figure(2)
         set(gcf,'Position',[7 925 560 420])
         plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(vxax) max(vxax)])
         hold on
-%         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
         figure(3)
         set(gcf,'Position',[3 476 560 420])
         plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
@@ -127,18 +124,6 @@ for ii=1:nmax
         plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('Density source ms^{-1}','Fontsize',16)
-        legend('show','Location','northwest')
-        hold on
-        figure(5)
-        plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlabel('Position (m)','Fontsize',16)
-        ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-        legend('show','Location','northwest')
-        hold on
-        figure(6)
-        plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlabel('Position (m)','Fontsize',16)
-        ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
         legend('show','Location','northwest')
         hold on
         count = count + 1;
