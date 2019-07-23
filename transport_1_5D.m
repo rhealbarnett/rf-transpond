@@ -12,10 +12,7 @@
 count = 2;
 timerVal = tic;
 
-vx_rms = zeros(1,nmax);
-n_rms = zeros(1,nmax);
-
-intput_transport_1_5D;
+input_transport_1_5D;
 
 figure(1)
 set(gcf,'Position',[563 925 560 420])
@@ -34,24 +31,24 @@ ylabel('Mach number','Fontsize',16)
 legend('show','Location','southeast')
 grid on
 hold on
-
-figure(3)
-set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Velocity source (ms^{-1})','Fontsize',16)
-legend('show','Location','northwest')
-grid on
-hold on
-
-figure(4)
-set(gcf,'Position',[563 476 560 420])
-plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Density source (m^{-3})','Fontsize',16)
-legend('show','Location','northwest')
-grid on
-hold on
+% 
+% figure(3)
+% set(gcf,'Position',[3 476 560 420])
+% plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
+% xlabel('Position (m)','Fontsize',16)
+% ylabel('Velocity source (ms^{-1})','Fontsize',16)
+% legend('show','Location','northwest')
+% grid on
+% hold on
+% 
+% figure(4)
+% set(gcf,'Position',[563 476 560 420])
+% plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+% xlabel('Position (m)','Fontsize',16)
+% ylabel('Density source (m^{-3})','Fontsize',16)
+% legend('show','Location','northwest')
+% grid on
+% hold on
 
 for ii=1:nmax
 
@@ -99,9 +96,9 @@ for ii=1:nmax
                 (1.0/n(1,jj+1))*n_source(1,jj+1);
             vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
         end
-        vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-        vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
-        vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+        vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*eta_para);
+        vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*eta_para;
+        vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*eta_para;
     end
 
     vxE = vx_pos + vx_neg;
