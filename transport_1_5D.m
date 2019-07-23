@@ -110,8 +110,8 @@ for ii=1:nmax
     Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
     Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
 
-    vx(1,1) = lvBC_val;
-    vx(1,end) = rvBC_val;
+    vx(1,1) = LvBC;
+    vx(1,end) = RvBC;
 
     vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
     pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
