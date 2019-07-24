@@ -31,20 +31,8 @@ D_perp = 1.0;
 %-- 
 % Setting the perp derivatives as zero to begin, for comparison with the 
 % parallel only case. 
-kap_x = 0.0;
-kap_y = 0.0;
-
-%%
-%-------
-% Calculate perpendicular drift velocity from analytic expression
-% (in this case, PF only).
-%-------
-
-%--
-% Setting drift velocity as zero to begin, also for comparison with the
-% parallel only case. 
-vdrift_x = 0.0;
-vdrift_y = 0.0;
+kap_x = 0.1;
+kap_y = 0.1;
 
 %%
 %-------
@@ -123,6 +111,19 @@ end
 
 %%
 %-------
+% Calculate perpendicular drift velocity from analytic expression
+% (in this case, PF only).
+%-------
+
+%--
+% Setting drift velocity as zero to begin, also for comparison with the
+% parallel only case. 
+vdrift_x = 0.1*ones(1,npts-1);
+vdrift_y = 0.1*ones(1,npts-1);
+
+
+%%
+%-------
 % Initialise density and velocity.
 %-------
 
@@ -157,7 +158,7 @@ vx_init = vx_new;
 
 %--
 % Starting with a constant estimated by one density value.
-eta_perp = D_perp*mp*Nmax;
+eta_perp = D_perp*mp*n_init;
 
 %%
 %-------
@@ -180,7 +181,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-- 
 % Explicit convective dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 1.0e-6;
+tmax = 1.0e-5;
 
 %--
 % CFL condition multiplier. Keep close to unity, or dt will be very small.  
