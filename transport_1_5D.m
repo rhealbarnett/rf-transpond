@@ -64,14 +64,14 @@ for ii=1:nmax
   
     for jj=2:npts-1
         if ((vx(1,jj-1)+vx(1,jj))/2)>0 
-            nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
+            nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj) + D_perp*(kap_x^2 + kap_y^2) -...
+                (kap_x*vdrift_x(1,jj) + kap_y*vdrift_y(1,jj));
             nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
         elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-            nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
+            nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1) + D_perp*(kap_x^2 + kap_y^2) -...
+                (kap_x*vdrift_x(1,jj-1) + kap_y*vdrift_y(1,jj-1));
             nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);                
         end
-        nA(jj,jj) = nA(jj,jj) + D_perp*(kap_x^2 + kap_y^2) -...
-                (kap_x*vdrift_x + kap_y*vdrift_y);
     end
 
     An_exp = nI + dt*nA;
@@ -86,22 +86,24 @@ for ii=1:nmax
 
     n_new = n_new';
     n = n_new;
+    
+    eta_perp = D_perp*mp*n;
 
     for jj=2:npts-2
-        if vx(1,jj)>0
-            vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj); %+ (eta_perp/(mp*n(1,jj)) + D_perp)*...
-%                 (kap_x^2 + kap_y^2) - (vdrift_x*kap_x + vdrift_y*kap*y) -... 
-%                 (1.0/n(1,jj))*n_source(1,jj);
-            vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-        elseif vx(1,jj)<0
-            vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj); %+ (eta_perp/(mp*n(1,jj+1)) + D_perp)*...
-%                 (kap_x^2 + kap_y^2) - (vdrift_x*kap_x + vdrift_y*kap*y) -... 
-%                 (1.0/n(1,jj+1))*n_source(1,jj+1);
-            vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
-        end
         vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*eta_para);
         vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*eta_para;
         vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*eta_para;
+        if vx(1,jj)>0
+            vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) + (eta_perp(1,jj)/(mp*n(1,jj)) + D_perp)*...
+                (kap_x^2 + kap_y^2) - (vdrift_x(1,jj)*kap_x + vdrift_y(1,jj)*kap_y) -... 
+                (1.0/n(1,jj))*n_source(1,jj);
+            vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+        elseif vx(1,jj)<0
+            vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) + (eta_perp(1,jj)/(mp*n(1,jj+1)) + D_perp)*...
+                (kap_x^2 + kap_y^2) - (vdrift_x(1,jj)*kap_x + vdrift_y(1,jj)*kap_y) -... 
+                (1.0/n(1,jj+1))*n_source(1,jj+1);
+            vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+        end
     end
 
     vxE = vx_pos + vx_neg;
