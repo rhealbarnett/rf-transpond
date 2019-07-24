@@ -116,6 +116,12 @@ end
 %-------
 
 %--
+% Include analytic expression for the electric field. 
+mu = 0.0;
+sigma = 0.1;
+Ey = (1.0/sqrt(2*pi*sigma^2))*exp(-(vxax - mu).^2/(2.0*sigma^2));
+
+%--
 % Setting drift velocity as zero to begin, also for comparison with the
 % parallel only case. 
 vdrift_x = 0.1*ones(1,npts-1);
