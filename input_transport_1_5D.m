@@ -126,11 +126,6 @@ Ez = zeros(1,npts-1);
 E = [Ex; Ey; Ez];
 
 %--
-% Calculate the acceleration and force due to the electric field. 
-a = (e/mp)*E;
-F_pf = mp*a;
-
-%--
 % Initialise a magnetic field vector. NOTE: this is currently on a uniform
 % grid vs a variable grid for the acceleration. Okay for now, as the B
 % field is constant. 
@@ -138,7 +133,7 @@ B = [zeros(1,npts-1); zeros(1,npts-1); B0*ones(1,npts-1)];
 
 %--
 % Calculate v drift from F X B0 
-vdrift = cross(F_pf,B);
+vdrift = cross(E,B);
 vdrift_x = vdrift(1,:);
 vdrift_y = vdrift(2,:);
 
