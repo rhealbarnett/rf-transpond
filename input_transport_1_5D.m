@@ -123,15 +123,23 @@ Ex = zeros(1,npts-1);
 Ey = (1.0/sqrt(2*pi*sigma^2))*exp(-(vxax - mu).^2/(2.0*sigma^2));
 Ez = zeros(1,npts-1);
 E = [Ex; Ey; Ez];
+
+%--
+% Calculate the acceleration and force due to the electric field. 
 a = (e/mp)*E;
+F_pf = mp*a;
+
+%--
+% Initialise a magnetic field vector. NOTE: this is currently on a uniform
+% grid vs a variable grid for the acceleration. Okay for now, as the B
+% field is constant. 
+B = [0; 0; B0*ones(1,npts-1)];
 
 %--
 % Setting drift velocity as zero to begin, also for comparison with the
 % parallel only case. 
-
-
-vdrift_x = 0.1*ones(1,npts-1);
-vdrift_y = 0.1*ones(1,npts-1);
+vdrift = cross(F,B);
+% vdrift_x = vdrift(1);
 
 
 %%
