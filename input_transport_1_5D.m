@@ -31,8 +31,8 @@ D_perp = 1.0;
 %-- 
 % Setting the perp derivatives as zero to begin, for comparison with the 
 % parallel only case. 
-kap_x = 0.1;
-kap_y = 0.1;
+kap_x = 0.01;
+kap_y = 0.01;
 
 %%
 %-------
@@ -121,7 +121,7 @@ mu = 0.0;
 sigma = 1.0;
 Ex = zeros(1,npts-1);
 Ey = (1.0/sqrt(2*pi*sigma^2))*exp(-(vxax - mu).^2/(2.0*sigma^2));
-Ey = (Ey ./ (max(Ey)))*300;
+Ey = (Ey ./ (max(Ey)))*3000000;
 Ez = zeros(1,npts-1);
 E = [Ex; Ey; Ez];
 
@@ -197,7 +197,7 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-- 
 % Explicit convective dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 1.0e-7;
+tmax = 1.0e-5;
 
 %--
 % CFL condition multiplier. Keep close to unity, or dt will be very small.  
