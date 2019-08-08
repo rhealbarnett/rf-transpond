@@ -6,7 +6,7 @@ filename = '/Users/rhealbarnett/Documents/LAPD/RF_April22/11_Mach_p30xyz_12kV.hd
 %% get Mach probe data: check the LAPD_201904_documentation ---------------- %%
 
 probename = 'Mach';
-channels = ["Mach1", "Mach2", "Mach3", "Mach4","Mach5","Mach6","Antenna current"];
+channels = ["Mach1", "Mach2", "Mach3", "Mach4","Mach5","Mach6"];
 
 
 % Mach 1 & 2: x, orientation: if 1>2, flow is -x (toward antenna)
@@ -33,8 +33,9 @@ maxx = gcx + ((Nx-1)/2)*dx;
 minz = gcz - ((Nz-1)/2)*dz;
 maxz = gcz + ((Nz-1)/2)*dz;
 
-x = linspace(minx,maxx,Nx);
-y = linspace(minz,maxz,Nz);
+% x = linspace(minx,maxx,Nx);
+x = -11;
+z = linspace(minz,maxz,Nz);
 
 % attenuation (V) and resistance (omhs), needed to calibrate the signal.
 atten = 3.16;
@@ -45,18 +46,20 @@ rfmin = 0.7;
 rfmax = 1.2;
 
 % time values before the rf appliation.
-tmin = 0;
+tmin = 0.05;
 tmax = 0.4;
+
+plots = 1;
 
 
 %% get data ---------------------------------------------------------------- %
 
-[actx_LP, acty_LP, time_LP, data_LP] = get_probe(filename, probename, channels, x, y, 1);
+[actx_LP, acty_LP, time_LP, data_LP] = get_probe(filename, probename, channels, x, z, 1);
 
 callib = atten/res;
 
 for ii= 1:numel(x)
-    for jj= 1:numel(y)
+    for jj= 1:numel(z)
         data_LP{ii,jj,1} = atten*data_LP{ii,jj,1} / res; % multiply by attenuated value, divide by resistance
         data_LP{ii,jj,2} = atten*data_LP{ii,jj,2} / res; 
         data_LP{ii,jj,3} = atten*data_LP{ii,jj,3} / res; 
@@ -66,92 +69,243 @@ for ii= 1:numel(x)
     end
 end
 
-z = y;
 
 %% Calculate average of each probe for density proxy from Isat
 
 
 for ii= 1:numel(x)
-    for jj= 1:numel(y)
+    for jj= 1:numel(z)
         data_x{ii,jj,1} = (data_LP{ii,jj,1} + data_LP{ii,jj,2})./2.0;
         data_y{ii,jj,1} = (data_LP{ii,jj,3} + data_LP{ii,jj,4})./2.0;
         data_z{ii,jj,1} = (data_LP{ii,jj,5} + data_LP{ii,jj,6})./2.0;
     end
 end
 
-%% Filter the data to remove the RF signal. 
+%% Calculate moving mean for the raw Isat data
 
-for ii=1:numel(y)
-    
-    data_x{1,ii,1} = sgolayfilt(data_x{1,ii,1},3,1201);
-    data_y{1,ii,1} = sgolayfilt(data_y{1,ii,1},3,1201);
-    data_z{1,ii,1} = sgolayfilt(data_z{1,ii,1},3,1201);
-    
+for ii= 1:numel(x)
+    for jj= 1:numel(z)
+        mm_x{ii,jj,1} = movmean(data_x{ii,jj,1},121);
+        mm_y{ii,jj,1} = movmean(data_y{ii,jj,1},121);
+        mm_z{ii,jj,1} = movmean(data_z{ii,jj,1},121);
+    end
 end
 
+%% Plot raw signal and FFT of raw signal
 
-%% For comparison to the 1D, parallel transport model:
-% consider a line in the x-z plane, along z and as close to the antenna as
-% possible (x=-11cm). 
-% Average the Isat measurement before RF, ensuring to stop well before the
-% RF starts. After the RF starts, excluding the transient period, look at
-% snapshots at approximately 25, 50, 75 and 100 periods. Times are in ms.
-% Approximate RF start is at 0.5008ms, end of transient behaviour approx
-% 0.5348ms. 
+t = find(time_LP > 0.49 & time_LP < 0.51);
+npts = length(time_LP);
+tax = time_LP*1.0e-3;
+temp = data_x{1,(Nz+1)/2,1};
+plot_temp = mm_x{1,(Nz+1)/2,1};
+
+%% Plot moving mean results.
+
+figure(1)
+subplot(2,2,1)
+plot(tax,temp)
+xlabel('Time (s)')
+ylabel('Raw Isat (A)')
+title('Raw Isat')
+
+subplot(2,2,3)
+plot(tax(t),temp(t))
+hold on
+plot(0.501e-3*ones(1,length(tax)),linspace(-0.02,0.05,length(tax)),'--k')
+xlabel('Time (s)')
+ylabel('Raw Isat (A)')
+title('Raw Isat Zoomed')
+
+subplot(2,2,2)
+plot(tax,plot_temp)
+xlabel('Time (s)')
+ylabel('Filtered Isat (A)')
+title('Filtered Isat (moving mean, wind length 121)')
+
+subplot(2,2,4)
+plot(tax(t),plot_temp(t))
+hold on
+plot(0.501e-3*ones(1,length(tax(t))),linspace(0.012,0.018,length(tax(t))),'--k')
+xlabel('Time (s)')
+ylabel('Filtered Isat (A)')
+title('Filtered Isat Zoomed')
+
+
+%% FFT of raw Isat data
+
+dt = 4.0000e-08;
+df = 1.0/((npts)*dt);
+Fnyq = 1.0/(2.0*dt);
+freq_np = (npts/2);
+freq_ax = zeros(1,freq_np);
+
+for ii=1:freq_np
+    freq_ax(1,ii) = df*(ii-1);
+end
+
+data_mean = mean(temp);
+fft_sig = (fft(temp));
+
+%% Plot first portion of the FFT data
+
+figure(2)
+subplot(2,2,1)
+plot(tax,temp)
+xlabel('Time (s)')
+ylabel('Raw Isat (A)')
+title('Raw Isat')
+
+subplot(2,2,3)
+plot(freq_ax,2.0*(fft_sig(1:npts/2).*conj(fft_sig(1:npts/2)))*(1.0/npts))
+xlabel('Frequency (Hz)')
+ylabel('2*abs[FFT(Raw Isat)]')
+title('FFT of raw Isat')
+
+hold on
+
+%% Find and zero FFT values in frequency bins above some value. 
+
+bins = find(freq_ax > 1e5);
+fft_sig(int32(bins)) = 0.0;
+fft_sig(npts - int32((bins))) = 0.0;
+inv_sig = ifft(fft_sig);
+
+filt_x = real(inv_sig);
+
+%% Plots of raw Isat data and FFTs
+
+figure(2)
+
+subplot(2,2,2)
+plot(tax,filt_x)
+xlabel('Time (s)')
+ylabel('Filtered Isat (A)')
+title('Filtered Isat')
+
+subplot(2,2,4)
+plot(tax(t),filt_x(t))
+xlabel('Time (s)')
+ylabel('Filtered Isat (A)')
+hold on
+plot(0.501e-3*ones(1,length(tax(t))),linspace(0.012,0.018,length(tax(t))),'--k')
+title('Filtered Isat Zoomed')
+hold off
+
+
+%% Find indices for each number of RF periods
 
 f = 2.38e6;
 T = 1.0/f;
 T_ms = T*1.0e3;
 
-TRF = 0.538;
+TRF = 0.501;
 T1 = 25*T_ms;
 T2 = 50*T_ms;
 T3 = 75*T_ms;
 T4 = 100*T_ms;
 
+TRF_ax = find(time_LP<=(TRF),1,'last');
 T1_ax = find(time_LP<=(TRF+T1),1,'last');
 T2_ax = find(time_LP<=(TRF+T2),1,'last');
 T3_ax = find(time_LP<=(TRF+T3),1,'last');
 T4_ax = find(time_LP<=(TRF+T4),1,'last');
 
-for ii=1:length(z)
-    data_T1dx(1,ii) = data_x{1,ii,1}(T1_ax);
-    data_T1dy(1,ii) = data_y{1,ii,1}(T1_ax);
-    data_T1dz(1,ii) = data_z{1,ii,1}(T1_ax);
-    data_T2dx(1,ii) = data_x{1,ii,1}(T2_ax);
-    data_T2dy(1,ii) = data_y{1,ii,1}(T2_ax);
-    data_T2dz(1,ii) = data_z{1,ii,1}(T2_ax);
-    data_T3dx(1,ii) = data_x{1,ii,1}(T3_ax);
-    data_T3dy(1,ii) = data_y{1,ii,1}(T3_ax);
-    data_T3dz(1,ii) = data_z{1,ii,1}(T3_ax);
-    data_T4dx(1,ii) = data_x{1,ii,1}(T4_ax);
-    data_T4dy(1,ii) = data_y{1,ii,1}(T4_ax);
-    data_T4dz(1,ii) = data_z{1,ii,1}(T4_ax);
-end
+%% Plot 
 
-%%
-% Use mean of the data values over the time period before RF is turned on.
+figure(3)
+plot(time_LP,filt_x)
+hold on
+plot(TRF*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--k')
+plot((TRF+T1)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--r')
+plot((TRF+T2)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--b')
+plot((TRF+T3)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--c')
+plot((TRF+T4)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--m')
+legend('I_{sat}','T_{RF}','T_{RF} +25T', 'T_{RF} +50T', 'T_{RF} +75T', 'T_{RF} +100T')
+% plot((0.501-T1)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--r')
+% plot((0.501-T2)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--b')
+% plot((0.501-T3)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--c')
+% plot((0.501-T4)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--m')
+hold off
+
+
+%% 
 
 for ii= 1:numel(x)
-    for jj= 1:numel(z)
+    for jj=1:numel(z)
         
         t_Langmuir = find(time_LP > tmin & time_LP < tmax);
         
-        temp1 = data_x{ii,jj,1};
-        mach11bf(ii,jj) = mean(temp1(t_Langmuir));
-        temp2 = data_y{ii,jj,1};
-        mach12bf(ii,jj) = mean(temp2(t_Langmuir));
-        temp3 = data_z{ii,jj,1};
-        mach13bf(ii,jj) = mean(temp3(t_Langmuir));
+        temp = data_x{ii,jj,1};
+        fft_sig = (fft(temp));
+        
+        bins = find(freq_ax > 1e5);
+        fft_sig(int32(bins)) = 0.0;
+        fft_sig(npts - int32((bins))) = 0.0;
+        inv_sig = ifft(fft_sig);
 
+        filt_x = real(inv_sig);
+        
+        data_2x(ii,jj) = mean(filt_x(t_Langmuir));
+        temp2 = data_y{ii,jj,1};
+        data_2y(ii,jj) = mean(filt_y(t_Langmuir));
+        temp3 = data_z{ii,jj,1};
+        data_2z(ii,jj) = mean(filt_z(t_Langmuir));
+        
+        data_T1dx(ii,jj) = (filt_x(T1_ax));
+    %     data_T1dy(1,ii) = data_y{1,ii,1}(T1_ax);
+    %     data_T1dz(1,ii) = data_z{1,ii,1}(T1_ax);
+        data_T2dx(ii,jj) = (filt_x(T2_ax));
+    %     data_T2dy(1,ii) = data_y{1,ii,1}(T2_ax);
+    %     data_T2dz(1,ii) = data_z{1,ii,1}(T2_ax);
+        data_T3dx(ii,jj) = (filt_x(T3_ax));
+    %     data_T3dy(1,ii) = data_y{1,ii,1}(T3_ax);
+    %     data_T3dz(1,ii) = data_z{1,ii,1}(T3_ax);
+        data_T4dx(ii,jj) = (filt_x(T4_ax));
+    %     data_T4dy(1,ii) = data_y{1,ii,1}(T4_ax); 
+    %     data_T4dz(1,ii) = data_z{1,ii,1}(T4_ax);
         
     end
 end
 
-%%
+%% Isat image plots
+    
+figure(4)
+subplot(1,3,1)
+imagesc('XData', actx_LP(:,1), 'YData', acty_LP(1,:), 'CData', data_2x');
+ylabel('Axial direction (cm)'); xlabel('Radial direction (cm)');
+% c=colorbar; colormap(flipud(hot)); 
+lim = caxis; caxis([0 0.04])
+% xlim = ([minx-0.5*dx maxx+0.5*dx]);
+set(gca, 'XDir','reverse')
+title('Isat x (A?)')
+% set(gca, 'XTickLabel', [])
 
-figure(1)
-plot(z,mach11bf(1,:),'.-')
+subplot(1,3,2)
+imagesc('XData', actx_LP(:,1), 'YData', acty_LP(1,:), 'CData', data_2y');
+xlabel('Radial direction (cm)');
+% c=colorbar; colormap(flipud(hot)); 
+lim = caxis; caxis([0,0.04])
+% xlim = ([minx-0.5*dx maxx+0.5*dx]);
+set(gca, 'XDir','reverse')
+% set(gca, 'XTickLabel', [])
+title('Isat y (A?)')
+set(gca, 'YTickLabel', [])
+
+subplot(1,3,3)
+imagesc('XData', actx_LP(:,1), 'YData', acty_LP(1,:), 'CData', data_2z');
+xlabel('Radial direction (cm)'); 
+c=colorbar; colormap(flipud(hot)); 
+title('Isat z (A?)')
+lim = caxis; caxis([0,0.04])
+% xlim = ([minx-0.5*dx maxx+0.5*dx]);
+set(gca, 'XDir','reverse')
+set(gca, 'YTickLabel', [])
+
+
+%% Isat line plots over z
+
+figure(5)
+plot(z,data_2x(1,:),'.-')
 
 hold on
 
@@ -165,12 +319,6 @@ xlabel('z Position (cm)')
 ylabel('Saturation current (A?)')
 title('Line taken at x = -11cm (approx 1cm in front of antenna, located at z=(0\pm3)cm)')
 legend('Before RF','25T','50T','75T','100T')
-
-plot(3.0*ones(1,Nz),linspace(0.006,0.02,length(data_T1dx)),'--k')
-plot(-3.0*ones(1,Nz),linspace(0.006,0.02,length(data_T1dx)),'--k')
-
-plot(5.0*ones(1,Nz),linspace(0.006,0.02,length(data_T1dx)),'--r')
-plot(-5.0*ones(1,Nz),linspace(0.006,0.02,length(data_T1dx)),'--r')
 
 hold off
 
