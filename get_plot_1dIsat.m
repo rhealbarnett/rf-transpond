@@ -1,6 +1,6 @@
 %% Call in xz plane Isat data file
 
-filename = '/Users/rhealbarnett/Documents/LAPD/RF_April22/11_Mach_p30xyz_12kV.hdf5';
+filename = '/Volumes/DATA/LAPD/RF_April22/11_Mach_p30xyz_12kV.hdf5';
 
 
 %% get Mach probe data: check the LAPD_201904_documentation ---------------- %%
@@ -47,7 +47,7 @@ rfmax = 1.2;
 
 % time values before the rf appliation.
 tmin = 0.05;
-tmax = 0.4;
+tmax = 0.5;
 
 plots = 1;
 
@@ -68,6 +68,8 @@ for ii= 1:numel(x)
         data_LP{ii,jj,6} = atten*data_LP{ii,jj,6} / res;
     end
 end
+
+
 
 
 %% Calculate average of each probe for density proxy from Isat
@@ -146,6 +148,12 @@ end
 data_mean = mean(temp);
 fft_sig = (fft(temp));
 
+high_freq = find(freq_ax > 1.0e4 & freq_ax < Fnyq);
+pow = 2.0*(fft_sig(1:npts/2).*conj(fft_sig(1:npts/2)))*(1.0/npts);
+freq_data_ind = find(pow(high_freq)==max(pow(high_freq)));
+freq_data = freq_ax(freq_data_ind);
+T_data = 1.0/freq_data;
+
 %% Plot first portion of the FFT data
 
 figure(2)
@@ -156,7 +164,7 @@ ylabel('Raw Isat (A)')
 title('Raw Isat')
 
 subplot(2,2,3)
-plot(freq_ax,2.0*(fft_sig(1:npts/2).*conj(fft_sig(1:npts/2)))*(1.0/npts))
+plot(freq_ax,pow)
 xlabel('Frequency (Hz)')
 ylabel('2*abs[FFT(Raw Isat)]')
 title('FFT of raw Isat')
@@ -194,46 +202,54 @@ hold off
 
 %% Find indices for each number of RF periods
 
-f = 2.38e6;
-T = 1.0/f;
-T_ms = T*1.0e3;
+T_ms = T_data*1.0e3;
 
-TRF = 0.501;
-T1 = 25*T_ms;
-T2 = 50*T_ms;
-T3 = 75*T_ms;
-T4 = 100*T_ms;
+tRF = 0.501e-3;
+t4 = 100*T_data;
+tend = 1.45e-3;
 
-TRF_ax = find(time_LP<=(TRF),1,'last');
-T1_ax = find(time_LP<=(TRF+T1),1,'last');
-T2_ax = find(time_LP<=(TRF+T2),1,'last');
-T3_ax = find(time_LP<=(TRF+T3),1,'last');
-T4_ax = find(time_LP<=(TRF+T4),1,'last');
+tRF_ax = find(time_LP<=(tRF),1,'last');
+t4_ax = find(time_LP<=(tRF+t4),1,'last');
 
 %% Plot 
 
 figure(3)
-plot(time_LP,filt_x)
+plot(tax,filt_x)
 hold on
-plot(TRF*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--k')
-plot((TRF+T1)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--r')
-plot((TRF+T2)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--b')
-plot((TRF+T3)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--c')
-plot((TRF+T4)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--m')
-legend('I_{sat}','T_{RF}','T_{RF} +25T', 'T_{RF} +50T', 'T_{RF} +75T', 'T_{RF} +100T')
-% plot((0.501-T1)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--r')
-% plot((0.501-T2)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--b')
-% plot((0.501-T3)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--c')
-% plot((0.501-T4)*ones(1,length(time_LP)),linspace(-0.005,0.02,length(time_LP)),'--m')
+plot(tRF*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--k')
+plot((tRF+t4)*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--r')
+plot(tend*ones(1,length(time_LP)),linspace(-0.01,0.025,length(time_LP)),'--b')
+legend('I_{sat}','t_{RF}', 't_{RF} +100T', 't_{RF,end}')
+
+
+%% Linear fit data before RF (approx 0.05ms - 0.4ms)
+
+t_before = find(tax > tmin*1.0e-3 & tax < tmax*1.0e-3);
+tind4 = find(tax > tRF+t4 & tax < tend);
+
+coeffs_before = polyfit(tax(t_before),filt_x(t_before),1);
+fit_before = polyval(coeffs_before,tax(t_before));
+
+coeffs_t4 = polyfit(tax(tind4),filt_x(tind4),1);
+fit_t4 = polyval(coeffs_t4,tax(tind4));
+
+figure(3)
+hold on
+plot(tax(t_before),fit_before,'Linewidth',3)
+plot(tax(tind4),fit_t4,'Linewidth',3)
+set(0,'DefaultLegendAutoUpdate','off')
+text(tax(t_before(floor(end/2))),fit_before(floor(end/2))+0.1*fit_before(floor(end/2)),...
+    ['y = ' num2str(coeffs_before(1)) '*x + ' num2str(coeffs_before(2))])
+text(tax(tind4(floor(end/2))),fit_t4(floor(end/2))+0.1*fit_t4(floor(end/2)),...
+    ['y = ' num2str(coeffs_t4(1)) '*x + ' num2str(coeffs_t4(2))])
 hold off
+
 
 
 %% 
 
 for ii= 1:numel(x)
     for jj=1:numel(z)
-        
-        t_Langmuir = find(time_LP > tmin & time_LP < tmax);
         
         temp = data_x{ii,jj,1};
         fft_sig = (fft(temp));
@@ -250,6 +266,7 @@ for ii= 1:numel(x)
         data_2y(ii,jj) = mean(filt_y(t_Langmuir));
         temp3 = data_z{ii,jj,1};
         data_2z(ii,jj) = mean(filt_z(t_Langmuir));
+            
         
         data_T1dx(ii,jj) = (filt_x(T1_ax));
     %     data_T1dy(1,ii) = data_y{1,ii,1}(T1_ax);
@@ -260,7 +277,7 @@ for ii= 1:numel(x)
         data_T3dx(ii,jj) = (filt_x(T3_ax));
     %     data_T3dy(1,ii) = data_y{1,ii,1}(T3_ax);
     %     data_T3dz(1,ii) = data_z{1,ii,1}(T3_ax);
-        data_T4dx(ii,jj) = (filt_x(T4_ax));
+        data_T4dx(ii,jj) = (filt_x(t4_ax));
     %     data_T4dy(1,ii) = data_y{1,ii,1}(T4_ax); 
     %     data_T4dz(1,ii) = data_z{1,ii,1}(T4_ax);
         
