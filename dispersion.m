@@ -5,8 +5,8 @@
 % rlbarnett c3149416, 170817              %
 %-----------------------------------------%
 
-perp = 0;
-para = 1;
+perp = 1;
+para = 0;
 
 r_arr = s_arr + d_arr;
 l_arr = s_arr - d_arr;
@@ -18,6 +18,7 @@ kp2_arr = zeros(npts, 1);
 if perp
     
     syms kperp
+    npara = c0*k_para./om;
 
     %--
     % initialise kx roots arrays, ensure they are complex
@@ -27,6 +28,19 @@ if perp
     a1 = s_arr;
     b1 = r_arr.*l_arr + p_arr.*s_arr - npara^2*(p_arr + s_arr);
     c1 = p_arr.*((npara^2 - r_arr).*(npara^2 - l_arr));
+            
+    ns_p1 = (b1 - sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+    ns_p2 = (b1 + sqrt(b1.^2 - 4.0*a1.*c1))./(2.0*a1);
+    
+    np11 = sqrt(ns_p1);
+    np12 = -sqrt(ns_p1);
+    np21 = sqrt(ns_p2);
+    np22 = -sqrt(ns_p2);
+
+    kp11 = np11*om/c0;
+    kp12 = np12*om/c0;
+    kp21 = np21*om/c0;
+    kp22 = np22*om/c0;
     
     ns_s = -(npara.^2 - s_arr).*(p_arr./s_arr);
     ns_f = -((npara.^2 - r_arr).*(npara.^2 - l_arr))./(npara.^2 - s_arr);
@@ -40,6 +54,25 @@ if perp
     ks2 = sign(k_s2).*log10(abs(k_s2));
     kf1 = sign(k_f1).*log10(abs(k_f1));
     kf2 = sign(k_f2).*log10(abs(k_f2));
+    
+    figure(1)
+    subplot(1,2,1)
+    semilogx(n_new, real(kp21),'.k')
+    hold on
+    semilogx(n_new, real(kp22),'.k')
+    semilogx(n_new, imag(kp21),'.r')
+    semilogx(n_new, imag(kp22),'.r')
+    xlabel('n (m^{-3})')
+    ylabel('k_{\perp} (m^{-1})')
+    
+    subplot(1,2,2)
+    semilogx(n_new, real(kp11),'.k')
+    hold on
+    semilogx(n_new, real(kp12),'.k')
+    semilogx(n_new, imag(kp11),'.r')
+    semilogx(n_new, imag(kp12),'.r')
+    xlabel('n (m^{-3})')
+    ylabel('k_{\perp} (m^{-1})')
     
 elseif para
     
