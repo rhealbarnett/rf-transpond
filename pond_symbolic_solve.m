@@ -19,8 +19,15 @@ az = q*Ez/m;
 
 ux = subs(ux); uy = subs(uy); uz = subs(uz);
 
-syms ky S D k0
+syms Dx DDx D S P kz k0 h k
 
-eq1 = (ky^2 - k0^2)*Ex + (1i*ky + 1i*D)*Ey == 0;
+Roty = [floor(cos(pi/2)), 0 sin(pi/2);0,1,0;sin(pi/2),0,floor(cos(pi/2))];
+K = [kz^2, 0, 1i*kz*Dx;
+    0, kz^2 - DDx, 0;
+    1i*kz*Dx, 0, -DDx];
 
-S = solve(eq1,Ey);
+Kdiff = [0,0,-1i*k/(2*h);
+         0,-1/h^2,0;
+         -1i*k/(2*h),0,-1.0/h^2];
+    
+
