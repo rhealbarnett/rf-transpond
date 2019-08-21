@@ -248,6 +248,8 @@ hold off
 
 %% 
 
+filt_x = zeros(Nz,length(tax));
+
 for ii= 1:numel(x)
     for jj=1:numel(z)
         
@@ -259,34 +261,35 @@ for ii= 1:numel(x)
         fft_sig(npts - int32((bins))) = 0.0;
         inv_sig = ifft(fft_sig);
 
-        filt_x = real(inv_sig);
-        
-        data_2x(ii,jj) = mean(filt_x(t_Langmuir));
-        temp2 = data_y{ii,jj,1};
-        data_2y(ii,jj) = mean(filt_y(t_Langmuir));
-        temp3 = data_z{ii,jj,1};
-        data_2z(ii,jj) = mean(filt_z(t_Langmuir));
+        filt_x(jj,:) = real(inv_sig);
             
-        
-        data_T1dx(ii,jj) = (filt_x(T1_ax));
-    %     data_T1dy(1,ii) = data_y{1,ii,1}(T1_ax);
-    %     data_T1dz(1,ii) = data_z{1,ii,1}(T1_ax);
-        data_T2dx(ii,jj) = (filt_x(T2_ax));
-    %     data_T2dy(1,ii) = data_y{1,ii,1}(T2_ax);
-    %     data_T2dz(1,ii) = data_z{1,ii,1}(T2_ax);
-        data_T3dx(ii,jj) = (filt_x(T3_ax));
-    %     data_T3dy(1,ii) = data_y{1,ii,1}(T3_ax);
-    %     data_T3dz(1,ii) = data_z{1,ii,1}(T3_ax);
-        data_T4dx(ii,jj) = (filt_x(t4_ax));
-    %     data_T4dy(1,ii) = data_y{1,ii,1}(T4_ax); 
-    %     data_T4dz(1,ii) = data_z{1,ii,1}(T4_ax);
-        
     end
 end
 
+%%
+
+ind = find(z <= 4.0 & z>=-4.0);
+
+for ii=ind(1):4:ind(end)
+    
+    figure(4)
+    plot(tax,filt_x(ii,:),'DisplayName', ['z = ' num2str(z(ii)) ' cm'])
+    hold on
+    xlabel('Time (s)')
+    ylabel('Filtered Isat (A)')
+    legend('show')
+    
+end
+
+figure(4)
+hold on
+set(gca,'Fontsize',20)
+hold off
+    
+
 %% Isat image plots
     
-figure(4)
+figure(5)
 subplot(1,3,1)
 imagesc('XData', actx_LP(:,1), 'YData', acty_LP(1,:), 'CData', data_2x');
 ylabel('Axial direction (cm)'); xlabel('Radial direction (cm)');
@@ -321,7 +324,7 @@ set(gca, 'YTickLabel', [])
 
 %% Isat line plots over z
 
-figure(5)
+figure(6)
 plot(z,data_2x(1,:),'.-')
 
 hold on
