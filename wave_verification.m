@@ -31,7 +31,7 @@ om = freq*2.0*pi;
 % Set some domain size and length
 xmin = -8.;
 xmax = 8.0;
-npts = 8;
+npts = 2048;
 xax = linspace(xmin,xmax,npts);
 
 %--
@@ -49,15 +49,15 @@ damp = ones(1,npts);
 damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
-% m_s = [me; mp].*damp;
-m_s = [me; mp];
+m_s = [me; mp].*damp;
+% m_s = [me; mp];
 
 %--
 % Scan over density values.
 Nmax = 1.0e20;
 Nmin = 1.0e15;
-n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = 0*ones(1,npts);
+% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+n_new = 1.0e19*ones(1,npts);
 
 %--
 % Calculate free space wavenumber and set perpendicular (or parallel) 
