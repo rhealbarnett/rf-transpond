@@ -15,7 +15,7 @@ eps0 = const.eps0;
 c0 = const.c0;
 mu0 = const.mu0;
 
-charge = [e; q];
+charge = [e; q; q];
 
 % magnetic field magnitude, 1000 G = 0.1 T
 B0 = 0.1;
@@ -35,6 +35,7 @@ xax = linspace(xmin,xmax,npts);
 % ion mass : there are 3 possible ions in LAPD, 
 % He, Ne and Ar. (kg)
 mhe = 4.00*amu;
+md = 2.01*amu;
 mne = 20.18*amu;
 mar = 39.95*amu;
 
@@ -42,6 +43,7 @@ mar = 39.95*amu;
 % electron mass
 me = me*ones(1,npts);
 mhe = mhe*ones(1,npts);
+md = md*ones(1,npts);
 
 % DLG - since I don't have the license for "makedist"
 % I fixed your cos ramping function :)
@@ -55,7 +57,7 @@ mhe = mhe*ones(1,npts);
 % 
 % me = me .* damp;
 
-m_s = [me; mhe];
+m_s = [me; mhe; md];
 
 % driving frequency of the single strap, high power antenna (Hz)
 freq = 2.4e6;
@@ -63,9 +65,12 @@ freq = 2.4e6;
 om = freq*2.0*pi;
 
 % electron density range is (1.0e17 <= n <= 7.9e18) (m^-3)
-% Nmax = 7.9e18;
-% Nmin = 1.0e17;
-% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+Nmax = 7.9e18;
+Nmin = 1.0e17;
+ne_new = logspace(log10(Nmin),log10(Nmax),npts);
+nhe_new = 0.9*logspace(log10(Nmin),log10(Nmax),npts);
+nd_new = 0.1*logspace(log10(Nmin),log10(Nmax),npts);
+n_new = [ne_new; nhe_new; nd_new];
 % n_new = Nmin*ones(1,npts);
 
 % perpendicular wavenumber : just an approximation for now
@@ -75,19 +80,21 @@ om = freq*2.0*pi;
 % n_perp = 200;
 % k_perp = om*n_perp./c0;
 k_perp = 5.;
+k_para = 0.0;
 n_perp = c0*k_perp./om;
+n_para = c0*k_para./om;
 % wave_perp = 2.0*pi./k_perp;
 % k0 = om/c0;
 % wave0 = 2.0*pi/k0;
 
 % kx = 2.0*pi/wave;
 % kx = 40.;
-
-ky = 0.;
-kz = k_perp;
+% 
+% ky = 0.;
+% kz = k_perp;
 k0 = om/c0;
 
-source_width = 0.2;
+source_width = 0.06;
 source_loc = 0;
 
 
