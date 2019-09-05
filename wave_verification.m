@@ -56,8 +56,8 @@ m_s = [me; mp];
 % Scan over density values.
 Nmax = 1.0e20;
 Nmin = 1.0e15;
-% n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = 1.0e19*ones(1,npts);
+n_new = logspace(log10(Nmin),log10(Nmax),npts);
+% n_new = 1.0e19*ones(1,npts);
 
 %--
 % Calculate free space wavenumber and set perpendicular (or parallel) 
