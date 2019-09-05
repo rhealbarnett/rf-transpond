@@ -3,7 +3,8 @@
 % 250219 rlbarnett, c3149416
 % ------------------------------------------------------------------- %
 
-% call constants
+%--
+% Import physical constants.
 const = constants();
 
 mp = const.mp;
@@ -15,38 +16,41 @@ eps0 = const.eps0;
 c0 = const.c0;
 mu0 = const.mu0;
 
-charge = [e; q; q];
+%--
+% Collect charge in a 2d array for dielectric tensor calculation.
+charge = [e; q];
 
-% magnetic field magnitude, 1000 G = 0.1 T
+%--
+% Magnetic field magnitude, 1000 G = 0.1 T. Assume it is fully aligned with 
+% the z coordinate. 
 B0 = 0.1;
-% B0 = 1.0;
 
-% electron and ion temperatures, (eV)
-% multiply by e for temps in K
+%--
+% Ion and electron temperatures (eV). Multiply by e for temps in K. 
 Te = 5.0;
 Ti = 0.5;
 
-% plasma column is ~ 18 (m) 
+%--
+% Actual plasma column is ~ 18 (m). However, use reduced size as interest
+% is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
 npts = 2048;
 xax = linspace(xmin,xmax,npts);
 
-% ion mass : there are 3 possible ions in LAPD, 
-% He, Ne and Ar. (kg)
+%--
+% Ion mass : He only
 mhe = 4.00*amu;
-md = 2.01*amu;
-mne = 20.18*amu;
-mar = 39.95*amu;
+mhe = mhe*ones(1,npts);
 
 %--
-% electron mass
+% Electron mass.
 me = me*ones(1,npts);
-mhe = mhe*ones(1,npts);
-md = md*ones(1,npts);
 
-% DLG - since I don't have the license for "makedist"
-% I fixed your cos ramping function :)
+
+%--
+% Imaginary component of the mass is used to damp any waves near the
+% boundary. 
 % dampFac = 25.0e1;
 % np_bound = floor(0.2*npts);
 % ax = linspace(0,pi,np_bound);
@@ -57,43 +61,36 @@ md = md*ones(1,npts);
 % 
 % me = me .* damp;
 
-m_s = [me; mhe; md];
+%--
+% Collect masses in 2d array for dielectric tensor calculation. 
+m_s = [me; mhe];
 
-% driving frequency of the single strap, high power antenna (Hz)
-freq = 2.4e6;
-% freq = 40.0e6;
+%--
+% Driving frequency of the single strap, high power antenna (Hz)
+% Driven at 2.38MHz, but FFT of experimental data shows it is closer to
+% ~2.52MHz. 
+freq = 2.52e6;
 om = freq*2.0*pi;
 
-% electron density range is (1.0e17 <= n <= 7.9e18) (m^-3)
-Nmax = 7.9e18;
-Nmin = 1.0e17;
-ne_new = logspace(log10(Nmin),log10(Nmax),npts);
-nhe_new = 0.9*logspace(log10(Nmin),log10(Nmax),npts);
-nd_new = 0.1*logspace(log10(Nmin),log10(Nmax),npts);
-n_new = [ne_new; nhe_new; nd_new];
+%--
+% Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
+% values, +- some amount. 
+Nmax = 1.0e19;
+Nmin = 5.0e16;
+n_new = logspace(log10(Nmin),log10(Nmax),npts);
 % n_new = Nmin*ones(1,npts);
 
-% perpendicular wavenumber : just an approximation for now
-% see figure 10 in Martin 2016 poster for n_perp and
-% n_para, n = c0*k/om
-% n_perp = linspace(0,800,800);
-% n_perp = 200;
-% k_perp = om*n_perp./c0;
-k_perp = 5.;
-k_para = 0.0;
-n_perp = c0*k_perp./om;
-n_para = c0*k_para./om;
-% wave_perp = 2.0*pi./k_perp;
-% k0 = om/c0;
-% wave0 = 2.0*pi/k0;
-
-% kx = 2.0*pi/wave;
-% kx = 40.;
-% 
-% ky = 0.;
-% kz = k_perp;
+%--
+% Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
+% m^-1. Was unable to obtain ky from the data. 
 k0 = om/c0;
+kx = 20;
+ky = 0.0;
+k_perp = sqrt(kx^2 + ky^2); 
+n_perp = c0*k_perp./om;
 
+%-- 
+% Unscaled current source parameters.
 source_width = 0.06;
 source_loc = 0;
 
