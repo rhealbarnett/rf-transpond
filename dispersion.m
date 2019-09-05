@@ -5,8 +5,8 @@
 % rlbarnett c3149416, 170817              %
 %-----------------------------------------%
 
-perp = 1;
-para = 0;
+perp = 0;
+para = 1;
 
 r_arr = s_arr + d_arr;
 l_arr = s_arr - d_arr;
