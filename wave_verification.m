@@ -49,8 +49,8 @@ damp = ones(1,npts);
 damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
-m_s = [me; mp].*damp;
-% m_s = [me; mp];
+% m_s = [me; mp].*damp;
+m_s = [me; mp];
 
 %--
 % Scan over density values.
@@ -63,8 +63,8 @@ n_new = 1.0e19*ones(1,npts);
 % Calculate free space wavenumber and set perpendicular (or parallel) 
 % wave number. 
 k0 = om/c0;
-k_para = 5.0;
-n_para = k_para*c0/om;
+k_perp = 5.0i;
+n_perp = k_para*c0/om;
 % n_para = linspace(0,800,800);
 % k_para = om*n_para/c0;
 % k_perp = 17;
