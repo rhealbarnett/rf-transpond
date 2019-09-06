@@ -83,7 +83,8 @@ n_new = logspace(log10(Nmin),log10(Nmax),npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
-% m^-1. Was unable to obtain ky from the data. 
+% m^-1. Was more difficult to obtain ky from the data, should perhaps use 
+% a larger range to scan over. 
 k0 = om/c0;
 kx = 20;
 ky = 0.0;
