@@ -117,6 +117,7 @@ if perp
         title('Re[k_{\perp 22}]')
         ylabel('k_{||} (m^{-1})')
         xlabel('log_{10}n')
+        set(gca,'Fontsize',20)
         
     end
     
@@ -168,8 +169,14 @@ elseif para
         semilogx(n_new, real(kp22),'.k')
         semilogx(n_new, imag(kp21),'.r')
         semilogx(n_new, imag(kp22),'.r')
+%         semilogx((1.0e16)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
+%             'b--','Linewidth',1.5)
+%         semilogx((1.0e18)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
+%             'b--','Linewidth',1.5)
+        ylim([min(imag(kp22)) max(imag(kp21))])
         xlabel('n (m^{-3})')
         ylabel('k_{||} (m^{-1})')
+        set(gca,'Fontsize',30)
 
         subplot(1,2,2)
         semilogx(n_new, real(kp11),'.k')
@@ -177,8 +184,55 @@ elseif para
         semilogx(n_new, real(kp12),'.k')
         semilogx(n_new, imag(kp11),'.r')
         semilogx(n_new, imag(kp12),'.r')
+%         semilogx((1.0e16)*ones(1,npts),(linspace(min(real(kp12)),max(real(kp11)),npts)),...
+%             '--b','Linewidth',1.5)
+%         semilogx((1.0e18)*ones(1,npts),(linspace(min(real(kp12)),max(real(kp11)),npts)),...
+%             '--b','Linewidth',1.5)
+        ylim([min(real(kp12)) max(real(kp11))])
         xlabel('n (m^{-3})')
         ylabel('k_{||} (m^{-1})')
+        set(gca,'Fontsize',30)
+        
+    elseif length(n_perp)~=1
+        
+        figure(2)
+        ax1 = subplot(2,2,1);
+        contourf(log10(n_new),ky,real(kpara11)','Linecolor','none')
+        rc11=colorbar;
+%         colormap(flipud(parula))
+        set(gca,'xtick',[])
+        title('Re[k_{|| 11}]')
+        ylabel('k_{\perp} (m^{-1})')
+        set(gca,'Fontsize',20)
+
+        ax2 = subplot(2,2,2);
+        contourf(log10(n_new),ky,real(kpara12)','Linecolor','none')
+        rc11 = colorbar;
+        colormap(ax2,flipud(parula))
+        set(gca,'xtick',[])
+        title('Re[k_{|| 12}]')
+        ylabel('k_{\perp} (m^{-1})')
+%         xlabel('log_{10}n')
+        set(gca,'Fontsize',20)
+
+        ax3 = subplot(2,2,3);
+        contourf(log10(n_new),ky,real(kpara21)','Linecolor','none')
+        rc11 = colorbar;
+%         colormap(flipud(parula))
+        title('Re[k_{|| 21}]')
+        ylabel('k_{\perp} (m^{-1})')
+        xlabel('log_{10}n')
+        set(gca,'Fontsize',20)
+
+        ax4 = subplot(2,2,4);
+        contourf(log10(n_new),ky,real(kpara22)','Linecolor','none')
+        rc11 = colorbar;
+        colormap(ax4,flipud(parula))
+        title('Re[k_{|| 22}]')
+        ylabel('k_{\perp} (m^{-1})')
+        xlabel('log_{10}n')
+        set(gca,'Fontsize',20)
+        
     end
     
 end
