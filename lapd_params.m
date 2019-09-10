@@ -77,7 +77,7 @@ om = freq*2.0*pi;
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
 Nmax = 1.0e19;
-Nmin = 5.0e16;
+Nmin = 1.0e16;
 n_new = logspace(log10(Nmin),log10(Nmax),npts);
 % n_new = Nmin*ones(1,npts);
 
@@ -86,9 +86,10 @@ n_new = logspace(log10(Nmin),log10(Nmax),npts);
 % m^-1. Was more difficult to obtain ky from the data, should perhaps use 
 % a larger range to scan over. 
 k0 = om/c0;
-kx = 20;
-ky = 0.0;
-k_perp = sqrt(kx^2 + ky^2); 
+kx = 20.0i;
+% ky = 36.0i;
+ky = linspace(0,40,100);
+k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
 
 %-- 
