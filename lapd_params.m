@@ -60,7 +60,7 @@ damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
 me = me .* damp;
-mhe = mhe .* damp;
+% mhe = mhe .* damp;
 
 %--
 % Collect masses in 2d array for dielectric tensor calculation. 
