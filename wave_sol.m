@@ -71,7 +71,7 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(ax,ky,k,k0,...
         
         elseif ~para
             %--
-            % Second try
+            % Second try to double check perp case
             A(eq1,iiexm) = 0.0;
             A(eq1,iieym) = -1i*ky/(2.0*h);
             A(eq1,iiezm) = -1i*k/(2.0*h);
