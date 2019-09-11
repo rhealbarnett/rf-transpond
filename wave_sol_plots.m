@@ -5,6 +5,7 @@ figure(16)
 subplot(4,1,1)
 plot(xax,om*const.mu0*source,'b','Linewidth',2)
 ylabel('Source (i\omega\mu_0J_{y})')
+set(gca, 'XTickLabel', [])
 xlim([xmin,xmax])
 set(gca,'Fontsize',20)
 
