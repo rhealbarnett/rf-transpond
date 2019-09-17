@@ -51,7 +51,7 @@ me = me*ones(1,npts);
 %--
 % Imaginary component of the mass is used to damp any waves near the
 % boundary. 
-dampFac = 20.e-1;
+dampFac = 5.e1;
 np_bound = floor(0.2*npts);
 ax = linspace(0,pi,np_bound);
 damp0 = (cos(ax)+1)/2;
@@ -60,7 +60,7 @@ damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
 me = me .* damp;
-% mhe = mhe .* damp;
+mhe = mhe .* damp;
 
 %--
 % Collect masses in 2d array for dielectric tensor calculation. 
@@ -82,7 +82,7 @@ om = freq*2.0*pi;
 Nmax = 1.0e19;
 Nmin = 1.0e16;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = Nmax*ones(1,npts);
+% n_new = 1.0e17*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
@@ -90,9 +90,8 @@ n_new = Nmax*ones(1,npts);
 % the value is ~ 36 m^-1. 
 k0 = om/c0;
 kx = 20.0i;
-% ky = 36.0i;
+ky = 30.0;
 % ky = linspace(0,40,100);
-ky = 0;
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
 
