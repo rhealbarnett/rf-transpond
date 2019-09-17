@@ -197,8 +197,53 @@ elseif para
         
         figure(2)
         ax1 = subplot(2,2,1);
+        levelsrkp11 = linspace(0,30,50);
+        contourf(log10(n_new),abs(ky),real(kpara11)',levelsrkp11,'Linecolor','none')
+%         colormap(flipud(parula))
+        rc11=colorbar;
+        set(gca,'xtick',[])
+        title('Re[k_{|| 11}]')
+        ylabel('k_{y} (m^{-1})')
+        set(gca,'Fontsize',30)
+
+        ax2 = subplot(2,2,2);
+        levelsikp11 = linspace(0,2.5,50);
+        contourf(log10(n_new),abs(ky),imag(kpara11)',levelsikp11,'Linecolor','none')
+        rc11=colorbar;
+%         colormap(ax2,flipud(parula))
+        set(gca,'xtick',[])
+        set(gca,'ytick',[])
+        title('Im[k_{|| 11}]')
+%         ylabel('k_{y} (m^{-1})')
+        set(gca,'Fontsize',30)
+
+        ax3 = subplot(2,2,3);
+        levelsrkp21 = linspace(0,0.25,50);
+        contourf(log10(n_new),abs(ky),real(kpara21)',levelsrkp21,'Linecolor','none')
+        rc11=colorbar;
+%         colormap(flipud(parula))
+        title('Re[k_{|| 21}]')
+        ylabel('k_{y} (m^{-1})')
+        xlabel('log_{10}n')
+        set(gca,'Fontsize',30)
+
+        ax4 = subplot(2,2,4);
+        levelsikp21 = linspace(0,35,50);
+        contourf(log10(n_new),abs(ky),imag(kpara21)',levelsikp21,'Linecolor','none')
+        rc11=colorbar;
+%         colormap(ax4,flipud(parula))
+        title('Im[k_{|| 21}]')
+        set(gca,'ytick',[])
+%         ylabel('k_{y} (m^{-1})')
+        xlabel('log_{10}n')
+        set(gca,'Fontsize',30)
+        
+        figure(3)
+        ax1 = subplot(2,2,1);
+        levelsrkp11 = logspace(0,2,50);
         contourf(log10(n_new),ky,real(kpara11)','Linecolor','none')
         rc11=colorbar;
+        set(gca,'colorscale','log')
 %         colormap(flipud(parula))
         set(gca,'xtick',[])
         title('Re[k_{|| 11}]')
@@ -206,11 +251,14 @@ elseif para
         set(gca,'Fontsize',20)
 
         ax2 = subplot(2,2,2);
-        contourf(log10(n_new),ky,real(kpara12)','Linecolor','none')
+%         contourf(log10(n_new),ky,real(kpara12)','Linecolor','none')
+        contourf(log10(n_new),ky,imag(kpara11)','Linecolor','none')
         rc11 = colorbar;
-        colormap(ax2,flipud(parula))
+        set(gca,'colorscale','log')
+%         colormap(ax2,flipud(parula))
         set(gca,'xtick',[])
-        title('Re[k_{|| 12}]')
+%         title('Re[k_{|| 12}]')
+        title('Im[k_{|| 11}]')
         ylabel('k_{\perp} (m^{-1})')
 %         xlabel('log_{10}n')
         set(gca,'Fontsize',20)
@@ -219,16 +267,20 @@ elseif para
         contourf(log10(n_new),ky,real(kpara21)','Linecolor','none')
         rc11 = colorbar;
 %         colormap(flipud(parula))
+        set(gca,'colorscale','log')
         title('Re[k_{|| 21}]')
         ylabel('k_{\perp} (m^{-1})')
         xlabel('log_{10}n')
         set(gca,'Fontsize',20)
 
         ax4 = subplot(2,2,4);
-        contourf(log10(n_new),ky,real(kpara22)','Linecolor','none')
+%         contourf(log10(n_new),ky,real(kpara22)','Linecolor','none')
+        contourf(log10(n_new),ky,imag(kpara21)','Linecolor','none')
         rc11 = colorbar;
-        colormap(ax4,flipud(parula))
-        title('Re[k_{|| 22}]')
+        set(gca,'colorscale','log')
+%         colormap(ax4,flipud(parula))
+%         title('Re[k_{|| 22}]')
+        title('Im[k_{|| 21}]')
         ylabel('k_{\perp} (m^{-1})')
         xlabel('log_{10}n')
         set(gca,'Fontsize',20)
