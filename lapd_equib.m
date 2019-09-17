@@ -5,11 +5,8 @@
 
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
-equib = load('../../../lapd_numdata/matlab/equibhe_8m_refined.mat');
-
-const = constants();
-e = const.e;
-m = const.amu*4.00;
+% equib = load('../../../lapd_numdata/matlab/equibhe_8m_refined.mat');
+equib = load('/Users/rhealbarnett/Documents/lapd_numdata/matlab/equibhe_8m_refined.mat');
 
 vxax = equib.vxax;
 nxax = equib.nxax;
@@ -138,15 +135,15 @@ end
 
 %%
 
-cs = sqrt((Te+Ti)*e/m);
+lapd_params;
+
+cs = sqrt((Te+Ti)*abs(e)/real(mhe(1)));
 LuBC = -cs;
 RuBC = cs;
 
-lapd_params;
-
 dt = 0.99*min(ndx)/cs;
 
-source_mult = 37000;
+source_mult = 1.0e5;
 
 % tmax = 1.0e-5;
 period = 1.0/freq;
@@ -156,16 +153,13 @@ nmax = round(tmax/dt);
 n_new_uni = interp1(nxax,n_new,xax,'linear');
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(charge,B0,n_new_uni,m_s,om,eps0,npts);
-[A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
-    om,mu0,cpdt,source_width,source_loc,0,source_mult);
+[A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+    om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
 
 
-rf_ex = zeros(1,npts);
-Efield = rf_ex.^2;
-Efield = abs(Efield);
+% rf_ex = zeros(1,npts);
+Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
-% Efield = Efield.^2;
-% Efield = zeros(1,npts);
 
 
 %%
