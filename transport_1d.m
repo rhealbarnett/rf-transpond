@@ -19,47 +19,47 @@
 % transport_vardx;
 % transport_test;
 % transport_mms;
-lapd_equib;
+% lapd_equib;
 
 % initialise velocity and density 
 vx = vx_new;
 n = n_new;
 
-staggered = NaN;
-collocated = NaN;
-v_ldirichlet = NaN;
-v_rdirichlet = NaN;
-v_rneumann = NaN;
-v_lneumann = NaN;
-v_periodic = NaN;
-n_ldirichlet = NaN;
-n_rdirichlet = NaN;
-n_rneumann = NaN;
-n_lneumann = NaN;
-n_periodic = NaN;
-explicit = NaN;
-implicit = NaN;
-MMS = NaN;
-momentum = NaN;
-continuity = NaN;
+% staggered = NaN;
+% collocated = NaN;
+% v_ldirichlet = NaN;
+% v_rdirichlet = NaN;
+% v_rneumann = NaN;
+% v_lneumann = NaN;
+% v_periodic = NaN;
+% n_ldirichlet = NaN;
+% n_rdirichlet = NaN;
+% n_rneumann = NaN;
+% n_lneumann = NaN;
+% n_periodic = NaN;
+% explicit = NaN;
+% implicit = NaN;
+% MMS = NaN;
+% momentum = NaN;
+% continuity = NaN;
 
-% staggered = 1;
-% collocated = 0;
-% v_ldirichlet = 1;
-% v_rdirichlet = 1;
-% v_rneumann = 0;
-% v_lneumann = 0;
-% v_periodic = 0;
-% n_ldirichlet = 0;
-% n_rdirichlet = 0;
-% n_rneumann = 0;
-% n_lneumann = 0;
-% n_periodic = 0;
-% MMS = 0;
-% momentum = 0;
-% continuity = 0;
-% central = 1;
-% upwind = 0;
+staggered = 1;
+collocated = 0;
+v_ldirichlet = 1;
+v_rdirichlet = 1;
+v_rneumann = 0;
+v_lneumann = 0;
+v_periodic = 0;
+n_ldirichlet = 0;
+n_rdirichlet = 0;
+n_rneumann = 0;
+n_lneumann = 0;
+n_periodic = 0;
+MMS = 0;
+momentum = 0;
+continuity = 0;
+central = 1;
+upwind = 0;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -69,328 +69,328 @@ lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
 lvBC_val = LuBC;
 rvBC_val = RuBC;
 
-test_type = 'run MMS (yes/no)? ';
-testt = input(test_type, 's');
-if isempty(testt)
-    testt = 'no';
-end
-
-if strcmp(testt,'yes')
-    MMS = 1;
-    mms_type = 'continuity, momentum, or coupled? ';
-    mmst = input(mms_type, 's');
-    if strcmp(mmst,'continuity')
-        continuity = 1;
-        momentum = 0;
-    elseif strcmp(mmst,'momentum')
-        continuity = 0;
-        momentum = 1;
-    elseif strcmp(mmst,'coupled')
-        continuity = 1;
-        momentum = 1;
-    end
-elseif strcmp(testt,'no')
-    MMS = 0;
-    continuity = 0;
-    momentum = 0;
-    coupled = 0;
-end
-
-grid_type = 'staggered or collocated grid? ';
-gridt = input(grid_type, 's');
-if isempty(gridt)
-    gridt = 'staggered';
-end
-
-if strcmp(gridt,'staggered')
-    staggered = 1;
-    collocated = 0;
-elseif strcmp(gridt,'collocated')
-    staggered = 0;
-    collocated = 1;
-end
-
-if (isnan(staggered)) || (isnan(collocated))
-    error("Check spelling and/or type of answer for %s.\n",'"staggered or collocated grid?"')
-    return
-end
-
-if staggered
-    
-    ln_bound_type = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
-    leftGhost = input(ln_bound_type, 's');
-    if isempty(leftGhost)
-        leftGhost = 'linear extrap';
-    end
-    
-    if strcmp('periodic',leftGhost)
-
-    else
-        rn_bound_type = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
-        rightGhost = input(rn_bound_type, 's');
-        if isempty(rightGhost)
-            rightGhost = 'linear extrap';
-        end
-    end
-    
-    if strcmp('linear extrap',leftGhost)
-        lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
-            nxax(1),'linear','extrap');
-        n_ldirichlet = 0;              
-        n_lneumann = 0;
-        n_periodic = 0;
-    elseif strcmp('dirichlet',leftGhost)
-        n_ldirichlet = 1;              
-        n_lneumann = 0;
-        n_periodic = 0;
-    elseif strcmp('neumann',leftGhost)
-        n_ldirichlet = 0;                
-        n_lneumann = 1; 
-        n_periodic = 0;
-    end  
-    
-    if (isnan(n_ldirichlet)) || (isnan(n_lneumann)) || (isnan(n_periodic))
-        error("Check spelling and/or type of answer for %s.\n",...
-            '"Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap)"')
-        return
-    end
-    
-    if strcmp('linear extrap',leftGhost)
-    else
-        ln_bound_val = 'Left (ghost) BC value for density? ';
-        lnBC_val = input(ln_bound_val);
-        if isempty(lnBC_val)
-            lnBC_val = LnBC;
-        end
-    end
-    
-    if strcmp('linear extrap',rightGhost)
-        rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
-            nxax(npts),'linear','extrap');
-        n_rdirichlet = 0;                
-        n_rneumann = 0; 
-        n_periodic = 0;
-    elseif strcmp('dirichlet',rightGhost)
-        n_rdirichlet = 1;              
-        n_rneumann = 0;
-        n_periodic = 0;
-    elseif strcmp('neumann',rightGhost)
-        n_rdirichlet = 0;                
-        n_rneumann = 1; 
-        n_periodic = 0;
-    end
-    
-    if strcmp('linear extrap',rightGhost)
-    else
-        rn_bound_val = 'Right (ghost) BC value for density? ';
-        rnBC_val = input(rn_bound_val);
-        if isempty(rnBC_val)
-            rnBC_val = RnBC;
-        end
-    end
-    
-    if (isnan(n_rdirichlet)) || (isnan(n_rneumann)) || (isnan(n_periodic))
-        error("Check spelling and/or type of answer for %s.\n",...
-            '"Right (ghost) BC type? (dirichlet, neumann, periodic)"')
-        return
-    end
-    
-end
-
-if collocated
-    
-    if vx_new(1,2) > 0
-        promptlnBC = 'Left BC type for density? (dirichlet, neumann, periodic) ';
-        leftnBC = input(promptlnBC, 's');
-        if strcmp('dirichlet',leftnBC)
-            n_ldirichlet = 1;              
-            n_lneumann = 0;
-            n_periodic = 0;
-        elseif strcmp('neumann',leftnBC)
-            n_ldirichlet = 0;                
-            n_lneumann = 1; 
-            n_periodic = 0;
-        end
-        promptlnBCval = 'Left BC value for density? ';
-        lnBC_val = input(promptlnBCval);
-    elseif vx_new(1,2) < 0 
-        fprintf("Left BC not required on density for the given flux direction.\n")
-        n_ldirichlet = 0;
-        n_lneumann = 0;
-        n_periodic = 0;
-    end
-    if vx_new(1,end-1) < 0
-        promptrnBC = 'Right BC type for density? (dirichlet, neumann, periodic) ';
-        rightnBC = input(promptrnBC, 's');
-        if strcmp('dirichlet',rightnBC)
-            n_rdirichlet = 1;              
-            n_rneumann = 0;
-            n_periodic = 0;
-        elseif strcmp('neumann',rightnBC)
-            n_rdirichlet = 0;                
-            n_rneumann = 1; 
-            n_periodic = 0;
-        end
-        rn_bound_val = 'Right BC value for density? ';
-        rnBC_val = input(rn_bound_val);
-    elseif vx_new(1,end-1) > 0 
-        fprintf("Right BC not required on density for the given flux direction.\n")
-        n_rdirichlet = 0;
-        n_rneumann = 0;
-        n_periodic = 0;
-    end
-end
-
-%%
-
-upwind = NaN;
-central = NaN;
-
-spatial_scheme = 'Spatial differencing scheme for momentum equation? (upwind or central) ';
-scheme = input(spatial_scheme, 's');
-if isempty(scheme)
-    scheme = 'central';
-end
-
-if strcmp(scheme,'upwind')
-    upwind = 1;
-    central = 0;
-elseif strcmp(scheme, 'central')
-    upwind = 0;
-    central = 1;
-end
-
-% if central && nu==0
-%     fprintf("nu==0: central difference scheme not stable.\n")
+% test_type = 'run MMS (yes/no)? ';
+% testt = input(test_type, 's');
+% if isempty(testt)
+%     testt = 'no';
+% end
+% 
+% if strcmp(testt,'yes')
+%     MMS = 1;
+%     mms_type = 'continuity, momentum, or coupled? ';
+%     mmst = input(mms_type, 's');
+%     if strcmp(mmst,'continuity')
+%         continuity = 1;
+%         momentum = 0;
+%     elseif strcmp(mmst,'momentum')
+%         continuity = 0;
+%         momentum = 1;
+%     elseif strcmp(mmst,'coupled')
+%         continuity = 1;
+%         momentum = 1;
+%     end
+% elseif strcmp(testt,'no')
+%     MMS = 0;
+%     continuity = 0;
+%     momentum = 0;
+%     coupled = 0;
+% end
+% 
+% grid_type = 'staggered or collocated grid? ';
+% gridt = input(grid_type, 's');
+% if isempty(gridt)
+%     gridt = 'staggered';
+% end
+% 
+% if strcmp(gridt,'staggered')
+%     staggered = 1;
+%     collocated = 0;
+% elseif strcmp(gridt,'collocated')
+%     staggered = 0;
+%     collocated = 1;
+% end
+% 
+% if (isnan(staggered)) || (isnan(collocated))
+%     error("Check spelling and/or type of answer for %s.\n",'"staggered or collocated grid?"')
 %     return
 % end
-
-%%
-%--------------------------------------------------------------------------------------------------------------%
-% select boundary conditions 
-
-
-%----- need a prompt here to check whether the velocity is positive or
-% negative next to the boundary, as this will determine whether left or right (or both)
-% BC is required
-
-if central
-
-    lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
-    leftvBC = input(lv_bound_type, 's');
-    if isempty(leftvBC)
-        leftvBC = 'dirichlet';
-    end
-    if strcmp('periodic',leftvBC)
-
-    else
-        rv_bound_type = 'Right BC type for velocity? (dirichlet or neumann) ';
-        rightvBC = input(rv_bound_type, 's');
-        if isempty(rightvBC)
-            rightvBC = 'dirichlet';
-        end
-    end
-
-    if strcmp('dirichlet',leftvBC)
-        v_ldirichlet = 1;               % this allows the use of ldirichlet as a logical 
-        v_lneumann = 0;
-        v_periodic = 0;
-    elseif strcmp('neumann',leftvBC)
-        v_ldirichlet = 0;                
-        v_lneumann = 1; 
-        v_periodic = 0;
-    end
-
-    if strcmp('dirichlet',rightvBC)
-        v_rdirichlet = 1;
-        v_rneumann = 0;
-        v_periodic = 0;
-    elseif strcmp('neumann',rightvBC)
-        v_rneumann = 1;
-        v_rdirichlet = 0;
-        v_periodic = 0;
-    end
-
-    if strcmp('periodic',leftvBC)
-        v_rdirichlet = 0;
-        v_rneumann = 0;
-        v_ldirichlet = 0;
-        v_lneumann = 0;
-        v_periodic = 1;
-    end
-
-    lv_bound_val = 'Left BC value for velocity? ';
-    lvBC_val = input(lv_bound_val);
-    if isempty(lvBC_val)
-        lvBC_val = LuBC;
-    end
-    if strcmp('periodic',leftvBC)
-
-    else
-        rv_bound_val = 'Right BC value for velocity? ';
-        rvBC_val = input(rv_bound_val);
-        if isempty(rvBC_val)
-            rvBC_val = RuBC;
-        end
-    end
-
-    if v_ldirichlet && v_rdirichlet
-        fprintf("left and right velocity BCs are dirichlet; lBC = %f, rBC = %f.\n", lvBC_val, rvBC_val)
-    elseif v_lneumann && v_rdirichlet
-        fprintf("left velocity BC is neumann, lBC = %f; right velocity BC is dirichlet, rBC = %f.\n", lvBC_val, rvBC_val)
-    elseif v_rneumann && v_ldirichlet
-        fprintf("left velocity BC is dirichlet, lBC = %f; right velocity BC is neumann, rBC = %f.\n", lvBC_val, rvBC_val)
-    elseif v_rneumann && v_lneumann
-        fprintf("left and right velocity BCs are dirichlet; lBC = %f, rBC = %f.\n", lvBC_val, rvBC_val)
-    elseif v_periodic
-        fprintf("periodic velocity BCs\n")
-    end
-    
-elseif upwind
-    
-    if vx_new(1,2) > 0
-            lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
-            leftvBC = input(lv_bound_type, 's');
-            if strcmp('dirichlet',leftvBC)
-                v_ldirichlet = 1;              
-                v_lneumann = 0;
-                v_periodic = 0;
-            elseif strcmp('neumann',leftvBC)
-                v_ldirichlet = 0;                
-                v_lneumann = 1; 
-                v_periodic = 0;
-            end
-            lv_bound_val = 'Left BC value for velocity? ';
-            lvBC_val = input(lv_bound_val);
-    elseif vx_new(1,2) < 0 
-            fprintf("Left BC not required\n")
-            v_ldirichlet = 0;
-            v_lneumann = 0;
-            v_periodic = 0;
-    end
-    
-    if vx_new(1,end-1) < 0
-            rv_bound_type = 'Right BC type? (dirichlet, neumann, periodic) ';
-            rightvBC = input(rv_bound_type, 's');
-            if strcmp('dirichlet',rightvBC)
-                v_rdirichlet = 1;              
-                v_rneumann = 0;
-                v_periodic = 0;
-            elseif strcmp('neumann',rightvBC)
-                v_rdirichlet = 0;                
-                v_rneumann = 1; 
-                v_periodic = 0;
-            end
-            rv_bound_val = 'Right BC value? ';
-            rvBC_val = input(rv_bound_val);
-    elseif vx_new(1,end-1) > 0 
-            fprintf("Right BC not required\n")
-            v_rdirichlet = 0;
-            v_rneumann = 0;
-            v_periodic = 0;
-    end
-    
-end
+% 
+% if staggered
+%     
+%     ln_bound_type = 'Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap) ';
+%     leftGhost = input(ln_bound_type, 's');
+%     if isempty(leftGhost)
+%         leftGhost = 'linear extrap';
+%     end
+%     
+%     if strcmp('periodic',leftGhost)
+% 
+%     else
+%         rn_bound_type = 'Right (ghost) BC type? (dirichlet, neumann, linear extrap) ';
+%         rightGhost = input(rn_bound_type, 's');
+%         if isempty(rightGhost)
+%             rightGhost = 'linear extrap';
+%         end
+%     end
+%     
+%     if strcmp('linear extrap',leftGhost)
+%         lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+%             nxax(1),'linear','extrap');
+%         n_ldirichlet = 0;              
+%         n_lneumann = 0;
+%         n_periodic = 0;
+%     elseif strcmp('dirichlet',leftGhost)
+%         n_ldirichlet = 1;              
+%         n_lneumann = 0;
+%         n_periodic = 0;
+%     elseif strcmp('neumann',leftGhost)
+%         n_ldirichlet = 0;                
+%         n_lneumann = 1; 
+%         n_periodic = 0;
+%     end  
+%     
+%     if (isnan(n_ldirichlet)) || (isnan(n_lneumann)) || (isnan(n_periodic))
+%         error("Check spelling and/or type of answer for %s.\n",...
+%             '"Left (ghost) BC type? (dirichlet, neumann, periodic, linear extrap)"')
+%         return
+%     end
+%     
+%     if strcmp('linear extrap',leftGhost)
+%     else
+%         ln_bound_val = 'Left (ghost) BC value for density? ';
+%         lnBC_val = input(ln_bound_val);
+%         if isempty(lnBC_val)
+%             lnBC_val = LnBC;
+%         end
+%     end
+%     
+%     if strcmp('linear extrap',rightGhost)
+%         rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+%             nxax(npts),'linear','extrap');
+%         n_rdirichlet = 0;                
+%         n_rneumann = 0; 
+%         n_periodic = 0;
+%     elseif strcmp('dirichlet',rightGhost)
+%         n_rdirichlet = 1;              
+%         n_rneumann = 0;
+%         n_periodic = 0;
+%     elseif strcmp('neumann',rightGhost)
+%         n_rdirichlet = 0;                
+%         n_rneumann = 1; 
+%         n_periodic = 0;
+%     end
+%     
+%     if strcmp('linear extrap',rightGhost)
+%     else
+%         rn_bound_val = 'Right (ghost) BC value for density? ';
+%         rnBC_val = input(rn_bound_val);
+%         if isempty(rnBC_val)
+%             rnBC_val = RnBC;
+%         end
+%     end
+%     
+%     if (isnan(n_rdirichlet)) || (isnan(n_rneumann)) || (isnan(n_periodic))
+%         error("Check spelling and/or type of answer for %s.\n",...
+%             '"Right (ghost) BC type? (dirichlet, neumann, periodic)"')
+%         return
+%     end
+%     
+% end
+% 
+% if collocated
+%     
+%     if vx_new(1,2) > 0
+%         promptlnBC = 'Left BC type for density? (dirichlet, neumann, periodic) ';
+%         leftnBC = input(promptlnBC, 's');
+%         if strcmp('dirichlet',leftnBC)
+%             n_ldirichlet = 1;              
+%             n_lneumann = 0;
+%             n_periodic = 0;
+%         elseif strcmp('neumann',leftnBC)
+%             n_ldirichlet = 0;                
+%             n_lneumann = 1; 
+%             n_periodic = 0;
+%         end
+%         promptlnBCval = 'Left BC value for density? ';
+%         lnBC_val = input(promptlnBCval);
+%     elseif vx_new(1,2) < 0 
+%         fprintf("Left BC not required on density for the given flux direction.\n")
+%         n_ldirichlet = 0;
+%         n_lneumann = 0;
+%         n_periodic = 0;
+%     end
+%     if vx_new(1,end-1) < 0
+%         promptrnBC = 'Right BC type for density? (dirichlet, neumann, periodic) ';
+%         rightnBC = input(promptrnBC, 's');
+%         if strcmp('dirichlet',rightnBC)
+%             n_rdirichlet = 1;              
+%             n_rneumann = 0;
+%             n_periodic = 0;
+%         elseif strcmp('neumann',rightnBC)
+%             n_rdirichlet = 0;                
+%             n_rneumann = 1; 
+%             n_periodic = 0;
+%         end
+%         rn_bound_val = 'Right BC value for density? ';
+%         rnBC_val = input(rn_bound_val);
+%     elseif vx_new(1,end-1) > 0 
+%         fprintf("Right BC not required on density for the given flux direction.\n")
+%         n_rdirichlet = 0;
+%         n_rneumann = 0;
+%         n_periodic = 0;
+%     end
+% end
+% 
+% %%
+% 
+% upwind = NaN;
+% central = NaN;
+% 
+% spatial_scheme = 'Spatial differencing scheme for momentum equation? (upwind or central) ';
+% scheme = input(spatial_scheme, 's');
+% if isempty(scheme)
+%     scheme = 'central';
+% end
+% 
+% if strcmp(scheme,'upwind')
+%     upwind = 1;
+%     central = 0;
+% elseif strcmp(scheme, 'central')
+%     upwind = 0;
+%     central = 1;
+% end
+% 
+% % if central && nu==0
+% %     fprintf("nu==0: central difference scheme not stable.\n")
+% %     return
+% % end
+% 
+% %%
+% %--------------------------------------------------------------------------------------------------------------%
+% % select boundary conditions 
+% 
+% 
+% %----- need a prompt here to check whether the velocity is positive or
+% % negative next to the boundary, as this will determine whether left or right (or both)
+% % BC is required
+% 
+% if central
+% 
+%     lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
+%     leftvBC = input(lv_bound_type, 's');
+%     if isempty(leftvBC)
+%         leftvBC = 'dirichlet';
+%     end
+%     if strcmp('periodic',leftvBC)
+% 
+%     else
+%         rv_bound_type = 'Right BC type for velocity? (dirichlet or neumann) ';
+%         rightvBC = input(rv_bound_type, 's');
+%         if isempty(rightvBC)
+%             rightvBC = 'dirichlet';
+%         end
+%     end
+% 
+%     if strcmp('dirichlet',leftvBC)
+%         v_ldirichlet = 1;               % this allows the use of ldirichlet as a logical 
+%         v_lneumann = 0;
+%         v_periodic = 0;
+%     elseif strcmp('neumann',leftvBC)
+%         v_ldirichlet = 0;                
+%         v_lneumann = 1; 
+%         v_periodic = 0;
+%     end
+% 
+%     if strcmp('dirichlet',rightvBC)
+%         v_rdirichlet = 1;
+%         v_rneumann = 0;
+%         v_periodic = 0;
+%     elseif strcmp('neumann',rightvBC)
+%         v_rneumann = 1;
+%         v_rdirichlet = 0;
+%         v_periodic = 0;
+%     end
+% 
+%     if strcmp('periodic',leftvBC)
+%         v_rdirichlet = 0;
+%         v_rneumann = 0;
+%         v_ldirichlet = 0;
+%         v_lneumann = 0;
+%         v_periodic = 1;
+%     end
+% 
+%     lv_bound_val = 'Left BC value for velocity? ';
+%     lvBC_val = input(lv_bound_val);
+%     if isempty(lvBC_val)
+%         lvBC_val = LuBC;
+%     end
+%     if strcmp('periodic',leftvBC)
+% 
+%     else
+%         rv_bound_val = 'Right BC value for velocity? ';
+%         rvBC_val = input(rv_bound_val);
+%         if isempty(rvBC_val)
+%             rvBC_val = RuBC;
+%         end
+%     end
+% 
+%     if v_ldirichlet && v_rdirichlet
+%         fprintf("left and right velocity BCs are dirichlet; lBC = %f, rBC = %f.\n", lvBC_val, rvBC_val)
+%     elseif v_lneumann && v_rdirichlet
+%         fprintf("left velocity BC is neumann, lBC = %f; right velocity BC is dirichlet, rBC = %f.\n", lvBC_val, rvBC_val)
+%     elseif v_rneumann && v_ldirichlet
+%         fprintf("left velocity BC is dirichlet, lBC = %f; right velocity BC is neumann, rBC = %f.\n", lvBC_val, rvBC_val)
+%     elseif v_rneumann && v_lneumann
+%         fprintf("left and right velocity BCs are dirichlet; lBC = %f, rBC = %f.\n", lvBC_val, rvBC_val)
+%     elseif v_periodic
+%         fprintf("periodic velocity BCs\n")
+%     end
+%     
+% elseif upwind
+%     
+%     if vx_new(1,2) > 0
+%             lv_bound_type = 'Left BC type for velocity? (dirichlet, neumann, periodic) ';
+%             leftvBC = input(lv_bound_type, 's');
+%             if strcmp('dirichlet',leftvBC)
+%                 v_ldirichlet = 1;              
+%                 v_lneumann = 0;
+%                 v_periodic = 0;
+%             elseif strcmp('neumann',leftvBC)
+%                 v_ldirichlet = 0;                
+%                 v_lneumann = 1; 
+%                 v_periodic = 0;
+%             end
+%             lv_bound_val = 'Left BC value for velocity? ';
+%             lvBC_val = input(lv_bound_val);
+%     elseif vx_new(1,2) < 0 
+%             fprintf("Left BC not required\n")
+%             v_ldirichlet = 0;
+%             v_lneumann = 0;
+%             v_periodic = 0;
+%     end
+%     
+%     if vx_new(1,end-1) < 0
+%             rv_bound_type = 'Right BC type? (dirichlet, neumann, periodic) ';
+%             rightvBC = input(rv_bound_type, 's');
+%             if strcmp('dirichlet',rightvBC)
+%                 v_rdirichlet = 1;              
+%                 v_rneumann = 0;
+%                 v_periodic = 0;
+%             elseif strcmp('neumann',rightvBC)
+%                 v_rdirichlet = 0;                
+%                 v_rneumann = 1; 
+%                 v_periodic = 0;
+%             end
+%             rv_bound_val = 'Right BC value? ';
+%             rvBC_val = input(rv_bound_val);
+%     elseif vx_new(1,end-1) > 0 
+%             fprintf("Right BC not required\n")
+%             v_rdirichlet = 0;
+%             v_rneumann = 0;
+%             v_periodic = 0;
+%     end
+%     
+% end
 
 %%
 %--------------------------------------------------------------------------------------------------------------%
@@ -456,21 +456,21 @@ legend('show','Location','northwest')
 grid on
 hold on
 
-if ~MMS
-    figure(5)
-    plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-    legend('show','Location','northwest')
-    hold on
-
-    figure(6)
-    plot(xax,abs(rf_ez),'DisplayName',['time = 0s'])
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
-    legend('show','Location','northwest')
-    hold on
-end
+% if ~MMS
+%     figure(5)
+%     plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+%     xlabel('Position (m)','Fontsize',16)
+%     ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+%     legend('show','Location','northwest')
+%     hold on
+% 
+%     figure(6)
+%     plot(xax,abs(rf_ez),'DisplayName',['time = 0s'])
+%     xlabel('Position (m)','Fontsize',16)
+%     ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
+%     legend('show','Location','northwest')
+%     hold on
+% end
 
 %
 %--------------------------------------------------------------------------------------------------------------%
@@ -624,7 +624,7 @@ for ii=1:nmax
             elseif vx(1,jj)<0
                 vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) -...
                     (1.0/n(1,jj+1))*n_source(1,jj+1);
-                vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);!
+                vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
             end
             vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
             vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
@@ -773,20 +773,20 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
-        if ~MMS
-            figure(5)
-            plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-            xlabel('Position (m)','Fontsize',16)
-            ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-            legend('show','Location','northwest')
-            hold on
-            figure(6)
-            plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-            xlabel('Position (m)','Fontsize',16)
-            ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
-            legend('show','Location','northwest')
-            hold on
-        end
+%         if ~MMS
+%             figure(5)
+%             plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%             xlabel('Position (m)','Fontsize',16)
+%             ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+%             legend('show','Location','northwest')
+%             hold on
+%             figure(6)
+%             plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%             xlabel('Position (m)','Fontsize',16)
+%             ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
+%             legend('show','Location','northwest')
+%             hold on
+%         end
         count = count + 1;
     end
     
@@ -856,22 +856,22 @@ xlabel('Position (m)','Fontsize',16)
 ylabel('Density source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
 hold off
-
-if ~MMS
-    figure(5)
-    plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-    legend('show','Location','northwest')
-    hold off
-
-    figure(6)
-    plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
-    legend('show','Location','northwest')
-    hold off
-end
+% 
+% if ~MMS
+%     figure(5)
+%     plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%     xlabel('Position (m)','Fontsize',16)
+%     ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+%     legend('show','Location','northwest')
+%     hold off
+% 
+%     figure(6)
+%     plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+%     xlabel('Position (m)','Fontsize',16)
+%     ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
+%     legend('show','Location','northwest')
+%     hold off
+% end
 
 
 
