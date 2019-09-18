@@ -6,32 +6,31 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('../../../lapd_numdata/matlab/equibhe_8m_refined.mat');
-equib = load('/Users/rhealbarnett/Documents/lapd_numdata/matlab/equibhe_8m_refined.mat');
+equib = load('/Volumes/DATA/LAPD//matlab/lapd_equib.mat');
 
 vxax = equib.vxax;
 nxax = equib.nxax;
 vdx = equib.vdx;
 ndx = equib.ndx;
-n_neut = equib.n_neut;
 dt = equib.dt;
 Te = equib.Te;
 Ti = equib.Ti;
-nu = equib.nu;
 npts = equib.npts;
-m_s = equib.m;
-xmin = equib.xmin;
-xmax = equib.xmax;
 tmax = equib.tmax;
-vx_source = equib.vx_source;
 n_source = equib.n_source;
 vx_new = equib.vx_new;
 n_new = equib.n_new;
-vx = equib.vx;
-n = equib.n;
 
 %%
 
-plots = 0;
+xmin = min(vxax);
+xmax = max(vxax);
+nu = 1.0;
+
+
+%%
+
+plots = 1;
 
 if plots
     figure(1)
@@ -51,18 +50,18 @@ n_init = n_new;
 %%
 
 if plots 
-    figure(1)
+    figure(1); hold on
     plot(nxax,n_new);
     xlabel('Position (m)')
     ylabel('Density (m^{-3})')
     xlim([xmin xmax])
-    hold off
+    hold on
 else
 end
 
 %%
 
-refine = 0;
+refine = 1;
 
 if refine
 
@@ -109,13 +108,9 @@ if refine
 
     end
 
-    cfl_fact = 0.99;
-    dt = cfl_fact*min(ndx)/max(abs(vx_new));
-    dt = 3.0*dt;
-
     n_new = interp1(nxax,n_new,Nxax,'linear');
     vx_new = interp1(vxax,vx_new,Vxax,'linear');
-    n_source = interp1(nxax,n_source,Nxax,'linear')*0.01;
+    n_source = interp1(nxax,n_source,Nxax,'linear');
 
     n_source(1,1) = 0.0;
     n_source(1,end) = 0.0;
@@ -130,24 +125,29 @@ if refine
     plot(nxax(2:npts-1),n_source(2:npts-1))
     hold off
     
+    figure(1);
+    hold on
+    plot(nxax, n_new)
+    hold off
+    
 end
 
 
 %%
 
 lapd_params;
+m = real(mhe(1));
 
-cs = sqrt((Te+Ti)*abs(e)/real(mhe(1)));
+cs = sqrt((Te+Ti)*abs(e)/m);
 LuBC = -cs;
 RuBC = cs;
 
 dt = 0.99*min(ndx)/cs;
 
 source_mult = 1.0e5;
-
-% tmax = 1.0e-5;
 period = 1.0/freq;
-tmax = 25*period;
+% tmax = 25*period;
+tmax = 5.0e-5;
 nmax = round(tmax/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
@@ -157,7 +157,7 @@ n_new_uni = interp1(nxax,n_new,xax,'linear');
     om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
 
 
-% rf_ex = zeros(1,npts);
+rf_ez = zeros(1,npts);
 Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
 
