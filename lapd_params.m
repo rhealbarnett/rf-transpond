@@ -27,11 +27,6 @@ charge = [e; q];
 B0 = 0.1;
 
 %--
-% Ion and electron temperatures (eV). Multiply by e for temps in K. 
-Te = 5.0;
-Ti = 0.5;
-
-%--
 % Actual plasma column is ~ 18 (m). However, use reduced size as interest
 % is close to the antenna. 
 xmin = -4.;
