@@ -27,8 +27,8 @@ nu = 1.0;
 %------
 % spatial domain %
 %------
-xmin = 0.;
-xmax = 0.1;
+xmin = -4.0;
+xmax = 4.0;
 
 %------
 % turn variable grid on (1) or off (0)
@@ -96,18 +96,12 @@ end
 %-- initial density profile
 Nmax = (1.0e18);
 Nmin = (0.5e18);
-% n_new = (Nmin*(fliplr(nxax)/max(nxax)) + Nmin);
 n_new = Nmax*(1.0 - (5.0e-19)*exp((nxax(end/2 + 1:end))*10));
 n_new = [fliplr(n_new), n_new];
 n_avg = interp1(nxax,n_new,vxax);
 n_init = n_new;
 
 %-- initial velocity
-vx_mult = log(cs)/(xmax - xmin);
-vx_const = -exp(vx_mult*xmin);
-% vx_new = cs*(1.0 + (1.0e-40)*exp((vxax(end/2 + 1:end))*10));
-% vx_new = [fliplr(vx_new),vx_new];
-% vx_new = u0*(sin(mms_mult*vxax.^2) + epsilon);
 LuBC = -cs;
 RuBC = cs;
 vx_new = zeros(1,npts-1);
@@ -120,61 +114,22 @@ vx_init = vx_new;
 %-------------------------------------------------------------------------%
 % CALCULATE DENSITY SOURCE                                                %
 %-------------------------------------------------------------------------%
-% 
-% rate coefficient (constant)
+
+%--
+% Rate coefficient (need to double check this value for each ion species
+% and temperature... which textbook is this from? Stangeby?).
+
 rate_coeff = (1.0e-14);
-% approx size of non-zero portion of neutral profile (1/4 domain)
-decay_loc = xmax - 0.0001*xmax;
-% decay_loc = xmax - 0.2*xmax;
-a = find(nxax >= decay_loc);
-decay_index = npts - a(1);
 
-% decay_index = round((npts)/4);
-% calculate shape of neutral profile
-cosax = linspace(pi,2*pi,decay_index);
-% max neutral value (at wall)
-neut_max = (1.0e18);
+%--
+% Maximum neutral density value.
 
-% initialise and fill neutral density array
-n_neut = zeros(1,npts);
-n_neut(end-decay_index+1:end) = neut_max*((cos(cosax) + 1)/2);
-% n_neut(1:end-decay_index+1) = n_neut(end-decay_index+2);
-n_neut(end/2 + 1:end-decay_index+1) = neut_max*((cos(pi) + 1)/2);
-n_neut(1,1:end/2) = fliplr(n_neut(end/2 + 1:end));
-n_neut = interp1(linspace(xmin-0.5*dx,xmax+0.5*dx,npts),n_neut,nxax,'linear');
+neut_max = Nmax;
 
-% calculate density source
-n_source = (n_new.*(n_neut)*(rate_coeff));
+%--
+% Call function to calculate the density source term. 
 
-% interpolate source onto velocity grid
-source_avg = interp1(nxax,n_source,vxax);
-% calculate integral of density source over the velocity grid
-source_int = trapz(vxax,source_avg);
-% source_int = trapz(nxax,n_source);
-% calculate flux at the rh boundary (wall)
-% rflux = n_avg(end)*vx_new(end);
-rflux = n_avg(end)*vx_new(end);
-lflux = n_avg(1)*vx_new(1);
-% calculate the constant multiplier to match density out = in
-ns_mult = (rflux-lflux)/source_int;
-% multiply n0(x)n(x,t) by the constant calculated in previous step
-n_source = (n_source*ns_mult)*1.0e-2;
-nv_source = source_avg*ns_mult;
-n_source(1,1) = 0.0; n_source(1,end) = 0.0;
-
-% equib = load('../../lapd_numdata/matlab/equibhe_8m.mat');
-% equib_n_source = equib.n_source;
-% equib_nxax = equib.nxax;
-% n_source = interp1(equib_nxax,equib_n_source,nxax,'linear')*0.9;
-
-% n_source = equib.n_source;
-
-fprintf('Initial outward flux at RH boundary %d\n',rflux)
-fprintf('Initial density source integral %d\n',source_int)
-fprintf('Density source integral after normalisation %e\n',trapz(nxax,n_source))
-fprintf('Initial total number of particles %e\n',trapz(nxax,n_new))
-fprintf(['Difference between outward flux at boundaries and integral ' ...
-    ' of density source %e\n'], (rflux-lflux) - trapz(vxax,nv_source))    
+n_source = density_source(rate_coeff,0.1,nxax,vxax,npts,neut_max,vx_init,n_init); 
 
 
 %%
@@ -195,23 +150,14 @@ vx_I = sparse(eye(npts-1,npts-1));
 %-------------------------------------------------------------------------%
 %-- set dt based on CFL conditions, check during loop if violated
 tmin = 0.0;
-tmax = 1.0e-3;
+tmax = 5.0e-3;
 cfl_fact = 0.99;
 
-% if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
-%     dt = cfl_fact*(min(ndx)^2)/(2.0*nu);
-% elseif (cfl_fact*min(ndx)^2/(2.0*nu))>(cfl_fact*min(ndx)/max(abs(vx_new)))
-%     dt = cfl_fact*min(ndx)/max(abs(vx_new));
-% else
-%     dt = cfl_fact*min(ndx)/cs;
-% end
-
 dt = cfl_fact*min(ndx)/max(abs(vx_new));
-dt = 3.0*dt;
-% dt = (2.0*pi/om)*0.01;
+
 nmax = round(tmax/dt);
 tax = linspace(tmin,tmax,nmax);
-% mult = 1.0./dx;
+
 
 %%
 
