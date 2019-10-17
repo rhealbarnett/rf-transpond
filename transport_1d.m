@@ -19,7 +19,7 @@
 % transport_vardx;
 % transport_test;
 % transport_mms;
-% lapd_equib;
+lapd_equib;
 
 % initialise velocity and density 
 vx = vx_new;
@@ -456,21 +456,33 @@ legend('show','Location','northwest')
 grid on
 hold on
 
-% if ~MMS
-%     figure(5)
-%     plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
-%     xlabel('Position (m)','Fontsize',16)
-%     ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-%     legend('show','Location','northwest')
-%     hold on
-% 
-%     figure(6)
-%     plot(xax,abs(rf_ez),'DisplayName',['time = 0s'])
-%     xlabel('Position (m)','Fontsize',16)
-%     ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
-%     legend('show','Location','northwest')
-%     hold on
-% end
+if ~MMS
+    figure(5)
+    plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+    legend('show','Location','northwest')
+    hold on
+
+    figure(6)
+    subplot(2,1,1)
+    plot(xax,real(rf_ez),'k','DisplayName',['Re[E_{||}], time = 0s'])
+    set(gca, 'XTickLabel', [])
+    ylabel('E_{||} (Vm^{-1})','Fontsize',16)
+    hold on
+    plot(xax,imag(rf_ez),'--r','DisplayName',['Im[E_{||}], time = 0s'])
+    set(gca, 'XTickLabel', [])
+    legend('show','Location','northwest')
+    set(gca,'Fontsize',30)
+    hold on
+    subplot(2,1,2)
+    plot(xax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
+    legend('show','Location','northwest')
+    set(gca,'Fontsize',30)
+    hold on
+end
 
 %
 %--------------------------------------------------------------------------------------------------------------%
@@ -497,16 +509,16 @@ for ii=1:nmax
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
     
-%     n_new_uni = interp1(nxax,n_new,xax,'linear');
-% 
-%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(charge,B0,n_new_uni,m_s,om,eps0,npts);
-%     [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kz,k0,...
-%     om,mu0,cpdt,source_width,source_loc,0,source_mult);
-% 
-%     Efield = abs(rf_ez);
-%     Efield = Efield.^2;
-%     
-%     Efield = interp1(xax,Efield,vxax,'linear');
+    n_new_uni = interp1(nxax,n_new,xax,'linear');
+
+    [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
+    [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+    om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+
+    Efield = abs(rf_ez);
+    Efield = Efield.^2;
+    
+    Efield = interp1(xax,Efield,vxax,'linear');
     
     if staggered && (continuity || ~MMS)
         
@@ -687,7 +699,7 @@ for ii=1:nmax
 %         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
 %         vx_new_imp = Avx_imp\(vx_source');
         vx_newE = Avx_exp*vx';
-        vx_new = Avx_imp\(vx_newE + dt*(vx_source'));
+        vx_new = Avx_imp\(vx_newE + dt*(vx_source' + pf_source'));
 
         % transpose solution vector
 %         vx_new = vx_new_imp;
@@ -773,20 +785,30 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
-%         if ~MMS
-%             figure(5)
-%             plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-%             xlabel('Position (m)','Fontsize',16)
-%             ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-%             legend('show','Location','northwest')
-%             hold on
-%             figure(6)
-%             plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-%             xlabel('Position (m)','Fontsize',16)
-%             ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
-%             legend('show','Location','northwest')
-%             hold on
-%         end
+        if ~MMS
+            figure(5)
+            plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            xlabel('Position (m)','Fontsize',16)
+            ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+            legend('show','Location','northwest')
+            hold on
+            figure(6)
+            subplot(2,1,1)
+            plot(xax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+            set(gca, 'XTickLabel', [])
+            ylabel('E_{||} (Vm^{-1})','Fontsize',16)
+            hold on
+            plot(xax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+            set(gca, 'XTickLabel', [])
+            legend('show','Location','northwest')
+            hold on
+            subplot(2,1,2)
+            plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            xlabel('Position (m)','Fontsize',16)
+            ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
+            legend('show','Location','northwest')
+            hold on
+        end
         count = count + 1;
     end
     
@@ -856,22 +878,32 @@ xlabel('Position (m)','Fontsize',16)
 ylabel('Density source (ms^{-1})','Fontsize',16)
 legend('show','Location','northwest')
 hold off
-% 
-% if ~MMS
-%     figure(5)
-%     plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-%     xlabel('Position (m)','Fontsize',16)
-%     ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-%     legend('show','Location','northwest')
-%     hold off
-% 
-%     figure(6)
-%     plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-%     xlabel('Position (m)','Fontsize',16)
-%     ylabel('|E_{||}| (Vm^{-1})','Fontsize',16)
-%     legend('show','Location','northwest')
-%     hold off
-% end
+
+if ~MMS
+    figure(5)
+    plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+    legend('show','Location','northwest')
+    hold off
+
+    figure(6)
+    subplot(2,1,1)
+    plot(xax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+    set(gca, 'XTickLabel', [])
+    ylabel('E_{||} (Vm^{-1})','Fontsize',16)
+    hold on
+    plot(xax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+    set(gca, 'XTickLabel', [])
+    legend('show','Location','northwest')
+    hold on
+    subplot(2,1,2)
+    plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
+    legend('show','Location','northwest')
+    hold on
+end
 
 
 
