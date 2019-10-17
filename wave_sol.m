@@ -41,32 +41,32 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(ax,ky,k,k0,...
             % fill matrix
             A(eq1,iiexm) = -1.0/h^2;
             A(eq1,iieym) = 0.0;
-            A(eq1,iiezm) = -1i*k/(2.0*h);
-            A(eq1,iiex) = (ky^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
-            A(eq1,iiey) = -ky*k -k0^2*cpdt(1,2,kk);
+            A(eq1,iiezm) = -1i*k(1,kk)/(2.0*h);
+            A(eq1,iiex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
+            A(eq1,iiey) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(1,2,kk);
             A(eq1,iiez) = -k0^2*cpdt(1,3,kk);
             A(eq1,iiexp) = -1.0/(h^2);
             A(eq1,iieyp) = 0.0;
-            A(eq1,iiezp) = 1i*k/(2.0*h);
+            A(eq1,iiezp) = 1i*k(1,kk)/(2.0*h);
 
             A(eq2,iiexm) = 0.0;
             A(eq2,iieym) = -1.0/(h^2);
-            A(eq2,iiezm) = -1i*ky/(2.0*h);
-            A(eq2,iiex) = -ky*k -k0^2*cpdt(2,1,kk);
-            A(eq2,iiey) = (k^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+            A(eq2,iiezm) = -1i*ky(1,kk)/(2.0*h);
+            A(eq2,iiex) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(2,1,kk);
+            A(eq2,iiey) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
             A(eq2,iiez) =  - k0^2*cpdt(2,3,kk);
             A(eq2,iiexp) = 0.0;
             A(eq2,iieyp) = -1.0/(h^2);
-            A(eq2,iiezp) = 1i*ky/(2.0*h);
+            A(eq2,iiezp) = 1i*ky(1,kk)/(2.0*h);
 
-            A(eq3,iiexm) = -1i*k/(2.0*h);
-            A(eq3,iieym) = -1i*ky/(2.0*h);
+            A(eq3,iiexm) = -1i*k(1,kk)/(2.0*h);
+            A(eq3,iieym) = -1i*ky(1,kk)/(2.0*h);
             A(eq3,iiezm) = 0.0;
             A(eq3,iiex) = -k0^2*cpdt(3,1,kk);
             A(eq3,iiey) = -k0^2*cpdt(3,2,kk);
-            A(eq3,iiez) = (ky^2 + k^2 - k0^2*cpdt(3,3,kk));
-            A(eq3,iiexp) = 1i*k/(2.0*h);
-            A(eq3,iieyp) = 1i*ky/(2.0*h);
+            A(eq3,iiez) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
+            A(eq3,iiexp) = 1i*k(1,kk)/(2.0*h);
+            A(eq3,iieyp) = 1i*ky(1,kk)/(2.0*h);
             A(eq3,iiezp) = 0.0;
         
         elseif ~para
@@ -110,6 +110,8 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(ax,ky,k,k0,...
         kk = kk + 1;
 
     end
+    
+%     A = sparse(A);
 
     %--
     % metallic wall BC
