@@ -74,6 +74,12 @@ n_perp = k_perp*c0/om;
 ky = 0.;
 % kz = k_para;
 
+%--
+% Damp wavenumbers in the absorbing region.
+dampk = ones(1,npts);
+dampk(1:np_bound) = damp0*-1 + max(damp0);
+dampk(end-np_bound+1:end) = fliplr(dampk(1:np_bound));
+
 
 %--
 % Set current source parameters. 
