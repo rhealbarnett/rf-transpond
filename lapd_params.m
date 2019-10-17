@@ -19,7 +19,7 @@ mu0 = const.mu0;
 
 %--
 % Collect charge in a 2d array for dielectric tensor calculation.
-charge = [e; q];
+q_s = [e; q];
 
 %--
 % Magnetic field magnitude, 1000 G = 0.1 T. Assume it is fully aligned with 
@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-npts = 2048;
+% npts = 2048;
 xax = linspace(xmin,xmax,npts);
 
 %--
@@ -54,8 +54,8 @@ damp = ones(1,npts);
 damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
-me = me .* damp;
-mhe = mhe .* damp;
+% me = me .* damp;
+% mhe = mhe .* damp;
 
 %--
 % Collect masses in 2d array for dielectric tensor calculation. 
@@ -74,15 +74,14 @@ om = freq*2.0*pi;
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
-Nmax = 1.0e19;
-Nmin = 1.0e16;
+% Nmax = 1.0e19;
+% Nmin = 1.0e16;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
 % n_new = 1.0e17*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
-% m^-1. Difficult to tell whether wavenumber in y is also imaginary, but
-% the value is ~ 36 m^-1. 
+% m^-1. 
 k0 = om/c0;
 kx = 20.0i;
 ky = 30.0;
@@ -90,9 +89,27 @@ ky = 30.0;
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
 
+%--
+% Damp wavenumbers in the absorbing region.
+np_bound = floor(0.1*npts);
+ax = linspace(0,pi,np_bound);
+damp0 = (cos(ax)+1)/2;
+dampk = ones(1,npts);
+dampk(1*np_bound+1:2*np_bound) = damp0*-1 + max(damp0);
+dampk(1:1*np_bound) = 0.0;
+dampk(end-2*np_bound+1:end) = fliplr(dampk(1:2*np_bound));
+% np_bound = floor(0.2*npts);
+% ax = linspace(0,pi,np_bound);
+% damp0 = (cos(ax)+1)/2;
+% dampk = ones(1,npts);
+% dampk(1:np_bound) = damp0*-1 + max(damp0);
+% dampk(end-np_bound+1:end) = fliplr(dampk(1:np_bound));
+kx = kx*dampk;
+ky = ky*dampk;
+
 %-- 
 % Unscaled current source parameters.
-source_width = 0.06;
+source_width = 0.06/(2.*sqrt(2.*log(2.)));
 source_loc = 0;
 
 
