@@ -195,16 +195,25 @@ elseif para
         
     elseif length(n_perp)~=1
         
+        indn_np = find(n_new<=1.0e17,1,'last');
+        indky_np = find(ky<=30,1,'last');
+        indn_p = find(n_new<=1.0e17,1,'last');
+        indky_p = find(ky<=10,1,'last');
+        
         figure(2)
         ax1 = subplot(2,2,1);
         levelsrkp11 = linspace(0,30,50);
         contourf(log10(n_new),abs(ky),real(kpara11)',levelsrkp11,'Linecolor','none')
 %         colormap(flipud(parula))
         rc11=colorbar;
+        hold on
+        plot(log10(n_new(indn_np)),ky(indky_np),'*w','MarkerSize',10)
+%         plot(log10(n_new(indn_p)),ky(indky_p),'*k','MarkerSize',10)
         set(gca,'xtick',[])
         title('Re[k_{|| 11}]')
         ylabel('k_{y} (m^{-1})')
         set(gca,'Fontsize',30)
+        hold off
 
         ax2 = subplot(2,2,2);
         levelsikp11 = linspace(0,2.5,50);
