@@ -724,6 +724,7 @@ for ii=1:nmax
     nan_check = isnan(vx_new);
     
     if sum(nan_check) ~= 0
+        unstable = 1;
         fprintf('unstable, ii=%d\n',ii)
         return
 %     elseif rms(n_new)>=1.0e20
@@ -732,7 +733,7 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if mod(ii,round(nmax/5))==0
+    if plots && mod(ii,round(nmax/5))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii count])
         fprintf('dt=%ds\n', dt)
@@ -810,6 +811,31 @@ for ii=1:nmax
             hold on
         end
         count = count + 1;
+        
+    elseif mod(ii,1062)==0 || unstable
+        
+        transport.dt = dt;
+        transport.n_source = n_source;
+        transport.vx_source = vx_source;
+        transport.pf_source = pf_source;
+        transport.rf_ez = rf_ez;
+        transport.vx_new = vx_new;
+        transport.n_new = n_new; 
+        transport.ii = ii;
+        transport.cs = cs;
+        transport.vxax = vxax;
+        transport.nxax = nxax;
+        transport.vdx = vdx;
+        transport.ndx = ndx;
+        transport.Te = Te;
+        transport.Ti = Ti;
+        transport.npts = npts;
+        transport.tmax = tmax;
+        transport.xmin = xmin;
+        transport.xmax = xmax;
+        transport.nu = nu;
+        
+        save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
     end
     
 end
