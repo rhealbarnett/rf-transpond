@@ -843,7 +843,8 @@ for ii=1:nmax
         transport.xmax = xmax;
         transport.nu = nu;
         
-        save('/Volumes/DATA/LAPD/matlab/coupscreeled_transport.mat','-struct','transport');
+%         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
+%         save('C:\Users\c3149416\Documents\coupled_transport.mat','-struct','transport');
     end
     
 end
