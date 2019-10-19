@@ -512,8 +512,16 @@ for ii=1:nmax
     n_new_uni = interp1(nxax,n_new,xax,'linear');
 
     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
-    [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-    om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+    if ii<=1000
+        b = -9.9e4/999;
+        a = 1-b;
+        source_ramp = 1.0/(ii*a + b);
+        [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+        om,mu0,cpdt,source_width,source_loc,0,source_ramp*source_mult,1);
+    else
+        [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+        om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+    end
 
     Efield = abs(rf_ez);
     Efield = Efield.^2;
@@ -835,7 +843,7 @@ for ii=1:nmax
         transport.xmax = xmax;
         transport.nu = nu;
         
-        save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
+        save('/Volumes/DATA/LAPD/matlab/coupscreeled_transport.mat','-struct','transport');
     end
     
 end
