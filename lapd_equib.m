@@ -141,7 +141,7 @@ RuBC = cs;
 
 dt = 0.99*min(ndx)/cs;
 
-source_mult = 25000;
+source_mult = 37000;
 period = 1.0/freq;
 tmax = 25*period;
 % tmax = 5.0e-5;
