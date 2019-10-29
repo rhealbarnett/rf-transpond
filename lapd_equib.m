@@ -5,9 +5,9 @@
 
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
-% equib = load('../../../lapd_numdata/matlab/equibhe_8m_refined.mat');
+equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_superrefined.mat');
-equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
+% equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
 
 vxax = equib.vxax;
 nxax = equib.nxax;
@@ -141,9 +141,9 @@ RuBC = cs;
 
 dt = 0.99*min(ndx)/cs;
 
-source_mult = 1.0e5;
+source_mult = 25000;
 period = 1.0/freq;
-tmax = 100*period;
+tmax = 25*period;
 % tmax = 5.0e-5;
 % tmax = 10*dt;
 nmax = round(tmax/dt);
