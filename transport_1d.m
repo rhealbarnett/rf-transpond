@@ -60,6 +60,8 @@ momentum = 0;
 continuity = 0;
 central = 1;
 upwind = 0;
+unstable = 0;
+plots = 1;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -476,7 +478,7 @@ if ~MMS
     set(gca,'Fontsize',30)
     hold on
     subplot(2,1,2)
-    plot(xax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
+    plot(xax,abs(rf_ez),'DisplayName',['time = 0s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
     legend('show','Location','northwest')
@@ -511,17 +513,17 @@ for ii=1:nmax
     
     n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-    [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
-    if ii<=1000
-        b = -9.9e4/999;
-        a = 1-b;
-        source_ramp = 1.0/(ii*a + b);
-        [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-        om,mu0,cpdt,source_width,source_loc,0,source_ramp*source_mult,1);
-    else
-        [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-        om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
-    end
+%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
+%     if ii<=1000
+%         b = -9.9e4/999;
+%         a = 1-b;
+%         source_ramp = 1.0/(ii*a + b);
+%         [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+%         om,mu0,cpdt,source_width,source_loc,0,source_ramp*source_mult,1);
+%     else
+%         [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+%         om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+%     end
 
     Efield = abs(rf_ez);
     Efield = Efield.^2;
@@ -812,7 +814,7 @@ for ii=1:nmax
             legend('show','Location','northwest')
             hold on
             subplot(2,1,2)
-            plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             xlabel('Position (m)','Fontsize',16)
             ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
             legend('show','Location','northwest')
@@ -933,7 +935,7 @@ if ~MMS
     legend('show','Location','northwest')
     hold on
     subplot(2,1,2)
-    plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
     legend('show','Location','northwest')
