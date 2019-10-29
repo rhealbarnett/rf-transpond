@@ -65,7 +65,7 @@ m_s = [me; mhe];
 % Driving frequency of the single strap, high power antenna (Hz)
 % Driven at 2.38MHz, but FFT of experimental data shows it is closer to
 % ~2.52MHz. 
-freq = 2.38e6;
+freq = 2.4e6;
 om = freq*2.0*pi;
 % coll = 0.1;
 % om = om + coll*om*1i;
