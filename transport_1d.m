@@ -478,7 +478,7 @@ if ~MMS
     set(gca,'Fontsize',30)
     hold on
     subplot(2,1,2)
-    plot(xax,abs(rf_ez),'DisplayName',['time = 0s'])
+    plot(xax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
     legend('show','Location','northwest')
@@ -511,7 +511,7 @@ for ii=1:nmax
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
     
-    n_new_uni = interp1(nxax,n_new,xax,'linear');
+%     n_new_uni = interp1(nxax,n_new,xax,'linear');
 
 %     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
 %     if ii<=1000
@@ -525,10 +525,10 @@ for ii=1:nmax
 %         om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
 %     end
 
-    Efield = abs(rf_ez);
-    Efield = Efield.^2;
+%     Efield = abs(rf_ez);
+%     Efield = Efield.^2;
     
-    Efield = interp1(xax,Efield,vxax,'linear');
+%     Efield = interp1(xax,Efield,vxax,'linear');
     
     if staggered && (continuity || ~MMS)
         
@@ -709,7 +709,7 @@ for ii=1:nmax
 %         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
 %         vx_new_imp = Avx_imp\(vx_source');
         vx_newE = Avx_exp*vx';
-        vx_new = Avx_imp\(vx_newE + dt*(vx_source' + pf_source'));
+        vx_new = Avx_imp\(vx_newE + dt*(vx_source' - pf_source'));
 
         % transpose solution vector
 %         vx_new = vx_new_imp;
@@ -814,7 +814,7 @@ for ii=1:nmax
             legend('show','Location','northwest')
             hold on
             subplot(2,1,2)
-            plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             xlabel('Position (m)','Fontsize',16)
             ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
             legend('show','Location','northwest')
@@ -935,7 +935,7 @@ if ~MMS
     legend('show','Location','northwest')
     hold on
     subplot(2,1,2)
-    plot(xax,abs(rf_ez),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
     legend('show','Location','northwest')
