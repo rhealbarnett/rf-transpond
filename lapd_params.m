@@ -46,7 +46,7 @@ me = me*ones(1,npts);
 %--
 % Imaginary component of the mass is used to damp any waves near the
 % boundary. 
-dampFac = 5.e1;
+dampFac = 100.e2;
 np_bound = floor(0.2*npts);
 ax = linspace(0,pi,np_bound);
 damp0 = (cos(ax)+1)/2;
@@ -54,8 +54,8 @@ damp = ones(1,npts);
 damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
 
-% me = me .* damp;
-% mhe = mhe .* damp;
+me = me .* damp;
+mhe = mhe .* damp;
 
 %--
 % Collect masses in 2d array for dielectric tensor calculation. 
@@ -65,7 +65,7 @@ m_s = [me; mhe];
 % Driving frequency of the single strap, high power antenna (Hz)
 % Driven at 2.38MHz, but FFT of experimental data shows it is closer to
 % ~2.52MHz. 
-freq = 2.52e6;
+freq = 2.38e6;
 om = freq*2.0*pi;
 % coll = 0.1;
 % om = om + coll*om*1i;
@@ -83,8 +83,8 @@ om = freq*2.0*pi;
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = om/c0;
-kx = 20.0i;
-ky = 30.0;
+kx = 5.0;
+ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
@@ -101,7 +101,7 @@ dampk(end-2*np_bound+1:end) = fliplr(dampk(1:2*np_bound));
 % np_bound = floor(0.2*npts);
 % ax = linspace(0,pi,np_bound);
 % damp0 = (cos(ax)+1)/2;
-% dampk = ones(1,npts);
+dampk = ones(1,npts);
 % dampk(1:np_bound) = damp0*-1 + max(damp0);
 % dampk(end-np_bound+1:end) = fliplr(dampk(1:np_bound));
 kx = kx*dampk;
@@ -109,7 +109,7 @@ ky = ky*dampk;
 
 %-- 
 % Unscaled current source parameters.
-source_width = 0.06/(2.*sqrt(2.*log(2.)));
+source_width = 0.2;%0.06/(2.*sqrt(2.*log(2.)));
 source_loc = 0;
 
 
