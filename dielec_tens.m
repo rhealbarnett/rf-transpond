@@ -39,7 +39,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q,B0,n,m,om,eps0
 
     s = 1.0 - sum((om_p.^2)./(om.^2 - om_c.^2),1);
     d = sum((om_c).*(om_p).^2./((om).*((om).^2 - (om_c).^2)),1);
-    p  = 1.0 - sum((om_p.^2/om.^2),1);
+    p  = 1.0 - sum((om_p.^2./om.^2),1);
 
     s_arr(1,:) = s;
     d_arr(1,:) = d;
