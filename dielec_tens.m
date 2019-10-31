@@ -56,7 +56,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q,B0,n,m,om,eps0
     sigma = zeros(size(cpdt));
     
     for ii=1:npts
-        sigma(:,:,ii) = 1i*om(eps0*eye(3,3) - cpdt(:,:,ii));
+        sigma(:,:,ii) = 1i*om(1,ii)*(eps0*eye(3) - cpdt(:,:,ii));
     end
 
 %     cpdt_arr(:,:,nn) = rot'*cpdt_arr(:,:,nn)*rot;
