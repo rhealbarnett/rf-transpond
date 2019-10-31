@@ -109,7 +109,7 @@ ky = ky*dampk;
 
 %-- 
 % Unscaled current source parameters.
-source_width = 0.2;%0.06/(2.*sqrt(2.*log(2.)));
-source_loc = 0;
+% source_width = 0.2;%0.06/(2.*sqrt(2.*log(2.)));
+% source_loc = 0;
 
 
