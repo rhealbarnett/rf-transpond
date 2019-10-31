@@ -141,7 +141,7 @@ RuBC = cs;
 
 dt = 0.99*min(ndx)/cs;
 
-source_mult = 37000;
+% source_mult = 37000;
 period = 1.0/freq;
 tmax = 25*period;
 % tmax = 5.0e-5;
@@ -150,9 +150,14 @@ nmax = round(tmax/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
+scale_fact = 1.0;
+source_dist = 0.01;
+
+ey_source = e_source(xax,scale_fact,source_dist);
+
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
 [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-    om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+    om,mu0,cpdt,sigma,ey_source,0,1);
 
 
 % rf_ez = zeros(1,npts);
