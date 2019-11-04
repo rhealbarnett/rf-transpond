@@ -21,7 +21,7 @@
 % ----------------------------------------------------------------------- %
 
 
-function [etheta_source] = e_source(xax,dipole_mom,source_dist)
+function [etheta_source,R] = e_source(xax,dipole_mom,source_dist)
 
     const = constants();
     eps0 = const.eps0;
