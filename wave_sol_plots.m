@@ -3,7 +3,7 @@ figure(16)
 % set(gca,'YTickLabel','%.2f')
 
 subplot(4,1,1)
-plot(xax,om*const.mu0*source,'b','Linewidth',2)
+plot(xax,ey_source,'b','Linewidth',2)
 ylabel('Source (i\omega\mu_0J_{y})')
 set(gca, 'XTickLabel', [])
 xlim([xmin,xmax])
