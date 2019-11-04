@@ -150,14 +150,14 @@ nmax = round(tmax/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-scale_fact = 1.0;
+scale_fact = 1.0e-20;
 source_dist = 0.01;
 
-ey_source = e_source(xax,scale_fact,source_dist);
+[ey_source,R] = e_source(xax,scale_fact,source_dist);
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
-[A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-    om,mu0,cpdt,sigma,ey_source,0,1);
+[A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
+    om,mu0,cpdt,sigma,ey_source,R,0,1);
 
 
 % rf_ez = zeros(1,npts);
