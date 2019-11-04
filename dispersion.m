@@ -207,7 +207,7 @@ elseif para
 %         colormap(flipud(parula))
         rc11=colorbar;
         hold on
-        plot(log10(n_new(indn_np)),ky(indky_np),'*w','MarkerSize',10)
+%         plot(log10(n_new(indn_np)),ky(indky_np),'*w','MarkerSize',10)
 %         plot(log10(n_new(indn_p)),ky(indky_p),'*k','MarkerSize',10)
         set(gca,'xtick',[])
         title('Re[k_{|| 11}]')
