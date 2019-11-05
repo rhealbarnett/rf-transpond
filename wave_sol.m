@@ -10,7 +10,7 @@
 
 
 function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
-    om,mu0,cpdt,sigma,ey_source,R,MMS,para)
+    om,mu0,cpdt,sigma,ey_source,R,MMS,para,sparsefill)
 
     npts = length(ax);
     axmax = ax(1,end);
@@ -20,20 +20,99 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     ii = 4;
     kk = 2;
 
+    row = zeros(1,3*npts);
+    column = zeros(1,3*npts);
+    v = zeros(1,3*npts);
+    
+    row(1,1) = 1;
+    row(1,2) = 2;
+    row(1,3) = 3;
+    row(1,(3*npts)-2) = (3*npts)-2;
+    row(1,(3*npts)-1) = (3*npts)-1;
+    row(1,(3*npts)) = (3*npts);
+    
+    column(1,1) = 1;
+    column(1,2) = 2;
+    column(1,3) = 3;
+    column(1,(3*npts)-2) = (3*npts)-2;
+    column(1,(3*npts)-1) = (3*npts)-1;
+    column(1,(3*npts)) = (3*npts);
+    
+    v(1,1) = 1;
+    v(1,2) = 1;
+    v(1,3) = 1;
+    v(1,(3*npts)-2) = 1;
+    v(1,(3*npts)-1) = 1;
+    v(1,(3*npts)) = 1;   
+    
+    start = 4;
+    stop = 12;
+    nnex = 7;
+    
     for eq1=4:3:3*(npts-1)
         
         eq2 = eq1 + 1;
-        eq3 = eq2 + 1;
+        eq3 = eq2 + 1;        
 
         iiex = ii;
-        iiey = ii+1;
-        iiez = ii+2;
+        iiey = iiex+1;
+        iiez = iiex+2;
         iiexm = iiex - 3;
         iieym = iiey - 3;
         iiezm = iiez - 3;
         iiexp = iiex + 3;
         iieyp = iiey + 3;
-        iiezp = iiez + 3;   
+        iiezp = iiez + 3; 
+        
+        nney = nnex+1;
+        nnez = nnex+2;
+        nnexm = nnex - 3;
+        nneym = nney - 3;
+        nnezm = nnez - 3;
+        nnexp = nnex + 3;
+        nneyp = nney + 3;
+        nnezp = nnez + 3; 
+        
+        arr = [iiexm,iieym,iiezm,iiex,iiey,iiez,iiexp,iieyp,iiezp];
+        
+        row(1,start:stop) = eq1;
+        row(1,start+9:stop+9) = eq2;
+        row(1,start+18:stop+18) = eq3;
+        column(1,start:stop) = arr;
+        column(1,start+9:stop+9) = arr;
+        column(1,start+18:stop+18) = arr;
+        
+        v(1,nnexm) = -1.0/h^2;
+        v(1,nneym) = 0.0;
+        v(1,nnezm) = -1i*k(1,kk)/(2.0*h);
+        v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
+        v(1,nney) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(1,2,kk);
+        v(1,nnez) = -k0^2*cpdt(1,3,kk);
+        v(1,nnexp) = -1.0/(h^2);
+        v(1,nneyp) = 0.0;
+        v(1,nnezp) = 1i*k(1,kk)/(2.0*h);
+        
+        v(1,nnexm+9) = 0.0;
+        v(1,nneym+9) = -1.0/(h^2);
+        v(1,nnezm+9) = -1i*ky(1,kk)/(2.0*h);
+        v(1,nnex+9) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(2,1,kk);
+        v(1,nney+9) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+        v(1,nnez+9) = - k0^2*cpdt(2,3,kk);
+        v(1,nnexp+9) = 0.0;
+        v(1,nneyp+9) = -1.0/(h^2);
+        v(1,nnezp+9) = 1i*ky(1,kk)/(2.0*h);
+        
+        v(1,nnexm+18) = -1i*k(1,kk)/(2.0*h);
+        v(1,nneym+18) = -1i*ky(1,kk)/(2.0*h);
+        v(1,nnezm+18) = 0.0;
+        v(1,nnex+18) = -k0^2*cpdt(3,1,kk);
+        v(1,nney+18) = -k0^2*cpdt(3,2,kk);
+        v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
+        v(1,nnexp+18) = 1i*k(1,kk)/(2.0*h);
+        v(1,nneyp+18) = 1i*ky(1,kk)/(2.0*h);
+        v(1,nnezp+18) = 0.0;
+        
+        
         
         if para
 
@@ -68,6 +147,56 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             A(eq3,iiexp) = 1i*k(1,kk)/(2.0*h);
             A(eq3,iieyp) = 1i*ky(1,kk)/(2.0*h);
             A(eq3,iiezp) = 0.0;
+            
+        elseif para && sparsefill
+            
+            nney = nnex+1;
+            nnez = nnex+2;
+            nnexm = nnex - 3;
+            nneym = nney - 3;
+            nnezm = nnez - 3;
+            nnexp = nnex + 3;
+            nneyp = nney + 3;
+            nnezp = nnez + 3; 
+
+            arr = [iiexm,iieym,iiezm,iiex,iiey,iiez,iiexp,iieyp,iiezp];
+
+            row(1,start:stop) = eq1;
+            row(1,start+9:stop+9) = eq2;
+            row(1,start+18:stop+18) = eq3;
+            column(1,start:stop) = arr;
+            column(1,start+9:stop+9) = arr;
+            column(1,start+18:stop+18) = arr;
+
+            v(1,nnexm) = -1.0/h^2;
+            v(1,nneym) = 0.0;
+            v(1,nnezm) = -1i*k(1,kk)/(2.0*h);
+            v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
+            v(1,nney) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(1,2,kk);
+            v(1,nnez) = -k0^2*cpdt(1,3,kk);
+            v(1,nnexp) = -1.0/(h^2);
+            v(1,nneyp) = 0.0;
+            v(1,nnezp) = 1i*k(1,kk)/(2.0*h);
+
+            v(1,nnexm+9) = 0.0;
+            v(1,nneym+9) = -1.0/(h^2);
+            v(1,nnezm+9) = -1i*ky(1,kk)/(2.0*h);
+            v(1,nnex+9) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(2,1,kk);
+            v(1,nney+9) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+            v(1,nnez+9) = - k0^2*cpdt(2,3,kk);
+            v(1,nnexp+9) = 0.0;
+            v(1,nneyp+9) = -1.0/(h^2);
+            v(1,nnezp+9) = 1i*ky(1,kk)/(2.0*h);
+
+            v(1,nnexm+18) = -1i*k(1,kk)/(2.0*h);
+            v(1,nneym+18) = -1i*ky(1,kk)/(2.0*h);
+            v(1,nnezm+18) = 0.0;
+            v(1,nnex+18) = -k0^2*cpdt(3,1,kk);
+            v(1,nney+18) = -k0^2*cpdt(3,2,kk);
+            v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
+            v(1,nnexp+18) = 1i*k(1,kk)/(2.0*h);
+            v(1,nneyp+18) = 1i*ky(1,kk)/(2.0*h);
+            v(1,nnezp+18) = 0.0;
         
         elseif ~para
             
@@ -108,6 +237,9 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
 
         ii = ii + 3;
         kk = kk + 1;
+        start = start + (3*9);
+        stop = stop + (3*9);
+        nnex = nnex + (3*9);
 
     end
     
