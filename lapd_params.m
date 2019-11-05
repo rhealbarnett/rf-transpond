@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-% npts = 2048;
+npts = 2048;
 xax = linspace(xmin,xmax,npts);
 
 %--
@@ -74,9 +74,9 @@ om = freq*2.0*pi;
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
-% Nmax = 1.0e19;
-% Nmin = 1.0e16;
-% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+Nmax = 1.0e19;
+Nmin = 1.0e16;
+n_new = logspace(log10(Nmin),log10(Nmax),npts);
 % n_new = 1.0e17*ones(1,npts);
 
 %--
@@ -84,8 +84,8 @@ om = freq*2.0*pi;
 % m^-1. 
 k0 = om/c0;
 kx = 20.0i;
-ky = 0.0;
-% ky = linspace(0,40,100);
+% ky = 0.0;
+ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
 
@@ -104,8 +104,8 @@ n_perp = c0*k_perp./om;
 dampk = ones(1,npts);
 % % dampk(1:np_bound) = damp0*-1 + max(damp0);
 % % dampk(end-np_bound+1:end) = fliplr(dampk(1:np_bound));
-kx = kx*dampk;
-ky = ky*dampk;
+% kx = kx*dampk;
+% ky = ky*dampk;
 
 %-- 
 % Unscaled current source parameters.
