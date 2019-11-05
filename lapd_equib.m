@@ -143,7 +143,7 @@ dt = 0.99*min(ndx)/cs;
 
 source_mult = 1.0e5;
 period = 1.0/freq;
-tmax = 100*period;
+tmax = 1*period;
 % tmax = 5.0e-5;
 % tmax = 10*dt;
 nmax = round(tmax/dt);
