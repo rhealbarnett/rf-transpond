@@ -511,16 +511,24 @@ for ii=1:nmax
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
     
-    n_new_uni = interp1(nxax,n_new,xax,'linear');
+%     n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-    [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
-    [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-    om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
+%     if ii<=1000
+%         b = -9.9e4/999;
+%         a = 1-b;
+%         source_ramp = 1.0/(ii*a + b);
+%         [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+%         om,mu0,cpdt,source_width,source_loc,0,source_ramp*source_mult,1);
+%     else
+%         [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+%         om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+%     end
 
-    Efield = abs(rf_ez);
-    Efield = Efield.^2;
+%     Efield = abs(rf_ez);
+%     Efield = Efield.^2;
     
-    Efield = interp1(xax,Efield,vxax,'linear');
+%     Efield = interp1(xax,Efield,vxax,'linear');
     
     if staggered && (continuity || ~MMS)
         
@@ -701,7 +709,7 @@ for ii=1:nmax
 %         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
 %         vx_new_imp = Avx_imp\(vx_source');
         vx_newE = Avx_exp*vx';
-        vx_new = Avx_imp\(vx_newE + dt*(vx_source' + pf_source'));
+        vx_new = Avx_imp\(vx_newE + dt*(vx_source' - pf_source'));
 
         % transpose solution vector
 %         vx_new = vx_new_imp;
@@ -842,7 +850,7 @@ for ii=1:nmax
         save(filename,'-struct','transport');
         
         continue
-        
+%         save('C:\Users\c3149416\Documents\coupled_transport.mat','-struct','transport');
     end
     
 end

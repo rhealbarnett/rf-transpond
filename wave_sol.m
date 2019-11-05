@@ -9,8 +9,8 @@
 %------------------------------------------------------------------%
 
 
-function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(ax,ky,k,k0,...
-    om,mu0,cpdt,source_width,source_loc,MMS,source_mult,para)
+function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
+    om,mu0,cpdt,sigma,ey_source,R,MMS,para)
 
     npts = length(ax);
     axmax = ax(1,end);
@@ -125,12 +125,14 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(ax,ky,k,k0,...
     %--
     % set up rhs vector (current source term)
     rhs = zeros(3*npts,1);
+    source_width = 0.06/(2.*sqrt(2.*log(2.)));
+    source_loc = 0;
     mult = 1.0/sqrt(2.0*pi*source_width);
     source = mult*exp(-(ax - source_loc).^2/(2.0*source_width^2));
     source = source / max(source);
-    source = source*source_mult;
-    rhs(1:3:3*npts,1) = 0.0;%1i*om*mu0*source';
-    rhs(2:3:3*npts,1) = 1i*om*mu0*source';
+%     source = source*source_mult;
+    rhs(1:3:3*npts,1) = 0.0;%squeeze(sigma(1,2,:)).*ey_source';%1i*om*mu0*source';
+    rhs(2:3:3*npts,1) = squeeze(sigma(2,2,:)).*ey_source';
     rhs(3:3:3*npts,1) = 0.0;%1i*om*mu0*source';
     
     if MMS
@@ -194,19 +196,9 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(ax,ky,k,k0,...
         
     end
 
-    rf_ex = rf_e(1,1:3:3*npts);
-    rf_ey = rf_e(1,2:3:3*npts);
-    rf_ez = rf_e(1,3:3:3*npts);
-    
-    exj_dot = rf_ex.*conj(source);
-    eyj_dot = rf_ey.*conj(source);
-    ezj_dot = rf_ez.*conj(source);
-    
-    diss_powx = (1.0/2.0)*real(trapz(ax,exj_dot));
-    diss_powy = (1.0/2.0)*real(trapz(ax,eyj_dot));
-    diss_powz = (1.0/2.0)*real(trapz(ax,ezj_dot));
-    
-    diss_pow = [diss_powx, diss_powy, diss_powz];
+    rf_ex = rf_e(1,1:3:3*npts).*(1.0./R);
+    rf_ey = rf_e(1,2:3:3*npts).*(1.0./R);
+    rf_ez = rf_e(1,3:3:3*npts).*(1.0./R);
 
 end
 

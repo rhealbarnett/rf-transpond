@@ -5,7 +5,7 @@ om = sym('om', 'real');
 m = sym('m', 'real');
 
 eq1 = -1i*om*ux - uy*OMz - ax == 0;
-eq2 = -1i*om*uy + ux*OMz - ay == 0;
+eq2 = om*uy + 1i*ux*OMz - 1i*ay == 0;
 
 S = solve(eq1,eq2);
 
