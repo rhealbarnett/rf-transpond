@@ -60,6 +60,8 @@ momentum = 0;
 continuity = 0;
 central = 1;
 upwind = 0;
+unstable = 0;
+plots = 1;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -812,7 +814,7 @@ for ii=1:nmax
         end
         count = count + 1;
         
-    elseif mod(ii,1062)==0 || unstable
+    elseif mod(ii,53)==0 || unstable
         
         transport.dt = dt;
         transport.n_source = n_source;
@@ -836,7 +838,10 @@ for ii=1:nmax
         transport.nu = nu;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-        save('C:\Users\c3149416\Documents\coupled_transport.mat','-struct','transport');
+        filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
+        save(filename,'-struct','transport');
+        
+        continue
         
     end
     
