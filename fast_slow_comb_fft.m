@@ -1,5 +1,5 @@
-fslow = 1.0e6;
-ffast = 1.0e6;
+fslow = 10.0e6;
+ffast = 10.0e6;
 
 Afast = 1.0;
 Aslow = 1.0;
