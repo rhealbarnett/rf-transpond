@@ -844,6 +844,15 @@ for ii=1:nmax
         transport.xmin = xmin;
         transport.xmax = xmax;
         transport.nu = nu;
+        transport.freq = freq;
+        transport.period = period;
+        transport.B0 = B0;
+        transport.source_dist = source_dist;
+        transport.scale_fact = scale_fact;
+        transport.ey_source = ey_source;
+        transport.R = R;
+        transport.kx = kx;
+        transport.ky = ky;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
         filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
