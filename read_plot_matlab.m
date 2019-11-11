@@ -29,6 +29,7 @@ for ii=22154
     xlabel('Position (m)')
     ylabel('Density (m^{-3})')
     xlim([min(nxax) max(nxax)])
+    ylim([min(n_new) max(n_new)+0.01*max(n_new)])
     
     figure(2)
     plot(vxax,mach_init,'color',[0,0,0]+0.8,'Linewidth',4)
@@ -38,7 +39,7 @@ for ii=22154
     xlabel('Position (m)')
     ylabel('Mach #')
     xlim([min(vxax) max(vxax)])
-    
+    ylim([-1 1])    
     
     figure(3)
     plot(xax,rf_ez,'k','Linewidth',2)
