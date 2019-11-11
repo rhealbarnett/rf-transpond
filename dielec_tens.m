@@ -8,7 +8,7 @@
 % input for mass, density can be vectors
 % output will be plasma frequency for each mass 
 
-function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q,B0,n,m,om,eps0,npts)
+function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,npts)
 
     cpdt = zeros(3,3,npts);
     s_arr = zeros(1,npts);
@@ -53,10 +53,10 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q,B0,n,m,om,eps0
     cpdt(2,1,:) = 1i*d;
     cpdt(3,3,:) = p;
     
-    sigma = zeros(size(cpdt));
+    sig = zeros(size(cpdt));
     
     for ii=1:npts
-        sigma(:,:,ii) = 1i*om(1,ii)*(eps0*eye(3) - cpdt(:,:,ii));
+        sig(:,:,ii) = 1i*om(1,ii)*(eps0*eye(3) - cpdt(:,:,ii));
     end
 
 %     cpdt_arr(:,:,nn) = rot'*cpdt_arr(:,:,nn)*rot;

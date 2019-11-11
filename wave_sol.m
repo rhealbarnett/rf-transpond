@@ -10,7 +10,7 @@
 
 
 function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
-    om,mu0,cpdt,sigma,ey_source,R,MMS,para)
+    om,mu0,cpdt,sig,ey_source,R,MMS,para)
 
     npts = length(ax);
     axmax = ax(1,end);
@@ -132,7 +132,7 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     source = source / max(source);
 %     source = source*source_mult;
     rhs(1:3:3*npts,1) = 0.0;%squeeze(sigma(1,2,:)).*ey_source';%1i*om*mu0*source';
-    rhs(2:3:3*npts,1) = squeeze(sigma(2,2,:)).*ey_source';
+    rhs(2:3:3*npts,1) = squeeze(sig(2,2,:)).*ey_source';
     rhs(3:3:3*npts,1) = 0.0;%1i*om*mu0*source';
     
     if MMS
