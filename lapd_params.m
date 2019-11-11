@@ -74,18 +74,18 @@ om = freq*2.0*pi;
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
-Nmax = 1.0e19;
-Nmin = 1.0e16;
-n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e17*ones(1,npts);
+% Nmax = 1.0e19;
+% Nmin = 1.0e16;
+% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+n_new = 1.0e17*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = om/c0;
 kx = 20.0i;
-% ky = 0.0;
-ky = linspace(0,40,100);
+ky = 0.0;
+% ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
 
