@@ -200,17 +200,18 @@ elseif para
         indn_p = find(n_new<=1.0e17,1,'last');
         indky_p = find(ky<=10,1,'last');
         
-        figure(2)
+        figure(1)
         ax1 = subplot(2,2,1);
         levelsrkp11 = linspace(0,30,50);
         contourf(log10(n_new),abs(ky),real(kpara11)',levelsrkp11,'Linecolor','none')
         colormap(ax1,flipud(bone))
         rc11=colorbar;
         hold on
+        contour(log10(n_new),abs(ky),real(kpara11)',[0.0096,0.0096],'r','Linewidth',2);
 %         plot(log10(n_new(indn_np)),ky(indky_np),'*w','MarkerSize',10)
 %         plot(log10(n_new(indn_p)),ky(indky_p),'*k','MarkerSize',10)
         set(gca,'xtick',[])
-        title('Re[k_{|| 11}]')
+        title('Re[k_{|| 11}] (m^{-1})')
         ylabel('k_{y} (m^{-1})')
         set(gca,'Fontsize',30)
         hold off
@@ -218,22 +219,27 @@ elseif para
         ax2 = subplot(2,2,2);
         levelsikp11 = linspace(0,2.5,50);
         contourf(log10(n_new),abs(ky),imag(kpara11)',levelsikp11,'Linecolor','none')
-        rc11=colorbar;
+        ic11=colorbar;
         colormap(ax2,flipud(bone))
+        hold on
+        contour(log10(n_new),abs(ky),imag(kpara11)',[0.0177,0.0177],'r','Linewidth',2);
         set(gca,'xtick',[])
         set(gca,'ytick',[])
-        title('Im[k_{|| 11}]')
+        title('Im[k_{|| 11}] (m^{-1})')
 %         ylabel('k_{y} (m^{-1})')
         set(gca,'Fontsize',30)
+        hold off
 
         ax3 = subplot(2,2,3);
         levelsrkp21 = linspace(0,0.25,50);
-        contourf(log10(n_new),abs(ky),real(kpara21)',[0 0],levelsrkp21,'Linecolor','none')
+        contourf(log10(n_new),abs(ky),real(kpara21)',levelsrkp21,'Linecolor','none')
 %         hold on
 %         contourf(log10(n_new),abs(ky),real(kpara21)',[0 0],'Linecolor','k')
-        rc11=colorbar;
+        rc21=colorbar;
         colormap(ax3,flipud(bone))
-        title('Re[k_{|| 21}]')
+        hold on
+        contour(log10(n_new),abs(ky),real(kpara21)',[0.0027,0.0027],'r','Linewidth',2);
+        title('Re[k_{|| 21}] (m^{-1})')
         ylabel('k_{y} (m^{-1})'),
         xlabel('log_{10}n')
         set(gca,'Fontsize',30)
@@ -241,13 +247,16 @@ elseif para
         ax4 = subplot(2,2,4);
         levelsikp21 = linspace(0,35,50);
         contourf(log10(n_new),abs(ky),imag(kpara21)',levelsikp21,'Linecolor','none')
-        rc11=colorbar;
+        ic21=colorbar;
         colormap(ax4,flipud(bone))
-        title('Im[k_{|| 21}]')
+        hold on
+        contour(log10(n_new),abs(ky),imag(kpara21)',[0.0013,0.0013],'r','Linewidth',2);
+        title('Im[k_{|| 21}] (m^{-1})')
         set(gca,'ytick',[])
 %         ylabel('k_{y} (m^{-1})')
         xlabel('log_{10}n')
         set(gca,'Fontsize',30)
+        hold off
         
         figure(3)
         ax1 = subplot(2,2,1);
