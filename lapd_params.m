@@ -104,8 +104,8 @@ n_perp = c0*k_perp./om;
 dampk = ones(1,npts);
 % % dampk(1:np_bound) = damp0*-1 + max(damp0);
 % % dampk(end-np_bound+1:end) = fliplr(dampk(1:np_bound));
-% kx = kx*dampk;
-% ky = ky*dampk;
+kx = kx*dampk;
+ky = ky*dampk;
 
 %-- 
 % Unscaled current source parameters.
