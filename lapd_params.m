@@ -111,5 +111,7 @@ dampk = ones(1,npts);
 % Unscaled current source parameters.
 % source_width = 0.2;%0.06/(2.*sqrt(2.*log(2.)));
 % source_loc = 0;
+scale_fact = 1.0e-20;
+source_dist = 0.01;
 
 
