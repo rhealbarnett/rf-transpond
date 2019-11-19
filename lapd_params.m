@@ -113,5 +113,7 @@ ky = ky*dampk;
 % source_loc = 0;
 scale_fact = 1.0e-20;
 source_dist = 0.01;
+[ey_source,R] = e_source(xax,scale_fact,source_dist);
+
 
 
