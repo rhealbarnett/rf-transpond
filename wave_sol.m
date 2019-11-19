@@ -10,7 +10,7 @@
 
 
 function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
-    om,mu0,cpdt,sig,ey_source,R,MMS,para)
+    om,mu0,cpdt,sigma,ey_source,R,MMS,para,sparsefill)
 
     npts = length(ax);
     axmax = ax(1,end);
@@ -19,23 +19,55 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     A = sparse(3*npts, 3*npts);
     ii = 4;
     kk = 2;
+    
+    np_sparse = (3*npts - 6)*9 + 6;
 
-    for eq1=4:3:3*(npts-1)
-        
-        eq2 = eq1 + 1;
-        eq3 = eq2 + 1;
+    row = zeros(1,np_sparse);
+    column = zeros(1,np_sparse);
+    v = zeros(1,np_sparse);
+    
+    row(1,1) = 1;
+    row(1,2) = 2;
+    row(1,3) = 3;
+    row(1,np_sparse-2) = (3*npts)-2;
+    row(1,np_sparse-1) = (3*npts)-1;
+    row(1,np_sparse) = (3*npts);
+    
+    column(1,1) = 1;
+    column(1,2) = 2;
+    column(1,3) = 3;
+    column(1,np_sparse-2) = (3*npts)-2;
+    column(1,np_sparse-1) = (3*npts)-1;
+    column(1,np_sparse) = (3*npts);
+    
+    v(1,1) = 1;
+    v(1,2) = 1;
+    v(1,3) = 1;
+    v(1,np_sparse-2) = 1;
+    v(1,np_sparse-1) = 1;
+    v(1,np_sparse) = 1;   
+    
+    start = 4;
+    stop = 12;
+    nnex = 7;
+    count = 0;
+    
+    if para && ~sparsefill
 
-        iiex = ii;
-        iiey = ii+1;
-        iiez = ii+2;
-        iiexm = iiex - 3;
-        iieym = iiey - 3;
-        iiezm = iiez - 3;
-        iiexp = iiex + 3;
-        iieyp = iiey + 3;
-        iiezp = iiez + 3;   
-        
-        if para
+        for eq1=4:3:3*(npts-1)
+
+            eq2 = eq1 + 1;
+            eq3 = eq2 + 1;       
+
+            iiex = ii;
+            iiey = iiex+1;
+            iiez = iiex+2;
+            iiexm = iiex - 3;
+            iieym = iiey - 3;
+            iiezm = iiez - 3;
+            iiexp = iiex + 3;
+            iieyp = iiey + 3;
+            iiezp = iiez + 3; 
 
             %--
             % fill matrix
@@ -68,60 +100,118 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             A(eq3,iiexp) = 1i*k(1,kk)/(2.0*h);
             A(eq3,iieyp) = 1i*ky(1,kk)/(2.0*h);
             A(eq3,iiezp) = 0.0;
-        
-        elseif ~para
             
-            %--
-            % Perp wave solve
-            A(eq1,iiexm) = 0.0;
-            A(eq1,iieym) = -1i*ky/(2.0*h);
-            A(eq1,iiezm) = -1i*k/(2.0*h);
-            A(eq1,iiex) = (ky^2 + k^2 - k0^2*cpdt(1,1,kk));
-            A(eq1,iiey) = -k0^2*cpdt(1,2,kk);
-            A(eq1,iiez) = -k0^2*cpdt(1,3,kk);
-            A(eq1,iiexp) = 0.0;
-            A(eq1,iieyp) = 1i*ky/(2.0*h);
-            A(eq1,iiezp) = 1i*k/(2.0*h);
+            ii = ii + 3;
+            kk = kk + 1;
 
-            A(eq2,iiexm) = -1i*ky/(2.0*h);
-            A(eq2,iieym) = -1.0/(h^2);
-            A(eq2,iiezm) = 0.0;
-            A(eq2,iiex) = -k0^2*cpdt(2,1,kk);
-            A(eq2,iiey) = (k^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
-            A(eq2,iiez) = -ky*k - k0^2*cpdt(2,3,kk);
-            A(eq2,iiexp) = 1i*ky/(2.0*h);
-            A(eq2,iieyp) = -1.0/(h^2);
-            A(eq2,iiezp) = 0.0;
+        end
+        
+        
+            
+    elseif para && sparsefill
+        
+        row1 = 4;
+        row2 = row1 + 1;
+        row3 = row2 + 1;
+        
+        for gg = 1:npts-2
+            
+            nney = nnex+1;
+            nnez = nnex+2;
+            nnexm = nnex - 3;
+            nneym = nney - 3;
+            nnezm = nnez - 3;
+            nnexp = nnex + 3;
+            nneyp = nney + 3;
+            nnezp = nnez + 3; 
 
-            A(eq3,iiexm) = -1i*k/(2.0*h);
-            A(eq3,iieym) = 0.0;
-            A(eq3,iiezm) = -1.0/(h^2);
-            A(eq3,iiex) = -k0^2*cpdt(3,1,kk);
-            A(eq3,iiey) = -ky*k - k0^2*cpdt(3,2,kk);
-            A(eq3,iiez) = (ky^2 - k0^2*cpdt(3,3,kk)) + 2.0/(h^2);
-            A(eq3,iiexp) = 1i*k/(2.0*h);
-            A(eq3,iieyp) = 0.0;
-            A(eq3,iiezp) = -1.0/(h^2);
+            arr = linspace(count*3+1,count*3+9,9);
+
+            row(1,start:stop) = row1;
+            row(1,start+9:stop+9) = row2;
+            row(1,start+18:stop+18) = row3;
+            column(1,start:stop) = arr;
+            column(1,start+9:stop+9) = arr;
+            column(1,start+18:stop+18) = arr;
+
+            v(1,nnexm) = -1.0/h^2;
+            v(1,nneym) = 0.0;
+            v(1,nnezm) = -1i*k(1,kk)/(2.0*h);
+            v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
+            v(1,nney) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(1,2,kk);
+            v(1,nnez) = -k0^2*cpdt(1,3,kk);
+            v(1,nnexp) = -1.0/(h^2);
+            v(1,nneyp) = 0.0;
+            v(1,nnezp) = 1i*k(1,kk)/(2.0*h);
+
+            v(1,nnexm+9) = 0.0;
+            v(1,nneym+9) = -1.0/(h^2);
+            v(1,nnezm+9) = -1i*ky(1,kk)/(2.0*h);
+            v(1,nnex+9) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(2,1,kk);
+            v(1,nney+9) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+            v(1,nnez+9) = - k0^2*cpdt(2,3,kk);
+            v(1,nnexp+9) = 0.0;
+            v(1,nneyp+9) = -1.0/(h^2);
+            v(1,nnezp+9) = 1i*ky(1,kk)/(2.0*h);
+
+            v(1,nnexm+18) = -1i*k(1,kk)/(2.0*h);
+            v(1,nneym+18) = -1i*ky(1,kk)/(2.0*h);
+            v(1,nnezm+18) = 0.0;
+            v(1,nnex+18) = -k0^2*cpdt(3,1,kk);
+            v(1,nney+18) = -k0^2*cpdt(3,2,kk);
+            v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
+            v(1,nnexp+18) = 1i*k(1,kk)/(2.0*h);
+            v(1,nneyp+18) = 1i*ky(1,kk)/(2.0*h);
+            v(1,nnezp+18) = 0.0;
+        
+            start = start + (3*9);
+            stop = stop + (3*9);
+            nnex = nnex + (3*9);
+            count = count + 1;
+            row1 = row1 + 3;
+            row2 = row1 + 1;
+            row3 = row2 + 1;
             
         end
         
+    elseif ~para && ~sparsefill
 
-        ii = ii + 3;
-        kk = kk + 1;
+        %--
+        % Perp wave solve
+        A(eq1,iiexm) = 0.0;
+        A(eq1,iieym) = -1i*ky/(2.0*h);
+        A(eq1,iiezm) = -1i*k/(2.0*h);
+        A(eq1,iiex) = (ky^2 + k^2 - k0^2*cpdt(1,1,kk));
+        A(eq1,iiey) = -k0^2*cpdt(1,2,kk);
+        A(eq1,iiez) = -k0^2*cpdt(1,3,kk);
+        A(eq1,iiexp) = 0.0;
+        A(eq1,iieyp) = 1i*ky/(2.0*h);
+        A(eq1,iiezp) = 1i*k/(2.0*h);
+
+        A(eq2,iiexm) = -1i*ky/(2.0*h);
+        A(eq2,iieym) = -1.0/(h^2);
+        A(eq2,iiezm) = 0.0;
+        A(eq2,iiex) = -k0^2*cpdt(2,1,kk);
+        A(eq2,iiey) = (k^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+        A(eq2,iiez) = -ky*k - k0^2*cpdt(2,3,kk);
+        A(eq2,iiexp) = 1i*ky/(2.0*h);
+        A(eq2,iieyp) = -1.0/(h^2);
+        A(eq2,iiezp) = 0.0;
+
+        A(eq3,iiexm) = -1i*k/(2.0*h);
+        A(eq3,iieym) = 0.0;
+        A(eq3,iiezm) = -1.0/(h^2);
+        A(eq3,iiex) = -k0^2*cpdt(3,1,kk);
+        A(eq3,iiey) = -ky*k - k0^2*cpdt(3,2,kk);
+        A(eq3,iiez) = (ky^2 - k0^2*cpdt(3,3,kk)) + 2.0/(h^2);
+        A(eq3,iiexp) = 1i*k/(2.0*h);
+        A(eq3,iieyp) = 0.0;
+        A(eq3,iiezp) = -1.0/(h^2);
 
     end
     
 %     A = sparse(A);
 
-    %--
-    % metallic wall BC
-    A(1,1) = 1.0;
-    A(2,2) = 1.0;
-    A(3,3) = 1.0;
-    A(end-2,end-2) = 1.0;
-    A(end-1,end-1) = 1.0;
-    A(end,end) = 1.0;
-    
     %--
     % set up rhs vector (current source term)
     rhs = zeros(3*npts,1);
@@ -132,10 +222,34 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     source = source / max(source);
 %     source = source*source_mult;
     rhs(1:3:3*npts,1) = 0.0;%squeeze(sigma(1,2,:)).*ey_source';%1i*om*mu0*source';
-    rhs(2:3:3*npts,1) = squeeze(sig(2,2,:)).*ey_source';
+    rhs(2:3:3*npts,1) = squeeze(sigma(2,2,:)).*ey_source';
     rhs(3:3:3*npts,1) = 0.0;%1i*om*mu0*source';
+
+    if sparsefill && ~MMS
+        
+%         row(1,
+        
+        S = sparse(row,column,v,3*npts,3*npts,(3*npts)*9 - 6);
+        
+        rf_e = (S)\rhs;
+        rf_e = rf_e';
+        
+    elseif ~sparsefill && ~MMS
+        
+        %--
+        % metallic wall BC
+        A(1,1) = 1.0;
+        A(2,2) = 1.0;
+        A(3,3) = 1.0;
+        A(end-2,end-2) = 1.0;
+        A(end-1,end-1) = 1.0;
+        A(end,end) = 1.0;
+        
+        rf_e = (A)\rhs;
+        rf_e = rf_e';
     
-    if MMS
+    
+    elseif MMS
             
             Ex = 1.0;
             Ey = 1.0;
@@ -190,9 +304,6 @@ function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
         rf_e = rf_e';
         
     else
-
-        rf_e = (A)\rhs;
-        rf_e = rf_e';
         
     end
 
