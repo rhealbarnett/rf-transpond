@@ -6,54 +6,79 @@
 % ----------------------------------------------------------------------- %
 
 equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_superrefined.mat','vx_new','n_new','xmin',...
-    'xmax','npts','cs');
+    'xmax','npts','Te','Ti','nxax','vxax');
 filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero/';
 
-mach_init = equib.vx_new/equib.cs;
+const = constants();
+% mach_init = equib.vx_new/equib.cs;
+Te = equib.Te;
+Ti = equib.Ti;
+m = 4.00*const.amu;
+e = const.e;
+cs = sqrt((Te+Ti)*e/m);
+mach_init = equib.vx_new./cs;
 n_init = equib.n_new;
 xax = linspace(equib.xmin,equib.xmax,equib.npts);
 
+figure(1)
+plot(equib.nxax,n_init,'color',[0,0,0]+0.8,'Linewidth',4)
+hold on
+box on
+
+figure(2)
+plot(equib.vxax,mach_init,'color',[0,0,0]+0.8,'Linewidth',4)
+hold on
+box on
+
 clear equib
 
-for ii=22154
+for ii=106:(10600/2):40068
     
     filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 
     load(filename)
     
+
     figure(1)
-    plot(nxax,n_init,'color',[0,0,0]+0.8,'Linewidth',4)
+    plot(nxax,n_new,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     hold on
-    box on
-    plot(nxax,n_new,'k','Linewidth',2)
     xlabel('Position (m)')
     ylabel('Density (m^{-3})')
     xlim([min(nxax) max(nxax)])
     ylim([min(n_new) max(n_new)+0.01*max(n_new)])
+    legend('show')
     
     figure(2)
-    plot(vxax,mach_init,'color',[0,0,0]+0.8,'Linewidth',4)
+    plot(vxax,vx_new/cs,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     hold on
-    box on
-    plot(vxax,vx_new/cs,'k','Linewidth',2)
     xlabel('Position (m)')
     ylabel('Mach #')
     xlim([min(vxax) max(vxax)])
-    ylim([-1 1])    
+    ylim([-1 1])  
+    legend('show')
     
     figure(3)
-    plot(xax,rf_ez,'k','Linewidth',2)
+    plot(xax,rf_ez,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     hold on
     xlabel('Position (m)')
     ylabel('RF E_z (Vm^{-1})')
     xlim([min(xax) max(xax)])
+    legend('show')
     
     figure(4)
-    plot(xax,abs(rf_ez).^2,'k','Linewidth',2)
+    plot(xax,abs(rf_ez).^2,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     hold on
     xlabel('Position (m)')
     ylabel('|RF E_z (Vm^{-1})|^2')
     xlim([min(xax) max(xax)])
-
+    legend('show')
+    
+    figure(5)
+    plot(vxax,pf_source*dt,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    hold on
+    xlabel('Position (m)')
+    ylabel('PF source*dt (ms^{-1})')
+    xlim([min(xax) max(xax)])
+    legend('show')
     
 end
