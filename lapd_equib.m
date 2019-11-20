@@ -143,7 +143,7 @@ dt = 0.99*min(ndx)/cs;
 
 % source_mult = 37000;
 period = 1.0/freq;
-tmax = 25*period;
+tmax = 1*period;
 % tmax = 5.0e-5;
 % tmax = 10*dt;
 nmax = round(tmax/dt);
@@ -157,7 +157,7 @@ source_dist = 0.01;
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
 [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
-    om,mu0,cpdt,sigma,ey_source,R,0,1);
+    om,mu0,cpdt,sigma,ey_source,R,0,1,1);
 
 
 % rf_ez = zeros(1,npts);
