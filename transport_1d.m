@@ -61,7 +61,8 @@ continuity = 0;
 central = 1;
 upwind = 0;
 unstable = 0;
-plots = 1;
+plots = 0;
+sparsefill = 1;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -413,79 +414,81 @@ elseif MMS && staggered
     n_source = [0, n_source, 0];
 end
 
-figure(1)
-set(gcf,'Position',[563 925 560 420])
-% semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
-plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Density (m^{-3})','Fontsize',16)
-legend('show','Location','west')
-grid on
-hold on
-
-figure(2)
-set(gcf,'Position',[7 925 560 420])
-if ~MMS
-    plot(vxax,vx_new/cs,'DisplayName',['time = 0s'])
-elseif MMS
-    plot(vxax,vx_new,'DisplayName',['time = 0s'])
-end
-xlabel('Position (m)','Fontsize',16)
-ylabel('Mach number','Fontsize',16)
-legend('show','Location','southeast')
-grid on
-hold on
-
-figure(3)
-set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
-if MMS
-    hold on
-    plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = 0s'])
-end
-xlabel('Position (m)','Fontsize',16)
-ylabel('Velocity source (ms^{-1})','Fontsize',16)
-legend('show','Location','northwest')
-grid on
-hold on
-
-figure(4)
-set(gcf,'Position',[563 476 560 420])
-plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Density source (m^{-3})','Fontsize',16)
-legend('show','Location','northwest')
-grid on
-hold on
-
-if ~MMS
-    figure(5)
-    plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+if plots
+    figure(1)
+    set(gcf,'Position',[563 925 560 420])
+    % semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
+    plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
     xlabel('Position (m)','Fontsize',16)
-    ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-    legend('show','Location','northwest')
+    ylabel('Density (m^{-3})','Fontsize',16)
+    legend('show','Location','west')
+    grid on
     hold on
 
-    figure(6)
-    subplot(2,1,1)
-    plot(xax,real(rf_ez),'k','DisplayName',['Re[E_{||}], time = 0s'])
-    set(gca, 'XTickLabel', [])
-    ylabel('E_{||} (Vm^{-1})','Fontsize',16)
-    hold on
-    plot(xax,imag(rf_ez),'--r','DisplayName',['Im[E_{||}], time = 0s'])
-    set(gca, 'XTickLabel', [])
-    legend('show','Location','northwest')
-    set(gca,'Fontsize',30)
-    hold on
-    subplot(2,1,2)
-    plot(xax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
+    figure(2)
+    set(gcf,'Position',[7 925 560 420])
+    if ~MMS
+        plot(vxax,vx_new/cs,'DisplayName',['time = 0s'])
+    elseif MMS
+        plot(vxax,vx_new,'DisplayName',['time = 0s'])
+    end
     xlabel('Position (m)','Fontsize',16)
-    ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
-    legend('show','Location','northwest')
-    set(gca,'Fontsize',30)
+    ylabel('Mach number','Fontsize',16)
+    legend('show','Location','southeast')
+    grid on
     hold on
-end
 
+    figure(3)
+    set(gcf,'Position',[3 476 560 420])
+    plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
+    if MMS
+        hold on
+        plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = 0s'])
+    end
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('Velocity source (ms^{-1})','Fontsize',16)
+    legend('show','Location','northwest')
+    grid on
+    hold on
+
+    figure(4)
+    set(gcf,'Position',[563 476 560 420])
+    plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('Density source (m^{-3})','Fontsize',16)
+    legend('show','Location','northwest')
+    grid on
+    hold on
+
+    if ~MMS
+        figure(5)
+        plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+
+        figure(6)
+        subplot(2,1,1)
+        plot(xax,real(rf_ez),'k','DisplayName',['Re[E_{||}], time = 0s'])
+        set(gca, 'XTickLabel', [])
+        ylabel('E_{||} (Vm^{-1})','Fontsize',16)
+        hold on
+        plot(xax,imag(rf_ez),'--r','DisplayName',['Im[E_{||}], time = 0s'])
+        set(gca, 'XTickLabel', [])
+        legend('show','Location','northwest')
+        set(gca,'Fontsize',30)
+        hold on
+        subplot(2,1,2)
+        plot(xax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
+        legend('show','Location','northwest')
+        set(gca,'Fontsize',30)
+        hold on
+    end
+end
+    
 %
 %--------------------------------------------------------------------------------------------------------------%
 % START TIME STEPPING
@@ -534,45 +537,78 @@ for ii=1:nmax
         
         % fill n coefficient matrix using the averaged value of the
         % velocities on adjacent grid points
-        for jj=2:npts-1
-            if ((vx(1,jj-1)+vx(1,jj))/2)>0 
-                nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
-                nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
-                if MMS
-                    n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
-                    ex_solu(1,jj),kux,ux,vxax(1,jj),ex_soln(1,jj));
+        
+        if sparsefill
+            
+            row = zeros(1,(2*npts)-2);
+            column = zeros(1,(2*npts)-2);
+            n_sparse = zeros(1,(2*npts)-2);
+            row(1,1) = 1;
+            column(1,1) = 1;
+            row(1,end) = npts;
+            column(1,end) = npts;
+            n_sparse(1,1) = 1;
+            n_sparse(1,end) = 1;
+        
+            for jj=2:npts-1
+            
+                row(1,2*jj-2) = jj;
+                row(1,2*jj-1) = jj;
+                column(1,2*jj-2) = jj;
+
+                if ((vx(1,jj-1)+vx(1,jj))/2)>0 
+                    column(1,2*jj-1) = jj-1;
+                    n_sparse(1,2*jj-2) = - (1.0/ndx(1,jj-1))*vx(1,jj);
+                    n_sparse(1,2*jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
+                    if MMS
+                        n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
+                        ex_solu(1,jj),kux,ux,vxax(1,jj),ex_soln(1,jj));
+                    end
+                elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+                    column(1,2*jj-1) = jj+1;
+                    n_sparse(1,2*jj-2) = (1.0/ndx(1,jj))*vx(1,jj-1);
+                    n_sparse(1,2*jj-1) = -(1.0/ndx(1,jj))*vx(1,jj);
+                    if MMS
+                        n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
+                        ex_solu(1,jj-1),kux,ux,vxax(1,jj-1),ex_soln(1,jj));
+                    end     
                 end
-            elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
-                nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
-                nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
-                if MMS
-                    n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
-                    ex_solu(1,jj-1),kux,ux,vxax(1,jj-1),ex_soln(1,jj));
-                end                    
             end
+
+            S_nA= sparse(row,column,n_sparse,npts,npts,(2*(npts))-2);
+
+            An_exp = nI + dt*S_nA;
+            
+        elseif ~sparsefill
+            
+            for jj=2:npts-1
+            
+                if ((vx(1,jj-1)+vx(1,jj))/2)>0 
+                    nA(jj,jj) = - (1.0/ndx(1,jj-1))*vx(1,jj);
+                    nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
+                    if MMS
+                        n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
+                        ex_solu(1,jj),kux,ux,vxax(1,jj),ex_soln(1,jj));
+                    end
+                elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
+                    nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
+                    nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
+                    if MMS
+                        n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
+                        ex_solu(1,jj-1),kux,ux,vxax(1,jj-1),ex_soln(1,jj));
+                    end     
+                end
+                
+            end
+            
+            An_exp = nI + dt*nA;
+                
+            An_exp(1,1) = 1.0;
+            An_exp(end,end) = 1.0;
         end
         
         % set source density ghost points to zero 
         n_source(1,1) = 0.0; n_source(1,end) = 0.0;
-
-        % build full coefficient matrices
-        An_exp = nI + dt*nA;
-%         An_imp = nI - dt*nA;
-        
-        % override values in top and bottom rows to reflect neumann
-        % boundary conditions for the implicit calculation
-        
-%         An_imp(1,1) = 1.0; %An_imp(1,2) = -1.0;
-%         An_imp(end,end) = 1.0; %An_imp(end,end-1) = -1.0;   
-        An_exp(1,1) = 1.0;
-        An_exp(end,end) = 1.0;
-        
-        % calculate explicit solution
-%         n_new_exp = An_exp*n' + dt*n_source';
-        % directly override solution vector to include neumann boundary
-        % conditions for explicit method
-%         n_new_exp(1,1) = n_new_exp(2,1);
-%         n_new_exp(end,1) = n_new_exp(end-1,1);
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
@@ -638,43 +674,100 @@ for ii=1:nmax
         % fill coefficient matrices for momentum equation, positive for v>0 and
         % negative for v<0 on the convective term; differencing of the
         % diffusion term is central and not dependent on flow direction
-        for jj=2:npts-2
-            if vx(1,jj)>0
-                vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
-                    (1.0/n(1,jj))*n_source(1,jj);
-                vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-            elseif vx(1,jj)<0
-                vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) -...
-                    (1.0/n(1,jj+1))*n_source(1,jj+1);
-                vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+        
+        
+        if sparsefill
+            
+            count = 0;
+
+            row_diff = zeros(1,(3*(npts-1))-4);
+            column_diff = zeros(1,(3*(npts-1))-4);
+            row_adv = zeros(1,(2*(npts-1))-2);
+            column_adv = zeros(1,(2*(npts-1))-2);
+            row_diff(1,1) = 1;
+            column_diff(1,1) = 1;
+            row_diff(1,end) = npts-1;
+            column_diff(1,end) = npts-1;
+            row_adv(1,1) = 1;
+            column_adv(1,1) = 1;
+            row_adv(1,end) = npts-1;
+            column_adv(1,end) = npts-1;
+            vx_sparse_diff = zeros(1,(3*(npts-1))-4);
+            vx_sparse_adv = zeros(1,(2*(npts-1))-2);
+            
+            for jj=2:npts-2            
+            
+                row_diff(1,jj+count*2) = jj;
+                row_diff(1,jj+count*2+1) = jj;
+                row_diff(1,jj+count*2+2) = jj;
+                column_diff(1,jj+2*count) = jj;
+                column_diff(1,jj+2*count+1) = jj-1;
+                column_diff(1,jj+2*count+2) = jj+1;
+
+                row_adv(1,2*jj-2) = jj;
+                row_adv(1,2*jj-1) = jj;
+                column_adv(1,2*jj-2) = jj;
+
+                vx_sparse_diff(1,jj+2*count) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+                vx_sparse_diff(1,jj+2*count+1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
+                vx_sparse_diff(1,jj+2*count+2) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+
+                count = count+1;
+
+                    if vx(1,jj)>0
+                        column_adv(1,2*jj-1) = jj-1;
+                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
+                            (1.0/n(1,jj))*n_source(1,jj);
+                        vx_sparse_adv(1,2*jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+                    elseif vx(1,jj)<0
+                        column_adv(1,2*jj-1) = jj+1;
+                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj) -...
+                            (1.0/n(1,jj+1))*n_source(1,jj+1);
+                        vx_sparse_adv(1,2*jj-1) = - (1.0/vdx(1,jj))*vx(1,jj);
+                    end
+                    
             end
-            vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
-            vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
-            vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+
+            S_vxE = sparse(row_adv,column_adv,vx_sparse_adv,npts-1,npts-1,(2*(npts-1))-2);
+            S_vxI = sparse(row_diff,column_diff,vx_sparse_diff,npts-1,npts-1,(3*(npts-1))-4);  
+
+            Avx_exp = vx_I + dt*S_vxE;
+            Avx_imp = vx_I - dt*S_vxI;
+            
+        elseif ~sparsefill
+            
+            for jj=2:npts-2 
+                
+                if vx(1,jj)>0
+                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
+                        (1.0/n(1,jj))*n_source(1,jj);
+                    vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+                elseif vx(1,jj)<0
+                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) -...
+                        (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
+                end
+                vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+                vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
+                vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
+                
+            end
+                
+            if upwind 
+                vxA = vx_pos + vx_neg;
+            elseif central
+                vxE = vx_pos + vx_neg;
+                vxI = vx_diff;
+            end
+            
+            Avx_exp = vx_I + dt*vxE;
+            Avx_imp = vx_I - dt*vxI;
+
+            Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
+            Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
 
         end
 
-        % construct full coefficient matrix for momentum equation
-        if upwind 
-            vxA = vx_pos + vx_neg;
-        elseif central
-            vxE = vx_pos + vx_neg;
-            vxI = vx_diff;
-        end
-
-        % build full coefficient matrices
-        Avx_exp = vx_I + dt*vxE;
-        Avx_imp = vx_I - dt*vxI;
-%         Avx_imp = -vxA;
-        % override top and bottom rows to include dirichlet boundary conditions
-        % for the momentum equation (explicit and implicit methods)
-        Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
-        Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
-
-        % override values in top and bottom rows to reflect neumann
-        % boundary conditions for the implicit calculation
-    %     Avx_imp(1,2) = -1.0;% Avx_imp(end,end-1) = -1.0;
-        % ensure that the velocity value at the boundaries is correct
         if momentum
             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
             vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
@@ -855,8 +948,8 @@ for ii=1:nmax
         transport.ky = ky;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-        filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
-        save(filename,'-struct','transport');
+%         filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
+%         save(filename,'-struct','transport');
         
         continue
 %         save('C:\Users\c3149416\Documents\coupled_transport.mat','-struct','transport');
@@ -880,79 +973,81 @@ fprintf('simulation time %d\n', toc(timerVal))
         
 %%
 
-figure(1)
-set(gcf,'Position',[563 925 560 420])
-% semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-hold on
-if MMS
-    plot(nxax,ex_soln,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
-end
-% semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Density m^{-3}','Fontsize',16)
-legend('show','Location','west')
-hold off
-
-figure(2)
-set(gcf,'Position',[7 925 560 420])
-hold on
-if ~MMS
-    plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-elseif MMS
-    plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
-end
-% plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Mach number (v/c_s)','Fontsize',16)
-legend('show','Location','southeast')
-hold off
-
-figure(3)
-set(gcf,'Position',[3 476 560 420])
-plot(vxax(2:npts-2),vx_source(2:npts-2),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-if MMS
+if plots
+    figure(1)
+    set(gcf,'Position',[563 925 560 420])
+    % semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     hold on
-    plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-end
-xlabel('Position (m)','Fontsize',16)
-ylabel('Velocity source (ms^{-1})','Fontsize',16)
-legend('show','Location','northwest')
-hold off
-
-figure(4)
-set(gcf,'Position',[563 476 560 420])
-plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-xlabel('Position (m)','Fontsize',16)
-ylabel('Density source (ms^{-1})','Fontsize',16)
-legend('show','Location','northwest')
-hold off
-
-if ~MMS
-    figure(5)
-    plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    if MMS
+        plot(nxax,ex_soln,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+    end
+    % semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
     xlabel('Position (m)','Fontsize',16)
-    ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+    ylabel('Density m^{-3}','Fontsize',16)
+    legend('show','Location','west')
+    hold off
+
+    figure(2)
+    set(gcf,'Position',[7 925 560 420])
+    hold on
+    if ~MMS
+        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    elseif MMS
+        plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+    end
+    % plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('Mach number (v/c_s)','Fontsize',16)
+    legend('show','Location','southeast')
+    hold off
+
+    figure(3)
+    set(gcf,'Position',[3 476 560 420])
+    plot(vxax(2:npts-2),vx_source(2:npts-2),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    if MMS
+        hold on
+        plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    end
+    xlabel('Position (m)','Fontsize',16)
+    ylabel('Velocity source (ms^{-1})','Fontsize',16)
     legend('show','Location','northwest')
     hold off
 
-    figure(6)
-    subplot(2,1,1)
-    plot(xax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
-    set(gca, 'XTickLabel', [])
-    ylabel('E_{||} (Vm^{-1})','Fontsize',16)
-    hold on
-    plot(xax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
-    set(gca, 'XTickLabel', [])
-    legend('show','Location','northwest')
-    hold on
-    subplot(2,1,2)
-    plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    figure(4)
+    set(gcf,'Position',[563 476 560 420])
+    plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     xlabel('Position (m)','Fontsize',16)
-    ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
+    ylabel('Density source (ms^{-1})','Fontsize',16)
     legend('show','Location','northwest')
-    hold on
+    hold off
+
+    if ~MMS
+        figure(5)
+        plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+        legend('show','Location','northwest')
+        hold off
+
+        figure(6)
+        subplot(2,1,1)
+        plot(xax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+        set(gca, 'XTickLabel', [])
+        ylabel('E_{||} (Vm^{-1})','Fontsize',16)
+        hold on
+        plot(xax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+        set(gca, 'XTickLabel', [])
+        legend('show','Location','northwest')
+        hold on
+        subplot(2,1,2)
+        plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)','Fontsize',16)
+        ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
+        legend('show','Location','northwest')
+        hold on
+    end
 end
 
 
