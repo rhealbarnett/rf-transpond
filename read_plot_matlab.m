@@ -5,80 +5,119 @@
 % rlbarnett c3149416 191106
 % ----------------------------------------------------------------------- %
 
-equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_superrefined.mat','vx_new','n_new','xmin',...
-    'xmax','npts','Te','Ti','nxax','vxax');
-filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero/';
+% equib = load('/Volumes/DATA/LAPD/matlab/equil_superrefined/equil_transport.mat');%,'vx_new','n_new','xmin',...
+%     'xmax','npts','Te','Ti','nxax','vxax');
 
-const = constants();
+% const = constants();
 % mach_init = equib.vx_new/equib.cs;
-Te = equib.Te;
-Ti = equib.Ti;
-m = 4.00*const.amu;
-e = const.e;
-cs = sqrt((Te+Ti)*e/m);
-mach_init = equib.vx_new./cs;
-n_init = equib.n_new;
-xax = linspace(equib.xmin,equib.xmax,equib.npts);
+% Te = equib.Te;
+% Ti = equib.Ti;
+% m = 4.00*const.amu;
+% e = const.e;
+% % cs = sqrt((Te+Ti)*e/m);
+% % mach_init = equib.vx_new./cs;
+% n_init = equib.n_new;
+% xax = linspace(equib.xmin,equib.xmax,equib.npts);
 
-figure(1)
-plot(equib.nxax,n_init,'color',[0,0,0]+0.8,'Linewidth',4)
-hold on
-box on
+% clear equib
 
-figure(2)
-plot(equib.vxax,mach_init,'color',[0,0,0]+0.8,'Linewidth',4)
-hold on
-box on
+data = 0;
+equilibrium = 1;
 
-clear equib
-
-for ii=106:(10600/2):40068
+if data
     
-    filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
-
-    load(filename)
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero';
     
-
     figure(1)
-    plot(nxax,n_new,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    plot(equib.nxax,n_init,'color',[0,0,0]+0.8,'Linewidth',4)
     hold on
-    xlabel('Position (m)')
-    ylabel('Density (m^{-3})')
-    xlim([min(nxax) max(nxax)])
-    ylim([min(n_new) max(n_new)+0.01*max(n_new)])
-    legend('show')
-    
+    box on
+
     figure(2)
-    plot(vxax,vx_new/cs,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+    plot(equib.vxax,mach_init,'color',[0,0,0]+0.8,'Linewidth',4)
     hold on
-    xlabel('Position (m)')
-    ylabel('Mach #')
-    xlim([min(vxax) max(vxax)])
-    ylim([-1 1])  
-    legend('show')
+    box on
+
+    for ii=106145
+
+        filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
+
+        load(filename)
+
+
+        figure(1)
+        plot(nxax,n_new,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        xlabel('Position (m)')
+        ylabel('Density (m^{-3})')
+        xlim([min(nxax) max(nxax)])
+        ylim([min(n_new) max(n_new)+0.01*max(n_new)])
+        legend('show')
+
+        figure(2)
+        plot(vxax,vx_new/cs,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        xlabel('Position (m)')
+        ylabel('Mach #')
+        xlim([min(vxax) max(vxax)])
+        ylim([-1 1])  
+        legend('show')
+
+        figure(3)
+        plot(xax,real(rf_ez),'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        plot(xax,imag(rf_ez),'--r','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        xlabel('Position (m)')
+        ylabel('RF E_z (Vm^{-1})')
+        xlim([min(xax) max(xax)])
+        legend('show')
+
+        figure(4)
+        plot(xax,abs(rf_ez).^2,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        xlabel('Position (m)')
+        ylabel('|RF E_z (Vm^{-1})|^2')
+        xlim([min(xax) max(xax)])
+        legend('show')
+
+        figure(5)
+        plot(vxax,pf_source*dt,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        xlabel('Position (m)')
+        ylabel('PF source*dt (ms^{-1})')
+        xlim([min(xax) max(xax)])
+        legend('show')
+
+    end
+
+elseif equilibrium
     
-    figure(3)
-    plot(xax,rf_ez,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    hold on
-    xlabel('Position (m)')
-    ylabel('RF E_z (Vm^{-1})')
-    xlim([min(xax) max(xax)])
-    legend('show')
+    filepath = '/Volumes/DATA/LAPD/matlab/equil_superrefined/';
+
+    for ii=1327000:1000:1337000
+
+        filename = strcat(filepath, 'equil_transport_', num2str(ii),'.mat');
+
+        load(filename)
+        
+        figure(1)
+        plot(nxax,n_new,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        xlabel('Position (m)')
+        ylabel('Density (m^{-3})')
+        xlim([min(nxax) max(nxax)])
+        ylim([min(n_new) max(n_new)+0.01*max(n_new)])
+        legend('show')
+
+        figure(2)
+        plot(vxax,vx_new/cs,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        hold on
+        xlabel('Position (m)')
+        ylabel('Mach #')
+        xlim([min(vxax) max(vxax)])
+        ylim([-1 1])  
+        legend('show')
     
-    figure(4)
-    plot(xax,abs(rf_ez).^2,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    hold on
-    xlabel('Position (m)')
-    ylabel('|RF E_z (Vm^{-1})|^2')
-    xlim([min(xax) max(xax)])
-    legend('show')
-    
-    figure(5)
-    plot(vxax,pf_source*dt,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    hold on
-    xlabel('Position (m)')
-    ylabel('PF source*dt (ms^{-1})')
-    xlim([min(xax) max(xax)])
-    legend('show')
+    end
     
 end
