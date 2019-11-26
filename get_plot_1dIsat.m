@@ -54,7 +54,7 @@ plots = 1;
 
 %% get data ---------------------------------------------------------------- %
 
-[actx_LP, acty_LP, time_LP, data_LP] = get_probe(filename, probename, channels, x, z, 1);
+[actx_LP, acty_LP, time_LP, data_LP] = get_probe(filename, probename, channels, x, z, dz, 1);
 
 callib = atten/res;
 
@@ -82,6 +82,23 @@ for ii= 1:numel(x)
         data_z{ii,jj,1} = (data_LP{ii,jj,5} + data_LP{ii,jj,6})./2.0;
     end
 end
+
+%% Find Isat > 4.0ms, average, and shift data by this value. 
+
+shift_time = find(time_LP>=(max(time_LP)-1.0));
+
+for ii= 1:numel(x)
+    for jj= 1:numel(z)
+        tempx = data_x{ii,jj,1};
+        tempy = data_y{ii,jj,1};
+        tempz = data_z{ii,jj,1};
+        data_x{ii,jj,1} = data_x{ii,jj,1} + abs(mean(tempx(shift_time)));
+        data_y{ii,jj,1} = data_y{ii,jj,1} + abs(mean(tempy(shift_time)));
+        data_z{ii,jj,1} = data_z{ii,jj,1} + abs(mean(tempz(shift_time)));
+    end
+end
+
+clear tempx tempy tempz
 
 %% Calculate moving mean for the raw Isat data
 
@@ -135,6 +152,7 @@ title('Filtered Isat Zoomed')
 
 %% FFT of raw Isat data
 
+npts = length(time_LP);
 dt = 4.0000e-08;
 df = 1.0/((npts)*dt);
 Fnyq = 1.0/(2.0*dt);
@@ -179,6 +197,40 @@ fft_sig(npts - int32((bins))) = 0.0;
 inv_sig = ifft(fft_sig);
 
 filt_x = real(inv_sig);
+
+for ii= 1:numel(x)
+    for jj= 1:numel(z)
+        tempx = data_x{ii,jj,1};
+        tempy = data_y{ii,jj,1};
+        tempz = data_z{ii,jj,1};
+        
+        datax_mean = mean(tempx);
+        fft_sigx = (fft(tempx));
+        datay_mean = mean(tempy);
+        fft_sigy = (fft(tempy));
+        dataz_mean = mean(tempz);
+        fft_sigz = (fft(tempz));
+        
+        fft_sigx(int32(bins)) = 0.0;
+        fft_sigx(npts - int32((bins))) = 0.0;
+        inv_sigx = ifft(fft_sigx);
+        filt_x = real(inv_sigx);
+        fft_sigy(int32(bins)) = 0.0;
+        fft_sigy(npts - int32((bins))) = 0.0;
+        inv_sigy = ifft(fft_sigy);
+        filt_y = real(inv_sigy);
+        fft_sigz(int32(bins)) = 0.0;
+        fft_sigz(npts - int32((bins))) = 0.0;
+        inv_sigz = ifft(fft_sigz);
+        filt_z = real(inv_sigz);
+        
+        fft_datax{ii,jj,1} = filt_x;
+        fft_datay{ii,jj,1} = filt_y;
+        fft_dataz{ii,jj,1} = filt_z;
+    end
+end
+
+clear tempx tempy tempz
 
 %% Plots of raw Isat data and FFTs
 
