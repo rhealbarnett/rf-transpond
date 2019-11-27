@@ -38,17 +38,21 @@ if data
     
     clear equib
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_ky30/';
 
-    for ii=106
+    for ii=10070
 
         filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 
         load(filename)
-
+        
+        if exist('rf_e','var')
+            rf_ez = rf_e(1,3:3:3*npts);
+        else
+        end
 
         figure(1)
-        plot(nxax,n_new,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax,n_new,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         hold on
         xlabel('Position (m)')
         ylabel('Density (m^{-3})')
@@ -57,7 +61,7 @@ if data
         legend('show')
 
         figure(2)
-        plot(vxax,vx_new/cs,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,vx_new/cs,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         hold on
         xlabel('Position (m)')
         ylabel('Mach #')
@@ -75,7 +79,7 @@ if data
         legend('show')
 
         figure(4)
-        plot(xax,abs(rf_ez).^2,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(xax,abs(rf_ez).^2,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         hold on
         xlabel('Position (m)')
         ylabel('|RF E_z (Vm^{-1})|^2')
@@ -83,7 +87,7 @@ if data
         legend('show')
 
         figure(5)
-        plot(vxax,pf_source*dt,'Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,pf_source*dt,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         hold on
         xlabel('Position (m)')
         ylabel('PF source*dt (ms^{-1})')
@@ -96,7 +100,7 @@ elseif equilibrium
     
     filepath = '/Volumes/DATA/LAPD/matlab/equil_superrefined/';
 
-    for ii=1327000:1000:1337000
+    for ii=7066000:10000:7166000
 
         filename = strcat(filepath, 'equil_transport_', num2str(ii),'.mat');
 
@@ -119,6 +123,8 @@ elseif equilibrium
         xlim([min(vxax) max(vxax)])
         ylim([-1 1])  
         legend('show')
+        
+        fprintf("Total number of particles in domain, %1.0f\n", trapz(n_new,nxax)) 
     
     end
     
