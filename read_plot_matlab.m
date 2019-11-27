@@ -38,9 +38,9 @@ if data
     
     clear equib
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_ky30/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/';
 
-    for ii=10070
+    for ii=106106
 
         filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 
