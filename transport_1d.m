@@ -63,6 +63,7 @@ upwind = 0;
 unstable = 0;
 plots = 0;
 sparsefill = 1;
+couple = 1;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -514,24 +515,30 @@ for ii=1:nmax
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
     
-%     n_new_uni = interp1(nxax,n_new,xax,'linear');
+    if couple
+        
+        n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-%     [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
-%     if ii<=1000
-%         b = -9.9e4/999;
-%         a = 1-b;
-%         source_ramp = 1.0/(ii*a + b);
-%         [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-%         om,mu0,cpdt,source_width,source_loc,0,source_ramp*source_mult,1);
-%     else
-%         [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-%         om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
-%     end
+        [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
+        if ii<=1000
+            source_ramp = 1.0/(1001 - ii);
+            [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+            om,mu0,cpdt,source_width,source_loc,0,source_ramp*source_mult,1);
+        else
+            [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
+            om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+        end
 
-%     Efield = abs(rf_ez);
-%     Efield = Efield.^2;
-    
-%     Efield = interp1(xax,Efield,vxax,'linear');
+        Efield = abs(rf_ez);
+        Efield = Efield.^2;
+
+        Efield = interp1(xax,Efield,vxax,'linear');
+        
+    else
+        
+        rf_ez = zeros(1,npts);
+        
+    end
     
     if staggered && (continuity || ~MMS)
         
