@@ -10,7 +10,7 @@ equilibrium = 0;
 
 if data
     
-    equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_superrefined.mat','vx_new','n_new','xmin',...
+    equib = load('/Volumes/DATA/LAPD/matlab/inputs/lapd_equib_superrefined.mat','vx_new','n_new','xmin',...
         'xmax','npts','Te','Ti','nxax','vxax','cs');
 
     const = constants();
@@ -38,7 +38,7 @@ if data
     
     clear equib
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16/';
 
     for ii=106106
 
