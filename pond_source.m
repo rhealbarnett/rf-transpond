@@ -19,13 +19,14 @@
 %
 %------------------------------------------------------------------%
 
-function [ans] = pond_source(component,species,Efield,m,q,om_cyc,omega,npts,dz)
+function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,npts,dz)
 
     Esquared = [Efield{1}.^2; Efield{2}.^2; Efield{3}.^2];
+    Esize = size(Esquared);
     Ediff = zeros(numel(Efield),npts);
     
-    for jj = 1:numel(Efield)
-        for ii = 2:length(dx)
+    for jj = 1:Esize(1)
+        for ii = 2:length(dz)
             Ediff(jj,ii-1) = -(dz(1,ii)/(dz(1,ii-1)*(dz(1,ii) + dz(1,ii-1))))*Esquared(jj,ii-1) +...
                 ((dz(1,ii) - dz(1,ii-1))/(dz(1,ii)*dz(1,ii-1)))*Esquared(jj,ii) +...
                 (dz(1,ii-1)/(dz(1,ii)*(dz(1,ii) + dz(1,ii-1))))*Esquared(jj,ii+1);
@@ -38,53 +39,32 @@ function [ans] = pond_source(component,species,Efield,m,q,om_cyc,omega,npts,dz)
         perp = 1;
         
     end
-    
-    if strcmp(species,'total')
-        
-        electrons = 1;
-        ions = 1;
-        
-    end
 
-    if strcmp(species,'electrons') || electrons
+    msize = size(m);
     
-        pf_const = q(1,1)^2/(4.0*m(1,1));
+    pf_const = zeros(msize(1),1);
+    pond = {[],msize(1)};
+%     pond_para = zeros(msize,npts);
+%     pond_perp = zeros(msize,npts);
+    
+    for ii=1:msize(1)
+    
+        pf_const(ii,1) = q(ii,1)^2/(4.0*m(ii,1));
+        
         
         if strcmp(component,'para') || para
 
-                pond_para(1,:) = (pf_const/omega^2)*Ediff(3,:);
+                pond{1,ii} = (pf_const(ii,1)/omega^2).*Ediff(3,:);
                 
         elseif strcmp(component,'perp') || perp
 
-                pond_perp(1,:) = (pond_const)*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
-                    + (om_cyc(1,1)/(omega*(omega^2 - om_cyc(1,1)^2)))*imag((conj(rf_ey)*rf_ex)...
-                    -(conj(rf_ex)*rf_ey)));
-
-        end
-        
-    elseif strcmp(species,'ions') || ions
-
-        pf_const = q(2,1)^2/(4.0*m(2,1));
-
-        if strcmp(component,'para') || para
-
-            pond_para(2,:) = (pf_const/omega^2)*Ediff(3,:);
-
-        elseif strcmp(component,'perp') || perp
-
-            pond_perp(2,:) = (pond_const)*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(2,1)^2))...
-                    + (om_cyc(2,1)/(omega*(omega^2 - om_cyc(2,1)^2)))*imag((conj(Efield{2})*Efield{1})...
+                pond{2,ii} = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
+                    + (om_cyc(ii,1)/(omega*(omega^2 - om_cyc(ii,1)^2)))*imag((conj(Efield{2})*Efield{1})...
                     -(conj(Efield{1})*Efield{2})));
 
         end
-
+        
     end
-        
-    if perp && para
-        
-        pond = sum(pond_para,1) + sum(pond_perp,1);
-        
-    elseif 
         
 
     ans = (1.0/m(2,1))*pond;
