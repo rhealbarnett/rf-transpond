@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-% npts = 2048;
+npts = 2048;
 xax = linspace(xmin,xmax,npts);
 
 %--
@@ -65,7 +65,7 @@ m_s = [me; mhe];
 % Driving frequency of the single strap, high power antenna (Hz)
 % Driven at 2.38MHz, but FFT of experimental data shows it is closer to
 % ~2.52MHz. 
-freq = 2.52e6;
+freq = 2.38e6;
 om = freq*2.0*pi;
 % coll = 0.1;
 % om = om + coll*om*1i;
@@ -77,7 +77,7 @@ om = freq*2.0*pi;
 % Nmax = 1.0e19;
 % Nmin = 1.0e16;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e17*ones(1,npts);
+n_new = 1.0e17*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
