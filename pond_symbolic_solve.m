@@ -70,14 +70,14 @@ assume(n,'real')
 assume(OMz,'real')
 
 PF = (1.0/2.0)*real(pf_vec);
+% 
+% assume(q,'real')
+% assume(om,'real')
+% assume(m,'real')
+% assume(n,'real')
+% assume(OMz,'real')
 
-assume(q,'real')
-assume(om,'real')
-assume(m,'real')
-assume(n,'real')
-assume(OMz,'real')
 
-
- -(imag((n*q*conj(diff(Ex(z), z))*((OMz*q*Ey(z))/m - (om*q*Ex(z)*1i)/m))/(OMz^2 - om^2)) -...
-     imag((n*q*conj(diff(Ey(z), z))*((OMz*q*Ex(z))/m + (om*q*Ey(z)*1i)/m))/(OMz^2 - om^2)))/(2*om);
+%  -(imag((n*q*conj(diff(Ex(z), z))*((OMz*q*Ey(z))/m - (om*q*Ex(z)*1i)/m))/(OMz^2 - om^2)) -...
+%      imag((n*q*conj(diff(Ey(z), z))*((OMz*q*Ex(z))/m + (om*q*Ey(z)*1i)/m))/(OMz^2 - om^2)))/(2*om);
 
