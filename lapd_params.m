@@ -31,8 +31,9 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-npts = 2048;
+npts = 16;
 xax = linspace(xmin,xmax,npts);
+dx = xax(2:npts) - xax(1:npts-1);
 
 %--
 % Ion mass : He only
