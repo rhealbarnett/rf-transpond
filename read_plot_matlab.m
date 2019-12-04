@@ -8,9 +8,14 @@
 data = 1;
 equilibrium = 0;
 
+width = 600;
+height = 400;
+x0 = 0;
+y0 = 0;
+
 if data
     
-    equib = load('/Volumes/DATA/LAPD/matlab/inputs/lapd_equib_superrefined.mat','vx_new','n_new','xmin',...
+    equib = load('/Volumes/DATA/LAPD/matlab/inputs/equil_transport_input.mat','vx_new','n_new','xmin',...
         'xmax','npts','Te','Ti','nxax','vxax','cs');
 
     const = constants();
@@ -38,9 +43,9 @@ if data
     
     clear equib
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v2/';
 
-    for ii=106106
+    for ii=106145
 
         filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 
@@ -52,13 +57,18 @@ if data
         end
 
         figure(1)
-        plot(nxax,n_new,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(nxax,n_new,'k','Linewidth',2,'DisplayName',...
+            ['time = ' num2str(round(double(ii)*dt/period)) 'T_{RF}'])
         hold on
-        xlabel('Position (m)')
+        xlabel('Position (m)','Fontsize',20,'FontName','CMU Serif')
         ylabel('Density (m^{-3})')
         xlim([min(nxax) max(nxax)])
         ylim([min(n_new) max(n_new)+0.01*max(n_new)])
+        set(gcf,'Position',[x0 y0 width height],'Color','w')
         legend('show')
+        export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v2/n16_v2_figs/sizetest.pdf','-r600')
+%         print('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v2/n16_v2_figs/sizetest.pdf',...
+%             '-dpdf','-r300')
 
         figure(2)
         plot(vxax,vx_new/cs,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
