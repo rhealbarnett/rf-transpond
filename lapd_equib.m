@@ -6,7 +6,7 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
-equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_superrefined.mat');
+equib = load('/Volumes/DATA/LAPD/matlab/inputs/lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
 
 vxax = equib.vxax;
