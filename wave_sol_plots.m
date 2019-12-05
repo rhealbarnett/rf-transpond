@@ -3,7 +3,7 @@ figure(16)
 % set(gca,'YTickLabel','%.2f')
 
 subplot(4,1,1)
-plot(xax,ey_source,'b','Linewidth',2)
+plot(xax,source,'b','Linewidth',2)
 ylabel('Source (i\omega\mu_0J_{y})')
 set(gca, 'XTickLabel', [])
 xlim([xmin,xmax])
@@ -51,6 +51,63 @@ set(gca,'Fontsize',20)
 
 hold off
 
+%%
+
+figure(17)
+
+subplot(3,1,1)
+plot(xax, abs(rf_ex).^2, 'k','Linewidth',2)
+ylabel('|E_x|^2 (V^2m^{-2})')
+set(gca, 'XTickLabel', [])
+legend('Ex', 'Location', 'northwest')
+xlim([xmin,xmax])
+set(gca,'Fontsize',20)
+
+
+subplot(3,1,2)
+plot(xax, abs(rf_ey).^2, 'k','Linewidth',2)
+ylabel('|E_y|^2 (V^2m^{-2})')
+set(gca, 'XTickLabel', [])
+legend('Ey', 'Location', 'northwest')
+xlim([xmin,xmax]);
+set(gca,'Fontsize',20)
+
+
+subplot(3,1,3)
+plot(xax, abs(rf_ez).^2, 'k','Linewidth',2)
+ylabel('|E_z|^2 (V^2m^{-2})')
+legend('Ez', 'Location', 'northwest')
+xlim([xmin,xmax]);
+set(gca,'Fontsize',20)
+
+%%
+
+figure(18)
+
+subplot(3,1,1)
+plot(vxax(2:npts-2), pond_ex, 'k','Linewidth',2)
+ylabel('x Pond accel (ms^{-2})')
+set(gca, 'XTickLabel', [])
+% legend('Ex', 'Location', 'northwest')
+xlim([xmin,xmax])
+set(gca,'Fontsize',20)
+
+
+subplot(3,1,2)
+plot(vxax(2:npts-2), pond_ey, 'k','Linewidth',2)
+ylabel('y Pond accel (ms^{-2})')
+set(gca, 'XTickLabel', [])
+% legend('Ey', 'Location', 'northwest')
+xlim([xmin,xmax]);
+set(gca,'Fontsize',20)
+
+
+subplot(3,1,3)
+plot(vxax(2:npts-2), pond_para, 'k','Linewidth',2)
+ylabel('z Pond accel (ms^{-2})')
+% legend('Ez', 'Location', 'northwest')
+xlim([xmin,xmax]);
+set(gca,'Fontsize',20)
 
 
 

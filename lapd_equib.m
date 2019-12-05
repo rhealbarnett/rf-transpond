@@ -6,8 +6,10 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
-equib = load('/Volumes/DATA/LAPD/matlab/inputs/lapd_equib_superrefined.mat');
+% equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_superrefined.mat');
+equib = load('/Users/rhealbarnett/Downloads/lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
+% equib = load('C:\Users\c3149416\Documents\lapd_equib_refined.mat');
 
 vxax = equib.vxax;
 nxax = equib.nxax;
@@ -71,13 +73,13 @@ if refine
     plot(nxax(2:npts-1),n_source(2:npts-1))
     hold on
 
-    NP = 4096;
+    NP = 2048;
     variable = 1;
 
     if variable
 
         % location of sign change
-        xc = (xmax - xmin)/2.0;
+        xc = (xmax - 0)/2.0;
 
         %'strength' of grid refinement.
         % sign also indicates whether refinement is in the centre or at the
@@ -94,6 +96,9 @@ if refine
 
         Vxax = x - xmax;
         Vdx = (Vxax(2:end) - Vxax(1:end-1));
+        
+        Vdx = [Vdx, fliplr(Vdx)];
+        Vxax = [Vxax, fliplr(-1*Vxax(1:end-1))];
 
         NP = length(Vxax) + 1;
         Nxax = zeros(1,NP);
@@ -118,14 +123,18 @@ if refine
     vdx = Vdx;
     npts = NP;
 
-    figure(20)
-    plot(nxax(2:npts-1),n_source(2:npts-1))
-    hold off
+    if plots
     
-    figure(1);
-    hold on
-    plot(nxax, n_new)
-    hold off
+        figure(20)
+        plot(nxax(2:npts-1),n_source(2:npts-1))
+        hold off
+
+        figure(1);
+        hold on
+        plot(nxax, n_new)
+        hold off
+        
+    end
     
 end
 
@@ -138,27 +147,23 @@ m = real(mhe(1));
 cs = sqrt((Te+Ti)*abs(e)/m);
 LuBC = -cs;
 RuBC = cs;
-
+ 
 dt = 0.99*min(ndx)/cs;
 
 % source_mult = 37000;
 period = 1.0/freq;
-tmax = 1*period;
-% tmax = 5.0e-5;
-% tmax = 10*dt;
-nmax = round(tmax/dt);
+% tmax = 100*period;
+% tmax = 5.0e-3;
+save_time = period/10.0;
+% nmax = round(tmax/dt);
+nmax = 10;
+save_iter = round(save_time/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-scale_fact = 1.0e-20;
-source_dist = 0.01;
-
-[ey_source,R] = e_source(xax,scale_fact,source_dist);
-
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sigma] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
-[A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
-    om,mu0,cpdt,sigma,ey_source,R,0,1,1);
-
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
+[A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
+    om,mu0,cpdt,source*1.0e-3,0,1,0);
 
 % rf_ez = zeros(1,npts);
 Efield = abs(rf_ez).^2;
@@ -185,7 +190,12 @@ end
 
 %%
 
-pond_const = (1.0/4.0)*((e^2)/(const.me*om^2));
+Efieldx = interp1(xax,abs(rf_ex).^2,vxax,'linear');
+Efieldy = interp1(xax,abs(rf_ey).^2,vxax,'linear');
+
+pond_para = pond_source(const.me,mhe(1),om(1),const.e,Efield,vdx);
+pond_ex = pond_source(mhe(1),mhe(1),om(1),const.e,Efieldx,vdx,om_c(2,1));
+pond_ey = pond_source(mhe(1),mhe(1),om(1),const.e,Efieldy,vdx,om_c(2,1));
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);

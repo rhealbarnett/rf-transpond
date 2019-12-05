@@ -31,9 +31,16 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-npts = 16;
+% npts = 1024;
 xax = linspace(xmin,xmax,npts);
-dx = xax(2:npts) - xax(1:npts-1);
+dx = (xmax - xmin) / (npts-1);
+
+%--
+% Driving frequency of the single strap, high power antenna (Hz)
+% Driven at 2.38MHz, but FFT of experimental data shows it is closer to
+% ~2.52MHz. 
+freq = 2.52e6;
+om = freq*2.0*pi;
 
 %--
 % Ion mass : He only
@@ -45,32 +52,8 @@ mhe = mhe*ones(1,npts);
 me = me*ones(1,npts);
 
 %--
-% Imaginary component of the mass is used to damp any waves near the
-% boundary. 
-dampFac = 1.e1;
-np_bound = floor(0.2*npts);
-ax = linspace(0,pi,np_bound);
-damp0 = (cos(ax)+1)/2;
-damp = ones(1,npts);
-damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
-damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
-% 
-% me = me .* damp;
-% mhe = mhe .* damp;
-
-%--
 % Collect masses in 2d array for dielectric tensor calculation. 
 m_s = [me; mhe];
-
-%--
-% Driving frequency of the single strap, high power antenna (Hz)
-% Driven at 2.38MHz, but FFT of experimental data shows it is closer to
-% ~2.52MHz. 
-freq = 2.38e6;
-om = freq*2.0*pi;
-% coll = 0.1;
-% om = om + coll*om*1i;
-% om = om.*damp;
 
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
@@ -78,43 +61,34 @@ om = freq*2.0*pi;
 % Nmax = 1.0e19;
 % Nmin = 1.0e16;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = 1.0e17*ones(1,npts);
+% n_new = 1.0e17*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
-k0 = om/c0;
+k0 = (om/c0);
 kx = 20.0i;
 ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
-n_perp = c0*k_perp./om;
+% n_perp = c0*k_perp./om;
 
 %--
-% Damp wavenumbers in the absorbing region.
-% np_bound = floor(0.1*npts);
-% ax = linspace(0,pi,np_bound);
-% damp0 = (cos(ax)+1)/2;
-% dampk = ones(1,npts);
-% dampk(1*np_bound+1:2*np_bound) = damp0*-1 + max(damp0);
-% dampk(1:1*np_bound) = 0.0;
-% dampk(end-2*np_bound+1:end) = fliplr(dampk(1:2*np_bound));
-% % np_bound = floor(0.2*npts);
-% % ax = linspace(0,pi,np_bound);
-% % damp0 = (cos(ax)+1)/2;
+% Wavenumbers as function of spatial location (currently constant).
 dampk = ones(1,npts);
-% % dampk(1:np_bound) = damp0*-1 + max(damp0);
-% % dampk(end-np_bound+1:end) = fliplr(dampk(1:np_bound));
-kx = kx*dampk;
-ky = ky*dampk;
+kx = kx.*dampk;
+ky = ky.*dampk;
 
 %-- 
-% Unscaled current source parameters.
-% source_width = 0.2;%0.06/(2.*sqrt(2.*log(2.)));
-% source_loc = 0;
-scale_fact = 1.0e-20;
-source_dist = 0.01;
-[ey_source,R] = e_source(xax,scale_fact,source_dist);
+% Current source parameters.
+source_width = 0.06/(2.*sqrt(2.*log(2.)));
+source_loc = 0;
+source_mult = 37000;
+
+mult = 1.0/sqrt(2.0*pi*source_width);
+source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
+source = source / max(source);
+source = source*source_mult;
 
 
 
