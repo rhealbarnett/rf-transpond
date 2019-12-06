@@ -42,12 +42,11 @@
 %------------------------------------------------------------------%
 
 function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
-
-    rf_ex = Efield{1};
-    rf_ey = Efield{2};
-    rf_ez = Efield{3};
     
     if mix
+        rf_ex = Efield{1};
+        rf_ey = Efield{2};
+        rf_ez = Efield{3};
         Emix = imag((conj(rf_ey).*...
                     rf_ex)-(conj(rf_ex).*rf_ey));
     else
@@ -115,7 +114,7 @@ function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
     
     if component{2}
         intermediate = sum(pf,1);
-        ans = sum(intermediate,2);
+        ans = squeeze(sum(intermediate,2))';
     else
         ans = pf;
     end
