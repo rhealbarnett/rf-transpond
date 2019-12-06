@@ -193,7 +193,7 @@ end
 Ex = interp1(xax,rf_ex,vxax,'linear');
 Ey = interp1(xax,rf_ey,vxax,'linear');
 Ez = interp1(xax,rf_ez,vxax,'linear');
-pond = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
+pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);
