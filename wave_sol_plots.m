@@ -82,10 +82,10 @@ set(gca,'Fontsize',20)
 
 %%
 
-pa_epara = pond{1,1};
-pa_ipara = pond{1,2};
-pa_eperp = pond{2,1};
-pa_iperp = pond{2,2};
+pa_epara = squeeze(pond(1,1,:));
+pa_ipara = squeeze(pond(1,2,:));
+pa_eperp = squeeze(pond(2,1,:));
+pa_iperp = squeeze(pond(2,2,:));
 
 figure(18)
 
