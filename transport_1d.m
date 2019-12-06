@@ -61,8 +61,9 @@ continuity = 0;
 central = 1;
 upwind = 0;
 unstable = 0;
-plots = 0;
-sparsefill = 1;
+plots = 1;
+sparsefill = 0;
+sfile = 0;
 couple = 1;
 
 
@@ -495,7 +496,7 @@ end
 % START TIME STEPPING
 %--------------------------------------------------------------------------------------------------------------%
 
-count = 2;
+counter = 2;
 timerVal = tic;
 
 vx_rms = zeros(1,nmax);
@@ -519,14 +520,14 @@ for ii=1:nmax
         
         n_new_uni = interp1(nxax,n_new,xax,'linear');
 
-        [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts);
+        [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
         if ii<=1000
-            source_ramp = 1.0/(1001 - ii);
-            [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-            om,mu0,cpdt,source_width,source_loc,0,source_ramp*source_mult,1);
+            source_ramp = 1.0/(1001-ii);
+            [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
+            om,mu0,cpdt,source_ramp*source,0,1,1);
         else
-            [A,source,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(xax,ky,kx,k0,...
-            om,mu0,cpdt,source_width,source_loc,0,source_mult,1);
+            [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
+            om,mu0,cpdt,source,0,1,1);
         end
 
         Efield = abs(rf_ez);
@@ -534,9 +535,7 @@ for ii=1:nmax
 
         Efield = interp1(xax,Efield,vxax,'linear');
         
-    else
-        
-        rf_ez = zeros(1,npts);
+    elseif ~couple
         
     end
     
@@ -845,7 +844,7 @@ for ii=1:nmax
     % plot loop; every 1/5 of iterations
     if plots && mod(ii,round(nmax/5))==0
         fprintf('***--------------------***\n')
-        fprintf('ii=%d, count=%d\n', [ii count])
+        fprintf('ii=%d, count=%d\n', [ii counter])
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
@@ -920,15 +919,14 @@ for ii=1:nmax
             legend('show','Location','northwest')
             hold on
         end
-        count = count + 1;
+        counter = counter + 1;
         
-    elseif mod(ii,53)==0 || unstable
+    elseif (mod(ii,save_iter)==0 && sfile) || unstable
         
         transport.dt = dt;
         transport.n_source = n_source;
         transport.vx_source = vx_source;
         transport.pf_source = pf_source;
-        transport.rf_ez = rf_ez;
         transport.vx_new = vx_new;
         transport.n_new = n_new; 
         transport.ii = ii;
@@ -947,16 +945,18 @@ for ii=1:nmax
         transport.freq = freq;
         transport.period = period;
         transport.B0 = B0;
-        transport.source_dist = source_dist;
-        transport.scale_fact = scale_fact;
-        transport.ey_source = ey_source;
-        transport.R = R;
+%         transport.source_dist = source_dist;
+%         transport.scale_fact = scale_fact;
+%         transport.ey_source = ey_source;
+%         transport.R = R;
+        transport.rf_e = rf_e;
+        transport.source = source;
         transport.kx = kx;
         transport.ky = ky;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-%         filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
-%         save(filename,'-struct','transport');
+        filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
+        save(filename,'-struct','transport');
         
         continue
 %         save('C:\Users\c3149416\Documents\coupled_transport.mat','-struct','transport');
