@@ -43,9 +43,9 @@ if data
     
     clear equib
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v2/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/';
 
-    for ii=106145
+    for ii=106
 
         filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 
@@ -66,7 +66,7 @@ if data
         ylim([min(n_new) max(n_new)+0.01*max(n_new)])
         set(gcf,'Position',[x0 y0 width height],'Color','w')
         legend('show')
-        export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v2/n16_v2_figs/sizetest.pdf','-r600')
+%         export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/kyzero_v3_figs/sizetest.pdf','-r600')
 %         print('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v2/n16_v2_figs/sizetest.pdf',...
 %             '-dpdf','-r300')
 
@@ -97,10 +97,10 @@ if data
         legend('show')
 
         figure(5)
-        plot(vxax,pf_source*dt,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,pf_source,'k','Linewidth',2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         hold on
         xlabel('Position (m)')
-        ylabel('PF source*dt (ms^{-1})')
+        ylabel('PF source (ms^{-2})')
         xlim([min(xax) max(xax)])
         legend('show')
 
