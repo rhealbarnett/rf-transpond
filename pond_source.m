@@ -75,7 +75,7 @@ function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
     msize = size(m);
     
     pf_const = zeros(msize(1),1);
-    pond = zeros(2,2,numel(dz));
+    pond = zeros(2,2,numel(dz)-1);
     
     for ii=1:msize(1)
     
