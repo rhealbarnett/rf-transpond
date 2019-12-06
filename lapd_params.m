@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-% npts = 1024;
+% npts = 512;
 xax = linspace(xmin,xmax,npts);
 dx = (xmax - xmin) / (npts-1);
 
