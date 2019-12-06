@@ -6,8 +6,8 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
-% equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_superrefined.mat');
-equib = load('/Users/rhealbarnett/Downloads/lapd_equib_superrefined.mat');
+equib = load('/Volumes/DATA/LAPD/matlab/inputs/equil_transport_input.mat');
+% equib = load('/Users/rhealbarnett/Downloads/lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_refined.mat');
 
@@ -156,7 +156,7 @@ period = 1.0/freq;
 % tmax = 5.0e-3;
 save_time = period/10.0;
 % nmax = round(tmax/dt);
-nmax = 10;
+nmax = 100;
 save_iter = round(save_time/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
@@ -193,7 +193,7 @@ end
 Ex = interp1(xax,rf_ex,vxax,'linear');
 Ey = interp1(xax,rf_ey,vxax,'linear');
 Ez = interp1(xax,rf_ez,vxax,'linear');
-pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
+pf_source = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);

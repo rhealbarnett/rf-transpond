@@ -404,7 +404,7 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-    pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
+    pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
     pf_source = [0,pf_source,0];
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
@@ -784,7 +784,7 @@ for ii=1:nmax
         % calculate the source term
         if staggered && ~MMS
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-            pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
+            pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
             pf_source = [0,pf_source,0];
         elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
@@ -952,9 +952,10 @@ for ii=1:nmax
         transport.source = source;
         transport.kx = kx;
         transport.ky = ky;
+        transport.pond = pf_source;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-        filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
+%         filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
         save(filename,'-struct','transport');
         
         continue
