@@ -37,18 +37,23 @@
 %
 %------------------------------------------------------------------%
 
-function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,npts,dz)
+function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz)
 
-    Esquared = [Efield{1}.^2; Efield{2}.^2; Efield{3}.^2];
+    rf_ex = Efield{1};
+    rf_ey = Efield{2};
+    rf_ez = Efield{3};
+    Emix = imag((conj(rf_ey).*...
+                    rf_ex)-(conj(rf_ex).*rf_ey));
+    Esquared = [Efield{1}.^2; Efield{2}.^2; Efield{3}.^2; Emix];
     Esize = size(Esquared);
-    Ediff = zeros(numel(Efield),npts);
-    
-    for jj = 1:Esize(1)
-        for ii = 2:length(dz)
+    Ediff = zeros(numel(Efield)+1,numel(dz));
+       
+    for ii = 2:length(dz)
+        for jj = 1:Esize(1)
             Ediff(jj,ii-1) = -(dz(1,ii)/(dz(1,ii-1)*(dz(1,ii) + dz(1,ii-1))))*Esquared(jj,ii-1) +...
                 ((dz(1,ii) - dz(1,ii-1))/(dz(1,ii)*dz(1,ii-1)))*Esquared(jj,ii) +...
                 (dz(1,ii-1)/(dz(1,ii)*(dz(1,ii) + dz(1,ii-1))))*Esquared(jj,ii+1);
-        end
+        end       
     end
     
     if strcmp(component,'total')
@@ -75,21 +80,21 @@ function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,npts,dz)
         elseif strcmp(component,'perp')
 
             pond{2,ii} = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
-                    + (om_cyc(ii,1)/(omega*(omega^2 - om_cyc(ii,1)^2)))*imag((conj(Efield{2}).*Efield{1})...
-                    -(conj(Efield{1}).*Efield{2})));
+                    + (om_cyc(ii,1)/(omega*(omega^2 - om_cyc(ii,1)^2))).*Ediff(4,:));
                 
         elseif strcmp(component,'total')
             
              pond{1,ii} = (pf_const(ii,1)/omega^2).*Ediff(3,:);
              pond{2,ii} = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
-                    + (om_cyc(ii,1)./(omega*(omega^2 - om_cyc(ii,1)^2))).*imag((conj(Efield{2}).*Efield{1})...
-                    -(conj(Efield{1}).*Efield{2})));
+                    + (om_cyc(ii,1)./(omega*(omega^2 - om_cyc(ii,1)^2))).*Ediff(4,:));
 
         end
         
     end
         
+    
+    ans = cellfun(@(x) x*(1.0/m(2,1)),pond,'un',0);
+%     ans = (1.0/m(2,1)).*pond;
+%     ans = pond;
 
-%     ans = (1.0/m(2,1))*pond;
-    ans = pond;
 end
