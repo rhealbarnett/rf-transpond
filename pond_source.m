@@ -5,7 +5,10 @@
 % INPUTS
 % component: string input, options are 'para', 'perp' or 'total'. This 
 %            will set which component of the electric field is used in the 
-%            calculation of the parallel ponderomotive acceleration.
+%            calculation of the parallel ponderomotive acceleration. If 
+%            desired output is a single array of spatial values, i.e. 
+%            summed over species and components, include second input in
+%            cell array e.g. {'total',1}
 % Efield: {ex, ey, ez}. Can enter empty string if a particular component
 %         of the field is not being used e.g. {ex, ey, ''}.
 % m: mass. If multiple species, enter as column array e.g. [me; mi] for
@@ -23,21 +26,22 @@
 %     constant over the domain, enter as same value at each location.
 %
 % OUPUTS
-% ans: cell array of ponderomotive acceleration for input into an eq of 
-%      motion, the velocity equation. 2x2 cell, array of spatial values in
-%      each cell. Parallel component is stored in row index 1, 
-%      perpendicular in row index 2. Returns 0x0 double array in cell if 
-%      particular component is not calculated. Column index is dictated by 
+% ans: array of ponderomotive acceleration for input into an eq of 
+%      motion, the velocity equation. 2x2xnpts array of values. 
+%      Parallel component is stored in row index 1, 
+%      perpendicular in row index 2. Column index is dictated by 
 %      index of species input. E.g. for m = [me; mi], q = [e; q] and 
 %      om_cyc = [om_ce; om_ci], 'total' output is
 %
-%       2x2 cell array
-%       {PA Epara, e 1xnpts double}  {PA Epara, i 1xnpts double}
-%       {PA Eperp, e 1xnpts double}  {PA Eperp, i 1xnpts double}
+%       2x2xnpts array
+%       ans(1,1,:) = PA Epara,e    ans(1,2,:) = Epara,i
+%       ans(2,1,:) = PA Epara,e    ans(2,2,:) = Epara,i
+%
+% 
 %
 %------------------------------------------------------------------%
 
-function [ans] = pond_source(component,mix,damping,Efield,m,q,om_cyc,omega,dz)
+function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
 
     rf_ex = Efield{1};
     rf_ey = Efield{2};
@@ -46,7 +50,7 @@ function [ans] = pond_source(component,mix,damping,Efield,m,q,om_cyc,omega,dz)
     if mix
         Emix = imag((conj(rf_ey).*...
                     rf_ex)-(conj(rf_ex).*rf_ey));
-    elseif ~mix
+    else
         Emix = zeros(1,length(rf_ex));
     end
     
@@ -62,7 +66,7 @@ function [ans] = pond_source(component,mix,damping,Efield,m,q,om_cyc,omega,dz)
         end       
     end
     
-    if strcmp(component,'total')
+    if strcmp(component{1},'total')
         
         para = 1;
         perp = 1;
@@ -79,16 +83,16 @@ function [ans] = pond_source(component,mix,damping,Efield,m,q,om_cyc,omega,dz)
         pf_const(ii,1) = q(ii,1)^2/(4.0*m(ii,1));
         
         
-        if strcmp(component,'para')
+        if strcmp(component{1},'para')
 
             pond(1,ii,:) = (pf_const(ii,1)/omega^2).*Ediff(3,:);
                 
-        elseif strcmp(component,'perp')
+        elseif strcmp(component{1},'perp')
 
             pond(2,ii,:) = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
                     + (om_cyc(ii,1)/(omega*(omega^2 - om_cyc(ii,1)^2))).*Ediff(4,:));
                 
-        elseif strcmp(component,'total')
+        elseif strcmp(component{1},'total')
             
              pond(1,ii,:) = (pf_const(ii,1)/omega^2).*Ediff(3,:);
              pond(2,ii,:) = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
@@ -107,7 +111,14 @@ function [ans] = pond_source(component,mix,damping,Efield,m,q,om_cyc,omega,dz)
     end
         
     
-    ans = (1.0/m(2,1)).*pond;
+    pf = (1.0/m(2,1)).*pond;
+    
+    if component{2}
+        intermediate = sum(pf,1);
+        ans = sum(intermediate,2);
+    else
+        ans = pf;
+    end
 %     ans = (1.0/m(2,1)).*pond;
 %     ans = pond;
 
