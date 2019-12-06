@@ -50,7 +50,7 @@ function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
         Emix = imag((conj(rf_ey).*...
                     rf_ex)-(conj(rf_ex).*rf_ey));
     else
-        Emix = zeros(1,length(rf_ex));
+        Emix = zeros(1,length(dz)+1);
     end
     
     Esquared = [abs(Efield{1}).^2; abs(Efield{2}).^2; abs(Efield{3}).^2; Emix];
@@ -105,7 +105,7 @@ function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
         for ii=1:msize(1)
             ind = find(damping{2}<=-2.4);
             pond(2,ii,ind) = 0.0;
-            pond(2,ii,length(damping{2})-ind) = 0.0;
+            pond(2,ii,length(damping{2})-ind-1) = 0.0;
         end
     end
         
