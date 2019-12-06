@@ -82,15 +82,15 @@ set(gca,'Fontsize',20)
 
 %%
 
-pa_epara = squeeze(pond(1,1,:));
-pa_ipara = squeeze(pond(1,2,:));
-pa_eperp = squeeze(pond(2,1,:));
-pa_iperp = squeeze(pond(2,2,:));
+pa_epara = squeeze(pf_source(1,1,:));
+pa_ipara = squeeze(pf_source(1,2,:));
+pa_eperp = squeeze(pf_source(2,1,:));
+pa_iperp = squeeze(pf_source(2,2,:));
 
 figure(18)
 
 subplot(2,2,1)
-plot(vxax(2:npts-1), pa_epara, 'k','Linewidth',2)
+plot(vxax(2:npts-2), pa_epara, 'k','Linewidth',2)
 ylabel('PA_{e,||} (ms^{-2})')
 set(gca, 'XTickLabel', [])
 % legend('Ex', 'Location', 'northwest')
@@ -99,7 +99,7 @@ set(gca,'Fontsize',20)
 
 
 subplot(2,2,2)
-plot(vxax(2:npts-1), pa_ipara, 'k','Linewidth',2)
+plot(vxax(2:npts-2), pa_ipara, 'k','Linewidth',2)
 ylabel('PA_{He,||} (ms^{-2})')
 set(gca, 'XTickLabel', [])
 % legend('Ey', 'Location', 'northwest')
@@ -108,16 +108,16 @@ set(gca,'Fontsize',20)
 
 
 subplot(2,2,3)
-plot(vxax(2:npts-1), pa_eperp, 'k','Linewidth',2)
+plot(vxax(2:npts-2), pa_eperp, 'k','Linewidth',2)
 ylabel('PA_{e,\perp} (ms^{-2})')
-% legend('Ez', 'Location', 'northwest')
+xlabel('Position (m)')
 xlim([xmin,xmax]);
 set(gca,'Fontsize',20)
 
 subplot(2,2,4)
-plot(vxax(2:npts-1), pa_iperp, 'k','Linewidth',2)
+plot(vxax(2:npts-2), pa_iperp, 'k','Linewidth',2)
 ylabel('PA_{He,\perp} (ms^{-2})')
-% legend('Ez', 'Location', 'northwest')
+xlabel('Position (m)')
 xlim([xmin,xmax]);
 set(gca,'Fontsize',20)
 
