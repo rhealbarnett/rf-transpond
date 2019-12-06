@@ -404,8 +404,7 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-%     pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
-    pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+    pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
     pf_source = [0,pf_source,0];
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
@@ -531,9 +530,10 @@ for ii=1:nmax
             om,mu0,cpdt,source,0,1,1);
         end
 
-        Ex = interp1(xax,rf_ex,vxax,'linear');
-        Ey = interp1(xax,rf_ey,vxax,'linear');
-        Ez = interp1(xax,rf_ez,vxax,'linear');
+        Efield = abs(rf_ez);
+        Efield = Efield.^2;
+
+        Efield = interp1(xax,Efield,vxax,'linear');
         
     elseif ~couple
         
@@ -785,7 +785,7 @@ for ii=1:nmax
         % calculate the source term
         if staggered && ~MMS
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-            pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+            pf_source = pond_source(const.me,m,om,const.e,Efield,vdx);
             pf_source = [0,pf_source,0];
         elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
@@ -1118,6 +1118,16 @@ end
 
 function [ans] = avg(n,npts)
     ans = (n(2:npts) + n(1:npts-1))/2.0;
+end
+
+function [ans] = pond_source(me,mp,omega,q,Efield,dx)
+    pond_const = (1.0/4.0)*((q^2)/(me*omega^2));
+    for ii = 2:length(dx)
+        Ediff(1,ii-1) = -(dx(1,ii)/(dx(1,ii-1)*(dx(1,ii) + dx(1,ii-1))))*Efield(1,ii-1) +...
+            ((dx(1,ii) - dx(1,ii-1))/(dx(1,ii)*dx(1,ii-1)))*Efield(1,ii) +...
+            (dx(1,ii-1)/(dx(1,ii)*(dx(1,ii) + dx(1,ii-1))))*Efield(1,ii+1);
+    end
+    ans = (1.0/mp)*pond_const*Ediff;
 end
 
 function [ans] = source_stag(n,q,Te,Ti,m,npts,dx)
