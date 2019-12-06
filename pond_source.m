@@ -55,7 +55,7 @@ function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
     
     Esquared = [abs(Efield{1}).^2; abs(Efield{2}).^2; abs(Efield{3}).^2; Emix];
     Esize = size(Esquared);
-    Ediff = zeros(numel(Efield)+1,numel(dz));
+    Ediff = zeros(numel(Efield)+1,numel(dz)-1);
        
     for ii = 2:length(dz)
         for jj = 1:Esize(1)
