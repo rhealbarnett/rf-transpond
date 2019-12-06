@@ -82,29 +82,41 @@ set(gca,'Fontsize',20)
 
 %%
 
+pa_epara = pond{1,1};
+pa_ipara = pond{1,2};
+pa_eperp = pond{2,1};
+pa_iperp = pond{2,2};
+
 figure(18)
 
-subplot(3,1,1)
-plot(vxax(2:npts-2), pond_ex, 'k','Linewidth',2)
-ylabel('x Pond accel (ms^{-2})')
+subplot(2,2,1)
+plot(vxax(2:npts-1), pa_epara, 'k','Linewidth',2)
+ylabel('PA_{e,||} (ms^{-2})')
 set(gca, 'XTickLabel', [])
 % legend('Ex', 'Location', 'northwest')
 xlim([xmin,xmax])
 set(gca,'Fontsize',20)
 
 
-subplot(3,1,2)
-plot(vxax(2:npts-2), pond_ey, 'k','Linewidth',2)
-ylabel('y Pond accel (ms^{-2})')
+subplot(2,2,2)
+plot(vxax(2:npts-1), pa_ipara, 'k','Linewidth',2)
+ylabel('PA_{He,||} (ms^{-2})')
 set(gca, 'XTickLabel', [])
 % legend('Ey', 'Location', 'northwest')
 xlim([xmin,xmax]);
 set(gca,'Fontsize',20)
 
 
-subplot(3,1,3)
-plot(vxax(2:npts-2), pond_para, 'k','Linewidth',2)
-ylabel('z Pond accel (ms^{-2})')
+subplot(2,2,3)
+plot(vxax(2:npts-1), pa_eperp, 'k','Linewidth',2)
+ylabel('PA_{e,\perp} (ms^{-2})')
+% legend('Ez', 'Location', 'northwest')
+xlim([xmin,xmax]);
+set(gca,'Fontsize',20)
+
+subplot(2,2,4)
+plot(vxax(2:npts-1), pa_iperp, 'k','Linewidth',2)
+ylabel('PA_{He,\perp} (ms^{-2})')
 % legend('Ez', 'Location', 'northwest')
 xlim([xmin,xmax]);
 set(gca,'Fontsize',20)
