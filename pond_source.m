@@ -37,7 +37,7 @@
 %
 %------------------------------------------------------------------%
 
-function [ans] = pond_source(component,mix,Efield,m,q,om_cyc,omega,dz)
+function [ans] = pond_source(component,mix,damping,Efield,m,q,om_cyc,omega,dz)
 
     rf_ex = Efield{1};
     rf_ey = Efield{2};
@@ -96,6 +96,14 @@ function [ans] = pond_source(component,mix,Efield,m,q,om_cyc,omega,dz)
 
         end
         
+    end
+    
+    if damping{1}
+        for ii=1:msize(1)
+            ind = find(damping{2}<=-2.4);
+            pond(2,ii,ind) = 0.0;
+            pond(2,ii,length(damping{2})-ind) = 0.0;
+        end
     end
         
     
