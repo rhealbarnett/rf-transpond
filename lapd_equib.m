@@ -173,7 +173,7 @@ Emag = max(abs(sqrt(Efield)));
 %%
 
 if plots
-    figure(10)
+    figure(10) 
     plot(xax,sqrt(Efield),'-o')
     hold on
 else
@@ -190,12 +190,10 @@ end
 
 %%
 
-Efieldx = interp1(xax,abs(rf_ex).^2,vxax,'linear');
-Efieldy = interp1(xax,abs(rf_ey).^2,vxax,'linear');
-
-pond_para = pond_source(const.me,mhe(1),om(1),const.e,Efield,vdx);
-pond_ex = pond_source(mhe(1),mhe(1),om(1),const.e,Efieldx,vdx,om_c(2,1));
-pond_ey = pond_source(mhe(1),mhe(1),om(1),const.e,Efieldy,vdx,om_c(2,1));
+Ex = interp1(xax,rf_ex,vxax,'linear');
+Ey = interp1(xax,rf_ey,vxax,'linear');
+Ez = interp1(xax,rf_ez,vxax,'linear');
+pond = pond_source('total',{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx);
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);
