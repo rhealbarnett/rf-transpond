@@ -61,9 +61,9 @@ continuity = 0;
 central = 1;
 upwind = 0;
 unstable = 0;
-plots = 1;
+plots = 0;
 sparsefill = 1;
-sfile = 0;
+sfile = 1;
 couple = 1;
 
 
@@ -404,8 +404,10 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-    pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
-    pf_source = [0,pf_source,0];
+    pf = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+    pf_inter = sum(pf,1);
+    pf_final = squeeze(sum(pf_inter,2))';
+    pf_source = [0,pf_final,0];
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
@@ -784,8 +786,10 @@ for ii=1:nmax
         % calculate the source term
         if staggered && ~MMS
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-            pf_source = pond_source({'total',1},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
-            pf_source = [0,pf_source,0];
+            pf = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+            pf_inter = sum(pf,1);
+            pf_final = squeeze(sum(pf_inter,2))';
+            pf_source = [0,pf_final,0];
         elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
                 source_stag(n,1,nx/2,nx/2,1,npts,ndx);
@@ -920,7 +924,7 @@ for ii=1:nmax
         end
         counter = counter + 1;
         
-    elseif (mod(ii,save_iter)==0 && sfile) || unstable
+    elseif (mod(ii,save_iter)==0 && sfile) || unstable || (mod(ii,nmax)==0 && sfile)
         
         transport.dt = dt;
         transport.n_source = n_source;
@@ -952,10 +956,11 @@ for ii=1:nmax
         transport.source = source;
         transport.kx = kx;
         transport.ky = ky;
-        transport.pond = pf_source;
+        transport.pond = pf;
+        transport.pond_summed = pf_source;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-%         filename = strcat('C:\Users\c3149416\Documents\coupled_transport_',num2str(ii),'.mat');
+        filename = strcat('/Volumes/DATA/LAPD/matlab/coupled_transport_',num2str(ii),'.mat');
         save(filename,'-struct','transport');
         
         continue

@@ -152,11 +152,11 @@ dt = 0.99*min(ndx)/cs;
 
 % source_mult = 37000;
 period = 1.0/freq;
-% tmax = 100*period;
+tmax = 100*period;
 % tmax = 5.0e-3;
 save_time = period/10.0;
-% nmax = round(tmax/dt);
-nmax = 100;
+nmax = round(tmax/dt);
+% nmax = 100;
 save_iter = round(save_time/dt);
 
 n_new_uni = interp1(nxax,n_new,xax,'linear');
