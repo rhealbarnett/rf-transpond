@@ -1,13 +1,21 @@
 % ----------------------plots----------------------- %
+
+width = 600;
+height = 900;
+x0 = 0;
+y0 = 0;
+
 figure(16)
+set(gcf,'Position',[x0 y0 width height])
 % set(gca,'YTickLabel','%.2f')
 
 subplot(4,1,1)
 plot(xax,source,'b','Linewidth',2)
-ylabel('Source (i\omega\mu_0J_{y})')
+ylabel('{\iti}\omega\mu_0J_{y} (Vm^{-1})')
 set(gca, 'XTickLabel', [])
 xlim([xmin,xmax])
-set(gca,'Fontsize',20)
+set(gca,'Fontsize',20,'FontName','CMU Serif')
+set(gcf,'Position',[x0 y0 width height],'Color','w')
 
 subplot(4,1,2)
 plot(xax, real(rf_ex), 'k','Linewidth',2)
@@ -17,9 +25,13 @@ hold on
 
 plot(xax, imag(rf_ex), '--r','Linewidth',2)
 set(gca, 'XTickLabel', [])
-legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
+% legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
 xlim([xmin,xmax])
-set(gca,'Fontsize',20)
+set(gca,'Fontsize',20,'FontName','CMU Serif')
+set(gcf,'Position',[x0 y0+height width height],'Color','w')
+ax = gca();
+ax.YRuler.Exponent = 2;
+ax.YRuler.TickLabelFormat = '%1.f';
 
 hold off
 
@@ -31,9 +43,13 @@ hold on
 
 plot(xax, imag(rf_ey), '--r','Linewidth',2)
 set(gca, 'XTickLabel', [])
-legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
+% legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
 xlim([xmin,xmax]);
-set(gca,'Fontsize',20)
+set(gca,'Fontsize',20,'FontName','CMU Serif')
+set(gcf,'Position',[x0 y0+2*height width height],'Color','w')
+ax = gca();
+ax.YRuler.Exponent = 3;
+ax.YRuler.TickLabelFormat = '%1.f';
 
 hold off
 
@@ -45,11 +61,16 @@ hold on
 
 plot(xax, imag(rf_ez), '--r','Linewidth',2)
 xlabel('Position (m)')
-legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
+% legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
 xlim([xmin,xmax])
-set(gca,'Fontsize',20)
+set(gca,'Fontsize',20,'FontName','CMU Serif')
+set(gcf,'Position',[x0 y0+3*height width height],'Color','w')
 
 hold off
+
+export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/figs_kyzero_v3/results_kyzero_n17_etotal.pdf',...
+    '-r600')
+
 
 %%
 
