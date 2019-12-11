@@ -10,8 +10,9 @@ equilibrium = 0;
 
 if data
     
-%     equib = load('/Volumes/DATA/LAPD/matlab/inputs/equil_transport_input.mat','vx_new','n_new','xmin',...
-%         'xmax','npts','Te','Ti','nxax','vxax','cs');
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v3/';
+%     load([filepath, 'coupled_transport_init.mat']);
+    
 % 
 %     const = constants();
 %     mach_init = equib.vx_new/equib.cs;
@@ -29,7 +30,7 @@ if data
 %     xax = linspace(equib.xmin,equib.xmax,equib.npts);
 
     lapd_equib;
-    
+
     mach_init = vx_new./cs;
     
     width = 850;
@@ -40,7 +41,7 @@ if data
     figure(1)
     set(gcf,'Position',[x0 y0 width height])
     subplot(3,2,1)
-    plot(nxax,n_init,'color',[0,0,0]+0.7,'Linewidth',5,...
+    plot(nxax,n_new,'color',[0,0,0]+0.7,'Linewidth',5,...
         'DisplayName','time = 0T_{RF}')
     hold on
     box on
@@ -75,9 +76,10 @@ if data
     hold on
     box on
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/';
+    clear rf_ex rf_ey rf_ez rf_e
+   
 
-    for ii=106106
+    for ii=8904
 
         filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 
@@ -146,7 +148,7 @@ if data
         xlim([min(xax) max(xax)])
 %         legend('show')
 
-        export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/figs_kyzero_v3/all_fields.png','-r300')
+        export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v3/figs_kyzero_n16/kyzero_n16_all_fields.png','-r300')
 
 
     end
