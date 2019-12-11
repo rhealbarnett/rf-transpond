@@ -195,39 +195,61 @@ elseif para
         
     elseif length(n_perp)~=1
         
+        width = 1000;
+        height = 800;
+        x0 = 0;
+        y0 = 0;
+        
         indn_np = find(n_new<=1.0e17,1,'last');
         indky_np = find(ky<=30,1,'last');
         indn_p = find(n_new<=1.0e17,1,'last');
-        indky_p = find(ky<=10,1,'last');
+        indky_p = find(ky==0,1,'last');
+        indn_b = find(n_new<=1.0e17,1,'last');
+        indky_b = find(ky<=20,1,'last');
+        indn_tm = find(n_new<=1.0e16,1,'last');
+        indky_tm = find(ky==0,1,'last');
+        indn_bn = find(n_new<=1.0e18,1,'last');
+        indky_bn = find(ky>=20,1,'first');
         
         figure(1)
+        set(gcf,'Position',[x0 y0 width height],'Color','w')
         ax1 = subplot(2,2,1);
         levelsrkp11 = linspace(0,30,50);
         contourf(log10(n_new),abs(ky),real(kpara11)',levelsrkp11,'Linecolor','none')
         colormap(ax1,flipud(bone))
         rc11=colorbar;
         hold on
-        contour(log10(n_new),abs(ky),real(kpara11)',[0.0096,0.0096],'r','Linewidth',2);
-%         plot(log10(n_new(indn_np)),ky(indky_np),'*w','MarkerSize',10)
-%         plot(log10(n_new(indn_p)),ky(indky_p),'*k','MarkerSize',10)
+%         contour(log10(n_new),abs(ky),real(kpara11)',[0.0096,0.0096],'r','Linewidth',2);
+        plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',8,'Linewidth',2,...
+            'MarkerFaceColor','r')
+        plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',30)
+        plot(log10(n_new(indn_b)),ky(indky_b),'*r','MarkerSize',10,'Linewidth',2)
+        plot(log10(n_new(indn_tm)),ky(indky_tm),'xr','MarkerSize',10,'Linewidth',3)
+        plot(log10(n_new(indn_bn)),ky(indky_bn),'+r','MarkerSize',10,'Linewidth',3)
         set(gca,'xtick',[])
-        title('Re[k_{|| 11}] (m^{-1})')
-        ylabel('k_{y} (m^{-1})')
-        set(gca,'Fontsize',30)
+%         title('Re[k_{|| 11}] (m^{-1})')
+        ylabel('{\itk_{y}} (m^{-1})')
+        set(gca,'Fontsize',30,'FontName','CMU Serif')
+        set(gca,'Position',[0.15 0.55 0.3 0.35])
+        h1 = get(rc11,'Position');
+        text(0.02,0.98,'(a)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30)
         hold off
 
         ax2 = subplot(2,2,2);
         levelsikp11 = linspace(0,2.5,50);
         contourf(log10(n_new),abs(ky),imag(kpara11)',levelsikp11,'Linecolor','none')
-        ic11=colorbar;
+        ic11=colorbar();
         colormap(ax2,flipud(bone))
         hold on
-        contour(log10(n_new),abs(ky),imag(kpara11)',[0.0177,0.0177],'r','Linewidth',2);
+%         contour(log10(n_new),abs(ky),imag(kpara11)',[0.0177,0.0177],'r','Linewidth',2);
         set(gca,'xtick',[])
         set(gca,'ytick',[])
-        title('Im[k_{|| 11}] (m^{-1})')
+%         title('Im[k_{|| 11}] (m^{-1})')
 %         ylabel('k_{y} (m^{-1})')
-        set(gca,'Fontsize',30)
+        set(gca,'Fontsize',30,'FontName','CMU Serif')
+        set(gca,'Position',[0.55 0.55 0.3 0.35])
+        h2 = get(ic11,'Position');
+        text(0.02,0.98,'(b)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30)
         hold off
 
         ax3 = subplot(2,2,3);
@@ -235,14 +257,19 @@ elseif para
         contourf(log10(n_new),abs(ky),real(kpara21)',levelsrkp21,'Linecolor','none')
 %         hold on
 %         contourf(log10(n_new),abs(ky),real(kpara21)',[0 0],'Linecolor','k')
-        rc21=colorbar;
+        rc21=colorbar();
+        rc21.Ruler.Exponent = -2;
         colormap(ax3,flipud(bone))
         hold on
-        contour(log10(n_new),abs(ky),real(kpara21)',[0.0027,0.0027],'r','Linewidth',2);
-        title('Re[k_{|| 21}] (m^{-1})')
-        ylabel('k_{y} (m^{-1})'),
+%         contour(log10(n_new),abs(ky),real(kpara21)',[0.0027,0.0027],'r','Linewidth',2);
+%         title('Re[k_{|| 21}] (m^{-1})')
+        ylabel('{\itk_{y}} (m^{-1})'),
         xlabel('log_{10}n')
-        set(gca,'Fontsize',30)
+        text(0.02,0.98,'(c)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30)
+        set(gca,'Fontsize',30,'FontName','CMU Serif')
+%         h = get(gca,'colorbar');
+        set(rc21,'Position',[h1(1) 0.12 h1(3) h1(4)])
+        set(gca,'Position',[0.15 0.12 0.3 0.35])
 
         ax4 = subplot(2,2,4);
         levelsikp21 = linspace(0,35,50);
@@ -250,13 +277,20 @@ elseif para
         ic21=colorbar;
         colormap(ax4,flipud(bone))
         hold on
-        contour(log10(n_new),abs(ky),imag(kpara21)',[0.0013,0.0013],'r','Linewidth',2);
-        title('Im[k_{|| 21}] (m^{-1})')
+%         contour(log10(n_new),abs(ky),imag(kpara21)',[0.0013,0.0013],'r','Linewidth',2);
+%         title('Im[k_{|| 21}] (m^{-1})')
         set(gca,'ytick',[])
 %         ylabel('k_{y} (m^{-1})')
         xlabel('log_{10}n')
-        set(gca,'Fontsize',30)
+        set(gca,'Fontsize',30,'FontName','CMU Serif')
+        set(gca,'Position',[0.55 0.12 0.3 0.35])
+        set(ic21,'Position',[h2(1) 0.12 h2(3) h2(4)])
+        text(0.02,0.98,'(d)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30,...
+            'Color','white')
         hold off
+        
+        export_fig('/Volumes/DATA/LAPD/matlab/dispersion_contour.png',...
+            '-r300')
         
         figure(3)
         ax1 = subplot(2,2,1);
@@ -266,7 +300,7 @@ elseif para
         set(gca,'colorscale','log')
 %         colormap(flipud(parula))
         set(gca,'xtick',[])
-        title('Re[k_{|| 11}]')
+%         title('Re[k_{|| 11}]')
         ylabel('k_{\perp} (m^{-1})')
         set(gca,'Fontsize',20)
 

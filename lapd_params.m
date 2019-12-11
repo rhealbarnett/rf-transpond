@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-% npts = 512;
+% npts = 2048;
 xax = linspace(xmin,xmax,npts);
 dx = (xmax - xmin) / (npts-1);
 
@@ -71,7 +71,7 @@ kx = 20.0i;
 ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
-% n_perp = c0*k_perp./om;
+n_perp = c0*k_perp./om;
 
 %--
 % Wavenumbers as function of spatial location (currently constant).

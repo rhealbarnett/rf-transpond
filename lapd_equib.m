@@ -163,7 +163,7 @@ n_new_uni = interp1(nxax,n_new,xax,'linear');
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
 [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
-    om,mu0,cpdt,source*1.0e-3,0,1,0);
+    om,mu0,cpdt,source,0,1,0);
 
 % rf_ez = zeros(1,npts);
 Efield = abs(rf_ez).^2;
@@ -193,7 +193,7 @@ end
 Ex = interp1(xax,rf_ex,vxax,'linear');
 Ey = interp1(xax,rf_ey,vxax,'linear');
 Ez = interp1(xax,rf_ez,vxax,'linear');
-pf_source = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+pf_source = pond_source({'para',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{0,vxax});
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);

@@ -68,8 +68,8 @@ set(gcf,'Position',[x0 y0+3*height width height],'Color','w')
 
 hold off
 
-export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/figs_kyzero_v3/results_kyzero_n17_etotal.pdf',...
-    '-r600')
+% export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/figs_kyzero_v3/results_kyzero_n17_etotal.pdf',...
+%     '-r600')
 
 
 %%
