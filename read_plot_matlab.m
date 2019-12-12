@@ -10,7 +10,7 @@ equilibrium = 0;
 
 if data
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v3/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_ky20_n18_v2/';
 %     load([filepath, 'coupled_transport_init.mat']);
     
 % 
@@ -148,7 +148,7 @@ if data
         xlim([min(xax) max(xax)])
 %         legend('show')
 
-        export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_n16_v3/figs_kyzero_n16/kyzero_n16_all_fields.png','-r300')
+        export_fig('/Volumes/DATA/LAPD/matlab/results_jsource_ky20_n18_v2/figs_ky20_n18_v2/ky20_n18_all_fields.png','-r300')
 
 
     end

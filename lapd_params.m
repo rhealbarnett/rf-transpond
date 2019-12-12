@@ -68,7 +68,7 @@ m_s = [me; mhe];
 % m^-1. 
 k0 = (om/c0);
 kx = 20.0i;
-ky = 0.0;
+ky = 20.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
