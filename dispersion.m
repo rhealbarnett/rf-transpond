@@ -289,8 +289,8 @@ elseif para
             'Color','white')
         hold off
         
-        export_fig('/Volumes/DATA/LAPD/matlab/dispersion_contour.png',...
-            '-r300')
+%         export_fig('/Volumes/DATA/LAPD/matlab/dispersion_contour.png',...
+%             '-r300')
         
         figure(3)
         ax1 = subplot(2,2,1);

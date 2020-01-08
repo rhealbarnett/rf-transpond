@@ -11,7 +11,7 @@
 
 % function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
 %     om,mu0,cpdt,source_width,source_loc,source_mult,MMS,para,sparsefill)
-function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
+function [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(ax,ky,k,k0,...
     om,mu0,cpdt,source,MMS,para,sparsefill)
 
     npts = length(ax);
@@ -313,6 +313,16 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     rf_ex = rf_e(1,1:3:3*npts);
     rf_ey = rf_e(1,2:3:3*npts);
     rf_ez = rf_e(1,3:3:3*npts);
+    
+    exj_dot = rf_ex.*conj(0);
+    eyj_dot = rf_ey.*conj(source);
+    ezj_dot = rf_ez.*conj(0);
+
+    diss_powx = (1.0/2.0)*real(trapz(ax,exj_dot));
+    diss_powy = (1.0/2.0)*real(trapz(ax,eyj_dot));
+    diss_powz = (1.0/2.0)*real(trapz(ax,ezj_dot));
+
+    diss_pow = [diss_powx, diss_powy, diss_powz];
 
 end
 

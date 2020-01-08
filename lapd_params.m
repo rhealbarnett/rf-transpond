@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 xmin = -4.;
 xmax = 4.0;
-% npts = 2048;
+npts = 2048;
 xax = linspace(xmin,xmax,npts);
 dx = (xmax - xmin) / (npts-1);
 
@@ -61,14 +61,14 @@ m_s = [me; mhe];
 % Nmax = 1.0e19;
 % Nmin = 1.0e16;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e17*ones(1,npts);
+n_new = 1.0e17*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = (om/c0);
 kx = 20.0i;
-ky = 20.0;
+ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
