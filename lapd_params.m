@@ -29,11 +29,11 @@ B0 = 0.1;
 %--
 % Actual plasma column is ~ 18 (m). However, use reduced size as interest
 % is close to the antenna. 
-xmin = -4.;
-xmax = 4.0;
-npts = 2048;
-xax = linspace(xmin,xmax,npts);
-dx = (xmax - xmin) / (npts-1);
+zmin = -4.0;
+zmax = 4.0;
+npts = 512;
+zax = linspace(zmin,zmax,npts);
+dx = (zmax - zmin) / (npts-1);
 
 %--
 % Driving frequency of the single strap, high power antenna (Hz)
@@ -86,7 +86,7 @@ source_loc = 0;
 source_mult = 37000;
 
 mult = 1.0/sqrt(2.0*pi*source_width);
-source = mult*exp(-(xax - source_loc).^2/(2.0*source_width^2));
+source = mult*exp(-(zax - source_loc).^2/(2.0*source_width^2));
 source = source / max(source);
 source = source*source_mult;
 
