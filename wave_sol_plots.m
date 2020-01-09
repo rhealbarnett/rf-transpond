@@ -10,23 +10,23 @@ set(gcf,'Position',[x0 y0 width height])
 % set(gca,'YTickLabel','%.2f')
 
 subplot(4,1,1)
-plot(xax,source,'b','Linewidth',2)
+plot(zax,source,'b','Linewidth',2)
 ylabel('{\iti}\omega\mu_0J_{y} (Vm^{-1})')
 set(gca, 'XTickLabel', [])
-xlim([xmin,xmax])
+xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0 width height],'Color','w')
 
 subplot(4,1,2)
-plot(xax, real(rf_ex), 'k','Linewidth',2)
+plot(zax, real(rf_ex), 'k','Linewidth',2)
 ylabel('E_x (Vm^{-1})')
 
 hold on
 
-plot(xax, imag(rf_ex), '--r','Linewidth',2)
+plot(zax, imag(rf_ex), '--r','Linewidth',2)
 set(gca, 'XTickLabel', [])
 % legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
-xlim([xmin,xmax])
+xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+height width height],'Color','w')
 ax = gca();
@@ -36,15 +36,15 @@ ax.YRuler.TickLabelFormat = '%1.f';
 hold off
 
 subplot(4,1,3)
-plot(xax, real(rf_ey), 'k','Linewidth',2)
+plot(zax, real(rf_ey), 'k','Linewidth',2)
 ylabel('E_y (Vm^{-1})')
 
 hold on
 
-plot(xax, imag(rf_ey), '--r','Linewidth',2)
+plot(zax, imag(rf_ey), '--r','Linewidth',2)
 set(gca, 'XTickLabel', [])
 % legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
-xlim([xmin,xmax]);
+xlim([zmin,zmax]);
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+2*height width height],'Color','w')
 ax = gca();
@@ -54,15 +54,15 @@ ax.YRuler.TickLabelFormat = '%1.f';
 hold off
 
 subplot(4,1,4)
-plot(xax, real(rf_ez), 'k','Linewidth',2)
+plot(zax, real(rf_ez), 'k','Linewidth',2)
 ylabel('E_z (Vm^{-1})')
 
 hold on
 
-plot(xax, imag(rf_ez), '--r','Linewidth',2)
+plot(zax, imag(rf_ez), '--r','Linewidth',2)
 xlabel('Position (m)')
 % legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
-xlim([xmin,xmax])
+xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+3*height width height],'Color','w')
 
@@ -77,28 +77,28 @@ hold off
 figure(17)
 
 subplot(3,1,1)
-plot(xax, abs(rf_ex).^2, 'k','Linewidth',2)
+plot(zax, abs(rf_ex).^2, 'k','Linewidth',2)
 ylabel('|E_x|^2 (V^2m^{-2})')
 set(gca, 'XTickLabel', [])
 legend('Ex', 'Location', 'northwest')
-xlim([xmin,xmax])
+xlim([zmin,zmax])
 set(gca,'Fontsize',20)
 
 
 subplot(3,1,2)
-plot(xax, abs(rf_ey).^2, 'k','Linewidth',2)
+plot(zax, abs(rf_ey).^2, 'k','Linewidth',2)
 ylabel('|E_y|^2 (V^2m^{-2})')
 set(gca, 'XTickLabel', [])
 legend('Ey', 'Location', 'northwest')
-xlim([xmin,xmax]);
+xlim([zmin,zmax]);
 set(gca,'Fontsize',20)
 
 
 subplot(3,1,3)
-plot(xax, abs(rf_ez).^2, 'k','Linewidth',2)
+plot(zax, abs(rf_ez).^2, 'k','Linewidth',2)
 ylabel('|E_z|^2 (V^2m^{-2})')
 legend('Ez', 'Location', 'northwest')
-xlim([xmin,xmax]);
+xlim([zmin,zmax]);
 set(gca,'Fontsize',20)
 
 %%
@@ -115,7 +115,7 @@ plot(vxax(2:npts-2), pa_epara, 'k','Linewidth',2)
 ylabel('PA_{e,||} (ms^{-2})')
 set(gca, 'XTickLabel', [])
 % legend('Ex', 'Location', 'northwest')
-xlim([xmin,xmax])
+xlim([zmin,zmax])
 set(gca,'Fontsize',20)
 
 
@@ -124,7 +124,7 @@ plot(vxax(2:npts-2), pa_ipara, 'k','Linewidth',2)
 ylabel('PA_{He,||} (ms^{-2})')
 set(gca, 'XTickLabel', [])
 % legend('Ey', 'Location', 'northwest')
-xlim([xmin,xmax]);
+xlim([zmin,zmax]);
 set(gca,'Fontsize',20)
 
 
@@ -132,14 +132,14 @@ subplot(2,2,3)
 plot(vxax(2:npts-2), pa_eperp, 'k','Linewidth',2)
 ylabel('PA_{e,\perp} (ms^{-2})')
 xlabel('Position (m)')
-xlim([xmin,xmax]);
+xlim([zmin,zmax]);
 set(gca,'Fontsize',20)
 
 subplot(2,2,4)
 plot(vxax(2:npts-2), pa_iperp, 'k','Linewidth',2)
 ylabel('PA_{He,\perp} (ms^{-2})')
 xlabel('Position (m)')
-xlim([xmin,xmax]);
+xlim([zmin,zmax]);
 set(gca,'Fontsize',20)
 
 
