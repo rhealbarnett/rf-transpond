@@ -218,14 +218,16 @@ elseif para
         contourf(log10(n_new),abs(ky),real(kpara11)',levelsrkp11,'Linecolor','none')
         colormap(ax1,flipud(bone))
         rc11=colorbar;
+        rc11.Ruler.TickLabelFormat = '%1.1f';
+        rc11.Ruler.Exponent = 1;
         hold on
-%         contour(log10(n_new),abs(ky),real(kpara11)',[0.0096,0.0096],'r','Linewidth',2);
-        plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',8,'Linewidth',2,...
-            'MarkerFaceColor','r')
-        plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',30)
-        plot(log10(n_new(indn_b)),ky(indky_b),'*r','MarkerSize',10,'Linewidth',2)
-        plot(log10(n_new(indn_tm)),ky(indky_tm),'xr','MarkerSize',10,'Linewidth',3)
-        plot(log10(n_new(indn_bn)),ky(indky_bn),'+r','MarkerSize',10,'Linewidth',3)
+%         contour(log10(n_new),abs(ky),real(kpara11)',[0.01665,0.01665],'r','Linewidth',2);
+%         plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',8,'Linewidth',2,...
+%             'MarkerFaceColor','r')
+%         plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',30)
+%         plot(log10(n_new(indn_b)),ky(indky_b),'*r','MarkerSize',10,'Linewidth',2)
+%         plot(log10(n_new(indn_tm)),ky(indky_tm),'xr','MarkerSize',10,'Linewidth',3)
+%         plot(log10(n_new(indn_bn)),ky(indky_bn),'+r','MarkerSize',10,'Linewidth',3)
         set(gca,'xtick',[])
 %         title('Re[k_{|| 11}] (m^{-1})')
         ylabel('{\itk_{y}} (m^{-1})')
@@ -240,6 +242,7 @@ elseif para
         contourf(log10(n_new),abs(ky),imag(kpara11)',levelsikp11,'Linecolor','none')
         ic11=colorbar();
         colormap(ax2,flipud(bone))
+        ic11.Ruler.TickLabelFormat = '%1.1f';
         hold on
 %         contour(log10(n_new),abs(ky),imag(kpara11)',[0.0177,0.0177],'r','Linewidth',2);
         set(gca,'xtick',[])
@@ -258,7 +261,8 @@ elseif para
 %         hold on
 %         contourf(log10(n_new),abs(ky),real(kpara21)',[0 0],'Linecolor','k')
         rc21=colorbar();
-        rc21.Ruler.Exponent = -2;
+%         rc21.Ruler.Exponent = 1;
+        rc21.Ruler.TickLabelFormat = '%1.1f';
         colormap(ax3,flipud(bone))
         hold on
 %         contour(log10(n_new),abs(ky),real(kpara21)',[0.0027,0.0027],'r','Linewidth',2);
@@ -277,6 +281,8 @@ elseif para
         ic21=colorbar;
         colormap(ax4,flipud(bone))
         hold on
+        ic21.Ruler.TickLabelFormat = '%1.1f';
+        ic21.Ruler.Exponent = 1;
 %         contour(log10(n_new),abs(ky),imag(kpara21)',[0.0013,0.0013],'r','Linewidth',2);
 %         title('Im[k_{|| 21}] (m^{-1})')
         set(gca,'ytick',[])
@@ -289,7 +295,7 @@ elseif para
             'Color','white')
         hold off
         
-%         export_fig('/Volumes/DATA/LAPD/matlab/dispersion_contour.png',...
+%         export_fig('/Volumes/DATA/LAPD/matlab/wave_projection/dispersion_contour_kx10.png',...
 %             '-r300')
         
         figure(3)

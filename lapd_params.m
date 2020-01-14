@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 zmin = -4.0;
 zmax = 4.0;
-npts = 512;
+npts = 2048;
 zax = linspace(zmin,zmax,npts);
 dx = (zmax - zmin) / (npts-1);
 
@@ -82,6 +82,7 @@ ky = ky.*dampk;
 %-- 
 % Current source parameters.
 source_width = 0.06/(2.*sqrt(2.*log(2.)));
+% source_width = 0.06;
 source_loc = 0;
 source_mult = 37000;
 

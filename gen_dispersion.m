@@ -9,10 +9,10 @@ syms kx
 
 %--
 % initialise kx roots arrays, ensure they are complex
-kx_arr = zeros(npts, 4);
+kx_arr = zeros(npts, 2);
 kx_arr = complex(kx_arr);
 
-kz = k_perp;
+kz = kx;
 ky = 0.0;
 
 %-- 
@@ -68,7 +68,7 @@ for ii = 1:npts
     % store the four roots
     kx_arr(ii,:) = kx_coeffs_roots;
     
-    for kk=1:4
+    for kk=1:2
         check(ii,kk) = vpa(subs(kx_quart,kx,kx_arr(ii,kk)));
     end
     
