@@ -67,7 +67,7 @@ if perp
     else
     end
         
-    if length(n_para)==1
+    if length(n_para)==1 && plots
         figure(1)
         subplot(1,2,1)
         semilogx(n_new, real(kp21),'.k')
@@ -87,8 +87,8 @@ if perp
         xlabel('n (m^{-3})')
         ylabel('k_{\perp} (m^{-1})')
         
-    elseif length(n_para)~=1
-        
+    elseif length(n_para)~=1 && plots
+         
         figure(2)
         subplot(2,2,1)
         contourf(log10(n_new),(k_para),real(kpara11)','Linecolor','none')
@@ -161,7 +161,7 @@ elseif para
         
     end
     
-    if length(n_perp)==1
+    if length(n_perp)==1 && plots
         figure(2)
         subplot(1,2,1)
         semilogx(n_new, real(kp21),'.k')
@@ -193,7 +193,7 @@ elseif para
         ylabel('k_{||} (m^{-1})')
         set(gca,'Fontsize',30)
         
-    elseif length(n_perp)~=1
+    elseif length(n_perp)~=1 && plots
         
         width = 1000;
         height = 800;
@@ -370,50 +370,50 @@ yp22 = sign(kp22).*log10(abs(kp22));
 
 %%
 
-figure(9)
-plot(log10(n_new),real(yp11),'.k','Markersize',20)
-
-hold on
-
-plot(log10(n_new),imag(yp11),'.r','Markersize',20)
-plot(log10(n_new),real(yp12),'dk','MarkerSize',7)
-plot(log10(n_new),imag(yp12),'dr','MarkerSize',7)
-plot(log10(Nmax)*ones(1,npts),log10(linspace(0.01,100,npts)),'b','Linewidth',3)
-plot(log10(1.0e17)*ones(1,npts),log10(linspace(0.01,100,npts)),'b','Linewidth',3)
-if perp
-    legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
-    ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
-elseif para
-    legend('Re[k_{||1}]', 'Im[k_{||1}]', 'Re[k_{||1}]', 'Im[k_{||1}]')
-    ylabel('log_{10}|k_{||1}|','Fontsize',16)
-end
-xlabel('log_{10}|n|','Fontsize',16)
-% vline(log10(Nmin),'--b')
-xlim([log10(min(n_new)),log10(max(n_new))])
-set(gca,'XDir','reverse');
-
-hold off
-
-figure(10)
-plot(log10(n_new),real(yp21),'.k','Markersize',20)
-
-hold on
-
-plot(log10(n_new),imag(yp21),'.r','Markersize',20)
-plot(log10(n_new),real(yp22),'dk','MarkerSize',7)
-plot(log10(n_new),imag(yp22),'dr','MarkerSize',7)
-if perp
-    legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
-    ylabel('log_{10}|k_{\perp2}|','Fontsize',16)
-elseif para
-    legend('Re[k_{||2}]', 'Im[k_{||2}]', 'Re[k_{||2}]', 'Im[k_{||2}]')
-    ylabel('log_{10}|k_{||2}|','Fontsize',16)
-end
-xlabel('log_{10}|n|','Fontsize',16)
-% vline(log10(N0(imme)),'--k') 
-xlim([log10(min(n_new)),log10(max(n_new))])
-set(gca,'XDir','reverse');
-
-hold off
-
-
+% figure(9)
+% plot(log10(n_new),real(yp11),'.k','Markersize',20)
+% 
+% hold on
+% 
+% plot(log10(n_new),imag(yp11),'.r','Markersize',20)
+% plot(log10(n_new),real(yp12),'dk','MarkerSize',7)
+% plot(log10(n_new),imag(yp12),'dr','MarkerSize',7)
+% plot(log10(Nmax)*ones(1,npts),log10(linspace(0.01,100,npts)),'b','Linewidth',3)
+% plot(log10(1.0e17)*ones(1,npts),log10(linspace(0.01,100,npts)),'b','Linewidth',3)
+% if perp
+%     legend('Re[k_{\perp1}]', 'Im[k_{\perp1}]', 'Re[k_{\perp1}]', 'Im[k_{\perp1}]')
+%     ylabel('log_{10}|k_{\perp1}|','Fontsize',16)
+% elseif para
+%     legend('Re[k_{||1}]', 'Im[k_{||1}]', 'Re[k_{||1}]', 'Im[k_{||1}]')
+%     ylabel('log_{10}|k_{||1}|','Fontsize',16)
+% end
+% xlabel('log_{10}|n|','Fontsize',16)
+% % vline(log10(Nmin),'--b')
+% xlim([log10(min(n_new)),log10(max(n_new))])
+% set(gca,'XDir','reverse');
+% 
+% hold off
+% 
+% figure(10)
+% plot(log10(n_new),real(yp21),'.k','Markersize',20)
+% 
+% hold on
+% 
+% plot(log10(n_new),imag(yp21),'.r','Markersize',20)
+% plot(log10(n_new),real(yp22),'dk','MarkerSize',7)
+% plot(log10(n_new),imag(yp22),'dr','MarkerSize',7)
+% if perp
+%     legend('Re[k_{\perp2}]', 'Im[k_{\perp2}]', 'Re[k_{\perp2}]', 'Im[k_{\perp2}]')
+%     ylabel('log_{10}|k_{\perp2}|','Fontsize',16)
+% elseif para
+%     legend('Re[k_{||2}]', 'Im[k_{||2}]', 'Re[k_{||2}]', 'Im[k_{||2}]')
+%     ylabel('log_{10}|k_{||2}|','Fontsize',16)
+% end
+% xlabel('log_{10}|n|','Fontsize',16)
+% % vline(log10(N0(imme)),'--k') 
+% xlim([log10(min(n_new)),log10(max(n_new))])
+% set(gca,'XDir','reverse');
+% 
+% hold off
+% 
+% 

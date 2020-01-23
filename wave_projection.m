@@ -3,7 +3,8 @@
 % rlbarnett c3149416 200109
 %-------------------------------------------------------------------------%
 
-function [Ex_x, Ey_x, Ez_x, Ex_y, Ey_y, Ez_y] = wave_projection(xax,yax,kx,ky,rf_ex,rf_ey,rf_ez,npts)
+function [Ex_x, Ey_x, Ez_x, Ex_y, Ey_y, Ez_y,...
+    Emag_x, Emag_y] = wave_projection(xax,yax,kx,ky,rf_ex,rf_ey,rf_ez,npts)
 
     nptsx = numel(xax);
     nptsy = numel(yax);
@@ -14,6 +15,8 @@ function [Ex_x, Ey_x, Ez_x, Ex_y, Ey_y, Ez_y] = wave_projection(xax,yax,kx,ky,rf
     Ey_y = zeros(npts,nptsy);
     Ez_x = zeros(npts,nptsx);
     Ez_y = zeros(npts,nptsy);
+    Emag_x = zeros(npts,nptsx);
+    Emag_y = zeros(npts,nptsy);
     
     for jj=1:npts
         for ii=1:nptsx
@@ -25,6 +28,11 @@ function [Ex_x, Ey_x, Ez_x, Ex_y, Ey_y, Ez_y] = wave_projection(xax,yax,kx,ky,rf
             Ex_x(jj,ii) = real(rf_ex(1,jj)*(exp(1i*kx(1,ii)*xax(1,ii))));
             Ey_x(jj,ii) = real(rf_ey(1,jj)*(exp(1i*kx(1,ii)*xax(1,ii))));
             Ez_x(jj,ii) = real(rf_ez(1,jj)*(exp(1i*kx(1,ii)*xax(1,ii))));
+            
+            Emag_x(jj,ii) = sqrt(Ex_x(jj,ii)^2 +...
+                Ey_x(jj,ii)^2 + Ez_x(jj,ii)^2);
+%             Emag_x(jj,ii) = sqrt(rf_ex(1,jj)*conj(rf_ex(1,jj)) + rf_ey(1,jj)*conj(rf_ey(1,jj)) +...
+%                 rf_ez(1,jj)*conj(rf_ez(1,jj)))*(exp(1i*kx(1,ii)*xax(1,ii)));
 
         end
 
@@ -37,6 +45,8 @@ function [Ex_x, Ey_x, Ez_x, Ex_y, Ey_y, Ez_y] = wave_projection(xax,yax,kx,ky,rf
             Ex_y(jj,ii) = real(rf_ex(1,jj)*(exp(1i*ky(1,ii)*yax(1,ii))));
             Ey_y(jj,ii) = real(rf_ey(1,jj)*(exp(1i*ky(1,ii)*yax(1,ii))));
             Ez_y(jj,ii) = real(rf_ez(1,jj)*(exp(1i*ky(1,ii)*yax(1,ii))));
+            
+            Emag_y(jj,ii) = sqrt(Ex_y(jj,ii)^2 + Ey_y(jj,ii)^2 + Ez_y(jj,ii)^2);
 
         end
     end

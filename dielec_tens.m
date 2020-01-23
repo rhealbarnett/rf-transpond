@@ -80,7 +80,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,n
         for ii=1:npts
             
             sig(1,1,ii) = sig(1,1,ii)*damp_sig(1,ii);
-            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*1.0e3;
+            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*1.0e1;
 %             sig(1,1,ii) = sig(1,1,ii) + (1i*sig(1,1,ii)*damp_sig(1,ii));
 %             sig(2,2,ii) = damp_sig(1,ii)*(sig(2,2,ii));
 %             sig(2,2,ii) = sig(2,2,ii) + (1i*(sig(2,2,ii)*(damp_sig(1,ii)))+shift11)*1.0e3;

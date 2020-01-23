@@ -12,8 +12,8 @@ wave_sol_plots
 %%
 
 xax = linspace(-2,2,npts/2);
-yax = linspace(-2,2,npts/4);
+yax = 0.0;%linspace(-2,2,npts/4);
 
-[Ex_x, Ey_x, Ez_x, Ex_y, Ey_y, Ez_y] = wave_projection(xax,yax,kx,ky,rf_ex,...
+[Ex_x, Ey_x, Ez_x, Ex_y, Ey_y, Ez_y, Emag_x, Emag_y] = wave_projection(xax,yax,kx,ky,rf_ex,...
     rf_ey,rf_ez,npts);
 

@@ -8,6 +8,7 @@ Tfast = 1.0/ffast;
 Tslow = 1.0/fslow;
 tmax = 7*Tslow;
 dt = Tfast/20;
+tax = linspace(0,tmax,tmax/dt);
 
 NP = floor(tmax/dt);
 
@@ -22,7 +23,7 @@ freq_arr = linspace(1,fmax,fmax/df);
 for ii=1:NP
     
     tseries_fast(1,ii) = Afast*cos(2.0*pi*ffast*dt*ii);
-    tseries_slow(1,ii) = Aslow*cos(2.0*pi*fslow*dt*ii);
+    tseries_slow(1,ii) = Aslow*sin(2.0*pi*fslow*dt*ii);
     
 end
 
