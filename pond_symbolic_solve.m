@@ -20,12 +20,12 @@ az = 0;
 ux = subs(ux); uy = subs(uy); uz = subs(uz);
 
 clear all
-syms ux(z) uy(z) uz(z) Jx(z) Jy(z) Jz(z) Ex(z) Ey(z) Ez(z)...
-    q om m n az(z) OMz ax(z) ay(z) x y z
+syms ux(x,y,z) uy(x,y,z) uz(x,y,z) Jx(x,y,z) Jy(x,y,z) Jz(x,y,z) Ex(x,y,z)...
+    Ey(x,y,z) Ez(x,y,z) q om m n az(x,y,z) OMz ax(x,y,z) ay(x,y,z) x y z
 
-E = [Ex(z), Ey(z), 0];
-J = [Jx(z), Jy(z), 0];
-u = [ux(z), uy(z), 0];
+E = [Ex(x,y,z), Ey(x,y,z), Ez(x,y,z)];
+J = [Jx(x,y,z), Jy(x,y,z), Jz(x,y,z)];
+u = [ux(x,y,z), uy(x,y,z), uz(x,y,z)];
 
 JE = mtimes(transpose(J),conj(E));
 uu = mtimes(transpose(u),conj(u));
@@ -57,11 +57,15 @@ end
 pf_vec = (1i/om)*(gradEdotJ - divJE) - n*m*divuu;
 
 pf_vec = subs(pf_vec,J,n*q*u);
-pf_vec = subs(pf_vec,[ux(z),uy(z)],[(1i*om*ax(z)-OMz*ay(z))/(om^2 - OMz^2),...
-    (OMz*ax(z) + 1i*om*ay(z))/(om^2 - OMz^2)]);
+% pf_vec = subs(pf_vec,[ux(z),uy(z)],[(1i*om*ax(z)-OMz*ay(z))/(om^2 - OMz^2),...
+%     (OMz*ax(z) + 1i*om*ay(z))/(om^2 - OMz^2)]);
 % pf_vec = subs(pf_vec,uz(z),(1i/om)*az(z));
 % pf_vec = subs(pf_vec,az(z),q*Ez(z)/m);
-pf_vec = subs(pf_vec,[ax(z), ay(z)],[q*Ex(z)/m, q*Ey(z)/m]);
+% pf_vec = subs(pf_vec,[ax(z),ay(z)],[q*Ex(z)/m, q*Ey(z)/m]);
+pf_vec = subs(pf_vec,[ux(x,y,z),uy(x,y,z),uz(x,y,z)],[(1i*om*ax(x,y,z)-OMz*ay(x,y,z))/(om^2 - OMz^2),...
+    (OMz*ax(x,y,z) + 1i*om*ay(x,y,z))/(om^2 - OMz^2), (1i/om)*az(x,y,z)]);
+pf_vec = subs(pf_vec,[ax(x,y,z),ay(x,y,z),az(x,y,z)],[q*Ex(x,y,z)/m,...
+    q*Ey(x,y,z)/m, q*Ez(x,y,z)/m]);
 
 assume(q,'real')
 assume(om,'real')
@@ -78,6 +82,26 @@ PF = (1.0/2.0)*real(pf_vec);
 % assume(OMz,'real')
 
 
-%  -(imag((n*q*conj(diff(Ex(z), z))*((OMz*q*Ey(z))/m - (om*q*Ex(z)*1i)/m))/(OMz^2 - om^2)) -...
-%      imag((n*q*conj(diff(Ey(z), z))*((OMz*q*Ex(z))/m + (om*q*Ey(z)*1i)/m))/(OMz^2 - om^2)))/(2*om);
+ - (((n*q*conj(Ey(x, y, z))*((OMz*q*diff(Ey(x, y, z), x))/m - (om*q*diff(Ex(x, y, z), x)*1i)/m))/(OMz^2 - om^2) - 
+ (n*q*conj(Ey(x, y, z))*((OMz*q*diff(Ex(x, y, z), y))/m + (om*q*diff(Ey(x, y, z), y)*1i)/m))/(OMz^2 - om^2) + 
+ (n*q*conj(diff(Ey(x, y, z), x))*((OMz*q*Ey(x, y, z))/m - (om*q*Ex(x, y, z)*1i)/m))/(OMz^2 - om^2) - 
+ (n*q*conj(diff(Ex(x, y, z), y))*((OMz*q*Ey(x, y, z))/m - (om*q*Ex(x, y, z)*1i)/m))/(OMz^2 - om^2) - 
+ (n*q^2*conj(diff(Ez(x, y, z), y))*Ez(x, y, z)*1i)/(m*om) + 
+ (n*q^2*conj(Ey(x, y, z))*diff(Ez(x, y, z), z)*1i)/(m*om) + 
+ (n*q^2*conj(diff(Ey(x, y, z), z))*Ez(x, y, z)*1i)/(m*om))*1i)/om + 
+     m*n*((((q*conj(Ex(x, y, z))*conj(OMz))/m - 
+     (q*conj(Ey(x, y, z))*conj(om)*1i)/m)*((OMz*q*diff(Ey(x, y, z), x))/m - 
+     (om*q*diff(Ex(x, y, z), x)*1i)/m))/((OMz^2 - om^2)*(OMz^2 - om^2)) + 
+     (((OMz*q*Ey(x, y, z))/m - (om*q*Ex(x, y, z)*1i)/m)*((q*conj(OMz)*conj(diff(Ex(x, y, z), x)))/m - 
+     (q*conj(om)*conj(diff(Ey(x, y, z), x))*1i)/m))/((OMz^2 - om^2)*(OMz^2 - om^2)) - 
+     (((q*conj(OMz)*conj(diff(Ex(x, y, z), y)))/m - 
+     (q*conj(om)*conj(diff(Ey(x, y, z), y))*1i)/m)*((OMz*q*Ex(x, y, z))/m + 
+     (om*q*Ey(x, y, z)*1i)/m))/((OMz^2 - om^2)*(OMz^2 - om^2)) - 
+     (((q*conj(Ex(x, y, z))*conj(OMz))/m - 
+     (q*conj(Ey(x, y, z))*conj(om)*1i)/m)*((OMz*q*diff(Ex(x, y, z), y))/m + 
+     (om*q*diff(Ey(x, y, z), y)*1i)/m))/((OMz^2 - om^2)*(OMz^2 - om^2)) + 
+     (q*((q*conj(OMz)*conj(diff(Ex(x, y, z), z)))/m - 
+     (q*conj(om)*conj(diff(Ey(x, y, z), z))*1i)/m)*Ez(x, y, z)*1i)/(m*om*(OMz^2 - om^2)) + 
+     (q*((q*conj(Ex(x, y, z))*conj(OMz))/m - 
+     (q*conj(Ey(x, y, z))*conj(om)*1i)/m)*diff(Ez(x, y, z), z)*1i)/(m*om*(OMz^2 - om^2)))
 
