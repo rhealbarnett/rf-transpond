@@ -52,7 +52,7 @@ tmax = 0.5;
 plots = 1;
 
 
-%% get data ---------------------------------------------------------------- %
+ %% get data ---------------------------------------------------------------- %
 
 [actx_LP, acty_LP, time_LP, data_LP] = get_probe(filename, probename, channels, x, z, dz, 1);
 
@@ -83,6 +83,21 @@ for ii= 1:numel(x)
     end
 end
 
+temp = data_x{1,floor(Nz/2),1};
+
+x0 = 0;
+y0 = 0;
+width = 1000;
+height = 500;
+
+figure(1)
+set(gcf,'Position',[x0 y0 width height],'Color','w')
+plot(time_LP(1:10:end),temp(1:10:end),'--k','Linewidth',0.5)
+ylabel('I_{\it sat} (A)')
+xlabel('Time (ms)')
+xlim([min(time_LP) max(time_LP)])
+hold on
+
 %% Find Isat > 4.0ms, average, and shift data by this value. 
 
 shift_time = find(time_LP>=(max(time_LP)-1.0));
@@ -100,6 +115,14 @@ end
 
 clear tempx tempy tempz
 
+temp = data_x{1,floor(Nz/2),1};
+
+figure(1)
+plot(time_LP,temp,'k','Linewidth',1.0)
+
+% export_fig('/Volumes/DATA/thesis/RFT/figs/isat_timeseries.png',...
+%     '-r300')
+
 %% Calculate moving mean for the raw Isat data
 
 for ii= 1:numel(x)
@@ -115,8 +138,8 @@ end
 t = find(time_LP > 0.49 & time_LP < 0.51);
 npts = length(time_LP);
 tax = time_LP*1.0e-3;
-temp = data_x{1,(Nz+1)/2,1};
-plot_temp = mm_x{1,(Nz+1)/2,1};
+% temp = data_x{1,(Nz+1)/2,1};
+plot_temp = mm_x{1,floor(Nz/2),1};
 
 %% Plot moving mean results.
 
@@ -172,20 +195,27 @@ freq_data_ind = find(pow(high_freq)==max(pow(high_freq)));
 freq_data = freq_ax(freq_data_ind);
 T_data = 1.0/freq_data;
 
+%%
+
 %% Plot first portion of the FFT data
 
 figure(2)
-subplot(2,2,1)
-plot(tax,temp)
-xlabel('Time (s)')
-ylabel('Raw Isat (A)')
-title('Raw Isat')
+set(gcf,'Position',[x0 y0 width height],'color','w')
+% subplot(2,2,1)
+% plot(tax,temp)
+% xlabel('Time (s)')
+% ylabel('Raw Isat (A)')
+% title('Raw Isat')
 
-subplot(2,2,3)
-plot(freq_ax,pow)
+subplot(1,2,1)
+plot(freq_ax,pow,'k','Linewidth',2.0)
+ax1 = get(gca);
 xlabel('Frequency (Hz)')
-ylabel('2*abs[FFT(Raw Isat)]')
-title('FFT of raw Isat')
+ylabel('|FFT[I_{\it sat} (A)]|')
+xlim([min(freq_ax)-1.0e3*df max(freq_ax)+1.0e2*df])
+xticks([0.0, 2.5, 5.0, 7.5, 10.0, 12.5]*1.0e6)
+% title('FFT of raw Isat')
+
 
 hold on
 
@@ -234,23 +264,43 @@ clear tempx tempy tempz
 
 %% Plots of raw Isat data and FFTs
 
+shift_time = find(time_LP<=(max(time_LP)-1.0));
+indx = find(freq_ax <= 3.0e6);
+temp = fft_datax{1,floor(Nz/2),1};
+% indx = bins(1);
+
 figure(2)
 
-subplot(2,2,2)
-plot(tax,filt_x)
-xlabel('Time (s)')
-ylabel('Filtered Isat (A)')
-title('Filtered Isat')
-
-subplot(2,2,4)
-plot(tax(t),filt_x(t))
-xlabel('Time (s)')
-ylabel('Filtered Isat (A)')
+subplot(1,2,1)
+ax1 = get(gca);
 hold on
-plot(0.501e-3*ones(1,length(tax(t))),linspace(0.012,0.018,length(tax(t))),'--k')
-title('Filtered Isat Zoomed')
+ax2 = axes('Position',[.25 .7 .2 .2]);
+box on
+plot(freq_ax(indx),pow(indx),'k','Linewidth',1.5);
+hold on
+ylim([0 18])
+plot(bins(end)*ones(1,length(freq_ax)),linspace(0,18,length(freq_ax)),'--r',...
+    'Linewidth',1.5)
+yticks([])
+
+subplot(1,2,2)
+plot(time_LP(shift_time),temp(shift_time),'k','Linewidth',1.5)
+xlabel('Time (ms)')
+ylabel('I_{\it sat} (A)')
+xlim([min(time_LP) max(time_LP(shift_time))])
+% title('Filtered Isat')
+
+% subplot(2,2,4)
+% plot(tax(t),filt_x(t))
+% xlabel('Time (s)')
+% ylabel('Filtered Isat (A)')
+% hold on
+% plot(0.501e-3*ones(1,length(tax(t))),linspace(0.012,0.018,length(tax(t))),'--k')
+% title('Filtered Isat Zoomed')
 hold off
 
+% export_fig('/Volumes/DATA/thesis/RFT/figs/isat_fft_filtered.png',...
+%     '-r300')
 
 %% Find indices for each number of RF periods
 

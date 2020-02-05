@@ -68,7 +68,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,n
         eps0 = const.eps0;
         mu0 = const.mu0;
 
-        np_bound = floor(0.2*npts);
+        np_bound = floor(0.3*npts);
         ax = linspace(0,pi,np_bound);
         damp0 = (cos(ax)+1)/2;
         damp_sig = ones(1,npts);
@@ -80,7 +80,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,n
         for ii=1:npts
             
             sig(1,1,ii) = sig(1,1,ii)*damp_sig(1,ii);
-            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*1.0e1;
+            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*0.5e0;
 %             sig(1,1,ii) = sig(1,1,ii) + (1i*sig(1,1,ii)*damp_sig(1,ii));
 %             sig(2,2,ii) = damp_sig(1,ii)*(sig(2,2,ii));
 %             sig(2,2,ii) = sig(2,2,ii) + (1i*(sig(2,2,ii)*(damp_sig(1,ii)))+shift11)*1.0e3;

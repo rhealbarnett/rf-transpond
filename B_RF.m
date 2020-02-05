@@ -28,90 +28,118 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
     
     if plots
         
+        width = 1000;
+        height = 1000;
+        x0 = 0;
+        y0 = 0;
+        
         figure(13)
-        subplot(3,2,1)
+        set(gcf,'Position',[x0 y0 width height],'color','w')
+        subplot(3,2,2)
         plot(ax, real(rf_bx), 'k','Linewidth',2)
-        ylabel('B_x (T)')
+        ylabel('{\it B_x} (T)')
 
         hold on
 
         plot(ax, imag(rf_bx), '--r','Linewidth',2)
         set(gca, 'XTickLabel', [])
-        legend('Re[Bx]', 'Im[Bx]', 'Location', 'northwest')
+%         legend('Re[Bx]', 'Im[Bx]', 'Location', 'northwest')
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
+        axes = gca();
+        axes.YRuler.Exponent = -8;
+        axes.YRuler.TickLabelFormat = '%1.1f';
+        
 
         hold off
 
-        subplot(3,2,3)
+        subplot(3,2,4)
         plot(ax, real(rf_by), 'k','Linewidth',2)
-        ylabel('B_y (T)')
+        ylabel('{\it B_y} (T)')
 
         hold on
 
         plot(ax, imag(rf_by), '--r','Linewidth',2)
         set(gca, 'XTickLabel', [])
-        legend('Re[By]', 'Im[By]', 'Location', 'northwest')
+%         legend('Re[By]', 'Im[By]', 'Location', 'northwest')
         xlim([axmin,axmax]);
         set(gca,'Fontsize',20)
+        axes = gca();
+        axes.YRuler.Exponent = -10;
+        axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
 
-        subplot(3,2,5)
+        subplot(3,2,6)
         plot(ax, real(rf_bz), 'k','Linewidth',2)
-        ylabel('B_z (T)')
+        ylabel('{\it B_z} (T)')
 
         hold on
 
         plot(ax, imag(rf_bz), '--r','Linewidth',2)
         xlabel('Position (m)')
-        legend('Re[Bz]', 'Im[Bz]', 'Location', 'northwest')
+%         legend('Re[Bz]', 'Im[Bz]', 'Location', 'northwest')
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
+        axes = gca();
+        axes.YRuler.Exponent = -8;
+        axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
         
-        subplot(3,2,2)
+        subplot(3,2,1)
         plot(ax, real(rf_ex), 'k','Linewidth',2)
-        ylabel('E_x (Vm^{-1})')
+        ylabel('{\it E_x} (Vm^{-1})')
 
         hold on
 
         plot(ax, imag(rf_ex), '--r','Linewidth',2)
         set(gca, 'XTickLabel', [])
-        legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
+%         legend('Re[Ex]', 'Im[Ex]', 'Location', 'northwest')
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
+        axes = gca();
+        axes.YRuler.Exponent = -3;
+        axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
 
-        subplot(3,2,4)
+        subplot(3,2,3)
         plot(ax, real(rf_ey), 'k','Linewidth',2)
-        ylabel('E_y (Vm^{-1})')
+        ylabel('{\it E_y} (Vm^{-1})')
 
         hold on
 
         plot(ax, imag(rf_ey), '--r','Linewidth',2)
         set(gca, 'XTickLabel', [])
-        legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
+%         legend('Re[Ey]', 'Im[Ey]', 'Location', 'northwest')
         xlim([axmin,axmax]);
         set(gca,'Fontsize',20)
+        axes = gca();
+        axes.YRuler.Exponent = -2;
+        axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
 
-        subplot(3,2,6)
+        subplot(3,2,5)
         plot(ax, real(rf_ez), 'k','Linewidth',2)
-        ylabel('E_z (Vm^{-1})')
+        ylabel('{\it E_z} (Vm^{-1})')
 
         hold on
 
         plot(ax, imag(rf_ez), '--r','Linewidth',2)
         xlabel('Position (m)')
-        legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
+%         legend('Re[Ez]', 'Im[Ez]', 'Location', 'northwest')
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
+        axes = gca();
+        axes.YRuler.Exponent = -5;
+        axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
+        
+%         export_fig('/Volumes/DATA/LAPD/matlab/wave_projection/brf_model_results.png',...
+%                 '-r300')
         
     end
 

@@ -117,16 +117,16 @@ height = 600;
 
 figure(1)
 set(gcf,'Position',[x0 y0 width height],'Color','w')
-levels = linspace(0,800,50);
+levels = linspace(0,0.03,50);
 contourf(zax,xax,(Emag_x)',levels,'Linecolor','none')
 colormap(flipud(gray))
 c = colorbar;
 xlabel('z Position (m)')
 ylabel('x Position (m)')
 ylabel(c,'|E|(x,z) (Vm^{-1})','Fontsize',20)
-% ylim([-0.5 0.5])
-c.Ruler.Exponent = 2;
-c.Ruler.TickLabelFormat = '%1.f';
+ylim([-0.5 0.5])
+c.Ruler.Exponent = -2;
+c.Ruler.TickLabelFormat = '%1.1f';
 
 % export_fig('/Volumes/DATA/matlab/wave_verification/real_kx_kz.png',...
 %     '-r300')

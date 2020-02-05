@@ -16,7 +16,28 @@ function [kz_spec, k_ax, phase] = fft_kz(dx,npts,rf_ex,rf_ey,rf_ez,plots)
     fft_Ey = fft(rf_ey)/npts;
     fft_Ez = fft(rf_ez)/npts;
     
+    rf_ex_smoothed = zeros(1,npts);
+    rf_ey_smoothed = zeros(1,npts);
+    rf_ez_smoothed = zeros(1,npts);
+
+    for ii=2:npts-1
+       
+        rf_ex_smoothed(1,ii) = 0.25*fft_Ex(1,ii-1) + 0.5*fft_Ex(1,ii) + 0.25*fft_Ex(1,ii+1);
+        rf_ey_smoothed(1,ii) = 0.25*fft_Ey(1,ii-1) + 0.5*fft_Ey(1,ii) + 0.25*fft_Ey(1,ii+1);
+        rf_ez_smoothed(1,ii) = 0.25*fft_Ez(1,ii-1) + 0.5*fft_Ez(1,ii) + 0.25*fft_Ez(1,ii+1);
+        
+    end
+    
+    rf_ex_smoothed(1,1) = fft_Ex(1,1);
+    rf_ey_smoothed(1,1) = fft_Ey(1,1);
+    rf_ez_smoothed(1,1) = fft_Ez(1,1);
+    
+    rf_ex_smoothed(1,npts) = fft_Ex(1,npts);
+    rf_ey_smoothed(1,npts) = fft_Ey(1,npts);
+    rf_ez_smoothed(1,npts) = fft_Ez(1,npts);
+    
     kz_spec = [abs(fft_Ex); abs(fft_Ey); abs(fft_Ez)]';
+%     kz_spec = [abs(rf_ex_smoothed); abs(rf_ey_smoothed); abs(rf_ez_smoothed)]';
 
     [mag_ex, idx_ex] = max(abs(fft_Ex(11:npts/2)));
     [mag_ey, idx_ey] = max(abs(fft_Ey(11:npts/2)));

@@ -11,15 +11,17 @@ set(gcf,'Position',[x0 y0 width height])
 
 subplot(4,1,1)
 plot(zax,source,'b','Linewidth',2)
-ylabel('{\iti}\omega\mu_0J_{y} (Vm^{-1})')
+ylabel('{\iti}\omega\mu_0{\it J_{y}} (Vm^{-1})')
 set(gca, 'XTickLabel', [])
 xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0 width height],'Color','w')
+ax = gca();
+ax.YRuler.TickLabelFormat = '%1.1f';
 
 subplot(4,1,2)
 plot(zax, real(rf_ex), 'k','Linewidth',2)
-ylabel('E_x (Vm^{-1})')
+ylabel('{\it E_x} (Vm^{-1})')
 
 hold on
 
@@ -30,14 +32,14 @@ xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+height width height],'Color','w')
 ax = gca();
-ax.YRuler.Exponent = 2;
-ax.YRuler.TickLabelFormat = '%1.f';
+ax.YRuler.Exponent = -3;
+ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
 
 subplot(4,1,3)
 plot(zax, real(rf_ey), 'k','Linewidth',2)
-ylabel('E_y (Vm^{-1})')
+ylabel('{\it E_y} (Vm^{-1})')
 
 hold on
 
@@ -48,14 +50,14 @@ xlim([zmin,zmax]);
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+2*height width height],'Color','w')
 ax = gca();
-ax.YRuler.Exponent = 3;
-ax.YRuler.TickLabelFormat = '%1.f';
+ax.YRuler.Exponent = -2;
+ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
 
 subplot(4,1,4)
 plot(zax, real(rf_ez), 'k','Linewidth',2)
-ylabel('E_z (Vm^{-1})')
+ylabel('{\it E_z} (Vm^{-1})')
 
 hold on
 
@@ -65,6 +67,8 @@ xlabel('Position (m)')
 xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+3*height width height],'Color','w')
+ax = gca();
+ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
 
