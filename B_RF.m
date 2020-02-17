@@ -47,8 +47,8 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
         axes = gca();
-        axes.YRuler.Exponent = -8;
-        axes.YRuler.TickLabelFormat = '%1.1f';
+%         axes.YRuler.Exponent = -8;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
         
 
         hold off
@@ -65,8 +65,8 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
         xlim([axmin,axmax]);
         set(gca,'Fontsize',20)
         axes = gca();
-        axes.YRuler.Exponent = -10;
-        axes.YRuler.TickLabelFormat = '%1.1f';
+%         axes.YRuler.Exponent = -10;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
 
@@ -82,8 +82,8 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
         axes = gca();
-        axes.YRuler.Exponent = -8;
-        axes.YRuler.TickLabelFormat = '%1.1f';
+%         axes.YRuler.Exponent = -8;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
         
@@ -99,8 +99,8 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
         axes = gca();
-        axes.YRuler.Exponent = -3;
-        axes.YRuler.TickLabelFormat = '%1.1f';
+%         axes.YRuler.Exponent = -3;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
 
@@ -116,8 +116,8 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
         xlim([axmin,axmax]);
         set(gca,'Fontsize',20)
         axes = gca();
-        axes.YRuler.Exponent = -2;
-        axes.YRuler.TickLabelFormat = '%1.1f';
+%         axes.YRuler.Exponent = -2;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
 
@@ -133,8 +133,8 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
         xlim([axmin,axmax])
         set(gca,'Fontsize',20)
         axes = gca();
-        axes.YRuler.Exponent = -5;
-        axes.YRuler.TickLabelFormat = '%1.1f';
+%         axes.YRuler.Exponent = -5;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
         
