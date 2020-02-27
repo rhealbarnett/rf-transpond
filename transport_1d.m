@@ -18,12 +18,12 @@
 % params_transport_wave_ACM;
 % transport_vardx;
 % transport_test;
-% transport_mms;
-lapd_equib;
+transport_mms;
+% lapd_equib;
 
 % initialise velocity and density 
-vx = vx_new;
-n = n_new;
+vx = vx_init;
+n = n_init;
 
 % staggered = NaN;
 % collocated = NaN;
@@ -55,16 +55,18 @@ n_rdirichlet = 0;
 n_rneumann = 0;
 n_lneumann = 0;
 n_periodic = 0;
-MMS = 0;
-momentum = 0;
-continuity = 0;
+MMS = 1;
+SS = 1;
+TD = 0;
+momentum = 1;
+continuity = 1;
 central = 1;
 upwind = 0;
 unstable = 0;
 plots = 0;
-sparsefill = 1;
-sfile = 1;
-couple = 1;
+sparsefill = 0;
+sfile = 0;
+couple = 0;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -413,8 +415,8 @@ elseif ~MMS && collocated
 elseif MMS && staggered
     vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new,nxax,knx,nx,n_new,npts) +...
             source_stag(n_new,1,nx/2,nx/2,1,npts,ndx);
-    n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,0,vx_new(2:npts-1),...
-        kux,ux,vxax(2:npts-1),n_new(2:npts-1));
+    n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,0,ex_solu(2:npts-1),...
+        kux,ux,vxax(2:npts-1),ex_soln(2:npts-1));
     n_source = [0, n_source, 0];
 end
 
@@ -509,10 +511,14 @@ for ii=1:nmax
     if MMS
         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
+        if continuity && ~momentum
+            vx_new = ex_solu;
+        end
     end
     
 %     set the vectors with the old value going into the next loop
     vx = vx_new;
+%     n = n_new;
     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
         nxax(npts),'linear','extrap');   
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
@@ -595,33 +601,43 @@ for ii=1:nmax
                     nA(jj,jj-1) = (1.0/ndx(1,jj-1))*vx(1,jj-1);
                     if MMS
                         n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
-                        ex_solu(1,jj),kux,ux,vxax(1,jj),ex_soln(1,jj));
+                        ex_solu(1,jj-1),kux,ux,vxax(1,jj-1),ex_soln(1,jj));
                     end
                 elseif ((vx(1,jj-1)+vx(1,jj))/2)<0
                     nA(jj,jj) = (1.0/ndx(1,jj))*vx(1,jj-1);
                     nA(jj,jj+1) = -(1.0/ndx(1,jj))*vx(1,jj);
                     if MMS
                         n_source(1,jj) = mms_source_cont(om,nx,knx,nxax(1,jj),dt,ii,...
-                        ex_solu(1,jj-1),kux,ux,vxax(1,jj-1),ex_soln(1,jj));
+                        ex_solu(1,jj),kux,ux,vxax(1,jj),ex_soln(1,jj));
                     end     
                 end
                 
             end
             
             An_exp = nI + dt*nA;
+            
+            Anx = -nA;
                 
             An_exp(1,1) = 1.0;
             An_exp(end,end) = 1.0;
+            
+            Anx(1,1) = 1.0;
+            Anx(end,end) = 1.0;
         end
         
         % set source density ghost points to zero 
-        n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+        if continuity && SS
+            n_source(1,1) = ex_soln(1,1);
+            n_source(1,end) = ex_soln(1,end);
+        elseif ~MMS
+            n_source(1,1) = 0.0; n_source(1,end) = 0.0;
+        end
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
         if continuity
-            n(1,1) = n0 + nx*sin(knx*min(nxax)^2 + om*dt*ii);
-            n(1,end) = n0 + nx*sin(knx*max(nxax)^2 + om*dt*ii);
+%             n(1,1) = n0 + nx*cos(knx*min(nxax)^2 + om*dt*ii);
+%             n(1,end) = n0 + nx*cos(knx*max(nxax)^2 + om*dt*ii);
         elseif ~MMS
             n(1,1) = lGhost;
             n(1,end) = rGhost;
@@ -629,12 +645,29 @@ for ii=1:nmax
         
         % implicit calculation
 %         n_new_imp = An_imp\(n' + dt*n_source');
-        n_new = An_exp*n' + dt*n_source';
-        
+        if continuity && SS
+            n_new = Anx\n_source';
+        elseif ~MMS
+            n_new = An_exp*n' + dt*n_source';
+        end
         
         % transpose solution vector
 %         n_new = n_new_imp;
         n_new = n_new';
+        
+%         if rms(n - n_new)<=tol
+%             fprintf('tolerance reached, ii=%d\n',ii)
+%             fprintf('rms error = %d\n', rms(n - n_new))
+%             
+%             l_infn = norm(ex_soln - n_new, Inf);
+%             l_twon = rms(ex_soln - n_new);
+%             return
+%         elseif mod(ii,round(nmax/10))==0 || ii==nmax
+%             fprintf('density rms error = %d\n', rms(n - n_new))
+%         else
+%         end
+        
+        n_tol = n;
         n = n_new;
         
      
@@ -746,12 +779,12 @@ for ii=1:nmax
             for jj=2:npts-2 
                 
                 if vx(1,jj)>0
-                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
-                        (1.0/n(1,jj))*n_source(1,jj);
+                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);% -...
+%                         (1.0/n(1,jj))*n_source(1,jj);
                     vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
                 elseif vx(1,jj)<0
-                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) -...
-                        (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);% -...
+%                         (1.0/n(1,jj+1))*n_source(1,jj+1);
                     vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
                 end
                 vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
@@ -769,6 +802,10 @@ for ii=1:nmax
             
             Avx_exp = vx_I + dt*vxE;
             Avx_imp = vx_I - dt*vxI;
+            
+            Avx = -(vxE + vxI);
+            Avx(1,1) = 1.0;
+            Avx(end,end) = 1.0;
 
             Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
             Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
@@ -776,8 +813,8 @@ for ii=1:nmax
         end
 
         if momentum
-            vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-            vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+%             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + 0);
+%             vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + 0);
         elseif ~MMS
             vx(1,1) = lvBC_val;
             vx(1,end) = rvBC_val;
@@ -791,18 +828,24 @@ for ii=1:nmax
             pf_final = squeeze(sum(pf_inter,2))';
             pf_source = [0,pf_final,0];
         elseif staggered && momentum
+%             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
+%                 source_stag(n,1,nx/2,nx/2,1,npts,ndx);
+%             vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
+%             vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
-                source_stag(n,1,nx/2,nx/2,1,npts,ndx);
-            vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-            vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+                source_stag(n_new,1,0.5,0.5,1,npts,ndx);
+            if SS
+                vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2);
+                vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2);
+            end
         elseif collocated
             vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
         end
 
         % zero the source term at the boundaries as it is not used (dirichlet
         % boundary conditions will override the source)
-        vx_source(1,1) = 0.0;
-        vx_source(1,end) = 0.0;
+%         vx_source(1,1) = 0.0;
+%         vx_source(1,end) = 0.0;
 
         % explicit calculation
     %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
@@ -810,12 +853,33 @@ for ii=1:nmax
 %         vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
 %         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
 %         vx_new_imp = Avx_imp\(vx_source');
-        vx_newE = Avx_exp*vx';
-        vx_new = Avx_imp\(vx_newE + dt*(vx_source' - pf_source'));
+%         vx_newE = Avx_exp*vx';
+%         vx_new = Avx_imp\(vx_newE + dt*(vx_source'));% - pf_source'));
+        if momentum && SS
+            vx_new = Avx\vx_source';
+        elseif ~MMS
+            vx_new = Avx_imp\(vx_newE + dt*(vx_source' - pf_source'));
+        end
 
         % transpose solution vector
 %         vx_new = vx_new_imp;
         vx_new = vx_new';
+        
+        if rms(vx_new - vx)<=tol && rms(n_new - n_tol)<=tol
+            fprintf('tolerance reached, ii=%d\n',ii)
+            fprintf('velocity rms error = %d\n', rms(vx - vx_new))
+            fprintf('density rms error = %d\n', rms(n_tol - n_new))
+            
+            l_infu = norm(ex_solu - vx_new, Inf);
+            l_twou = rms(ex_solu - vx_new);
+            l_infn = norm(ex_soln - n_new, Inf);
+            l_twon = rms(ex_soln - n_new);
+            return
+        elseif mod(ii,round(nmax/10))==0 || ii==nmax
+            fprintf('velocity rms error = %d\n', rms(vx - vx_new))
+            fprintf('density rms error = %d\n', rms(n_tol - n_new))
+        else
+        end
     end
     
 %     reset CFL condition based on the lowest dt out of the
@@ -965,8 +1029,7 @@ for ii=1:nmax
         
         continue
 %         save('C:\Users\c3149416\Documents\coupled_transport.mat','-struct','transport');
-    end
-    
+    end    
 end
 
 if MMS
@@ -977,10 +1040,12 @@ if MMS
 end
 
 fprintf('***--------------------***\n')
-fprintf('ii=%d, count=%d\n', [ii count])
+fprintf('ii=%d, count=%d\n', [ii counter])
 fprintf('dt=%ds\n', dt)
 fprintf('total time=%ds\n', dt*ii)
 fprintf('simulation time %d\n', toc(timerVal))
+fprintf('Current rms tol calc %d\n', rms(vx - vx_new))
+fprintf('***-------*****--------***\n')
 
         
 %%
@@ -1133,22 +1198,6 @@ function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
     ans = -((Te + Ti)*q./(m*n)).*(grad2(n,dx,npts));
 end
 
-function [ans] = mms_source_cont(om,nx,knx,nxax,dt,ii,u,kux,ux,vxax,n)
-    dndt = nx*om*cos(knx*nxax.^2 + om*dt*ii);
-    dnudx = 2*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii).*u -...
-        2*kux*ux.*vxax.*sin(kux*vxax.^2 + om*dt*ii).*n;
-    ans = dndt + dnudx;
-end
-
-function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts)
-    dudt = -om*ux*sin(kux*vxax.^2 + om*dt*ii);
-    dudx = -2.0*kux*ux*vxax.*sin(kux*vxax.^2 + om*dt*ii);
-    d2udx = -2.0*kux*ux*sin(kux*vxax.^2 + om*dt*ii) -...
-        4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
-    dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
-    dndx = interp1(nxax,dndx,vxax);
-    ans = dudt + u.*dudx - nu*d2udx + ((nx/2 + nx/2)./avg(n,npts)).*dndx;
-end
 
 
 

@@ -16,13 +16,13 @@ e = const.e;
 Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
-nu = 1.0;
+nu = 0.7;
 
 %------
 % spatial domain %
 %------
-xmin = 0.0;
-xmax = 0.1;
+xmin = -0.3;
+xmax = 0.4;
 
 %------
 % turn variable grid on (1) or off (0)
@@ -49,35 +49,34 @@ if variable
     
     clear vxax nxax
 
-    % root order
-    ro = 2.0;
+    % location of sign change
+    xc = (xmax - xmin)/2.0;
+%     xc = 0.1;
+    
+    %'strength' of grid refinement.
+    % sign also indicates whether refinement is in the centre or at the
+    % boundaries
+    A = -1.0;
 
-    % initialise xi parameter array
-    % spacing in the centre currently is 0.5*dx
+    % set up the unit spaced parameter, xi, that the grid is a function of
     smax = 1.0;
     smin = 0.0;
     s = linspace(smin,smax,npts-1); 
 
     % calculate the x values from xi
-    x = xmax*(s.^(1/ro));
-%     x = exp(s.^1.5) - smax;
-%     x = xmax*x/max(x);
+    x = xc*(1.0 - tanh(A*(1.0 - 2.0*s))./tanh(A));
 
-    vxax = x;
+    vxax = x - abs(xmin);
     vdx = (vxax(2:end) - vxax(1:end-1));
-%     vdx = fliplr(vdx);
-%     vxax(1) = xmin;
-%     for ii=2:npts-1
-%         vxax(1,ii) = vxax(1,ii-1) + vdx(1,ii-1);
-%     end
 
-    npts = length(vxax) + 1;
+%     npts = length(vxax) + 1;
     nxax = zeros(1,npts);
 
     nxax(1) = vxax(1) - 0.5*vdx(1);
     nxax(end) = vxax(end) + 0.5*vdx(end);
     nxax(2:end-1) = (vxax(2:end) + vxax(1:end-1))/2.0;
     ndx = nxax(2:end) - nxax(1:end-1);
+    
     
 end
 
@@ -92,32 +91,34 @@ end
 
 % mms_mult = 100000.0;
 
-u0 = 5.0;
-n0 = 500.0;
+u0 = 0.01;
+n0 = 0.01;
 
-ux = 2.0;
-nx = 200.0;
+ux = 1.0;
+nx = 1.0;
 
-knx = 2000.0;
-kux = 2000.0;
-lamx = 0.0;
+knx = 1.0;
+kux = 5.0;
 
-om = 1.0e5;
+% T = 20*dt;
+% om = 2.0*pi/T;
+om = 0.0;
 
 %-- initial density profile
-n_new = n0 + nx*sin(knx*nxax.^2 + 0);
+n_new = 0.01*(n0 + nx*sin(knx*nxax.^2 + 0));
 LnBC = n0 + nx*sin(knx*min(nxax)^2 + 0);
 RnBC = n0 + nx*sin(knx*max(nxax)^2 + 0);
 n_init = n_new;
 n_avg = interp1(nxax,n_new,vxax);
+ex_soln = n0 + nx*sin((nxax).^2 + 0);
 
 
 %-- initial velocity
-vx_new = (u0 + ux*cos(kux*vxax.^2 + 0));
+vx_new = 0.01*(u0 + ux*cos(kux*vxax.^2 + 0));
 LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
 RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
 vx_init = vx_new;
-
+ex_solu = u0 + ux*cos(kux*vxax.^2 + 0);
 
 %%
 %-------------------------------------------------------------------------%

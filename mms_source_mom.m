@@ -5,5 +5,8 @@ function [ans] = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,u,nxax,knx,nx,n,npts)
         4.0*kux^2*ux*vxax.^2.*cos(kux*vxax.^2 + om*dt*ii);
     dndx = 2.0*knx*nx*nxax.*cos(knx*nxax.^2 + om*dt*ii);
     dndx = interp1(nxax,dndx,vxax);
-    ans = dudt + u.*dudx - nu*d2udx + ((nx/2 + nx/2)./avg(n,npts)).*dndx;
+%     dndx = zeros(1,npts-1);
+%     const = constants();
+%     e = const.e;
+    ans = dudt + u.*dudx - nu*d2udx + ((0.5 + 0.5)./avg(n,npts)).*dndx;
 end
