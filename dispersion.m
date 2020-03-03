@@ -224,10 +224,10 @@ elseif para
 %         contour(log10(n_new),abs(ky),real(kpara11)',[0.01665,0.01665],'r','Linewidth',2);
 %         plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',8,'Linewidth',2,...
 %             'MarkerFaceColor','r')
-%         plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',30)
+        plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',30)
 %         plot(log10(n_new(indn_b)),ky(indky_b),'*r','MarkerSize',10,'Linewidth',2)
 %         plot(log10(n_new(indn_tm)),ky(indky_tm),'xr','MarkerSize',10,'Linewidth',3)
-%         plot(log10(n_new(indn_bn)),ky(indky_bn),'+r','MarkerSize',10,'Linewidth',3)
+        plot(log10(n_new(indn_bn)),ky(indky_bn),'+r','MarkerSize',10,'Linewidth',3)
         set(gca,'xtick',[])
 %         title('Re[k_{|| 11}] (m^{-1})')
         ylabel('{\itk_{y}} (m^{-1})')
@@ -261,7 +261,7 @@ elseif para
 %         hold on
 %         contourf(log10(n_new),abs(ky),real(kpara21)',[0 0],'Linecolor','k')
         rc21=colorbar();
-%         rc21.Ruler.Exponent = 1;
+        rc21.Ruler.Exponent = -1;
         rc21.Ruler.TickLabelFormat = '%1.1f';
         colormap(ax3,flipud(bone))
         hold on
@@ -296,6 +296,8 @@ elseif para
         hold off
         
 %         export_fig('/Volumes/DATA/LAPD/matlab/wave_projection/dispersion_contour_kx10.png',...
+%             '-r300')
+%         export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/dispersion.png',...
 %             '-r300')
         
         figure(3)
