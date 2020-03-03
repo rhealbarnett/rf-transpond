@@ -4,7 +4,7 @@
 %   By = (i/om)*dEx/dz + (kx/om)*Ez
 %   Bz = -(kx/om)*Ey + (ky/om)*Ex
 
-function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
+function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots,source)
 
     npts = length(ax);
     axmax = ax(1,end);
@@ -138,8 +138,74 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots)
 
         hold off
         
-%         export_fig('/Volumes/DATA/LAPD/matlab/wave_projection/brf_model_results.png',...
-%                 '-r300')
+        width = 600;
+        height = 700;
+        
+        figure(14)
+        set(gcf,'Position',[x0 y0 width height],'color','w')
+        
+        subplot(4,1,1)
+        plot(ax,source,'b','Linewidth',2)
+        ylabel('{\iti}\omega\mu_0{\it J_{y}} (Vm^{-1})')
+        set(gca, 'XTickLabel', [])
+        set(gca,'Fontsize',22,'FontName','CMU Serif')
+%         ax = gca();
+%         ax.YRuler.TickLabelFormat = '%1.1f';
+        
+        subplot(4,1,2)
+        
+        plot(ax, real(rf_bx), 'k','Linewidth',2)
+        ylabel('{\it B_x} (T)')
+
+        hold on
+
+        plot(ax, imag(rf_bx), '--r','Linewidth',2)
+        set(gca, 'XTickLabel', [])
+%         legend('Re[Bx]', 'Im[Bx]', 'Location', 'northwest')
+        xlim([axmin,axmax])
+        set(gca,'Fontsize',22)
+        axes = gca();
+%         axes.YRuler.Exponent = -8;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
+
+        hold off
+
+        subplot(4,1,3)
+        plot(ax, real(rf_by), 'k','Linewidth',2)
+        ylabel('{\it B_y} (T)')
+
+        hold on
+
+        plot(ax, imag(rf_by), '--r','Linewidth',2)
+        set(gca, 'XTickLabel', [])
+%         legend('Re[By]', 'Im[By]', 'Location', 'northwest')
+        xlim([axmin,axmax]);
+        set(gca,'Fontsize',22)
+        axes = gca();
+%         axes.YRuler.Exponent = -10;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
+
+        hold off
+
+        subplot(4,1,4)
+        plot(ax, real(rf_bz), 'k','Linewidth',2)
+        ylabel('{\it B_z} (T)')
+
+        hold on
+
+        plot(ax, imag(rf_bz), '--r','Linewidth',2)
+        xlabel('Position (m)')
+%         legend('Re[Bz]', 'Im[Bz]', 'Location', 'northwest')
+        xlim([axmin,axmax])
+        set(gca,'Fontsize',22)
+        axes = gca();
+%         axes.YRuler.Exponent = -8;
+%         axes.YRuler.TickLabelFormat = '%1.1f';
+
+        hold off
+        
+        export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/b_rf_wsource_zoomed.png',...
+            '-r300')
         
     end
 
