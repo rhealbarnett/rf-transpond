@@ -7,6 +7,10 @@ lapd_params;
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,1);
 [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(zax,ky,kx,k0,...
 om,mu0,cpdt,sig,source,0,1,1);
+Ex = interp1(zax,rf_ex,vxax,'linear');
+Ey = interp1(zax,rf_ey,vxax,'linear');
+Ez = interp1(zax,rf_ez,vxax,'linear');
+pf_source = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{0,vxax});
 wave_sol_plots
 
 %%

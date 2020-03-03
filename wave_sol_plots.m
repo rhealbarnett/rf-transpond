@@ -80,7 +80,13 @@ hold off
 
 figure(17)
 
+x0 = 0;
+y0 = 0;
+width = 700;
+height = 500;
+
 subplot(3,1,1)
+set(gcf,'Position',[x0 y0 width height],'color','w')
 plot(zax, abs(rf_ex).^2, 'k','Linewidth',2)
 ylabel('|E_x|^2 (V^2m^{-2})')
 set(gca, 'XTickLabel', [])
@@ -105,6 +111,9 @@ legend('Ez', 'Location', 'northwest')
 xlim([zmin,zmax]);
 set(gca,'Fontsize',20)
 
+% export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/abs_e_squ.png',...
+%     '-r300')
+
 %%
 
 pa_epara = squeeze(pf_source(1,1,:));
@@ -113,7 +122,7 @@ pa_eperp = squeeze(pf_source(2,1,:));
 pa_iperp = squeeze(pf_source(2,2,:));
 
 figure(18)
-
+set(gcf,'Position',[x0 y0 width height],'color','w')
 subplot(2,2,1)
 plot(vxax(2:npts-2), pa_epara, 'k','Linewidth',2)
 ylabel('PA_{e,||} (ms^{-2})')
@@ -146,5 +155,6 @@ xlabel('Position (m)')
 xlim([zmin,zmax]);
 set(gca,'Fontsize',20)
 
-
+% export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/pond_accel.png',...
+%     '-r300')
 
