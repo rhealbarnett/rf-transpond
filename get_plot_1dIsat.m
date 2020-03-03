@@ -187,7 +187,7 @@ for ii=1:freq_np
 end
 
 data_mean = mean(temp);
-fft_sig = (fft(temp));
+fft_sig = (fft(temp - data_mean));
 
 high_freq = find(freq_ax > 1.0e4 & freq_ax < Fnyq);
 pow = 2.0*(fft_sig(1:npts/2).*conj(fft_sig(1:npts/2)))*(1.0/npts);
@@ -221,12 +221,12 @@ hold on
 
 %% Find and zero FFT values in frequency bins above some value. 
 
-bins = find(freq_ax > 1e5);
-fft_sig(int32(bins)) = 0.0;
-fft_sig(npts - int32((bins))) = 0.0;
-inv_sig = ifft(fft_sig);
+% bins = find(freq_ax > 1e5);
+% fft_sig(int32(bins)) = 0.0;
+% fft_sig(npts - int32((bins))) = 0.0;
+% inv_sig = ifft(fft_sig);
 
-filt_x = real(inv_sig);
+% filt_x = real(inv_sig);
 
 for ii= 1:numel(x)
     for jj= 1:numel(z)
@@ -387,11 +387,60 @@ figure(4)
 hold on
 set(gca,'Fontsize',20)
 hold off
+
+%%
+
+T_ms = T_data*1.0e3;
+
+tRF = 0.501;
+t4 = 100*T_ms;
+
+tRF_ax = find(time_LP<=(tRF),1,'last');
+t4_ax = find(time_LP<=(tRF+t4),1,'last');
+
+t_before = find(time_LP > tmin & time_LP < tmax);
+% tind4 = find(time_LP > tRF+t4 & time_LP < tend);
+tafter_npts = length(t_before);
+
+
+for ii=1:Nz
+    
+    tempz = fft_dataz{1,ii,1};
+    tempy = fft_datay{1,ii,1};
+    tempx = fft_datax{1,ii,1};
+    
+    zavg_before = mean(tempz(t_before));
+    zavg_after = mean(tempz(t4_ax:(t4_ax+tafter_npts)));
+    yavg_before = mean(tempy(t_before));
+    yavg_after = mean(tempy(t4_ax:(t4_ax+tafter_npts)));
+    xavg_before = mean(tempx(t_before));
+    xavg_after = mean(tempx(t4_ax:(t4_ax+tafter_npts)));
+    
+%     ratio_z(1,ii) = (temp(tRF_ax) - temp(t4_ax))/temp(tRF_ax);
+    ratio_z(1,ii) = (zavg_before - zavg_after) / zavg_before;
+    ratio_y(1,ii) = (yavg_before - yavg_after) / yavg_before;
+    ratio_x(1,ii) = (xavg_before - xavg_after) / xavg_before;
+    
+end
+
+figure(5)
+set(gcf,'Position',[x0 y0 width height],'color','w')
+plot(z,ratio_x,'-.k')
+hold on
+plot(z,ratio_y,'-ok')
+plot(z,ratio_z,'-*k')
+legend('R_{I{\itsat,x}}','R_{I{\itsat,y}}','R_{I{\itsat,z}}','location','north west')
+xlim([min(z) max(z)])
+xlabel('Axial Position (cm)')
+ylabel('(I_{\itsat} - I_{{\itsat},RF})/I_{\itsat}')
+
+% export_fig('/Volumes/DATA/thesis/RFT/figs/isat_ratio_line.png',...
+%     '-r300')
     
 
 %% Isat image plots
     
-figure(5)
+figure(6)
 subplot(1,3,1)
 imagesc('XData', actx_LP(:,1), 'YData', acty_LP(1,:), 'CData', data_2x');
 ylabel('Axial direction (cm)'); xlabel('Radial direction (cm)');
@@ -426,7 +475,7 @@ set(gca, 'YTickLabel', [])
 
 %% Isat line plots over z
 
-figure(6)
+figure(7)
 plot(z,data_2x(1,:),'.-')
 
 hold on
