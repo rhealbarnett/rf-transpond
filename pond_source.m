@@ -41,7 +41,7 @@
 %
 %------------------------------------------------------------------%
 
-function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
+function [Ediff,pf] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
     
     if mix
         rf_ex = Efield{1};
@@ -88,13 +88,13 @@ function [ans] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,damping)
                 
         elseif strcmp(component{1},'perp')
 
-            pond(2,ii,:) = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
+            pond(2,ii,:) = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(ii,1)^2))...
                     + (om_cyc(ii,1)/(omega*(omega^2 - om_cyc(ii,1)^2))).*Ediff(4,:));
                 
         elseif strcmp(component{1},'total')
             
              pond(1,ii,:) = (pf_const(ii,1)/omega^2).*Ediff(3,:);
-             pond(2,ii,:) = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(1,1)^2))...
+             pond(2,ii,:) = (pf_const(ii,1)).*(((Ediff(1,:) + Ediff(2,:))/(omega^2 - om_cyc(ii,1)^2))...
                     + (om_cyc(ii,1)./(omega*(omega^2 - om_cyc(ii,1)^2))).*Ediff(4,:));
 
         end
