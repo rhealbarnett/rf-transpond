@@ -22,9 +22,9 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots,source
     rfey_diff(1) = (-3.0*rf_ey(1) + 4.0*rf_ey(2) - rf_ey(3)) / (2.0*h);
     rfey_diff(npts) = (rf_ey(npts-2) - 4.0*rf_ey(npts-1) + 3.0*rf_ey(npts)) / (2.0*h);
 
-    rf_bx = -(ky/om).*rf_ez - (1i/om)*rfey_diff;
-    rf_by = (1i/om)*rfex_diff + (kx./om).*rf_ez;
-    rf_bz = -(kx./om).*rf_ey + (ky./om).*rf_ex;
+    rf_bx = (ky/om).*rf_ez + (1i/om)*rfey_diff;
+    rf_by = -(1i/om)*rfex_diff - (kx./om).*rf_ez;
+    rf_bz = (kx./om).*rf_ey - (ky./om).*rf_ex;
     
     if plots
         
@@ -65,6 +65,7 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots,source
         xlim([axmin,axmax]);
         set(gca,'Fontsize',20)
         axes = gca();
+        
 %         axes.YRuler.Exponent = -10;
 %         axes.YRuler.TickLabelFormat = '%1.1f';
 
@@ -165,6 +166,10 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots,source
         xlim([axmin,axmax])
         set(gca,'Fontsize',22)
         axes = gca();
+%         plot(-0.06*ones(1,npts),linspace(-5e-8,5e-8,npts),...
+%             '--b','Linewidth',1.5)
+%         plot(0.06*ones(1,npts),linspace(-5e-8,5e-8,npts),...
+%             '--b','Linewidth',1.5)
 %         axes.YRuler.Exponent = -8;
 %         axes.YRuler.TickLabelFormat = '%1.1f';
 
@@ -182,6 +187,10 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots,source
         xlim([axmin,axmax]);
         set(gca,'Fontsize',22)
         axes = gca();
+%         plot(-0.06*ones(1,npts),linspace(-6e-10,6e-10,npts),...
+%             '--b','Linewidth',1.5)
+%         plot(0.06*ones(1,npts),linspace(-6e-10,6e-10,npts),...
+%             '--b','Linewidth',1.5)
 %         axes.YRuler.Exponent = -10;
 %         axes.YRuler.TickLabelFormat = '%1.1f';
 
@@ -199,13 +208,17 @@ function [rf_bx, rf_by, rf_bz] = B_RF(ax,kx,ky,om,rf_ex,rf_ey,rf_ez,plots,source
         xlim([axmin,axmax])
         set(gca,'Fontsize',22)
         axes = gca();
+%         plot(-0.06*ones(1,npts),linspace(-5e-8,5e-8,npts),...
+%             '--b','Linewidth',1.5)
+%         plot(0.06*ones(1,npts),linspace(-5e-8,5e-8,npts),...
+%             '--b','Linewidth',1.5)
 %         axes.YRuler.Exponent = -8;
 %         axes.YRuler.TickLabelFormat = '%1.1f';
 
         hold off
         
-        export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/b_rf_wsource_zoomed.png',...
-            '-r300')
+%         export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/b_rf_wsource_zoomed.png',...
+%             '-r300')
         
     end
 
