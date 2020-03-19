@@ -16,7 +16,7 @@ channels = ["Mach1", "Mach2", "Mach3", "Mach4","Mach5","Mach6"];
 % To see an approximation for the flow, take the difference of the paired
 % probes. 
 
-z_line = 0;
+z_line = 1;
 
 % attenuation (V) and resistance (omhs), needed to calibrate the signal.
 atten = 3.16;
@@ -37,6 +37,8 @@ plots = 1;
 if z_line
     % xz plane near antenna
     % (-11 <= x <= -6) cm, (-12 <= z <= 12) cm
+    
+    filename = '/Volumes/DATA/LAPD/RF_April22/11_Mach_p30xyz_12kV.hdf5';
     
     probename = 'Mach';
     
@@ -373,9 +375,13 @@ clear tempx tempy tempz
 
 %% Plots of raw Isat data and FFTs
 
+zprime = z + 1;
 shift_time = find(time_LP<=(max(time_LP)-1.0));
 indx = find(freq_ax <= 3.0e6);
-temp = fft_datax{1,floor(Nz/2),1};
+indz_ant = find(zprime==0);
+indz_edge = find(zprime==13);
+temp_ant = data_x{1,indz_ant,1};
+temp_edge = data_x{1,indz_edge,1};
 % indx = bins(1);
 
 figure(2)
@@ -417,15 +423,19 @@ width = 500;
 height = 600;
 figure(3)
 set(gcf,'Position',[x0 y0 width height],'Color','w')
-plot(time_LP(shift_time),temp(shift_time),'k','Linewidth',1.5)
+plot(time_LP(shift_time),temp_ant(shift_time),'k','Linewidth',1.5)
 hold on
-plot(0.5007*ones(1,length(temp(shift_time))),...
-    linspace(0.0,0.025,length(temp(shift_time))),'--r','Linewidth',1.5)
+plot(time_LP(shift_time),temp_edge(shift_time),'b','Linewidth',1)
+legend('0 cm (antenna)','13 cm')
+plot(0.5008*ones(1,length(temp(shift_time))),...
+    linspace(0.0,0.025,length(temp(shift_time))),'--r','Linewidth',1.5,...
+    'HandleVisibility','off')
 xlabel('Time (ms)')
 ylabel('I_{\it sat} (A)')
 xlim([min(time_LP) max(time_LP(shift_time))])
 
-% export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/isat_filtered.png',...
+
+% export_fig('/Volumes/DATA/LAPD/isat_ant_edge.png',...
 %     '-r300')
 
 %% Find indices for each number of RF periods
