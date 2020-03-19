@@ -858,6 +858,7 @@ for ii=1:nmax
         if momentum && SS
             vx_new = Avx\vx_source';
         elseif ~MMS
+            vx_newE = Avx_exp*vx';
             vx_new = Avx_imp\(vx_newE + dt*(vx_source' - pf_source'));
         end
 
