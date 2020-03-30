@@ -162,21 +162,29 @@ elseif para
     end
     
     if length(n_perp)==1 && plots
+        
+        x0 = 0;
+        y0 = 0;
+        width = 1000;
+        height = 500;
+        
         figure(2)
+        
+        set(gcf,'Position',[x0 y0 width height],'Color','w')
         subplot(1,2,1)
         semilogx(n_new, real(kp21),'.k')
         hold on
         semilogx(n_new, real(kp22),'.k')
         semilogx(n_new, imag(kp21),'.r')
         semilogx(n_new, imag(kp22),'.r')
-%         semilogx((1.0e16)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
-%             'b--','Linewidth',1.5)
-%         semilogx((1.0e18)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
-%             'b--','Linewidth',1.5)
-        ylim([min(imag(kp22)) max(imag(kp21))])
-        xlabel('n (m^{-3})')
-        ylabel('k_{||} (m^{-1})')
-        set(gca,'Fontsize',30)
+        semilogx((1.0e19)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
+            'b--','Linewidth',1.5)
+        semilogx((1.0e18)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
+            'b--','Linewidth',1.5)
+        ylim([-60 60])
+        xlabel('$n$ (m$^{-3}$)','Interpreter','latex')
+        ylabel('$k_{z}$ (m$^{-1}$)','Interpreter','latex')
+        set(gca,'Fontsize',25)
 
         subplot(1,2,2)
         semilogx(n_new, real(kp11),'.k')
@@ -184,14 +192,19 @@ elseif para
         semilogx(n_new, real(kp12),'.k')
         semilogx(n_new, imag(kp11),'.r')
         semilogx(n_new, imag(kp12),'.r')
-%         semilogx((1.0e16)*ones(1,npts),(linspace(min(real(kp12)),max(real(kp11)),npts)),...
-%             '--b','Linewidth',1.5)
-%         semilogx((1.0e18)*ones(1,npts),(linspace(min(real(kp12)),max(real(kp11)),npts)),...
-%             '--b','Linewidth',1.5)
-        ylim([min(real(kp12)) max(real(kp11))])
-        xlabel('n (m^{-3})')
-        ylabel('k_{||} (m^{-1})')
-        set(gca,'Fontsize',30)
+        semilogx((1.0e19)*ones(1,npts),(linspace(-60,60,npts)),...
+            '--b','Linewidth',1.5)
+        semilogx((1.0e18)*ones(1,npts),(linspace(-60,60,npts)),...
+            '--b','Linewidth',1.5)
+        ylim([-60 60])
+        xlabel('$n$ (m$^{-3}$)','Interpreter','latex')
+%         ylabel('$k_{z}$ (m$^{-1}$)','Interpreter','latex')
+        yticks([])
+        
+        set(gca,'Fontsize',25)
+        
+%         export_fig('/Volumes/DATA/thesis/RFT/figs/kvsn_dispersion_lines.png',...
+%             '-r300')
         
     elseif length(n_perp)~=1 && plots
         

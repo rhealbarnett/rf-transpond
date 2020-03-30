@@ -1,8 +1,8 @@
 
 lapd_params;
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,0);
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,1);
 
-plots = 0;
+plots = 1;
 
 dispersion;
 
@@ -15,7 +15,7 @@ kz_spec_density = zeros(npts,npts);
 
 count = 1;
 
-for ii=1:npts
+for ii=1
     
     density = n_new(1,ii)*ones(1,npts);
     

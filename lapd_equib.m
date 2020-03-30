@@ -6,7 +6,7 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
-equib = load('/Volumes/DATA/LAPD/matlab/inputs/equil_transport_input.mat');
+equib = load('/Volumes/DATA/LAPD/matlab/inputs/equil_transport_7166000.mat');
 % equib = load('/Users/rhealbarnett/Downloads/lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_refined.mat');
@@ -40,7 +40,7 @@ end
 
 %%
 
-Nmax = 1.0e18;
+Nmax = 1.0e17;
 fact = Nmax/max(n_new);
 n_new = n_new*fact;
 n_source = n_source*fact;
@@ -152,12 +152,13 @@ dt = 0.99*min(ndx)/cs;
 
 % source_mult = 37000;
 period = 1.0/freq;
-tmax = 100*period;
-% tmax = 5.0e-3;
+% tmax = 100*period;
+tmax = 5.0e-5;
 save_time = period/10.0;
 nmax = round(tmax/dt);
 % nmax = 100;
 save_iter = round(save_time/dt);
+vx_init = vx_new;
 
 n_new_uni = interp1(nxax,n_new,zax,'linear');
 
@@ -165,7 +166,9 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(zax,ky,kx,k0,...
     om,mu0,cpdt,sig,source,0,1,1);
 
-% rf_ez = zeros(1,npts);
+rf_ez = zeros(1,npts);
+rf_ey = zeros(1,npts);
+rf_ex = zeros(1,npts);
 Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
 

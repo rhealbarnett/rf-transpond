@@ -24,14 +24,14 @@ q_s = [e; q];
 %--
 % Magnetic field magnitude, 1000 G = 0.1 T. Assume it is fully aligned with 
 % the z coordinate. 
-B0 = 2.5;
+B0 = 0.1;
 
 %--
 % Actual plasma column is ~ 18 (m). However, use reduced size as interest
 % is close to the antenna. 
-zmin = -10.0;
-zmax = 10.0;
-npts = 2048;
+zmin = -4.0;
+zmax = 4.0;
+% npts = 2048;
 zax = linspace(zmin,zmax,npts);
 dx = (zmax - zmin) / (npts-1);
 
@@ -39,7 +39,7 @@ dx = (zmax - zmin) / (npts-1);
 % Driving frequency of the single strap, high power antenna (Hz)
 % Driven at 2.38MHz, but FFT of experimental data shows it is closer to
 % ~2.52MHz. 
-freq = 52.e6;
+freq = 2.5e6;
 om = freq*2.0*pi;
 
 %--
@@ -58,10 +58,10 @@ m_s = [me; mhe];
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
-Nmax = 1.0e20;
-Nmin = 1.0e18;
-n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e17*ones(1,npts);
+% Nmax = 1.0e20;
+% Nmin = 1.0e18;
+% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+% n_new = 1.0e18*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)

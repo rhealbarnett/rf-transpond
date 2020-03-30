@@ -32,7 +32,7 @@ variable = 1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-% npts = 32;
+npts = 512;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -100,12 +100,11 @@ nx = 1.0;
 knx = 1.0;
 kux = 5.0;
 
-% T = 20*dt;
-% om = 2.0*pi/T;
-om = 0.0;
+om = 1.0e5;
+% om = 0.0;
 
 %-- initial density profile
-n_new = 0.01*(n0 + nx*sin(knx*nxax.^2 + 0));
+n_new = (n0 + nx*sin(knx*nxax.^2 + 0));
 LnBC = n0 + nx*sin(knx*min(nxax)^2 + 0);
 RnBC = n0 + nx*sin(knx*max(nxax)^2 + 0);
 n_init = n_new;
@@ -114,7 +113,7 @@ ex_soln = n0 + nx*sin((nxax).^2 + 0);
 
 
 %-- initial velocity
-vx_new = 0.01*(u0 + ux*cos(kux*vxax.^2 + 0));
+vx_new = (u0 + ux*cos(kux*vxax.^2 + 0));
 LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
 RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
 vx_init = vx_new;

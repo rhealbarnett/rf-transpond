@@ -18,8 +18,8 @@
 % params_transport_wave_ACM;
 % transport_vardx;
 % transport_test;
-transport_mms;
-% lapd_equib;
+% transport_mms;
+lapd_equib;
 
 % initialise velocity and density 
 vx = vx_init;
@@ -55,15 +55,15 @@ n_rdirichlet = 0;
 n_rneumann = 0;
 n_lneumann = 0;
 n_periodic = 0;
-MMS = 1;
-SS = 1;
+MMS = 0;
+SS = 0;
 TD = 0;
 momentum = 1;
 continuity = 1;
 central = 1;
 upwind = 0;
 unstable = 0;
-plots = 0;
+plots = 1;
 sparsefill = 0;
 sfile = 0;
 couple = 0;
@@ -406,15 +406,15 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-    pf = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+    pf = pond_source({'para',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
     pf_inter = sum(pf,1);
     pf_final = squeeze(sum(pf_inter,2))';
-    pf_source = [0,pf_final,0];
+    pf_source = [0,pf_inter,0];
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
-    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,vx_new,nxax,knx,nx,n_new,npts) +...
-            source_stag(n_new,1,nx/2,nx/2,1,npts,ndx);
+    vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
+                source_stag(n_new,1,0.5,0.5,1,npts,ndx);
     n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,0,ex_solu(2:npts-1),...
         kux,ux,vxax(2:npts-1),ex_soln(2:npts-1));
     n_source = [0, n_source, 0];
@@ -476,17 +476,17 @@ if plots
 
         figure(6)
         subplot(2,1,1)
-        plot(xax,real(rf_ez),'k','DisplayName',['Re[E_{||}], time = 0s'])
+        plot(zax,real(rf_ez),'k','DisplayName',['Re[E_{||}], time = 0s'])
         set(gca, 'XTickLabel', [])
         ylabel('E_{||} (Vm^{-1})','Fontsize',16)
         hold on
-        plot(xax,imag(rf_ez),'--r','DisplayName',['Im[E_{||}], time = 0s'])
+        plot(zax,imag(rf_ez),'--r','DisplayName',['Im[E_{||}], time = 0s'])
         set(gca, 'XTickLabel', [])
         legend('show','Location','northwest')
         set(gca,'Fontsize',30)
         hold on
         subplot(2,1,2)
-        plot(xax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
+        plot(zax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
         legend('show','Location','northwest')
@@ -506,7 +506,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:nmax
+for ii=1:4500
     
     if MMS
         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
@@ -591,6 +591,7 @@ for ii=1:nmax
             S_nA= sparse(row,column,n_sparse,npts,npts,(2*(npts))-2);
 
             An_exp = nI + dt*S_nA;
+            Anx = -S_nA;
             
         elseif ~sparsefill
             
@@ -617,27 +618,27 @@ for ii=1:nmax
             An_exp = nI + dt*nA;
             
             Anx = -nA;
-                
-            An_exp(1,1) = 1.0;
-            An_exp(end,end) = 1.0;
             
-            Anx(1,1) = 1.0;
-            Anx(end,end) = 1.0;
         end
+        
+        An_exp(1,1) = 1.0;
+        An_exp(end,end) = 1.0;
+        Anx(1,1) = 1.0;
+        Anx(end,end) = 1.0;
         
         % set source density ghost points to zero 
         if continuity && SS
             n_source(1,1) = ex_soln(1,1);
             n_source(1,end) = ex_soln(1,end);
-        elseif ~MMS
+        elseif ~MMS || (continuity && TD)
             n_source(1,1) = 0.0; n_source(1,end) = 0.0;
         end
         
         % zero old rhs values for top and bottom boundary equations for
         % implicit calculation
-        if continuity
-%             n(1,1) = n0 + nx*cos(knx*min(nxax)^2 + om*dt*ii);
-%             n(1,end) = n0 + nx*cos(knx*max(nxax)^2 + om*dt*ii);
+        if continuity && TD
+            n(1,1) = ex_soln(1,1);
+            n(1,end) = ex_soln(1,end);
         elseif ~MMS
             n(1,1) = lGhost;
             n(1,end) = rGhost;
@@ -647,6 +648,8 @@ for ii=1:nmax
 %         n_new_imp = An_imp\(n' + dt*n_source');
         if continuity && SS
             n_new = Anx\n_source';
+        elseif continuity && TD
+            n_new = An_exp*n' + dt*n_source';
         elseif ~MMS
             n_new = An_exp*n' + dt*n_source';
         end
@@ -774,6 +777,8 @@ for ii=1:nmax
             Avx_exp = vx_I + dt*S_vxE;
             Avx_imp = vx_I - dt*S_vxI;
             
+            Avx = -(S_vxE + S_vxI);
+            
         elseif ~sparsefill
             
             for jj=2:npts-2 
@@ -787,7 +792,7 @@ for ii=1:nmax
 %                         (1.0/n(1,jj+1))*n_source(1,jj+1);
                     vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
                 end
-                vx_diff(jj,jj) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
+                vx_diff(jj,jj) = - (2.0/(vdx(1,jj-1)*vdx(1,jj)))*(nu);
                 vx_diff(jj,jj-1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
                 vx_diff(jj,jj+1) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
                 
@@ -811,10 +816,13 @@ for ii=1:nmax
             Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
 
         end
+        
+        Avx(1,1) = 1.0;
+        Avx(end,end) = 1.0;
 
-        if momentum
-%             vx(1,1) = u0 + ux*cos(kux*min(vxax)^2 + 0);
-%             vx(1,end) = u0 + ux*cos(kux*max(vxax)^2 + 0);
+        if momentum && TD
+            vx(1,1) = ex_solu(1,1);
+            vx(1,end) = ex_solu(1,end);
         elseif ~MMS
             vx(1,1) = lvBC_val;
             vx(1,end) = rvBC_val;
@@ -823,20 +831,28 @@ for ii=1:nmax
         % calculate the source term
         if staggered && ~MMS
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-            pf = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+            pf = pond_source({'para',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
             pf_inter = sum(pf,1);
             pf_final = squeeze(sum(pf_inter,2))';
-            pf_source = [0,pf_final,0];
+            pf_source = [0,pf_inter,0];
         elseif staggered && momentum
 %             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
 %                 source_stag(n,1,nx/2,nx/2,1,npts,ndx);
 %             vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
 %             vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
+%             for ii=2:npts-2
+%                 source_vardx = source_stag(n_new,1,0.5,0.5,1,npts,ndx,ii);
+%             end
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
                 source_stag(n_new,1,0.5,0.5,1,npts,ndx);
+%             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
+%                 source_stag(n_new,1,0.5,0.5,1,npts,ndx);
             if SS
-                vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2);
-                vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2);
+                vx_source(1,1) = ex_solu(1,1);
+                vx_source(1,end) = ex_solu(1,end);
+            elseif TD
+                vx_source(1,1) = 0;
+                vx_source(1,end) = 0;
             end
         elseif collocated
             vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
@@ -857,7 +873,10 @@ for ii=1:nmax
 %         vx_new = Avx_imp\(vx_newE + dt*(vx_source'));% - pf_source'));
         if momentum && SS
             vx_new = Avx\vx_source';
-        elseif ~MMS
+        elseif (momentum && TD)
+            vx_newE = Avx_exp*vx';
+            vx_new = Avx_imp\(vx_newE + dt*(vx_source'));
+        elseif ~MMS 
             vx_newE = Avx_exp*vx';
             vx_new = Avx_imp\(vx_newE + dt*(vx_source' - pf_source'));
         end
@@ -866,20 +885,22 @@ for ii=1:nmax
 %         vx_new = vx_new_imp;
         vx_new = vx_new';
         
-        if rms(vx_new - vx)<=tol && rms(n_new - n_tol)<=tol
-            fprintf('tolerance reached, ii=%d\n',ii)
-            fprintf('velocity rms error = %d\n', rms(vx - vx_new))
-            fprintf('density rms error = %d\n', rms(n_tol - n_new))
-            
-            l_infu = norm(ex_solu - vx_new, Inf);
-            l_twou = rms(ex_solu - vx_new);
-            l_infn = norm(ex_soln - n_new, Inf);
-            l_twon = rms(ex_soln - n_new);
-            return
-        elseif mod(ii,round(nmax/10))==0 || ii==nmax
-            fprintf('velocity rms error = %d\n', rms(vx - vx_new))
-            fprintf('density rms error = %d\n', rms(n_tol - n_new))
-        else
+        if MMS && SS
+            if rms(vx_new - vx)<=tol && rms(n_new - n_tol)<=tol
+                fprintf('tolerance reached, ii=%d\n',ii)
+                fprintf('velocity rms error = %d\n', rms(vx - vx_new))
+                fprintf('density rms error = %d\n', rms(n_tol - n_new))
+
+                l_infu = norm(ex_solu - vx_new, Inf);
+                l_twou = rms(ex_solu - vx_new);
+                l_infn = norm(ex_soln - n_new, Inf);
+                l_twon = rms(ex_soln - n_new);
+                return
+            elseif mod(ii,round(nmax/10))==0 || ii==nmax
+                fprintf('velocity rms error = %d\n', rms(vx - vx_new))
+                fprintf('density rms error = %d\n', rms(n_tol - n_new))
+            else
+            end
         end
     end
     
@@ -910,15 +931,16 @@ for ii=1:nmax
     end
 
     % plot loop; every 1/5 of iterations
-    if plots && mod(ii,round(nmax/5))==0
+    if plots && mod(ii,round(4500/5))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii counter])
         fprintf('dt=%ds\n', dt)
         fprintf('total time=%ds\n', dt*ii)
         fprintf('simulation time %d\n', toc(timerVal))
-        fprintf('Current rms tol calc %d\n', rms(vx - vx_new))
-%         fprintf('total number of particles %e\n', trapz(nxax,n_new))
-%         fprintf('particle balance check %e\n', trapz(nxax,n) - trapz(nxax,n_new))
+        fprintf('Current vx rms tol calc %d\n', rms(vx - vx_new))
+        fprintf('Current n rms tol calc %d\n', rms(n_tol - n_new))
+        fprintf('total number of particles %e\n', trapz(nxax,n_new))
+        fprintf('particle balance check %e\n', trapz(nxax,n_tol) - trapz(nxax,n_new))
 %         fprintf('density source and flux balance check %e\n', rflux -...
 %             trapz(vxax,source_avg*ns_mult))
 %         if dt == cfl_fact*(dx^2)/(2.0*nu)
@@ -972,16 +994,16 @@ for ii=1:nmax
             hold on
             figure(6)
             subplot(2,1,1)
-            plot(xax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+            plot(zax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
             set(gca, 'XTickLabel', [])
             ylabel('E_{||} (Vm^{-1})','Fontsize',16)
             hold on
-            plot(xax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+            plot(zax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
             set(gca, 'XTickLabel', [])
             legend('show','Location','northwest')
             hold on
             subplot(2,1,2)
-            plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            plot(zax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             xlabel('Position (m)','Fontsize',16)
             ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
             legend('show','Location','northwest')
@@ -1111,16 +1133,16 @@ if plots
 
         figure(6)
         subplot(2,1,1)
-        plot(xax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+        plot(zax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
         set(gca, 'XTickLabel', [])
         ylabel('E_{||} (Vm^{-1})','Fontsize',16)
         hold on
-        plot(xax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
+        plot(zax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
         set(gca, 'XTickLabel', [])
         legend('show','Location','northwest')
         hold on
         subplot(2,1,2)
-        plot(xax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(zax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
         legend('show','Location','northwest')
@@ -1177,7 +1199,17 @@ end
 %%
 
 function [ans] = grad(n,dx,npts)
-    ans = (n(2:npts) - n(1:npts-1))./dx;
+%     ans = (n(2:npts) - n(1:npts-1))./dx;
+%     ans = -(dx(1,2:npts-1)./((dx(1,2:npts-1).*(dx(1,2:npts-1) - dx(1,1:npts-2))))).*n(1,1:npts-2) +...
+%         ((dx(1,2:npts-1) - dx(1,1:npts-2))./(dx(1,2:npts-1).*dx(1,1:npts-2))).*n(1,2:npts-1) +...
+%         (dx(1,1:npts-2)./(dx(1,2:npts-1).*(dx(1,2:npts-1) + dx(1,1:npts-2)))).*n(1,3:npts);
+%     ans = [ans , 0];
+    for ii=2:length(dx)
+        ndiff(1,ii-1) = -(dx(1,ii)/(dx(1,ii-1)*(dx(1,ii) + dx(1,ii-1))))*n(1,ii-1) +...
+                ((dx(1,ii) - dx(1,ii-1))/(dx(1,ii)*dx(1,ii-1)))*n(1,ii) +...
+                (dx(1,ii-1)/(dx(1,ii)*(dx(1,ii) + dx(1,ii-1))))*n(1,ii+1);
+    end
+    ans = [ndiff,0];
 end
 
 function [ans] = grad2(n,dx,npts)

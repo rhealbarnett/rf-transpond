@@ -1,7 +1,7 @@
 % ----------------------plots----------------------- %
 
-width = 600;
-height = 900;
+width = 1000;
+height = 500;
 x0 = 0;
 y0 = 0;
 
@@ -11,7 +11,7 @@ set(gcf,'Position',[x0 y0 width height])
 
 subplot(4,1,1)
 plot(zax,source,'b','Linewidth',2)
-ylabel('{\iti}\omega\mu_0{\it J_{y}} (Vm^{-1})')
+ylabel('{\itJ_{y}} (Vm^{-1})')
 set(gca, 'XTickLabel', [])
 xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
@@ -32,7 +32,7 @@ xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+height width height],'Color','w')
 ax = gca();
-ax.YRuler.Exponent = -3;
+ax.YRuler.Exponent = -1;
 ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
@@ -50,7 +50,7 @@ xlim([zmin,zmax]);
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+2*height width height],'Color','w')
 ax = gca();
-ax.YRuler.Exponent = -2;
+ax.YRuler.Exponent = -1;
 ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
@@ -72,7 +72,7 @@ ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
 
-% export_fig('/Volumes/DATA/LAPD/matlab/wave_projection/efields_kx10_n18.png',...
+% export_fig('/Volumes/DATA/thesis/RFT/figs/vx_equilibrium.png',...
 %     '-r300')
 
 
