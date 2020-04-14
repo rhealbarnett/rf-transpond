@@ -383,6 +383,11 @@ indz_edge = find(zprime==13);
 temp_ant = data_x{1,indz_ant,1};
 temp_edge = data_x{1,indz_edge,1};
 % indx = bins(1);
+temp = fft_datax{1,floor(Nz/2),1};
+rf_zoom = find(time_LP > 0.4 & time_LP < 0.65);
+freq = 2.52e6;
+TRF = 1.0/freq;
+TRF_ax = find(time_LP <= 0.5008+(100*TRF*1.0e3),1,'last');
 
 figure(2)
 
@@ -399,10 +404,25 @@ plot(bins(end)*ones(1,length(freq_ax)),linspace(0,18,length(freq_ax)),'--r',...
 yticks([])
 
 subplot(1,2,2)
-plot(time_LP(shift_time),temp(shift_time),'k','Linewidth',1.5)
+ax1 = plot(time_LP(shift_time),temp(shift_time),'k','Linewidth',1.5);
+hold on
+plot(0.5008*ones(1,length(temp(shift_time))),...
+    linspace(0.0,0.025,length(temp(shift_time))),'--r','Linewidth',1.5,...
+    'HandleVisibility','off')
 xlabel('Time (ms)')
 ylabel('I_{\it sat} (A)')
 xlim([min(time_LP) max(time_LP(shift_time))])
+ax2 = axes('Position',[.8 .7 .08 .2]);
+box on
+plot(time_LP(rf_zoom),temp(rf_zoom),'-k','Linewidth',1.5)
+hold on
+plot(0.5008*ones(1,length(temp(shift_time))),...
+    linspace(0.013,0.02,length(temp(shift_time))),'--r','Linewidth',1.5,...
+    'HandleVisibility','off')
+% plot(time_LP(TRF_ax)*ones(1,length(temp(shift_time))),...
+%     linspace(0.013,0.02,length(temp(shift_time))),'--b','Linewidth',1.5,...
+%     'HandleVisibility','off')
+yticks([])
 % title('Filtered Isat')
 
 % subplot(2,2,4)
@@ -528,7 +548,7 @@ hold off
 
 T_ms = T_data*1.0e3;
 
-tRF = 0.501;
+tRF = 0.5008;
 t4 = 100*T_ms;
 
 tRF_ax = find(time_LP<=(tRF),1,'last');
@@ -583,8 +603,8 @@ plot(z,ratio,'-*k','Linewidth',1.5)
 hold on
 % legend('R_{I{\itsat,x}}','R_{I{\itsat,y}}','R_{I{\itsat,z}}','location','north west')
 xlim([min(z) max(z)])
-xlabel('Axial Position (cm)')
-ylabel('(I_{\itsat} - I_{{\itsat},RF})/I_{\itsat}')
+xlabel('$z$ (cm)','Interpreter','latex')
+ylabel('{\itR}_{I_{\itsat}}')
 plot(-4*ones(1,Nz),linspace(0.2,0.4,Nz),...
             '--b','Linewidth',1.5,'HandleVisibility','off')
 plot(2*ones(1,Nz),linspace(0.2,0.4,Nz),...
