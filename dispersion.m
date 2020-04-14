@@ -213,15 +213,15 @@ elseif para
         x0 = 0;
         y0 = 0;
         
-        indn_np = find(n_new<=1.0e17,1,'last');
+        indn_np = find(n_new<=1.0e17,1,'first');
         indky_np = find(ky<=30,1,'last');
-        indn_p = find(n_new<=1.0e17,1,'last');
+        indn_p = find(n_new<=1.0e17,1,'first');
         indky_p = find(ky==0,1,'last');
         indn_b = find(n_new<=1.0e17,1,'last');
         indky_b = find(ky<=20,1,'last');
         indn_tm = find(n_new<=1.0e16,1,'last');
         indky_tm = find(ky==0,1,'last');
-        indn_bn = find(n_new<=1.0e18,1,'last');
+        indn_bn = find(n_new<=1.0e18,1,'first');
         indky_bn = find(ky>=20,1,'first');
         
         figure(1)
@@ -229,32 +229,34 @@ elseif para
         ax1 = subplot(2,2,1);
         levelsrkp11 = linspace(0,30,50);
         contourf(log10(n_new),abs(ky),real(kpara11)',levelsrkp11,'Linecolor','none')
-        colormap(ax1,flipud(bone))
+        colormap(magma)
         rc11=colorbar;
         rc11.Ruler.TickLabelFormat = '%1.1f';
         rc11.Ruler.Exponent = 1;
         hold on
 %         contour(log10(n_new),abs(ky),real(kpara11)',[0.01665,0.01665],'r','Linewidth',2);
-%         plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',8,'Linewidth',2,...
-%             'MarkerFaceColor','r')
-        plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',30)
+        plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',10,'Linewidth',2,...
+            'MarkerFaceColor','r')
+%         plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',40)
 %         plot(log10(n_new(indn_b)),ky(indky_b),'*r','MarkerSize',10,'Linewidth',2)
-%         plot(log10(n_new(indn_tm)),ky(indky_tm),'xr','MarkerSize',10,'Linewidth',3)
-        plot(log10(n_new(indn_bn)),ky(indky_bn),'+r','MarkerSize',10,'Linewidth',3)
+%         plot(log10(n_new(indn_tm)),ky(indky_tm),'xr','MarkerSize',15,'Linewidth',3)
+%         plot(log10(n_new(indn_bn)),ky(indky_bn),'dr','MarkerSize',10,'MarkerFaceColor','r',...
+%             'Linewidth',3)
         set(gca,'xtick',[])
 %         title('Re[k_{|| 11}] (m^{-1})')
         ylabel('{\itk_{y}} (m^{-1})')
         set(gca,'Fontsize',30,'FontName','CMU Serif')
         set(gca,'Position',[0.15 0.55 0.3 0.35])
         h1 = get(rc11,'Position');
-        text(0.02,0.98,'(a)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30)
+        text(0.02,0.98,'(a)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30,...
+            'color','white')
         hold off
 
         ax2 = subplot(2,2,2);
         levelsikp11 = linspace(0,2.5,50);
         contourf(log10(n_new),abs(ky),imag(kpara11)',levelsikp11,'Linecolor','none')
         ic11=colorbar();
-        colormap(ax2,flipud(bone))
+        colormap(magma)
         ic11.Ruler.TickLabelFormat = '%1.1f';
         hold on
 %         contour(log10(n_new),abs(ky),imag(kpara11)',[0.0177,0.0177],'r','Linewidth',2);
@@ -264,8 +266,10 @@ elseif para
 %         ylabel('k_{y} (m^{-1})')
         set(gca,'Fontsize',30,'FontName','CMU Serif')
         set(gca,'Position',[0.55 0.55 0.3 0.35])
+%         set(gca,'colorscale','log')
         h2 = get(ic11,'Position');
-        text(0.02,0.98,'(b)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30)
+        text(0.02,0.98,'(b)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30,...
+            'color','white')
         hold off
 
         ax3 = subplot(2,2,3);
@@ -276,33 +280,44 @@ elseif para
         rc21=colorbar();
         rc21.Ruler.Exponent = -1;
         rc21.Ruler.TickLabelFormat = '%1.1f';
-        colormap(ax3,flipud(bone))
+        colormap(magma)
         hold on
-%         contour(log10(n_new),abs(ky),real(kpara21)',[0.0027,0.0027],'r','Linewidth',2);
+        contour(log10(n_new),abs(ky),real(kpara21)',[0.0027,0.0027],'-.w','Linewidth',3);
 %         title('Re[k_{|| 21}] (m^{-1})')
         ylabel('{\itk_{y}} (m^{-1})'),
         xlabel('log_{10}n')
-        text(0.02,0.98,'(c)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30)
+        text(0.02,0.98,'(c)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30,...
+            'color','white')
         set(gca,'Fontsize',30,'FontName','CMU Serif')
+%         set(gca,'colorscale','log')
 %         h = get(gca,'colorbar');
         set(rc21,'Position',[h1(1) 0.12 h1(3) h1(4)])
         set(gca,'Position',[0.15 0.12 0.3 0.35])
 
         ax4 = subplot(2,2,4);
         levelsikp21 = linspace(0,35,50);
+%         levelsikp21 = logspace(-2,2.1,50);
+%         for kk = 1:length(ky)
+%             for nn = 1:length(n_new)
+%                 if imag(kpara21(nn,kk))<=1.0e-2
+%                     kpara21(nn,kk) = real(kpara21(nn,kk)) + 1.0e-2i;
+%                 end
+%             end
+%         end
         contourf(log10(n_new),abs(ky),imag(kpara21)',levelsikp21,'Linecolor','none')
         ic21=colorbar;
-        colormap(ax4,flipud(bone))
+        colormap(magma)
         hold on
         ic21.Ruler.TickLabelFormat = '%1.1f';
         ic21.Ruler.Exponent = 1;
-%         contour(log10(n_new),abs(ky),imag(kpara21)',[0.0013,0.0013],'r','Linewidth',2);
+        contour(log10(n_new),abs(ky),imag(kpara21)',[0.0013,0.0013],'-.w','Linewidth',3);
 %         title('Im[k_{|| 21}] (m^{-1})')
         set(gca,'ytick',[])
 %         ylabel('k_{y} (m^{-1})')
         xlabel('log_{10}n')
         set(gca,'Fontsize',30,'FontName','CMU Serif')
         set(gca,'Position',[0.55 0.12 0.3 0.35])
+%         set(gca,'colorscale','log')
         set(ic21,'Position',[h2(1) 0.12 h2(3) h2(4)])
         text(0.02,0.98,'(d)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',30,...
             'Color','white')
@@ -310,7 +325,7 @@ elseif para
         
 %         export_fig('/Volumes/DATA/LAPD/matlab/wave_projection/dispersion_contour_kx10.png',...
 %             '-r300')
-%         export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/dispersion.png',...
+%         export_fig('/Volumes/DATA/thesis/RFT/figs/dispersion_nonpropcase.png',...
 %             '-r300')
         
         figure(3)
