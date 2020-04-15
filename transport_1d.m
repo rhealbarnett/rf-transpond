@@ -931,7 +931,7 @@ for ii=1:4500
     end
 
     % plot loop; every 1/5 of iterations
-    if plots && mod(ii,round(4500/5))==0
+    if plots && mod(ii,round(nmax/5))==0
         fprintf('***--------------------***\n')
         fprintf('ii=%d, count=%d\n', [ii counter])
         fprintf('dt=%ds\n', dt)
