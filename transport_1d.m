@@ -58,8 +58,8 @@ n_periodic = 0;
 MMS = 0;
 SS = 0;
 TD = 0;
-momentum = 1;
-continuity = 1;
+momentum = 0;
+continuity = 0;
 central = 1;
 upwind = 0;
 unstable = 0;
@@ -784,12 +784,12 @@ for ii=1:4500
             for jj=2:npts-2 
                 
                 if vx(1,jj)>0
-                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);% -...
-%                         (1.0/n(1,jj))*n_source(1,jj);
+                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
+                        (1.0/n(1,jj))*n_source(1,jj);
                     vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
                 elseif vx(1,jj)<0
-                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);% -...
-%                         (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) -...
+                        (1.0/n(1,jj+1))*n_source(1,jj+1);
                     vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
                 end
                 vx_diff(jj,jj) = - (2.0/(vdx(1,jj-1)*vdx(1,jj)))*(nu);
