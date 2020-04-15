@@ -6,7 +6,7 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
-equib = load('/Volumes/DATA/LAPD/matlab/inputs/equil_transport_7166000.mat');
+equib = load('/Volumes/DATA/LAPD/matlab/inputs/lapd_equib_superrefined.mat');
 % equib = load('/Users/rhealbarnett/Downloads/lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_refined.mat');
@@ -29,11 +29,14 @@ nu = equib.nu;
 
 %%
 
-plots = 0;
+plots = 1;
 
 if plots
     figure(1)
     plot(nxax,n_new,'.-b');
+    hold on
+    figure(2)
+    plot(nxax(2:npts-1),n_source(2:npts-1))
     hold on
 else
 end
@@ -53,6 +56,12 @@ if plots
     plot(nxax,n_new);
     xlabel('Position (m)')
     ylabel('Density (m^{-3})')
+    xlim([xmin xmax])
+    hold on
+    figure(2)
+    plot(nxax(2:npts-1),n_source(2:npts-1))
+    xlabel('Position (m)')
+    ylabel('Density source ()')
     xlim([xmin xmax])
     hold on
 else
@@ -153,7 +162,7 @@ dt = 0.99*min(ndx)/cs;
 % source_mult = 37000;
 period = 1.0/freq;
 % tmax = 100*period;
-tmax = 5.0e-5;
+tmax = 5.0e-6;
 save_time = period/10.0;
 nmax = round(tmax/dt);
 % nmax = 100;
@@ -164,11 +173,11 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
 [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(zax,ky,kx,k0,...
-    om,mu0,cpdt,sig,source,0,1,1);
+    om,mu0,cpdt,sig,source*1.0e-3,0,1,1);
 
-rf_ez = zeros(1,npts);
-rf_ey = zeros(1,npts);
 rf_ex = zeros(1,npts);
+rf_ey = zeros(1,npts);
+rf_ez = zeros(1,npts);
 Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
 
@@ -177,7 +186,7 @@ Emag = max(abs(sqrt(Efield)));
 
 if plots
     figure(10) 
-    plot(xax,sqrt(Efield),'-o')
+    plot(zax,sqrt(Efield),'-o')
     hold on
 else
 end
@@ -196,7 +205,7 @@ end
 Ex = interp1(zax,rf_ex,vxax,'linear');
 Ey = interp1(zax,rf_ey,vxax,'linear');
 Ez = interp1(zax,rf_ez,vxax,'linear');
-pf_source = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{0,vxax});
+[Ediff, pf_source] = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);

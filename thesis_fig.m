@@ -3,19 +3,20 @@
 % mostly white space format!
 %------------------------------%
 
-function ans = thesis_fig(ax,variable,labely,labelx,line_width,str)
+function ans = thesis_fig(ax,variable,labely,labelx,line_width,colour,str)
 
     x0 = 0;
     y0 = 0;
-    width = 900;
-    height = 400;
+    width = 1000;
+    height = 500;
 
-    figure(1)
+%     figure(1)
     set(gcf,'Position',[x0 y0 width height],'Color','w')
-    plot(ax,variable,'k','Linewidth',line_width)
+    plot(ax,variable,'color',colour,'Linewidth',line_width)
     xlim([min(ax) max(ax)])
     xlabel(labelx,'Interpreter','latex')
     ylabel(labely,'Interpreter','latex')
+%     hold on
     
 %     dim = [.47 .7 .25 .15];
 %     annotation('textbox',dim,'String',str,'Interpreter','latex',...

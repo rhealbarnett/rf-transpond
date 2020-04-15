@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 zmin = -4.0;
 zmax = 4.0;
-npts = 2048;
+% npts = 2048;
 zax = linspace(zmin,zmax,npts);
 dx = (zmax - zmin) / (npts-1);
 
@@ -39,7 +39,7 @@ dx = (zmax - zmin) / (npts-1);
 % Driving frequency of the single strap, high power antenna (Hz)
 % Driven at 2.38MHz, but FFT of experimental data shows it is closer to
 % ~2.52MHz. 
-freq = 2.5e6;
+freq = 2.52e6;
 om = freq*2.0*pi;
 
 %--
@@ -58,34 +58,34 @@ m_s = [me; mhe];
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
-Nmax = 1.0e16;
-Nmin = 1.0e19;
-n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e18*ones(1,npts);
+% Nmax = 1.0e16;
+% Nmin = 1.0e19;
+% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+% n_new = 1.0e17*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = (om/c0);
 kx = 20.0i;
-% ky = 0.0;
-ky = linspace(0,40,100);
+ky = 0.0;
+% ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_perp = c0*k_perp./om;
 
 %--
 % Wavenumbers as function of spatial location (currently constant).
 dampk = ones(1,npts);
-% kx = kx.*dampk;
-% ky = ky.*dampk;
+kx = kx.*dampk;
+ky = ky.*dampk;
 
 %-- 
 % Current source parameters.
 source_width = 0.06/(2.*sqrt(2.*log(2.)));
 % source_width = 0.06;
 source_loc = 0;
-% source_mult = 37000;
-source_mult = 1.0;
+source_mult = 1.0e5;
+% source_mult = 1.0;
 
 mult = 1.0/sqrt(2.0*pi*source_width);
 source = mult*exp(-(zax - source_loc).^2/(2.0*source_width^2));
