@@ -63,10 +63,10 @@ continuity = 0;
 central = 1;
 upwind = 0;
 unstable = 0;
-plots = 1;
+plots = 0;
 sparsefill = 0;
-sfile = 0;
-couple = 0;
+sfile = 1;
+couple = 1;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -406,10 +406,11 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-    pf = pond_source({'para',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+    [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
     pf_inter = sum(pf,1);
-    pf_final = squeeze(sum(pf_inter,2))';
-    pf_source = [0,pf_inter,0];
+    pf_inter2 = squeeze(sum(pf_inter,2))';
+    pf_source = interp1(zax,pf_inter2,vxax,'linear');
+    pf_source(1,1) = 0.0; pf_source(1,end) = 0.0;
 elseif ~MMS && collocated
     vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
@@ -506,7 +507,7 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
-for ii=1:4500
+for ii=1:nmax
     
     if MMS
         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
@@ -526,21 +527,21 @@ for ii=1:4500
     
     if couple
         
-        n_new_uni = interp1(nxax,n_new,xax,'linear');
+        n_new_uni = interp1(nxax,n_new,zax,'linear');
 
         [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
         if ii<=1000
             source_ramp = 1.0/(1001-ii);
-            [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
-            om,mu0,cpdt,source_ramp*source,0,1,1);
+            [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(zax,ky,kx,k0,...
+            om,mu0,cpdt,sig,source_ramp*source,0,1,1);
         else
-            [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(xax,ky,kx,k0,...
-            om,mu0,cpdt,source,0,1,1);
+            [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(zax,ky,kx,k0,...
+            om,mu0,cpdt,sig,source,0,1,1);
         end
         
-        Ex = interp1(xax,rf_ex,vxax,'linear');
-        Ey = interp1(xax,rf_ey,vxax,'linear');
-        Ez = interp1(xax,rf_ez,vxax,'linear');
+        Ex = interp1(zax,rf_ex,vxax,'linear');
+        Ey = interp1(zax,rf_ey,vxax,'linear');
+        Ez = interp1(zax,rf_ez,vxax,'linear');
         
     elseif ~couple
         
@@ -828,25 +829,22 @@ for ii=1:4500
             vx(1,end) = rvBC_val;
         end
 
-        % calculate the source term
+
         if staggered && ~MMS
             vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
-            pf = pond_source({'para',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,0,{1,vxax});
+            vx_source(1,1) = 0.0; vx_source(1,end) = 0.0;
+%             [Ediff, pf] = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
+%             pf_inter = sum(pf,1);
+%             pf_final = squeeze(sum(pf_inter,2))';
+%             pf_source = [0,pf_final,0];
+            [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
             pf_inter = sum(pf,1);
-            pf_final = squeeze(sum(pf_inter,2))';
-            pf_source = [0,pf_inter,0];
+            pf_inter2 = squeeze(sum(pf_inter,2))';
+            pf_source = interp1(zax,pf_inter2,vxax,'linear');
+            pf_source(1,1) = 0.0; pf_source(1,end) = 0.0;
         elseif staggered && momentum
-%             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
-%                 source_stag(n,1,nx/2,nx/2,1,npts,ndx);
-%             vx_source(1,1) = u0 + ux*cos(kux*min(vxax)^2 + om*dt*ii);
-%             vx_source(1,end) = u0 + ux*cos(kux*max(vxax)^2 + om*dt*ii);
-%             for ii=2:npts-2
-%                 source_vardx = source_stag(n_new,1,0.5,0.5,1,npts,ndx,ii);
-%             end
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
                 source_stag(n_new,1,0.5,0.5,1,npts,ndx);
-%             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
-%                 source_stag(n_new,1,0.5,0.5,1,npts,ndx);
             if SS
                 vx_source(1,1) = ex_solu(1,1);
                 vx_source(1,end) = ex_solu(1,end);
@@ -858,19 +856,6 @@ for ii=1:4500
             vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
         end
 
-        % zero the source term at the boundaries as it is not used (dirichlet
-        % boundary conditions will override the source)
-%         vx_source(1,1) = 0.0;
-%         vx_source(1,end) = 0.0;
-
-        % explicit calculation
-    %     vx_new_exp = Avx_exp*vx' + dt*(vx_source' + pf_source');
-        % implicit calculation
-%         vx_new_imp = Avx_imp\(vx' + dt*(vx_source' - pf_source'));
-%         vx_new_imp = Avx_imp\(vx' + dt*vx_source');
-%         vx_new_imp = Avx_imp\(vx_source');
-%         vx_newE = Avx_exp*vx';
-%         vx_new = Avx_imp\(vx_newE + dt*(vx_source'));% - pf_source'));
         if momentum && SS
             vx_new = Avx\vx_source';
         elseif (momentum && TD)
@@ -882,7 +867,6 @@ for ii=1:4500
         end
 
         % transpose solution vector
-%         vx_new = vx_new_imp;
         vx_new = vx_new';
         
         if MMS && SS
@@ -903,20 +887,12 @@ for ii=1:4500
             end
         end
     end
-    
-%     reset CFL condition based on the lowest dt out of the
-%     convective/diffusive CFLs
-%     if (cfl_fact*(dx^2)/(2.0*nu))<(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*(dx^2)/(2.0*nu);
-%     elseif (cfl_fact*(dx^2)/(2.0*nu))>(cfl_fact*dx/max(abs(vx_new)))
-%         dt = cfl_fact*dx/max(abs(vx_new));
-%     end
 
 %     will stop running script if either of the CFL conditions is violated
-%     if dt*max(abs(vx_new))/dx >= 1.0 || dt*2*nu/dx^2 >= 1.0
-%         fprintf('CFL condition violated, ii=%d\n',ii)
-%         return
-%     end
+    if dt*max(abs(vx_new))/min(ndx) >= 1.0
+        fprintf('CFL condition violated, ii=%d\n',ii)
+        return
+    end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
@@ -925,9 +901,6 @@ for ii=1:4500
         unstable = 1;
         fprintf('unstable, ii=%d\n',ii)
         return
-%     elseif rms(n_new)>=1.0e20
-%         fprintf('Density value seems large.\n')
-%         return
     end
 
     % plot loop; every 1/5 of iterations
@@ -1047,7 +1020,7 @@ for ii=1:4500
         transport.pond_summed = pf_source;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-        filename = strcat('/Volumes/DATA/LAPD/matlab/coupled_transport_',num2str(ii),'.mat');
+        filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_sourcemult05e5/coupled_transport_',num2str(ii),'.mat');
         save(filename,'-struct','transport');
         
         continue
@@ -1150,66 +1123,10 @@ if plots
     end
 end
 
-
-
-
-%%
-
-% tax = linspace(0,nmax*dt,plot_num+2);
-
-% % for ii=1:nmax
-% for jj=1:npts
-%     pressure(:,jj) = (Te + Ti)*n_mat(:,jj)*e;
-% end
-% for jj=1:npts-1
-%     pressure_av(:,jj) = 0.5*(pressure(:,jj) + pressure(:,jj+1));
-%     pressure_mat(:,jj) = pressure_av(:,jj) + (1/2)*0.5*(n_mat(:,jj+1)+n_mat(:,jj))*m.*(vx_mat(:,jj).^2);
-% end
-% % end
-% 
-% figure(7)
-% % levels = linspace((min(vx_mat(:))/(vx_init(2))),(max(vx_mat(:))/max(vx_init)),100);
-% % levels = levels/cs;
-% levels = linspace(-2.5e-2,0,100);
-% % set(gca,'colorscale','log')
-% contourf(vxax(2:npts-1),tax,(vx_mat(1:plot_num+2,2:npts-1) - vx_init(2:npts-1))/cs,...
-%     'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar;
-% 
-% 
-% 
-% figure(8)
-% % levels = linspace(round(min(n_mat(:)),-3),round(max(n_mat(:)),-3),25);
-% % levels = linspace(min(n_mat(:)),max(n_mat(:)),100);
-% levels = linspace(-3.0e15,3.0e15,100);
-% % set(gca,'colorscale','log')
-% contourf(nxax(2:npts-1),tax,n_mat(1:plot_num+2,2:npts-1) - n_init(2:npts-1),...
-%     'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
-
-% figure(10)
-% % levels = linspace((min(pressure_mat(:))),(max(pressure_mat(:))),25);
-% levels = linspace(min(pressure_mat(:)),max(pressure_mat(:)),25);
-% contourf(vxax,tax,pressure_mat,levels,'LineColor','none')
-% xlabel('Position (m)','Fontsize',16); ylabel('Time (s)','Fontsize',16)
-% colorbar
-
 %%
 
 function [ans] = grad(n,dx,npts)
-%     ans = (n(2:npts) - n(1:npts-1))./dx;
-%     ans = -(dx(1,2:npts-1)./((dx(1,2:npts-1).*(dx(1,2:npts-1) - dx(1,1:npts-2))))).*n(1,1:npts-2) +...
-%         ((dx(1,2:npts-1) - dx(1,1:npts-2))./(dx(1,2:npts-1).*dx(1,1:npts-2))).*n(1,2:npts-1) +...
-%         (dx(1,1:npts-2)./(dx(1,2:npts-1).*(dx(1,2:npts-1) + dx(1,1:npts-2)))).*n(1,3:npts);
-%     ans = [ans , 0];
-    for ii=2:length(dx)
-        ndiff(1,ii-1) = -(dx(1,ii)/(dx(1,ii-1)*(dx(1,ii) + dx(1,ii-1))))*n(1,ii-1) +...
-                ((dx(1,ii) - dx(1,ii-1))/(dx(1,ii)*dx(1,ii-1)))*n(1,ii) +...
-                (dx(1,ii-1)/(dx(1,ii)*(dx(1,ii) + dx(1,ii-1))))*n(1,ii+1);
-    end
-    ans = [ndiff,0];
+    ans = (n(2:npts) - n(1:npts-1))./dx;
 end
 
 function [ans] = grad2(n,dx,npts)

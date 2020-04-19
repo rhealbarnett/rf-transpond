@@ -161,8 +161,8 @@ dt = 0.99*min(ndx)/cs;
 
 % source_mult = 37000;
 period = 1.0/freq;
-% tmax = 100*period;
-tmax = 5.0e-6;
+tmax = 100*period;
+% tmax = 5.0e-7;
 save_time = period/10.0;
 nmax = round(tmax/dt);
 % nmax = 100;
@@ -173,11 +173,8 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
 [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(zax,ky,kx,k0,...
-    om,mu0,cpdt,sig,source*1.0e-3,0,1,1);
+    om,mu0,cpdt,sig,source,0,1,1);
 
-rf_ex = zeros(1,npts);
-rf_ey = zeros(1,npts);
-rf_ez = zeros(1,npts);
 Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
 
@@ -202,10 +199,15 @@ end
 
 %%
 
-Ex = interp1(zax,rf_ex,vxax,'linear');
-Ey = interp1(zax,rf_ey,vxax,'linear');
-Ez = interp1(zax,rf_ez,vxax,'linear');
-[Ediff, pf_source] = pond_source({'total',0},{Ex,Ey,Ez},m_s,q_s,om_c,om,vdx,1,{1,vxax});
+% Ex = interp1(zax,rf_ex,vxax,'linear');
+% Ey = interp1(zax,rf_ey,vxax,'linear');
+% Ez = interp1(zax,rf_ez,vxax,'linear');
+[Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
+pf_inter = sum(pf,1);
+pf_inter2 = squeeze(sum(pf_inter,2))';
+pf_source = interp1(zax,pf_inter2,vxax,'linear');
+pf_source(1,1) = 0.0; pf_source(1,end) = 0.0;
+% pf_final = [0,pf_source,0];
 
 vx_mat = sparse(nmax,npts-1);
 n_mat = sparse(nmax,npts);
@@ -220,3 +222,39 @@ vx_pos = sparse(npts-1,npts-1);
 vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
+
+%%
+
+transport.dt = dt;
+transport.n_source = n_source;
+transport.vx_new = vx_new;
+transport.n_new = n_new; 
+transport.cs = cs;
+transport.vxax = vxax;
+transport.nxax = nxax;
+transport.vdx = vdx;
+transport.ndx = ndx;
+transport.Te = Te;
+transport.Ti = Ti;
+transport.npts = npts;
+transport.tmax = tmax;
+transport.xmin = xmin;
+transport.xmax = xmax;
+transport.nu = nu;
+transport.freq = freq;
+transport.period = period;
+transport.B0 = B0;
+transport.rf_ez = rf_ez;
+transport.rf_ey = rf_ey;
+transport.rf_ex = rf_ex;
+transport.source = source;
+transport.kx = kx;
+transport.ky = ky;
+transport.Ediff = Ediff;
+transport.diss_pow = diss_pow;
+transport.pond = pf;
+transport.pond_summed = pf_source;
+
+%         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
+filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_sourcemult05e5/coupled_transport_0.mat');
+save(filename,'-struct','transport');

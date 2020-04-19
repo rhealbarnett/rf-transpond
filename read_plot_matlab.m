@@ -13,7 +13,7 @@ perp = 1;
 
 if data
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperp_mix/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/';
 %     load([filepath, 'coupled_transport_init.mat']);
     
 % 
@@ -119,10 +119,10 @@ if data
         
     elseif perp
 
-        pa_epara = squeeze(pf_source(1,1,:));
-        pa_ipara = squeeze(pf_source(1,2,:));
-        pa_eperp = squeeze(pf_source(2,1,:));
-        pa_iperp = squeeze(pf_source(2,2,:));
+        pa_epara = squeeze(pf(1,1,:));
+        pa_ipara = squeeze(pf(1,2,:));
+        pa_eperp = squeeze(pf(2,1,:));
+        pa_iperp = squeeze(pf(2,2,:));
 
         figure(3)
         set(gcf,'Position',[x0 y0 width height],'color','w')
@@ -157,7 +157,7 @@ if data
     clear rf_ex rf_ey rf_ez rf_e
    
 
-    for ii=106106
+    for ii=26500
 
         filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 

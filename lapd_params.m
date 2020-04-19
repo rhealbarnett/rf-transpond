@@ -31,9 +31,9 @@ B0 = 0.1;
 % is close to the antenna. 
 zmin = -4.0;
 zmax = 4.0;
-% npts = 2048;
+% npts = 4096;
 zax = linspace(zmin,zmax,npts);
-dx = (zmax - zmin) / (npts-1);
+dz = (zmax - zmin) / (npts-1);
 
 %--
 % Driving frequency of the single strap, high power antenna (Hz)
@@ -84,7 +84,7 @@ ky = ky.*dampk;
 source_width = 0.06/(2.*sqrt(2.*log(2.)));
 % source_width = 0.06;
 source_loc = 0;
-source_mult = 1.0e5;
+source_mult = 0.5e5;
 % source_mult = 1.0;
 
 mult = 1.0/sqrt(2.0*pi*source_width);
