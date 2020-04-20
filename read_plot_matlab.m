@@ -8,8 +8,8 @@
 data = 1;
 equilibrium = 0;
 plots = 1;
-para = 0;
-perp = 1;
+para = 1;
+perp = 0;
 
 if data
     
@@ -111,7 +111,7 @@ if data
 
     %     figure(5)
         subplot(2,1,2)
-        thesis_fig(vxax(2:npts-2),squeeze(pf_source(1,1,:)),'$m_i^{-1}F_P$ (ms$^{-2}$)','Position (m)',5,[0,0,0]+0.7,'')
+        thesis_fig(vxax,pf_source,'$m_i^{-1}F_P$ (ms$^{-2}$)','Position (m)',5,[0,0,0]+0.7,'')
     %     plot(vxax(2:npts-2),squeeze(pf_source(1,1,:)),'color',[0,0,0]+0.7,'Linewidth',5,'DisplayName',...
     %         ['time = 0T_{RF}'])
         hold on
@@ -157,7 +157,7 @@ if data
     clear rf_ex rf_ey rf_ez rf_e
    
 
-    for ii=26500
+    for ii=106106
 
         filename = strcat(filepath, 'coupled_transport_', num2str(ii),'.mat');
 
@@ -261,35 +261,60 @@ if data
 % %         xlim([min(zax) max(zax)])
 % %         legend('show')
 
-        pa_epara = squeeze(pond(1,1,:));
-        pa_ipara = squeeze(pond(1,2,:));
-        pa_eperp = squeeze(pond(2,1,:));
-        pa_iperp = squeeze(pond(2,2,:));
+        if perp
 
-        figure(3)
-        set(gcf,'Position',[x0 y0 width height],'color','w')
-        subplot(2,2,1)
-        thesis_fig(vxax(2:npts-2),pa_epara,'$m_i^{-1}F_{P,e||}$ (ms$^{-2}$)','',1.5,'k','')
-        set(gca, 'XTickLabel', [])
-        set(gca,'Fontsize',25)
-
-
-        subplot(2,2,2)
-        thesis_fig(vxax(2:npts-2),pa_ipara,'$m_i^{-1}F_{P,i||}$ (ms$^{-2}$)','',1.5,'k','')
-        set(gca, 'XTickLabel', [])
-        set(gca,'Fontsize',20)
+            pa_epara = squeeze(pond(1,1,:));
+            pa_ipara = squeeze(pond(1,2,:));
+            pa_eperp = squeeze(pond(2,1,:));
+            pa_iperp = squeeze(pond(2,2,:));
+            
+            figure(3)
+            set(gcf,'Position',[x0 y0 width height],'color','w')
+            subplot(2,2,1)
+            thesis_fig(vxax,pa_epara,'$m_i^{-1}F_{P,e||}$ (ms$^{-2}$)','',1.5,'k','')
+            set(gca, 'XTickLabel', [])
+            set(gca,'Fontsize',25)
 
 
-        subplot(2,2,3)
-        thesis_fig(vxax(2:npts-2),pa_eperp,'$m_i^{-1}F_{P,e\perp}$ (ms$^{-2}$)','Position (m)',1.5,'k','')
-        set(gca,'Fontsize',20)
-
-        subplot(2,2,4)
-        thesis_fig(vxax(2:npts-2),pa_iperp,'$m_i^{-1}F_{P,i\perp}$ (ms$^{-2}$)','Position (m)',1.5,'k','')
-        set(gca,'Fontsize',20)
+            subplot(2,2,2)
+            thesis_fig(vxax,pa_ipara,'$m_i^{-1}F_{P,i||}$ (ms$^{-2}$)','',1.5,'k','')
+            set(gca, 'XTickLabel', [])
+            set(gca,'Fontsize',20)
 
 
+            subplot(2,2,3)
+            thesis_fig(vxax,pa_eperp,'$m_i^{-1}F_{P,e\perp}$ (ms$^{-2}$)','Position (m)',1.5,'k','')
+            set(gca,'Fontsize',20)
 
+            subplot(2,2,4)
+            thesis_fig(vxax,pa_iperp,'$m_i^{-1}F_{P,i\perp}$ (ms$^{-2}$)','Position (m)',1.5,'k','')
+            set(gca,'Fontsize',20)
+            
+        elseif para
+            
+            pa_epara = pf_source;
+            pa_ipara = zeros(1,npts-1);
+            pa_eperp = zeros(1,npts-1);
+            pa_iperp = zeros(1,npts-1);
+            
+            figure(3)
+            subplot(2,1,1)
+            thesis_fig(zax,abs(rf_ez).^2,'$|E_z$ (Vm$^{-1})|^2$','',1.5,'k','')
+            set(gca,'XTickLabel',[])
+        %     plot(zax,abs(rf_ez).^2,'color',[0,0,0]+0.7,'Linewidth',5,'DisplayName',...
+        %         ['time = 0T_{RF}'])
+            hold on
+            box on
+
+        %     figure(5)
+            subplot(2,1,2)
+            thesis_fig(vxax,pf_source,'$m_i^{-1}F_P$ (ms$^{-2}$)','Position (m)',1.5,'k','')
+        %     plot(vxax(2:npts-2),squeeze(pf_source(1,1,:)),'color',[0,0,0]+0.7,'Linewidth',5,'DisplayName',...
+        %         ['time = 0T_{RF}'])
+            hold on
+            box on
+            
+        end
 
     end
 
