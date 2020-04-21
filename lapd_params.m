@@ -29,9 +29,9 @@ B0 = 0.1;
 %--
 % Actual plasma column is ~ 18 (m). However, use reduced size as interest
 % is close to the antenna. 
-zmin = -4.0;
-zmax = 4.0;
-% npts = 4096;
+zmin = -8.0;
+zmax = 8.0;
+npts = 4096;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
 
@@ -41,6 +41,7 @@ dz = (zmax - zmin) / (npts-1);
 % ~2.52MHz. 
 freq = 2.52e6;
 om = freq*2.0*pi;
+% om_i = 0.1i*om;
 
 %--
 % Ion mass : He only
@@ -61,7 +62,7 @@ m_s = [me; mhe];
 % Nmax = 1.0e16;
 % Nmin = 1.0e19;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e17*ones(1,npts);
+n_new = 1.0e19*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
@@ -79,12 +80,13 @@ dampk = ones(1,npts);
 kx = kx.*dampk;
 ky = ky.*dampk;
 
+
 %-- 
 % Current source parameters.
 source_width = 0.06/(2.*sqrt(2.*log(2.)));
 % source_width = 0.06;
 source_loc = 0;
-source_mult = 37000;
+source_mult = 0.5e5;
 % source_mult = 1.0;
 
 mult = 1.0/sqrt(2.0*pi*source_width);

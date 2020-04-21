@@ -173,7 +173,7 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
 [A,rf_e,rf_ex,rf_ey,rf_ez,diss_pow] = wave_sol(zax,ky,kx,k0,...
-    om,mu0,cpdt,sig,source,0,1,1);
+    om,mu0,cpdt,sig,source,0,1,0);
 
 Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
@@ -256,5 +256,5 @@ transport.pond = pf;
 transport.pond_summed = pf_source;
 
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_sourcemult05e5/coupled_transport_0.mat');
-save(filename,'-struct','transport');
+% filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_sourcemult05e5/coupled_transport_0.mat');
+% save(filename,'-struct','transport');

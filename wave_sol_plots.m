@@ -32,7 +32,7 @@ xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+height width height],'Color','w')
 ax = gca();
-ax.YRuler.Exponent = -1;
+ax.YRuler.Exponent = 3;
 ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
@@ -50,7 +50,7 @@ xlim([zmin,zmax]);
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+2*height width height],'Color','w')
 ax = gca();
-ax.YRuler.Exponent = -1;
+ax.YRuler.Exponent = 4;
 ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
@@ -68,6 +68,7 @@ xlim([zmin,zmax])
 set(gca,'Fontsize',20,'FontName','CMU Serif')
 set(gcf,'Position',[x0 y0+3*height width height],'Color','w')
 ax = gca();
+ax.YRuler.Exponent = 1;
 ax.YRuler.TickLabelFormat = '%1.1f';
 
 hold off
