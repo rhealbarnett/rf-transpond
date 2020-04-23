@@ -32,7 +32,7 @@ variable = 1;
 % include two additional gridpoints for the density ghost points
 % velocity grid will then be defined as having npts-1 (xax(1:npts-1)) --
 % density solution space will be defined as having npts-2 (xax(2:npts-1))
-npts = 512;
+% npts = 512;
 dx = (xmax - xmin)/(npts - 1);
 nxax = linspace(xmin-0.5*dx,xmax+0.5*dx,npts);
 vxax = linspace(xmin,xmax,npts-1);
@@ -87,10 +87,6 @@ end
 % Set initial and boundary values for n and v                             %
 %-------------------------------------------------------------------------%
 
-% equib = load('equib2.mat');
-
-% mms_mult = 100000.0;
-
 u0 = 0.01;
 n0 = 0.01;
 
@@ -100,11 +96,19 @@ nx = 1.0;
 knx = 1.0;
 kux = 5.0;
 
-om = 1.0e5;
-% om = 0.0;
-
 %-- initial density profile
-n_new = (n0 + nx*sin(knx*nxax.^2 + 0));
+if SS
+    n_new = 0.01*(n0 + nx*sin(knx*nxax.^2 + 0));
+    vx_new = 0.01*(u0 + ux*cos(kux*vxax.^2 + 0));
+    
+    om = 0.0;
+elseif TD
+    n_new = (n0 + nx*sin(knx*nxax.^2 + 0));
+    vx_new = (u0 + ux*cos(kux*vxax.^2 + 0));
+    
+    om = 1.0e5;
+end
+
 LnBC = n0 + nx*sin(knx*min(nxax)^2 + 0);
 RnBC = n0 + nx*sin(knx*max(nxax)^2 + 0);
 n_init = n_new;
@@ -113,7 +117,6 @@ ex_soln = n0 + nx*sin((nxax).^2 + 0);
 
 
 %-- initial velocity
-vx_new = (u0 + ux*cos(kux*vxax.^2 + 0));
 LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
 RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
 vx_init = vx_new;
@@ -131,38 +134,5 @@ vx_pos = sparse(npts-1,npts-1);
 vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
-
-%-------------------------------------------------------------------------%
-% Calculate time step                                                                  %
-%-------------------------------------------------------------------------%
-%-- set dt based on CFL conditions, check during loop if violated
-
-% cfl_fact = 0.99;
-% 
-% if ((cfl_fact*(min(ndx)^2)/(2.0*nu))<(cfl_fact*min(ndx)/max(abs(vx_new))))
-%     dt = cfl_fact*(min(ndx)^2)/(2.0*nu);
-% elseif (cfl_fact*min(ndx)^2/(2.0*nu))>(cfl_fact*min(ndx)/max(abs(vx_new)))
-%     dt = cfl_fact*min(ndx)/max(abs(vx_new));
-% else
-%     dt = cfl_fact*min(ndx)/cs;
-% end
-
-% dt = cfl_fact*min(ndx)/max(abs(vx_new));
-
-
-% for ii=1:nmax
-%     vx_new = exp(-decay_const*vxax)*(sin(om*dt*ii) + epsilon);
-% %     vx_new = 1.0e4*vx_new/max(vx_new);
-%     figure(2)
-%     plot(vxax,vx_new)
-%     pause(2)
-%     hold on
-% end
-
-% figure(2)
-% hold on
-% xlabel('Position (m)','Fontsize',16)
-% ylabel('Exact solution','Fontsize',16)
-% hold off
 
 Efield = zeros(1,npts-1);

@@ -1,47 +1,64 @@
-% npts = 4096*4;
-% npts = 128;
-% pow = 7;
-npts = 512;
 
-dt = 8.e-6;
-% dt = 1.0;
-tol = 1.0e-14;
-tmin = 0;
-tmax = 8.0e-4;
-
+SS = 1;
+TD = 0;
 mms_plots = 1;
 
+npts = 512;
+
+if SS
+    
+    dt = 1.0;
+    
+elseif TD
+    
+    dt = 8.0e-6;
+    tmin = 0.0;
+    tmax = 8.0e-4;
+    
+end
+
+tol = 1.0e-14;
 transport_mms;
 
 for kk=1:5
     
-%     npts = 2^pow;
-    nmax = round(tmax/dt);
-%     nmax = 1.0e5;
-    save_iter = round(nmax/5);
-%     
-%     fprintf('iteration %d\n', kk)
-%     fprintf('Number of points %d\n', npts)
-    fprintf('Time step %d\n', dt)
-    fprintf('nmax, tmax %d, %d\n', [nmax tmax])
+    if SS
+        
+        nmax = 1.0e5;
+        save_iter = round(nmax/5);
+         
+        fprintf('iteration %d\n', kk)
+        fprintf('Number of points %d\n', npts)
+        
+        fprintf('Minimum dx %d\n', min(ndx))
+        fprintf('Maximum dx %d\n', max(ndx))
+        
+        transport_1d
+        
+        npts_arr(1,kk) = npts;
+        npts = npts/2;
+        
+    elseif TD
+        
+        nmax = round(tmax/dt);
+        save_iter = round(nmax/5);
+        
+        fprintf('iteration %d\n', kk)
+        fprintf('Time step %d\n', dt)
+        fprintf('nmax, tmax %d, %d\n', [nmax tmax])
     
-    transport_1d
-    
-%     fprintf('Minimum dx %d\n', min(ndx))
-%     fprintf('Maximum dx %d\n', max(ndx))
+        transport_1d
+        
+        dt_arr(1,kk) = dt;
+        dt = dt/2.0;
+        
+    end
     
     ltwon_arr(1,kk) = l_twon;
     linfn_arr(1,kk) = l_infn;
     ltwou_arr(1,kk) = l_twou;
     linfu_arr(1,kk) = l_infu;
     
-%     pow = pow + 1;
-%     npts_arr(1,kk) = npts;
-
-    dt_arr(1,kk) = dt;
-    dt = dt/2.0;
-    
-%     npts = npts / 2;
 end
 
 

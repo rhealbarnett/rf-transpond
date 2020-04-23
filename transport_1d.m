@@ -18,8 +18,8 @@
 % params_transport_wave_ACM;
 % transport_vardx;
 % transport_test;
-% transport_mms;
-lapd_equib;
+transport_mms;
+% lapd_equib;
 
 % initialise velocity and density 
 vx = vx_init;
@@ -55,18 +55,16 @@ n_rdirichlet = 0;
 n_rneumann = 0;
 n_lneumann = 0;
 n_periodic = 0;
-MMS = 0;
-SS = 0;
-TD = 0;
-momentum = 0;
-continuity = 0;
+MMS = 1;
+momentum = 1;
+continuity = 1;
 central = 1;
 upwind = 0;
 unstable = 0;
 plots = 0;
-sparsefill = 0;
-sfile = 1;
-couple = 1;
+sparsefill = 1;
+sfile = 0;
+couple = 0;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -509,7 +507,7 @@ n_rms = zeros(1,nmax);
 
 for ii=1:nmax
     
-    if MMS
+    if MMS && TD
         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
         if continuity && ~momentum
@@ -588,6 +586,11 @@ for ii=1:nmax
                     end     
                 end
             end
+            
+            ind_rem = find(column==0);
+            column(ind_rem) = [];
+            row(ind_rem) = [];
+            n_sparse(ind_rem) = [];
 
             S_nA= sparse(row,column,n_sparse,npts,npts,(2*(npts))-2);
 
@@ -619,11 +622,11 @@ for ii=1:nmax
             An_exp = nI + dt*nA;
             
             Anx = -nA;
+            An_exp(1,1) = 1.0;
+            An_exp(end,end) = 1.0;
             
         end
         
-        An_exp(1,1) = 1.0;
-        An_exp(end,end) = 1.0;
         Anx(1,1) = 1.0;
         Anx(end,end) = 1.0;
         
@@ -659,16 +662,18 @@ for ii=1:nmax
 %         n_new = n_new_imp;
         n_new = n_new';
         
-%         if rms(n - n_new)<=tol
-%             fprintf('tolerance reached, ii=%d\n',ii)
-%             fprintf('rms error = %d\n', rms(n - n_new))
-%             
-%             l_infn = norm(ex_soln - n_new, Inf);
-%             l_twon = rms(ex_soln - n_new);
-%             return
-%         elseif mod(ii,round(nmax/10))==0 || ii==nmax
-%             fprintf('density rms error = %d\n', rms(n - n_new))
-%         else
+%         if MMS && SS
+%             if rms(n - n_new)<=tol
+%                 fprintf('tolerance reached, ii=%d\n',ii)
+%                 fprintf('rms error = %d\n', rms(n - n_new))
+% 
+%                 l_infn = norm(ex_soln - n_new, Inf);
+%                 l_twon = rms(ex_soln - n_new);
+%                 return
+%             elseif mod(ii,round(nmax/10))==0 || ii==nmax
+%                 fprintf('density rms error = %d\n', rms(n - n_new))
+%             else
+%             end
 %         end
         
         n_tol = n;
@@ -760,17 +765,22 @@ for ii=1:nmax
 
                     if vx(1,jj)>0
                         column_adv(1,2*jj-1) = jj-1;
-                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
-                            (1.0/n(1,jj))*n_source(1,jj);
+                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj);% -...
+%                             (1.0/n(1,jj))*n_source(1,jj);
                         vx_sparse_adv(1,2*jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
                     elseif vx(1,jj)<0
                         column_adv(1,2*jj-1) = jj+1;
-                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj) -...
-                            (1.0/n(1,jj+1))*n_source(1,jj+1);
+                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj);% -...
+%                             (1.0/n(1,jj+1))*n_source(1,jj+1);
                         vx_sparse_adv(1,2*jj-1) = - (1.0/vdx(1,jj))*vx(1,jj);
                     end
                     
             end
+            
+            ind_rem = find(column_adv==0);
+            column_adv(ind_rem) = [];
+            row_adv(ind_rem) = [];
+            vx_sparse_adv(ind_rem) = [];
 
             S_vxE = sparse(row_adv,column_adv,vx_sparse_adv,npts-1,npts-1,(2*(npts-1))-2);
             S_vxI = sparse(row_diff,column_diff,vx_sparse_diff,npts-1,npts-1,(3*(npts-1))-4);  
@@ -785,12 +795,12 @@ for ii=1:nmax
             for jj=2:npts-2 
                 
                 if vx(1,jj)>0
-                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
-                        (1.0/n(1,jj))*n_source(1,jj);
+                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);% -...
+%                         (1.0/n(1,jj))*n_source(1,jj);
                     vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
                 elseif vx(1,jj)<0
-                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) -...
-                        (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);% -...
+%                         (1.0/n(1,jj+1))*n_source(1,jj+1);
                     vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
                 end
                 vx_diff(jj,jj) = - (2.0/(vdx(1,jj-1)*vdx(1,jj)))*(nu);
@@ -889,10 +899,10 @@ for ii=1:nmax
     end
 
 %     will stop running script if either of the CFL conditions is violated
-    if dt*max(abs(vx_new))/min(ndx) >= 1.0
-        fprintf('CFL condition violated, ii=%d\n',ii)
-        return
-    end
+%     if dt*max(abs(vx_new))/min(ndx) >= 1.0
+%         fprintf('CFL condition violated, ii=%d\n',ii)
+%         return
+%     end
     
     % will stop running script if there are any nans in the velocity array
     nan_check = isnan(vx_new);
