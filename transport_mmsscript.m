@@ -226,7 +226,6 @@ y0 = 0;
 width = 1000;
 height = 600;
 
-
 figure(3)
 set(gcf,'Position',[x0 y0 width height],'Color','w')
 
@@ -247,7 +246,7 @@ ylabel('$v$ (ms$^{-1}$)','Interpreter','latex')
 legend('$v = v_0 + v_z\sin(k_vz^2)$','Interpreter','latex','location','southwest')
 
 subplot(3,1,3)
-plot(nxax,zeros(1,npts),'.k')
+plot(nxax,zeros(1,length(nxax)),'.k')
 xlim([min(nxax) max(nxax)])
 xlabel('Position (m)')
 set(gca,'Fontsize',25)
