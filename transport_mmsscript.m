@@ -2,6 +2,7 @@
 SS = 1;
 TD = 0;
 mms_plots = 1;
+save_file = 1;
 
 npts = 512;
 
@@ -58,6 +59,29 @@ for kk=1:5
     linfn_arr(1,kk) = l_infn;
     ltwou_arr(1,kk) = l_twou;
     linfu_arr(1,kk) = l_infu;
+        
+    if save_file
+        
+        if SS
+            str = 'SS';
+            mms_errors.npts_arr = npts_arr;
+        elseif TD
+            str = 'TD';
+            mms_errors.dt_arr = dt_arr;
+        end
+        
+        [status,git_hash] = system('git rev-parse HEAD');
+        s1 = '# Created from matlab git hash ';
+        s2 = git_hash;
+        header = [s1 s2];
+        
+        mms_errors.header = header;
+        mms_errors.ltwon_arr = ltwon_arr;
+        mms_errors.linfn_arr = linfn_arr;
+        mms_errors.ltwou_arr = ltwou_arr;
+        mms_errors.linfu_arr = linfu_arr;
+        
+    end
     
 end
 
@@ -72,6 +96,22 @@ oo_twou = log(ratio_twou)/log(2);
 oo_infn = log(ratio_infn)/log(2);
 oo_twon = log(ratio_twon)/log(2);
 
+if save_file
+
+    mms_errors.ratio_twon = ratio_twon;
+    mms_errors.ratio_infn = ratio_infn;
+    mms_errors.ratio_twou = ratio_twou;
+    mms_errors.ratio_infu = ratio_infu;
+    mms_errors.oo_twon = oo_twon;
+    mms_errors.oo_infn = oo_infn;
+    mms_errors.oo_twou = oo_twou;
+    mms_errors.oo_infu = oo_infu;
+
+
+    filename = strcat('/Volumes/DATA/LAPD/matlab/transport_verification/errors_',str,'.mat');
+    save(filename,'-struct','mms_errors');
+
+end
 %%
 
 if SS && mms_plots
