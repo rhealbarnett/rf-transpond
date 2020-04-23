@@ -1,6 +1,6 @@
 
-SS = 1;
-TD = 0;
+SS = 0;
+TD = 1;
 mms_plots = 1;
 save_file = 1;
 
@@ -106,9 +106,9 @@ if save_file
     mms_errors.oo_infn = oo_infn;
     mms_errors.oo_twou = oo_twou;
     mms_errors.oo_infu = oo_infu;
+    mms_errors.sparsefill = sparsefill;
 
-
-    filename = strcat('/Volumes/DATA/LAPD/matlab/transport_verification/errors_',str,'.mat');
+    filename = strcat('/Volumes/DATA/matlab/transport_verification/errors_',str,'.mat');
     save(filename,'-struct','mms_errors');
 
 end
