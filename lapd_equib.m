@@ -173,7 +173,7 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
 [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
-    om,mu0,cpdt,sig,source,0,1,0);
+    om,mu0,cpdt,sig,source,0,1,1);
 
 Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
@@ -251,7 +251,7 @@ transport.source = source;
 transport.kx = kx;
 transport.ky = ky;
 transport.Ediff = Ediff;
-transport.diss_pow = diss_pow;
+% transport.diss_pow = diss_pow;
 transport.pond = pf;
 transport.pond_summed = pf_source;
 
