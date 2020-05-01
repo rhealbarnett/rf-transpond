@@ -202,7 +202,7 @@ end
 % Ex = interp1(zax,rf_ex,vxax,'linear');
 % Ey = interp1(zax,rf_ey,vxax,'linear');
 % Ez = interp1(zax,rf_ez,vxax,'linear');
-[Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
+[Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
 pf_inter = sum(pf,1);
 pf_inter2 = squeeze(sum(pf_inter,2))';
 pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -255,6 +255,13 @@ transport.diss_pow = diss_pow;
 transport.pond = pf;
 transport.pond_summed = pf_source;
 
+[status,git_hash] = system('git rev-parse HEAD');
+s1 = '# Created from matlab git hash ';
+s2 = git_hash;
+header = [s1 s2];
+
+transport.header = header;
+
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-% filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_sourcemult05e5/coupled_transport_0.mat');
-% save(filename,'-struct','transport');
+filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_v5/coupled_transport_0.mat');
+save(filename,'-struct','transport');
