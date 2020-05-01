@@ -18,8 +18,8 @@
 % params_transport_wave_ACM;
 % transport_vardx;
 % transport_test;
-transport_mms;
-% lapd_equib;
+% transport_mms;
+lapd_equib;
 
 % initialise velocity and density 
 vx = vx_init;
