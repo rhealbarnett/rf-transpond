@@ -55,16 +55,16 @@ n_rdirichlet = 0;
 n_rneumann = 0;
 n_lneumann = 0;
 n_periodic = 0;
-MMS = 1;
-momentum = 1;
-continuity = 1;
+MMS = 0;
+momentum = 0;
+continuity = 0;
 central = 1;
 upwind = 0;
 unstable = 0;
 plots = 0;
 sparsefill = 1;
-sfile = 0;
-couple = 0;
+sfile = 1;
+couple = 1;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -404,7 +404,7 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
+    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -847,7 +847,7 @@ for ii=1:nmax
 %             pf_inter = sum(pf,1);
 %             pf_final = squeeze(sum(pf_inter,2))';
 %             pf_source = [0,pf_final,0];
-            [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
+            [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
             pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -1030,7 +1030,7 @@ for ii=1:nmax
         transport.pond_summed = pf_source;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-        filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_sourcemult05e5/coupled_transport_',num2str(ii),'.mat');
+        filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_v5/coupled_transport_',num2str(ii),'.mat');
         save(filename,'-struct','transport');
         
         continue
