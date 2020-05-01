@@ -29,8 +29,8 @@ B0 = 0.1;
 %--
 % Actual plasma column is ~ 18 (m). However, use reduced size as interest
 % is close to the antenna. 
-zmin = -8.0;
-zmax = 8.0;
+zmin = -4.0;
+zmax = 4.0;
 % npts = 4096;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
