@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 zmin = -8.0;
 zmax = 8.0;
-npts = 4096;
+% npts = 4096;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
 
@@ -62,7 +62,7 @@ m_s = [me; mhe];
 % Nmax = 1.0e16;
 % Nmin = 1.0e19;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = 1.0e19*ones(1,npts);
+% n_new = 1.0e19*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
