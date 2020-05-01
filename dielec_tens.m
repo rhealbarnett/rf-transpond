@@ -25,9 +25,9 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,n
 %     damp = ones(1,npts);
 %     damp(1:np_bound) = damp(1:np_bound) + dampFac*1i*damp0;
 %     damp(end-np_bound+1:end) = damp(end-np_bound+1:end) + dampFac*1i*fliplr(damp0);
-%     om = om*ones(1,npts);
+    om = om*ones(1,npts);
 %     om = om.*damp;
-    om = om*ones(1,npts) + 1i*om*ones(1,npts);
+%     om = om*ones(1,npts) + 1i*om*ones(1,npts);
 %     m = m + 0.1i*m;
 
     for ii=1:msize(1)
@@ -82,7 +82,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,n
         for ii=1:npts
             
             sig(1,1,ii) = sig(1,1,ii)*damp_sig(1,ii);
-            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*5.0e3;
+            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*1.0e3;
 %             sig(1,1,ii) = sig(1,1,ii) + (1i*sig(1,1,ii)*damp_sig(1,ii));
 %             sig(2,2,ii) = damp_sig(1,ii)*(sig(2,2,ii));
 %             sig(2,2,ii) = sig(2,2,ii) + (1i*(sig(2,2,ii)*(damp_sig(1,ii)))+shift11)*1.0e3;
