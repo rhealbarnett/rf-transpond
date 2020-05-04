@@ -765,13 +765,13 @@ for ii=1:nmax
 
                     if vx(1,jj)>0
                         column_adv(1,2*jj-1) = jj-1;
-                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj);% -...
-%                             (1.0/n(1,jj))*n_source(1,jj);
+                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
+                            (1.0/n(1,jj))*n_source(1,jj);
                         vx_sparse_adv(1,2*jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
                     elseif vx(1,jj)<0
                         column_adv(1,2*jj-1) = jj+1;
-                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj);% -...
-%                             (1.0/n(1,jj+1))*n_source(1,jj+1);
+                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj) -...
+                            (1.0/n(1,jj+1))*n_source(1,jj+1);
                         vx_sparse_adv(1,2*jj-1) = - (1.0/vdx(1,jj))*vx(1,jj);
                     end
                     
@@ -795,12 +795,12 @@ for ii=1:nmax
             for jj=2:npts-2 
                 
                 if vx(1,jj)>0
-                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj);% -...
-%                         (1.0/n(1,jj))*n_source(1,jj);
+                    vx_pos(jj,jj) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
+                        (1.0/n(1,jj))*n_source(1,jj);
                     vx_pos(jj,jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
                 elseif vx(1,jj)<0
-                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj);% -...
-%                         (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    vx_neg(jj,jj) = (1.0/vdx(1,jj))*vx(1,jj) -...
+                        (1.0/n(1,jj+1))*n_source(1,jj+1);
                     vx_neg(jj,jj+1) = - (1.0/vdx(1,jj))*vx(1,jj);
                 end
                 vx_diff(jj,jj) = - (2.0/(vdx(1,jj-1)*vdx(1,jj)))*(nu);
