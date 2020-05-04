@@ -13,7 +13,7 @@ perp = 0;
 
 if data
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_v3/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_v5/';
 %     load([filepath, 'coupled_transport_init.mat']);
     
 % 
@@ -239,27 +239,27 @@ if data
 %         export_fig('/Users/rhealbarnett/Documents/Documents/presentations/2020-rfscidac/results_efields_epara_ky20.png',...
 %               '-r300')
 
-%         figure(3)
-%         subplot(2,1,1)
-%         thesis_fig(zax,abs(rf_ez).^2,'$|E_z$ (Vm$^{-1})|^2$','',1.5,'k','')
-% %         plot(zax,abs(rf_ez).^2,'k','Linewidth',1.5,'DisplayName',...
-% %             ['time = ' num2str(round(double(ii)*dt/period)) 'T_{RF}'])
-%         hold on
-% %         xlabel('Position (m)')
-% %         ylabel('|RF E_z (Vm^{-1})|^2')
-% %         xlim([min(zax) max(zax)])
-% %         legend('show')
-% 
-% %         figure(5)
-%         subplot(2,1,2)
-%         thesis_fig(vxax,pf_source,'$m_i^{-1}F_P$ (ms$^{-2}$)','Position (m)',1.5,'k','')
-% %         plot(vxax,pf_source,'k','Linewidth',1.5,'DisplayName',...
-% %             ['time = ' num2str(round(double(ii)*dt/period)) 'T_{RF}'])
-%         hold on
-% %         xlabel('Position (m)')
-% %         ylabel('PA (ms^{-2})')
-% %         xlim([min(zax) max(zax)])
-% %         legend('show')
+        figure(3)
+        subplot(2,1,1)
+        thesis_fig(zax,abs(rf_ez).^2,'$|E_z$ (Vm$^{-1})|^2$','',1.5,'k','')
+%         plot(zax,abs(rf_ez).^2,'k','Linewidth',1.5,'DisplayName',...
+%             ['time = ' num2str(round(double(ii)*dt/period)) 'T_{RF}'])
+        hold on
+%         xlabel('Position (m)')
+%         ylabel('|RF E_z (Vm^{-1})|^2')
+%         xlim([min(zax) max(zax)])
+%         legend('show')
+
+%         figure(5)
+        subplot(2,1,2)
+        thesis_fig(vxax,pf_source,'$m_i^{-1}F_P$ (ms$^{-2}$)','Position (m)',1.5,'k','')
+%         plot(vxax,pf_source,'k','Linewidth',1.5,'DisplayName',...
+%             ['time = ' num2str(round(double(ii)*dt/period)) 'T_{RF}'])
+        hold on
+%         xlabel('Position (m)')
+%         ylabel('PA (ms^{-2})')
+%         xlim([min(zax) max(zax)])
+%         legend('show')
 
         if perp
 
