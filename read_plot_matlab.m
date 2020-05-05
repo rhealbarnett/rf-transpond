@@ -13,7 +13,7 @@ perp = 0;
 
 if data
     
-    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_v5/';
+    filepath = '/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_v6/';
 %     load([filepath, 'coupled_transport_init.mat']);
     
 % 
