@@ -1030,7 +1030,9 @@ for ii=1:nmax
         transport.pond_summed = pf_source;
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-        filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_',num2str(ii),'.mat');
+%         filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_',num2str(ii),'.mat');
+        filename = strcat('/Volumes/DATA/LAPD/matlab/results_test/coupled_',num2str(ii),'_',num2str(source_mult),'_',...
+            num2str(kx(1)),'_',num2str(ky(1)),'_',num2str(Nmax),'.mat');
         save(filename,'-struct','transport');
         
         continue
