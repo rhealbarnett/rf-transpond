@@ -263,5 +263,5 @@ header = [s1 s2];
 transport.header = header;
 
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-% filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_0.mat');
-% save(filename,'-struct','transport');
+filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_0.mat');
+save(filename,'-struct','transport');
