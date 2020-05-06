@@ -165,7 +165,7 @@ tmax = 100*period;
 % tmax = 5.0e-7;
 save_time = period/10.0;
 nmax = round(tmax/dt);
-% nmax = 100;
+% nmax = 1000;
 save_iter = round(save_time/dt);
 vx_init = vx_new;
 
@@ -263,5 +263,5 @@ header = [s1 s2];
 transport.header = header;
 
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_0.mat');
-save(filename,'-struct','transport');
+% filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_0.mat');
+% save(filename,'-struct','transport');
