@@ -3,14 +3,14 @@
 % mostly white space format!
 %------------------------------%
 
-function ans = thesis_fig(ax,variable,labely,labelx,line_width,colour,str)
+function ans = thesis_fig(num,ax,variable,labely,labelx,line_width,colour,str)
 
     x0 = 0;
     y0 = 0;
     width = 1000;
     height = 500;
 
-%     figure(1)
+    figure(num)
     set(gcf,'Position',[x0 y0 width height],'Color','w')
     plot(ax,variable,'color',colour,'Linewidth',line_width)
     xlim([min(ax) max(ax)])
