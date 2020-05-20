@@ -4,6 +4,29 @@
 % rlbarnett c3149416, 121217              %
 %-----------------------------------------%
 
+%------------------------------------------------------------------------%
+% INPUTS
+% q: charge, as a column vector for each species e.g. q = [-e; e..] for 
+%    however many species in the plasma, in C. 
+% B0: background magnetic field, in T, as a scalar.
+% n: density in m^-3 over spatial domain, column for each species (must be
+%    ordered the same as q). 
+% m: species mass in kg, column for each species, ordered as with q and n.
+% om: RF driver frequency in Hz, as a scalar.
+% eps0: vacuum permittivity, in SI units.
+% npts: number of spatial grid points.
+% damping: switch 0 or 1 to turn real(sigma) damping profile off or on.
+%
+% OUTPUTS:
+% om_c: cyclotron frequency.
+% om_p: plasma frequency.
+% cpdt: cold plasma dielectric tensor, 3X3 matrix at each spatial location.
+% s_arr, d_arr, p_arr: cold plasma dielectric elements S, P and D at each      
+%                      spatial location.
+% sig: sigma tensor, 3X3 at each spatial location.
+%------------------------------------------------------------------------%
+
+
 %------------------------------------------------------------------------
 % input for mass, density can be vectors
 % output will be plasma frequency for each mass 
@@ -70,7 +93,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,n
         eps0 = const.eps0;
         mu0 = const.mu0;
 
-        np_bound = floor(0.2*npts);
+        np_bound = floor(0.3*npts);
         ax = linspace(0,pi,np_bound);
         damp0 = (cos(ax)+1)/2;
         damp_sig = ones(1,npts);
@@ -82,7 +105,7 @@ function [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q,B0,n,m,om,eps0,n
         for ii=1:npts
             
             sig(1,1,ii) = sig(1,1,ii)*damp_sig(1,ii);
-            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*1.0e3;
+            sig(1,1,ii) = sig(1,1,ii) + ((damp_sig(1,ii)*-1 + 1)*shift11)*8.0e2;
 %             sig(1,1,ii) = sig(1,1,ii) + (1i*sig(1,1,ii)*damp_sig(1,ii));
 %             sig(2,2,ii) = damp_sig(1,ii)*(sig(2,2,ii));
 %             sig(2,2,ii) = sig(2,2,ii) + (1i*(sig(2,2,ii)*(damp_sig(1,ii)))+shift11)*1.0e3;

@@ -1,18 +1,38 @@
 %------------------------------------------------------------------%
-% time independent wave solver                                   
+% time independent wave solver, cartesian coordinates.                                   
 % V X V X E = k0^2.K.E           
 % rlbarnett c3149416 210917      
 %------------------------------------------------------------------%
-% edited rlbarnett 291018
-% changed to a function
-% need to run dielec_tens function to get cpdt before calling wave_sol
-%------------------------------------------------------------------%
+
+%------------------------------------------------------------------------%
+% INPUTS
+% ax: spatial axis.
+% ky: wavenumber in y, in m^-1.
+% k: other wavenumber, either kx or kz depending on solution domain, in
+%    m^-1.
+% k0: vacuum wavenumber, in m^-1.
+% om: driving frequency, in rad s^-1. 
+% mu0: vacuum permeability, in SI units.
+% cpdt: cold plasma dielectric tensor, 3X3Xnpts, calculated from 
+%       dielec_tens.m function (or otherwise if you're fancy).
+% source: current source term defined at each location in space, in Am^-2.
+% MMS: switch 1 or 0 to run or not run MMS tests for wave solver.
+% para: switch 1 or 0 to solve in parallel (z) or perpendicular (x) domain.
+% sparsefill: switch 1 or 0 to use or not use matlab's sparsefilling
+%             routines to fill the matrix. 
+% pml: switch value of 1 to include pml boundary condition rather than 
+%      in the dielectric tensor. The damping switch in the dielec_tens 
+%      calculation should be switched off if using this option. If 
+%      damping is included in dielec_tens, switch pml to 0.
+%
+% OUTPUTS
+% A: electric field coeficient matrix in the wave equation. 
+% rf_e(x,y,z): each component of the rf e field solution. 
+%------------------------------------------------------------------------%
 
 
-% function [A,source,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
-%     om,mu0,cpdt,source_width,source_loc,source_mult,MMS,para,sparsefill)
 function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
-    om,mu0,cpdt,sig,source,MMS,para,sparsefill)
+    om,mu0,cpdt,source,MMS,para,sparsefill,pml)
 
     npts = length(ax);
     axmax = ax(1,end);
@@ -21,6 +41,7 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     A = sparse(3*npts, 3*npts);
     ii = 4;
     kk = 2;
+    const = constants();
     
     np_sparse = (3*npts - 6)*9 + 6;
 
@@ -116,6 +137,12 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
         row2 = row1 + 1;
         row3 = row2 + 1;
         
+        if pml
+            cpml = wave_pml(0.05,10.,floor(0.2*npts),h,const.eps0,...
+                sqrt(const.mu0/const.eps0),cpdt,om,3,1,npts);
+%             k(1,:) = k(1,:)./squeeze(cpml(3,3,:))';
+        end
+        
         for gg = 1:npts-2
             
             nney = nnex+1;
@@ -139,7 +166,13 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             v(1,nnexm) = -1.0/h^2;
             v(1,nneym) = 0.0;
             v(1,nnezm) = -1i*k(1,kk)/(2.0*h);
-            v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
+            if ~pml
+                v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
+                v(1,nney) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(1,2,kk);
+            elseif pml
+                v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk)*cpml(1,1,kk));
+%                 v(1,nney) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(1,2,kk)*cpml(1,1,kk);
+            end
             v(1,nney) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(1,2,kk);
             v(1,nnez) = -k0^2*cpdt(1,3,kk);
             v(1,nnexp) = -1.0/(h^2);
@@ -150,7 +183,14 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             v(1,nneym+9) = -1.0/(h^2);
             v(1,nnezm+9) = -1i*ky(1,kk)/(2.0*h);
             v(1,nnex+9) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(2,1,kk);
-            v(1,nney+9) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+            if ~pml
+                v(1,nney+9) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+                v(1,nnex+9) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(2,1,kk);
+            elseif pml
+                v(1,nney+9) = (k(1,kk)^2 -...
+                    k0^2*cpdt(2,2,kk)*cpml(2,2,kk)) + 2.0/(h^2);
+%                 v(1,nnex+9) = -ky(1,kk)*k(1,kk) -k0^2*cpdt(2,1,kk)*cpml(2,2,kk);
+            end
             v(1,nnez+9) = - k0^2*cpdt(2,3,kk);
             v(1,nnexp+9) = 0.0;
             v(1,nneyp+9) = -1.0/(h^2);
@@ -161,7 +201,12 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             v(1,nnezm+18) = 0.0;
             v(1,nnex+18) = -k0^2*cpdt(3,1,kk);
             v(1,nney+18) = -k0^2*cpdt(3,2,kk);
-            v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
+            if ~pml
+                v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
+            elseif pml
+                v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 -...
+                    k0^2*cpdt(3,3,kk)*cpml(3,3,kk));
+            end
             v(1,nnexp+18) = 1i*k(1,kk)/(2.0*h);
             v(1,nneyp+18) = 1i*ky(1,kk)/(2.0*h);
             v(1,nnezp+18) = 0.0;

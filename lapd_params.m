@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 zmin = -4.0;
 zmax = 4.0;
-% npts = 4096;
+npts = 512;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
 
@@ -62,13 +62,14 @@ m_s = [me; mhe];
 % Nmax = 1.0e16;
 % Nmin = 1.0e19;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e19*ones(1,npts);
+n_new = 1.0e17*ones(1,npts);
+% n_new = zeros(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = (om/c0);
-% kx = 20.0i;
+kx = 20.0i;
 ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
@@ -86,13 +87,18 @@ ky = ky.*dampk;
 source_width = 0.06/(2.*sqrt(2.*log(2.)));
 % source_width = 0.06;
 source_loc = 0;
-source_mult = 0.5e5;
+source_mult = 0.7e5;
 % source_mult = 1.0;
 
 mult = 1.0/sqrt(2.0*pi*source_width);
 source = mult*exp(-(zax - source_loc).^2/(2.0*source_width^2));
 source = source / max(source);
 source = source*source_mult;
+
+source_sec = ((source_width^2 - zax.^2)./(source_width^5*sqrt(2.0*pi))).*...
+    exp(-(zax - source_loc).^2/(2.0*source_width^2));
+source_sec = source_sec / max(abs(source_sec));
+source_sec = source_mult*source_sec;
 
 
 
