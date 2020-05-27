@@ -7,6 +7,7 @@
 
 perp = 0;
 para = 1;
+plots = 1;
 
 r_arr = s_arr + d_arr;
 l_arr = s_arr - d_arr;
@@ -181,7 +182,7 @@ elseif para
             'b--','Linewidth',1.5)
         semilogx((1.0e18)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
             'b--','Linewidth',1.5)
-        ylim([-60 60])
+        ylim([-40 40])
         xlabel('$n$ (m$^{-3}$)','Interpreter','latex')
         ylabel('$k_{z}$ (m$^{-1}$)','Interpreter','latex')
         set(gca,'Fontsize',25)
@@ -196,7 +197,7 @@ elseif para
             '--b','Linewidth',1.5)
         semilogx((1.0e18)*ones(1,npts),(linspace(-60,60,npts)),...
             '--b','Linewidth',1.5)
-        ylim([-60 60])
+        ylim([-40 40])
         xlabel('$n$ (m$^{-3}$)','Interpreter','latex')
 %         ylabel('$k_{z}$ (m$^{-1}$)','Interpreter','latex')
         yticks([])
@@ -235,8 +236,8 @@ elseif para
         rc11.Ruler.Exponent = 1;
         hold on
 %         contour(log10(n_new),abs(ky),real(kpara11)',[0.01665,0.01665],'r','Linewidth',2);
-        plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',10,'Linewidth',2,...
-            'MarkerFaceColor','r')
+%         plot(log10(n_new(indn_np)),ky(indky_np),'sr','MarkerSize',10,'Linewidth',2,...
+%             'MarkerFaceColor','r')
 %         plot(log10(n_new(indn_p)),ky(indky_p),'.r','MarkerSize',40)
 %         plot(log10(n_new(indn_b)),ky(indky_b),'*r','MarkerSize',10,'Linewidth',2)
 %         plot(log10(n_new(indn_tm)),ky(indky_tm),'xr','MarkerSize',15,'Linewidth',3)
@@ -279,6 +280,7 @@ elseif para
 %         contourf(log10(n_new),abs(ky),real(kpara21)',[0 0],'Linecolor','k')
         rc21=colorbar();
         rc21.Ruler.Exponent = -1;
+%         caxis([0 1])
         rc21.Ruler.TickLabelFormat = '%1.1f';
         colormap(magma)
         hold on
