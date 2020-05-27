@@ -32,6 +32,9 @@ for ii=1
     
 end
 
+ind_kz = find(kz_spec(1:npts/2,2)==max(kz_spec(1:npts/2,2)));
+kz_rf = k_ax(ind_kz);
+
 %%
 
 x0 = 0;
