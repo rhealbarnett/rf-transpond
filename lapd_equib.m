@@ -166,14 +166,15 @@ tmax = 100*period;
 save_time = period/10.0;
 nmax = round(tmax/dt);
 % nmax = 1000;
-save_iter = round(save_time/dt);
+% save_iter = round(save_time/dt);
+save_iter = nmax;
 vx_init = vx_new;
 
 n_new_uni = interp1(nxax,n_new,zax,'linear');
 
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
 [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
-    om,mu0,cpdt,sig,source,0,1,1);
+    om,mu0,cpdt,source,0,1,1,0);
 
 Efield = abs(rf_ez).^2;
 Emag = max(abs(sqrt(Efield)));
@@ -202,7 +203,7 @@ end
 % Ex = interp1(zax,rf_ex,vxax,'linear');
 % Ey = interp1(zax,rf_ey,vxax,'linear');
 % Ez = interp1(zax,rf_ez,vxax,'linear');
-[Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
+[Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
 pf_inter = sum(pf,1);
 pf_inter2 = squeeze(sum(pf_inter,2))';
 pf_source = interp1(zax,pf_inter2,vxax,'linear');
