@@ -5,11 +5,15 @@ lapd_equib;
 plots = 1;
 
 dispersion;
+% 
+% indx1 = find(source(npts/2:npts)==0,1,'first') + npts/2;
+% indx2 = npts - floor(0.35*npts);
+% indx = round(linspace(indx1,indx2,indx2-indx1));
+% NP = length(indx);
 
-indx1 = find(source(npts/2:npts)==0,1,'first') + npts/2;
-indx2 = npts - floor(0.35*npts);
-indx = round(linspace(indx1,indx2,indx2-indx1));
-NP = length(indx);
+ind_n = find(n_new>=Nmax,1,'first');
+ind_ky = find(ky>=0,1,'first');
+kz_disp = kpara11(ind_n,ind_ky);
 
 kz_spec_density = zeros(npts,npts);
 
