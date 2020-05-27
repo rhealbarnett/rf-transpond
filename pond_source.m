@@ -47,6 +47,9 @@ function [Ediff,pf] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,dampi
     rf_ey = Efield{2};
     rf_ez = Efield{3};
     
+    npts = length(rf_ex);
+    ax = linspace(-4,4,npts);
+    
     if mix
         Emix = imag((conj(rf_ey).*...
                     rf_ex)-(conj(rf_ex).*rf_ey));
@@ -106,10 +109,16 @@ function [Ediff,pf] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,dampi
     end
     
     if damping{1}
+        dampSize = floor(0.3*npts);
+        dampLoc = ax(dampSize);
+        ind = find(damping{2}<=dampLoc);
         for ii=1:msize(1)
-            ind = find(damping{2}<=-2.4);
-            pond(2,2,ind) = 0.0;
-            pond(2,2,length(damping{2})-ind-1) = 0.0;
+%             ind = find(damping{2}<=-2.4);
+            for jj=1:msize(1)
+                pond(ii,jj,ind) = 0.0;
+                pond(ii,jj,length(damping{2})-ind-1) = 0.0;
+            end
+            
         end
     end
         
