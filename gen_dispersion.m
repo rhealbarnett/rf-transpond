@@ -5,6 +5,8 @@
 % rlbarnett c3149416, 010218              %
 %-----------------------------------------%
 
+ky = 0;
+kx = 20i;
 syms kz
 
 %--
@@ -32,7 +34,7 @@ a = [[a11, a12, a13]
     [a31, a32, a33]];
 
 % kx_quart_arr = sym('K',[npts,1]);
-check = zeros(npts, 4);
+check = zeros(3, 3);
 
 %--
 % wave equation rhs
@@ -41,7 +43,7 @@ we_rhs = k0^2*cpdt;
 %-- 
 % loop through density values
 
-for ii = 1:npts
+for ii = 1
 
     %--
     % set wave equation to zero to find determinant
@@ -69,7 +71,7 @@ for ii = 1:npts
     kz_arr(ii,:) = kz_coeffs_roots;
     
     for kk=1:4
-        check(ii,kk) = vpa(subs(kz_quart,kz,kz_arr(ii,kk)));
+        check(ii,kk) = vpa(subs(wave_eq,kz,kz_arr(ii,kk)));
     end
     
 end
@@ -80,6 +82,30 @@ k1 = kz_arr(:,1);
 k2 = kz_arr(:,2);
 k3 = kz_arr(:,3);
 k4 = kz_arr(:,4);
+
+%%
+
+check = vpa(subs(wave_eq,kz,kz_arr(1,1)));
+
+[V, D] = eig(check);
+
+eig_V = V(:,2)./norm(V(:,2));
+
+DIP = pi/2.0;
+
+KEX = ky*eig_V(3,1)- kz_arr(1,1)*eig_V(2,1);
+KEY = kz_arr(1,1)*eig_V(1,1)- kx*eig_V(3,1);
+KEZ = kx*eig_V(2,1)-ky*eig_V(1,1);
+
+% !	Calculate Field aligned component of Curl E
+CurlE = KEX*cos(DIP) + KEZ*sin(DIP);
+% !	Calculate Div(E)
+DivE = kx*eig_V(1,1) + ky*eig_V(2,1) + kz_arr(1,1)*eig_V(3,1);
+
+SX = (eig_V(2,1)*conj(KEZ)-eig_V(3,1)*conj(KEY))/(mu0*om);
+SY = (eig_V(3,1)*conj(KEX)-eig_V(1,1)*conj(KEZ))/(mu0*om);
+SZ = (eig_V(1,1)*conj(KEY)-eig_V(2,1)*conj(KEX))/(mu0*om);
+
 
 %%
 %--
