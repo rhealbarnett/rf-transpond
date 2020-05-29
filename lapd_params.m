@@ -73,7 +73,7 @@ kx = 25.0i;
 ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
-n_perp = c0*k_perp./om;
+n_refrac = c0*k_perp./om;
 
 %--
 % Wavenumbers as function of spatial location (currently constant).
