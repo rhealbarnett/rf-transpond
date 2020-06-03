@@ -43,7 +43,7 @@ end
 
 %%
 
-Nmax = 0.5e18;
+% Nmax = 0.5e18;
 fact = Nmax/max(n_new);
 n_new = n_new*fact;
 n_source = n_source*fact;
@@ -164,8 +164,8 @@ period = 1.0/freq;
 tmax = 100*period;
 % tmax = 5.0e-7;
 save_time = period/10.0;
-nmax = round(tmax/dt);
-% nmax = 1000;
+% nmax = round(tmax/dt);
+nmax = 100;
 % save_iter = round(save_time/dt);
 save_iter = nmax;
 vx_init = vx_new;
