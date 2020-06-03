@@ -69,7 +69,7 @@ m_s = [me; mhe];
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = (om/c0);
-kx = 25.0i;
+% kx = 25.0i;
 ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
@@ -87,7 +87,7 @@ ky = ky.*dampk;
 source_width = 0.06/(2.*sqrt(2.*log(2.)));
 % source_width = 0.06;
 source_loc = 0;
-source_mult = 2.0e5;
+% source_mult = 1.9e5;
 % source_mult = 1.0;
 
 mult = 1.0/sqrt(2.0*pi*source_width);
