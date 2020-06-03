@@ -5,6 +5,16 @@ function ans = coupled_rf_transp(hh,ww)
 %     kx = (10 + (hh-1)*5)*1i;
     kx = hh*1i;
     Nmax = ww;
+   
+    if hh==10
+        source_mult = 1.0e5;
+    elseif hh==15
+        source_mult = 1.3e5;
+    elseif hh==20
+        source_mult = 1.6e5;
+    elseif hh==25
+        source_mult = 2.0e5;
+    end
 
     transport_1d
 
