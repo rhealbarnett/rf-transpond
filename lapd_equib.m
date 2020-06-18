@@ -6,7 +6,7 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
-equib = load('/Volumes/DATA/LAPD/matlab/inputs/equil_transport_input.mat');
+equib = load('equil_transport_input.mat');
 % equib = load('/Users/rhealbarnett/Downloads/lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_refined.mat');
@@ -163,9 +163,9 @@ dt = 0.99*min(ndx)/cs;
 period = 1.0/freq;
 tmax = 100*period;
 % tmax = 5.0e-7;
-save_time = period/10.0;
-% nmax = round(tmax/dt);
-nmax = 100;
+% save_time = period/10.0;
+nmax = round(tmax/dt);
+% nmax = 100;
 % save_iter = round(save_time/dt);
 save_iter = nmax;
 vx_init = vx_new;
@@ -266,5 +266,6 @@ header = [s1 s2];
 transport.header = header;
 
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-% filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_0.mat');
-% save(filename,'-struct','transport');
+filename = strcat('/home/c3149416/coupled_results/coupled_transport_0_',num2str(source_mult),'_',...
+           num2str(kx(1)),'_',num2str(Nmax),'.mat');
+save(filename,'-struct','transport');
