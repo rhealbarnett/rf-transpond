@@ -23,7 +23,7 @@ function ans = coupled_rf_transp(hh,ww)
     transport.density_pert = density_pert;
     transport.mean_pert = mean_pert;
 
-    filename = strcat('/Volumes/DATA/LAPD/matlab/results_test/coupled_',num2str(source_mult),'_',num2str(kx),...
+    filename = strcat('/home/c3149416/coupled_results/coupled_',num2str(source_mult),'_',num2str(kx),...
         '_',num2str(Nmax),'.mat');
     save(filename,'-struct','transport');
 
