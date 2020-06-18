@@ -531,10 +531,10 @@ for ii=1:nmax
         if ii<=1000
             source_ramp = 1.0/(1001-ii);
             [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
-            om,mu0,cpdt,sig,source_ramp*source,0,1,1,0);
+            om,mu0,cpdt,source_ramp*source,0,1,1,0);
         else
             [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
-            om,mu0,cpdt,sig,source,0,1,1,0);
+            om,mu0,cpdt,source,0,1,1,0);
         end
         
         Ex = interp1(zax,rf_ex,vxax,'linear');
@@ -1032,7 +1032,7 @@ for ii=1:nmax
         
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
 %         filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_',num2str(ii),'.mat');
-        filename = strcat('/Volumes/DATA/LAPD/matlab/results_test/coupled_',num2str(ii),'_',num2str(source_mult),'_',...
+        filename = strcat('/home/c3149416/coupled_results/coupled_',num2str(ii),'_',num2str(source_mult),'_',...
             num2str(kx(1)),'_',num2str(Nmax),'.mat');
         save(filename,'-struct','transport');
         
