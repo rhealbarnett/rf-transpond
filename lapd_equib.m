@@ -249,6 +249,7 @@ transport.B0 = B0;
 transport.rf_ez = rf_ez;
 transport.rf_ey = rf_ey;
 transport.rf_ex = rf_ex;
+transport.zax = zax;
 transport.source = source;
 transport.kx = kx;
 transport.ky = ky;
