@@ -43,7 +43,7 @@ end
 
 %%
 
-% Nmax = 0.5e18;
+Nmax = 1.0e18;
 fact = Nmax/max(n_new);
 n_new = n_new*fact;
 n_source = n_source*fact;
@@ -267,6 +267,6 @@ header = [s1 s2];
 transport.header = header;
 
 %         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-filename = strcat('/home/c3149416/coupled_results/coupled_transport_0_',num2str(source_mult),'_',...
-           num2str(kx(1)),'_',num2str(Nmax),'.mat');
-save(filename,'-struct','transport');
+% filename = strcat('/home/c3149416/coupled_results/coupled_transport_0_',num2str(source_mult),'_',...
+%            num2str(kx(1)),'_',num2str(Nmax),'.mat');
+% save(filename,'-struct','transport');
