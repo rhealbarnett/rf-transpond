@@ -404,7 +404,7 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
+    [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -1023,9 +1023,9 @@ for ii=1:nmax
 %         transport.ey_source = ey_source;
 %         transport.R = R;
         transport.rf_ex = rf_ex;
-	transport.rf_ey = rf_ey;
-	transport.rf_ez = rf_ez;
-	transport.zax = zax;
+	    transport.rf_ey = rf_ey;
+	    transport.rf_ez = rf_ez;
+	    transport.zax = zax;
         transport.source = source;
         transport.kx = kx;
         transport.ky = ky;
