@@ -43,7 +43,7 @@ end
 
 %%
 
-Nmax = 0.5e17;
+Nmax = 0.5e18;
 fact = Nmax/max(n_new);
 n_new = n_new*fact;
 n_source = n_source*fact;
@@ -172,7 +172,7 @@ vx_init = vx_new;
 
 n_new_uni = interp1(nxax,n_new,zax,'linear');
 
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,{1,damp_len});
 [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
     om,mu0,cpdt,source_sec,0,1,1,0);
 poyn = poynting(rf_ex, rf_ey, rf_ez, kx, ky, zax, om);
@@ -204,7 +204,7 @@ end
 % Ex = interp1(zax,rf_ex,vxax,'linear');
 % Ey = interp1(zax,rf_ey,vxax,'linear');
 % Ez = interp1(zax,rf_ez,vxax,'linear');
-[Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
+[Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,damp_len,zax});
 pf_inter = sum(pf,1);
 pf_inter2 = squeeze(sum(pf_inter,2))';
 pf_source = interp1(zax,pf_inter2,vxax,'linear');
