@@ -109,14 +109,14 @@ function [Ediff,pf] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,dampi
     end
     
     if damping{1}
-        dampSize = floor(0.35*npts);
+        dampSize = floor(damping{2}*npts);
         dampLoc = ax(dampSize);
-        ind = find(damping{2}==dampLoc);
+        ind = find(damping{3}==dampLoc);
         for ii=1:msize(1)
 %             ind = find(damping{2}<=-2.4);
             for jj=1:msize(1)
                 pond(ii,jj,1:ind) = 0.0;
-                pond(ii,jj,length(damping{2})-ind-1:end) = 0.0;
+                pond(ii,jj,length(damping{3})-ind-1:end) = 0.0;
             end
             
         end
