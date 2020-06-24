@@ -10,7 +10,7 @@ set(gcf,'Position',[x0 y0 width height])
 % set(gca,'YTickLabel','%.2f')
 
 subplot(4,1,1)
-plot(zax,source,'b','Linewidth',2)
+plot(zax,source_sec,'b','Linewidth',2)
 ylabel('{\itJ_{y}} (Vm^{-1})')
 set(gca, 'XTickLabel', [])
 xlim([zmin,zmax])
