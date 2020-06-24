@@ -1,19 +1,19 @@
 
 lapd_equib;
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,1);
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{1,damp_len});
 
 plots = 1;
 
-dispersion;
+% dispersion;
 % 
 % indx1 = find(source(npts/2:npts)==0,1,'first') + npts/2;
 % indx2 = npts - floor(0.35*npts);
 % indx = round(linspace(indx1,indx2,indx2-indx1));
 % NP = length(indx);
 
-ind_n = find(n_new>=Nmax,1,'first');
-ind_ky = find(ky>=0,1,'first');
-kz_disp = kpara11(ind_n,ind_ky);
+% ind_n = find(n_new>=Nmax,1,'first');
+% ind_ky = find(ky>=0,1,'first');
+% kz_disp = kpara11(ind_n,ind_ky);
 
 kz_spec_density = zeros(npts,npts);
 
@@ -23,7 +23,7 @@ for ii=1
     
     density = n_new(1,ii)*ones(1,npts);
     
-    [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,density,m_s,om,eps0,npts,1);
+    [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,density,m_s,om,eps0,npts,{1,damp_len});
     [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
     om,mu0,cpdt,source,0,1,1,0);
                                       
