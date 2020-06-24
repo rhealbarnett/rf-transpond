@@ -10,6 +10,6 @@ lapd_equib;
 % kz_dispersion_right = dispersion(1,s_arr(npts),d_arr(npts),p_arr(npts),...
 %         om,n_refrac,n_new(npts),1,0);
 [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
-        om,mu0,cpdt,source,0,1,1,0);
+        om,mu0,cpdt,source_sec,0,1,1,0);
 wave_sol_plots
 poyn = poynting(rf_ex, rf_ey, rf_ez, kx, ky, zax, om);
