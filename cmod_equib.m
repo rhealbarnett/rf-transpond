@@ -43,7 +43,7 @@ end
 
 %%
 
-Nmax = 1.0e19;
+Nmax = 1.0e18;
 fact = Nmax/max(n_new);
 n_new = n_new*fact;
 n_source = n_source*fact;
