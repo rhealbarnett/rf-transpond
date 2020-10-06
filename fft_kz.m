@@ -56,24 +56,33 @@ function [kz_spec, k_ax, phase] = fft_kz(dx,npts,rf_ex,rf_ey,rf_ez,plots)
     %%
 
     if plots
+        
+        indz = find(k_ax<=50);
+        
+        x0 = 0;
+        y0 = 0;
+        width = 1200;
+        height = 500;
+        
         figure(1)
+        set(gcf,'Position',[x0 y0 width height],'color','w')
         subplot(3,1,1)
-        plot(k_ax,abs(fft_Ex(1:npts/2)),'k','Linewidth',2)
-        xlim([0 100])
+        plot(k_ax(indz),abs(fft_Ex(indz)),'k','Linewidth',2)
+        xlim([0 k_ax(indz(end))])
         set(gca,'xtick',[])
-        ylabel('|FFT[E_x (Vm^{1})]|')
+        ylabel('$|\textnormal{FFT}[E_x]|$','interpreter','latex')
 
         subplot(3,1,2)
-        plot(k_ax,abs(fft_Ey(1:npts/2)),'k','Linewidth',2)
-        xlim([0 100])
+        plot(k_ax(indz),abs(fft_Ey(indz)),'k','Linewidth',2)
+        xlim([0 k_ax(indz(end))])
         set(gca,'xtick',[])
-        ylabel('|FFT[E_y (Vm^{1})]|')
+        ylabel('$|\textnormal{FFT}[E_y]|$','interpreter','latex')
 
         subplot(3,1,3)
-        plot(k_ax,abs(fft_Ez(1:npts/2)),'k','Linewidth',2)
-        xlim([0 100])
-        xlabel('k_z (m^{1})')
-        ylabel('|FFT[E_z (Vm^{1})]|')
+        plot(k_ax(indz),abs(fft_Ez(indz)),'k','Linewidth',2)
+        xlim([0 k_ax(indz(end))])
+        xlabel('$k_z$ (m$^{1}$)','interpreter','latex')
+        ylabel('$|\textnormal{FFT}[E_z]|$','interpreter','latex')
     end
 
 end

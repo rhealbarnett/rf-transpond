@@ -30,7 +30,7 @@ B0 = 5.5;
 % is close to the antenna. 
 zmin = -4.0;
 zmax = 4.0;
-npts = 2048;
+npts = 512;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
 
@@ -58,34 +58,34 @@ m_s = [me; md];
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
-Nmin = 1.0e16;
-Nmax = 1.0e19;
-n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e19*ones(1,npts);
+% Nmin = 1.0e16;
+% Nmax = 1.0e19;
+% n_new = logspace(log10(Nmin),log10(Nmax),npts);
+n_new = 1.e16*ones(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = (om/c0);
-kx = 0.0;
+kx = 165;
 % kz = linspace(3,14,100);
-% ky = 0.0;
-ky = linspace(0,200,100);
+ky = 0.0;
+% ky = linspace(0,600,300);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_refrac = c0*k_perp./om;
 
 %--
 % Wavenumbers as function of spatial location (currently constant).
 dampk = ones(1,npts);
-% kx = kx.*dampk;
-% ky = ky.*dampk;
+kx = kx.*dampk;
+ky = ky.*dampk;
 
 %-- 
 % Current source parameters.
 source_width = (0.08)/(2.*sqrt(2.*log(2.)));
 source_loc = 0.093;
-source_mult = 4.105e4;
-damp_len = 0.2;
+source_mult = 9.065e6;
+damp_len = 0.35;
 
 mult = 1.0/(source_width*sqrt(2.0*pi));
 source_right = mult*exp(-(zax - source_loc).^2/(2.0*source_width^2));

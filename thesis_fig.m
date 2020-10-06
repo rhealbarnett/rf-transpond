@@ -9,6 +9,10 @@ function ans = thesis_fig(num,ax,variable,labely,labelx,line_width,colour,str)
     y0 = 0;
     width = 1000;
     height = 500;
+    
+    col_purp = [0.28 0.06 0.47];
+    col_pink = [0.78 0.24 0.3];
+    col_oran = [0.94 0.44 0.13];
 
     figure(num)
     set(gcf,'Position',[x0 y0 width height],'Color','w')

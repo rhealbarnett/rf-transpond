@@ -6,7 +6,7 @@
 
 % equib = load('../../lapd_numdata/matlab/equibhe_8m_refined.mat');
 % equib = load('/Volumes/DATA/LAPD/matlab/lapd_equib_refined.mat');
-equib = load('cmod_equil_transport_input.mat');
+equib = load('/Volumes/DATA/cmod_equil/cmod_equil_transport_input.mat');
 % equib = load('/Users/rhealbarnett/Downloads/lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_superrefined.mat');
 % equib = load('C:\Users\c3149416\Documents\lapd_equib_refined.mat');
@@ -23,8 +23,8 @@ tmax = equib.tmax;
 n_source = equib.n_source;
 vx_new = equib.vx_new;
 n_new = equib.n_new; 
-xmin = equib.xmin;
-xmax = equib.xmax;
+xmin = equib.zmin;
+xmax = equib.zmax;
 nu = equib.nu;
 
 %%
@@ -43,7 +43,7 @@ end
 
 %%
 
-Nmax = 1.0e18;
+Nmax = 2.0e17;
 fact = Nmax/max(n_new);
 n_new = n_new*fact;
 n_source = n_source*fact;
@@ -98,7 +98,7 @@ if refine
         % set up the unit spaced parameter, xi, that the grid is a function of
         smax = 1.0;
         smin = 0.0;
-        s = linspace(smin,smax,NP-1); 
+        s = linspace(smin,smax,NP); 
 
         % calculate the x values from xi
         x = xc*(1.0 - tanh(A*(1.0 - 2.0*s))./tanh(A));
@@ -122,6 +122,7 @@ if refine
     n_new = interp1(nxax,n_new,Nxax,'linear');
     vx_new = interp1(vxax,vx_new,Vxax,'linear');
     n_source = interp1(nxax,n_source,Nxax,'linear');
+    n_init = n_new;
 
     n_source(1,1) = 0.0;
     n_source(1,end) = 0.0;
@@ -231,6 +232,7 @@ transport.dt = dt;
 transport.n_source = n_source;
 transport.vx_new = vx_new;
 transport.n_new = n_new; 
+transport.n_init = n_init;
 transport.cs = cs;
 transport.vxax = vxax;
 transport.nxax = nxax;
@@ -240,8 +242,8 @@ transport.Te = Te;
 transport.Ti = Ti;
 transport.npts = npts;
 transport.tmax = tmax;
-transport.xmin = xmin;
-transport.xmax = xmax;
+transport.zmin = zmin;
+transport.zmax = zmax;
 transport.nu = nu;
 transport.freq = freq;
 transport.period = period;

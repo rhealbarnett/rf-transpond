@@ -1,5 +1,5 @@
 
-lapd_equib;
+% lapd_equib;
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{1,damp_len});
 
 plots = 1;
@@ -19,7 +19,7 @@ kz_spec_density = zeros(npts,npts);
 
 count = 1;
 
-for ii=1
+for ii=1:npts
     
     density = n_new(1,ii)*ones(1,npts);
     
@@ -77,7 +77,7 @@ ylabel('{\it k_z} (m^{-1})')
 xlabel('log_{10}({\itn} (m^{-3}))')
 ylabel(c,'|FFT[{\it E_z} (Vm^{-1})]|','Fontsize',30)
 
-% export_fig('/Volumes/DATA/thesis/RFT/figs/kvsn_dispersioncont_linearscale.png',...
+% export_fig('/Volumes/DATA/thesis/figs/gaussian_ne17_epara_fft.png',...
 %     '-r300')
 
 %%

@@ -100,9 +100,9 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             A(eq1,iiexm) = -1.0/h^2;
             A(eq1,iieym) = 0.0;
             A(eq1,iiezm) = -1i*k(1,kk)/(2.0*h);
-            A(eq1,iiex) = (ky(1,kk)^2 + (2.0/h^2) + k0^2*cpdt(1,1,kk));
+            A(eq1,iiex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
             A(eq1,iiey) = -ky(1,kk)*k(1,kk) - k0^2*cpdt(1,2,kk);
-            A(eq1,iiez) = k0^2*cpdt(1,3,kk);
+            A(eq1,iiez) = -k0^2*cpdt(1,3,kk);
             A(eq1,iiexp) = -1.0/(h^2);
             A(eq1,iieyp) = 0.0;
             A(eq1,iiezp) = 1i*k(1,kk)/(2.0*h);
@@ -110,9 +110,9 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             A(eq2,iiexm) = 0.0;
             A(eq2,iieym) = -1.0/(h^2);
             A(eq2,iiezm) = -1i*ky(1,kk)/(2.0*h);
-            A(eq2,iiex) = -ky(1,kk)*k(1,kk) + k0^2*cpdt(2,1,kk);
-            A(eq2,iiey) = (k(1,kk)^2 + k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
-            A(eq2,iiez) =  k0^2*cpdt(2,3,kk);
+            A(eq2,iiex) = -ky(1,kk)*k(1,kk) - k0^2*cpdt(2,1,kk);
+            A(eq2,iiey) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+            A(eq2,iiez) =  -k0^2*cpdt(2,3,kk);
             A(eq2,iiexp) = 0.0;
             A(eq2,iieyp) = -1.0/(h^2);
             A(eq2,iiezp) = 1i*ky(1,kk)/(2.0*h);
@@ -120,9 +120,9 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             A(eq3,iiexm) = -1i*k(1,kk)/(2.0*h);
             A(eq3,iieym) = -1i*ky(1,kk)/(2.0*h);
             A(eq3,iiezm) = 0.0;
-            A(eq3,iiex) = k0^2*cpdt(3,1,kk);
-            A(eq3,iiey) = k0^2*cpdt(3,2,kk);
-            A(eq3,iiez) = (ky(1,kk)^2 + k(1,kk)^2 + k0^2*cpdt(3,3,kk));
+            A(eq3,iiex) = -k0^2*cpdt(3,1,kk);
+            A(eq3,iiey) = -k0^2*cpdt(3,2,kk);
+            A(eq3,iiez) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
             A(eq3,iiexp) = 1i*k(1,kk)/(2.0*h);
             A(eq3,iieyp) = 1i*ky(1,kk)/(2.0*h);
             A(eq3,iiezp) = 0.0;
@@ -170,12 +170,12 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             v(1,nneym) = 0.0;
             v(1,nnezm) = -1i*k(1,kk)/(2.0*h);
             if ~pml
-                v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) + k0^2*cpdt(1,1,kk));
+                v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk));
             elseif pml
-                v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) + k0^2*cpdt(1,1,kk)*cpml(1,1,kk));
+                v(1,nnex) = (ky(1,kk)^2 + (2.0/h^2) - k0^2*cpdt(1,1,kk)*cpml(1,1,kk));
             end
             v(1,nney) = -ky(1,kk)*k(1,kk) - k0^2*cpdt(1,2,kk);
-            v(1,nnez) = k0^2*cpdt(1,3,kk);
+            v(1,nnez) = -k0^2*cpdt(1,3,kk);
             v(1,nnexp) = -1.0/(h^2);
             v(1,nneyp) = 0.0;
             v(1,nnezp) = 1i*k(1,kk)/(2.0*h);
@@ -183,14 +183,14 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             v(1,nnexm+9) = 0.0;
             v(1,nneym+9) = -1.0/(h^2);
             v(1,nnezm+9) = -1i*ky(1,kk)/(2.0*h);
-            v(1,nnex+9) = -ky(1,kk)*k(1,kk) + k0^2*cpdt(2,1,kk);
+            v(1,nnex+9) = -ky(1,kk)*k(1,kk) - k0^2*cpdt(2,1,kk);
             if ~pml
-                v(1,nney+9) = (k(1,kk)^2 + k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+                v(1,nney+9) = (k(1,kk)^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
             elseif pml
                 v(1,nney+9) = (k(1,kk)^2 -...
                     k0^2*cpdt(2,2,kk)*cpml(2,2,kk)) + 2.0/(h^2);
             end
-            v(1,nnez+9) = k0^2*cpdt(2,3,kk);
+            v(1,nnez+9) = -k0^2*cpdt(2,3,kk);
             v(1,nnexp+9) = 0.0;
             v(1,nneyp+9) = -1.0/(h^2);
             v(1,nnezp+9) = 1i*ky(1,kk)/(2.0*h);
@@ -198,12 +198,12 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
             v(1,nnexm+18) = -1i*k(1,kk)/(2.0*h);
             v(1,nneym+18) = -1i*ky(1,kk)/(2.0*h);
             v(1,nnezm+18) = 0.0;
-            v(1,nnex+18) = k0^2*cpdt(3,1,kk);
-            v(1,nney+18) = k0^2*cpdt(3,2,kk);
+            v(1,nnex+18) = -k0^2*cpdt(3,1,kk);
+            v(1,nney+18) = -k0^2*cpdt(3,2,kk);
             if ~pml
-                v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 + k0^2*cpdt(3,3,kk));
+                v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 - k0^2*cpdt(3,3,kk));
             elseif pml
-                v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 +...
+                v(1,nnez+18) = (ky(1,kk)^2 + k(1,kk)^2 -...
                     k0^2*cpdt(3,3,kk)*cpml(3,3,kk));
             end
             v(1,nnexp+18) = 1i*k(1,kk)/(2.0*h);
@@ -264,9 +264,9 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     %--
     % set up rhs vector (current source term)
     rhs = zeros(3*npts,1);
-    rhs(1:3:3*npts,1) = 0.0;%squeeze(sigma(1,2,:)).*ey_source';%1i*om*mu0*source';
+    rhs(1:3:3*npts,1) = 0.;%(1i/8.1e-2)*1i*om*mu0*source';
     rhs(2:3:3*npts,1) = 1i*om*mu0*source';%squeeze(sigma(2,2,:)).*ey_source';
-    rhs(3:3:3*npts,1) = 0.0;%1i*om*mu0*source';
+    rhs(3:3:3*npts,1) = 0.;%1i*om*mu0*source';
     
     % set boundary conditions, [ex,ey,ez]
     

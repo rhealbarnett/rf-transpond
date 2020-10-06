@@ -286,13 +286,13 @@ ylabel('$v$ (ms$^{-1}$)','Interpreter','latex')
 legend('$v = v_0 + v_z\sin(k_vz^2)$','Interpreter','latex','location','southwest')
 
 subplot(3,1,3)
-plot(nxax,zeros(1,length(nxax)),'.k')
+plot(nxax(1:3:npts),zeros(1,length(nxax(1:3:npts))),'xk','Linewidth',1.5)
 xlim([min(nxax) max(nxax)])
 xlabel('Position (m)')
 set(gca,'Fontsize',25)
 yticks([])
-
-% export_fig('/Volumes/DATA/thesis/RFT/figs/MMS_exactsols_td.png',...
+% 
+% export_fig('/Volumes/DATA/thesis/figs/MMS_exactsols_wgrid_crosses.png',...
 %     '-r300')
 
 

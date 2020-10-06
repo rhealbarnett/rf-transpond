@@ -13,7 +13,7 @@
 const = constants();
 mp = const.mp;
 amu = const.amu;
-m = 4.0*amu;
+m = mp;
 e = const.e;
 
 %------

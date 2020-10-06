@@ -31,7 +31,7 @@ B0 = 0.1;
 % is close to the antenna. 
 zmin = -4.0;
 zmax = 4.0;
-% npts = 4096;
+npts = 512;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
 
@@ -59,17 +59,17 @@ m_s = [me; mhe];
 %--
 % Electron density range is (1.0e17 <= n <= 7.9e18) (m^-3). Scan over these
 % values, +- some amount. 
-% Nmax = 1.0e16;
-% Nmin = 1.0e19;
+% Nmax = 1.0e20;
+% Nmin = 1.0e15;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 0.5e17*ones(1,npts);
+n_new = 1.e17*ones(1,npts);
 % n_new = zeros(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = (om/c0);
-kx = 10.0i;
+kx = 20.0i;
 ky = 0.0;
 % ky = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
@@ -84,27 +84,33 @@ ky = ky.*dampk;
 
 %-- 
 % Current source parameters.
-source_width = 0.06/(2.*sqrt(2.*log(2.)));
+% source_width = 0.06/(2.*sqrt(2.*log(2.)));
+source_width = (0.06)/(2.*sqrt(2.*log(2.)));
 % source_width = 0.06;
 source_loc = 0;
-source_mult = 2.4e5;
-% source_mult = 1.0;
-damp_len = 0.35;
+source_mult = 0.7e5;
+% source_mult = 3.0e2;
+damp_len = 0.2;
 
-mult = 1.0/sqrt(2.0*pi*source_width);
+mult = 1.0/(source_width*sqrt(2.0*pi));
 source = mult*exp(-(zax - source_loc).^2/(2.0*source_width^2));
 source = source / max(source);
 source = source*source_mult;
 
-source_fir_mult = -zax./(source_width^3*sqrt(2.0*pi));
-source_fir = source_fir_mult.*exp(-(zax - source_loc).^2/(2.0*source_width^2));
-source_fir = source_fir / max(abs(source_fir));
-source_fir = source_mult*source_fir;
+% source = zeros(1,npts);
+% source(1,floor(npts/2)) = 1.0*source_mult;
+% source(1,floor(npts/2)+1) = 0.5*source_mult;
+% source(1,floor(npts/2)-1) = 0.25;
 
-source_sec_mult = -((source_width^2 - zax.^2)./(source_width^5*sqrt(2.0*pi)));
-source_sec = source_sec_mult.*exp(-(zax - source_loc).^2/(2.0*source_width^2));
-source_sec = source_sec / max(abs(source_sec));
-source_sec = source_mult*source_sec;
+% source_fir_mult = -zax./(source_width^3*sqrt(2.0*pi));
+% source_fir = source_fir_mult.*exp(-(zax - source_loc).^2/(2.0*source_width^2));
+% source_fir = source_fir / max(abs(source_fir));
+% source_fir = source_mult*source_fir;
+% 
+% source_sec_mult = -((source_width^2 - zax.^2)./(source_width^5*sqrt(2.0*pi)));
+% source_sec = source_sec_mult.*exp(-(zax - source_loc).^2/(2.0*source_width^2));
+% source_sec = source_sec / max(abs(source_sec));
+% source = source_mult*source_sec;
 
 
 
