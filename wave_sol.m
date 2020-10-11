@@ -225,37 +225,55 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
         
     elseif ~para && ~sparsefill
 
-        %--
-        % Perp wave solve
-        A(eq1,iiexm) = 0.0;
-        A(eq1,iieym) = -1i*ky/(2.0*h);
-        A(eq1,iiezm) = -1i*k/(2.0*h);
-        A(eq1,iiex) = (ky^2 + k^2 - k0^2*cpdt(1,1,kk));
-        A(eq1,iiey) = -k0^2*cpdt(1,2,kk);
-        A(eq1,iiez) = -k0^2*cpdt(1,3,kk);
-        A(eq1,iiexp) = 0.0;
-        A(eq1,iieyp) = 1i*ky/(2.0*h);
-        A(eq1,iiezp) = 1i*k/(2.0*h);
 
-        A(eq2,iiexm) = -1i*ky/(2.0*h);
-        A(eq2,iieym) = -1.0/(h^2);
-        A(eq2,iiezm) = 0.0;
-        A(eq2,iiex) = -k0^2*cpdt(2,1,kk);
-        A(eq2,iiey) = (k^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
-        A(eq2,iiez) = -ky*k - k0^2*cpdt(2,3,kk);
-        A(eq2,iiexp) = 1i*ky/(2.0*h);
-        A(eq2,iieyp) = -1.0/(h^2);
-        A(eq2,iiezp) = 0.0;
 
-        A(eq3,iiexm) = -1i*k/(2.0*h);
-        A(eq3,iieym) = 0.0;
-        A(eq3,iiezm) = -1.0/(h^2);
-        A(eq3,iiex) = -k0^2*cpdt(3,1,kk);
-        A(eq3,iiey) = -ky*k - k0^2*cpdt(3,2,kk);
-        A(eq3,iiez) = (ky^2 - k0^2*cpdt(3,3,kk)) + 2.0/(h^2);
-        A(eq3,iiexp) = 1i*k/(2.0*h);
-        A(eq3,iieyp) = 0.0;
-        A(eq3,iiezp) = -1.0/(h^2);
+        for eq1=4:3:3*(npts-1)
+
+            eq2 = eq1 + 1;
+            eq3 = eq2 + 1;       
+
+            iiex = ii;
+            iiey = iiex+1;
+            iiez = iiex+2;
+            iiexm = iiex - 3;
+            iieym = iiey - 3;
+            iiezm = iiez - 3;
+            iiexp = iiex + 3;
+            iieyp = iiey + 3;
+            iiezp = iiez + 3;         
+        
+            %--
+            % Perp wave solve
+            A(eq1,iiexm) = 0.0;
+            A(eq1,iieym) = -1i*ky/(2.0*h);
+            A(eq1,iiezm) = -1i*k/(2.0*h);
+            A(eq1,iiex) = (ky^2 + k^2 - k0^2*cpdt(1,1,kk));
+            A(eq1,iiey) = -k0^2*cpdt(1,2,kk);
+            A(eq1,iiez) = -k0^2*cpdt(1,3,kk);
+            A(eq1,iiexp) = 0.0;
+            A(eq1,iieyp) = 1i*ky/(2.0*h);
+            A(eq1,iiezp) = 1i*k/(2.0*h);
+
+            A(eq2,iiexm) = -1i*ky/(2.0*h);
+            A(eq2,iieym) = -1.0/(h^2);
+            A(eq2,iiezm) = 0.0;
+            A(eq2,iiex) = -k0^2*cpdt(2,1,kk);
+            A(eq2,iiey) = (k^2 - k0^2*cpdt(2,2,kk)) + 2.0/(h^2);
+            A(eq2,iiez) = -ky*k - k0^2*cpdt(2,3,kk);
+            A(eq2,iiexp) = 1i*ky/(2.0*h);
+            A(eq2,iieyp) = -1.0/(h^2);
+            A(eq2,iiezp) = 0.0;
+
+            A(eq3,iiexm) = -1i*k/(2.0*h);
+            A(eq3,iieym) = 0.0;
+            A(eq3,iiezm) = -1.0/(h^2);
+            A(eq3,iiex) = -k0^2*cpdt(3,1,kk);
+            A(eq3,iiey) = -ky*k - k0^2*cpdt(3,2,kk);
+            A(eq3,iiez) = (ky^2 - k0^2*cpdt(3,3,kk)) + 2.0/(h^2);
+            A(eq3,iiexp) = 1i*k/(2.0*h);
+            A(eq3,iieyp) = 0.0;
+            A(eq3,iiezp) = -1.0/(h^2);
+        end
 
     end
     
