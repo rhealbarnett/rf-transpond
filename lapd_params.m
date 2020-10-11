@@ -62,16 +62,16 @@ m_s = [me; mhe];
 % Nmax = 1.0e20;
 % Nmin = 1.0e15;
 % n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = 1.e17*ones(1,npts);
-% n_new = zeros(1,npts);
+% n_new = 1.e17*ones(1,npts);
+n_new = zeros(1,npts);
 
 %--
 % Wavenumber in x approximated using experimental data, kx ~ (0 + 20i)
 % m^-1. 
 k0 = (om/c0);
-kx = 20.0i;
+kx = 0.0;
 ky = 0.0;
-% ky = linspace(0,40,100);
+% kx = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_refrac = c0*k_perp./om;
 
