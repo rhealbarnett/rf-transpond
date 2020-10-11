@@ -10,7 +10,8 @@
 %            summed over species and components, include second input in
 %            cell array e.g. {'total',1}
 % Efield: {ex, ey, ez}. Can enter empty string if a particular component
-%         of the field is not being used e.g. {ex, ey, ''}.
+%         of the field is not being used e.g. {ex, ey, ''}. Must be on 
+%         uniform grid. 
 % m: mass. If multiple species, enter as column array e.g. [me; mi] for
 %    electron and ion mass. 
 % q: charge. If multiple species, enter as column array e.g. [e; q] for
