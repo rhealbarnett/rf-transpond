@@ -22,7 +22,7 @@ mu0 = const.mu0;
 q_s = [e; q];
 
 %--
-% Magnetic field magnitude, 1000 G = 0.1 T. Assume it is fully aligned with 
+% LAPD magnetic field magnitude, 1000 G = 0.1 T. Assume it is aligned with 
 % the z coordinate. 
 B0 = 0.1;
 
@@ -31,7 +31,9 @@ B0 = 0.1;
 % is close to the antenna. 
 zmin = -4.0;
 zmax = 4.0;
-npts = 512;
+
+%-- 
+% npts will be set with the transport equilibrium script.
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
 
@@ -61,7 +63,6 @@ m_s = [me; mhe];
 k0 = (om/c0);
 kx = 20.0i;
 ky = 0.0;
-% kx = linspace(0,40,100);
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_refrac = c0*k_perp./om;
 
@@ -73,16 +74,25 @@ ky = ky.*dampk;
 
 %-- 
 % Current source parameters.
-% source_width = 0.06/(2.*sqrt(2.*log(2.)));
 source_width = (0.06)/(2.*sqrt(2.*log(2.)));
 source_loc = 0;
-source_mult = 0.7e5;
-damp_len = 0.2;
 
+%--
+% Scaling for the current source calculated from experimental data.
+source_mult = 0.7e5;
+
+%--
+% Calculate Gaussian source term.
 mult = 1.0/(source_width*sqrt(2.0*pi));
 source = mult*exp(-(zax - source_loc).^2/(2.0*source_width^2));
 source = source / max(source);
 source = source*source_mult;
+
+%--
+% Number of points to include in absorbing boundary region.
+damp_len = 0.2;
+
+
 
 
 
