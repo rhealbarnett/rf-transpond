@@ -284,40 +284,42 @@ function kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,par
             figure(2)
 
             set(gcf,'Position',[x0 y0 width height],'Color','w')
-            subplot(1,2,1)
-            semilogx(n_new, real(kp11),'.r')
+            subplot(2,1,1)
+            semilogx(n_new, real(kp11),'.k')
             hold on
-            semilogx(n_new, real(kp12),'.b')
-            semilogx(n_new, real(kp21),'.k')
+            semilogx(n_new, real(kp12),'.k')
+%             semilogx(n_new, real(kp21),'.k')
 %             hold on
-            semilogx(n_new, real(kp22),'.m')
-%             semilogx(n_new, imag(kp21),'.r')
-%             semilogx(n_new, imag(kp22),'.r')
-%             semilogx((1.0e19)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
-%                 'b--','Linewidth',1.5)
+%             semilogx(n_new, real(kp22),'.m')
+            semilogx(n_new, imag(kp11),'.r')
+            semilogx(n_new, imag(kp12),'.r')
+            semilogx((1.0e17)*ones(1,npts),(linspace(-30,30,npts)),...
+                'b--','Linewidth',1.5)
 %             semilogx((1.0e18)*ones(1,npts),(linspace(min(imag(kp22)),max(imag(kp21)),npts)),...
 %                 'b--','Linewidth',1.5)
-            ylim([-80 80])
-            xlabel('$n$ (m$^{-3}$)','Interpreter','latex')
-            ylabel('Re[$k_{z}$] (m$^{-1}$)','Interpreter','latex')
+            ylim([-30 30])
+%             xlabel('$n$ (m$^{-3}$)','Interpreter','latex')
+            xticks([])
+            ylabel('$k_{z}$ (m$^{-1}$)','Interpreter','latex')
             set(gca,'Fontsize',25)
 
-            subplot(1,2,2)
-%             semilogx(n_new, real(kp11),'.k')
-%             semilogx(n_new, real(kp12),'.k')
-            semilogx(n_new, imag(kp11),'.r')
+            subplot(2,1,2)
+            semilogx(n_new, real(kp21),'.k')
+            semilogx(n_new, real(kp22),'.k')
+%             semilogx(n_new, imag(kp11),'.r')
             hold on
-            semilogx(n_new, imag(kp12),'.b')
-            semilogx(n_new, imag(kp21),'.k')
-            semilogx(n_new, imag(kp22),'.m')
-%             semilogx((1.0e19)*ones(1,npts),(linspace(-60,60,npts)),...
-%                 '--b','Linewidth',1.5)
+%             semilogx(n_new, imag(kp12),'.b')
+            semilogx(n_new, imag(kp21),'.r')
+            semilogx(n_new, imag(kp22),'.r')
+            semilogx((1.0e17)*ones(1,npts),(linspace(-30,30,npts)),...
+                '--b','Linewidth',1.5)
 %             semilogx((1.0e18)*ones(1,npts),(linspace(-60,60,npts)),...
 %                 '--b','Linewidth',1.5)
-            ylim([-80 80])
+            ylim([-30 30])
             xlabel('$n$ (m$^{-3}$)','Interpreter','latex')
-            ylabel('Im[$k_{z}$] (m$^{-1}$)','Interpreter','latex')
-            yticks([])
+            ylabel('$k_{z}$ (m$^{-1}$)','Interpreter','latex')
+            
+%             yticks([])
 
             set(gca,'Fontsize',25)
 
