@@ -182,6 +182,15 @@ timerVal = tic;
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
+if ~sparsefill
+    nA = sparse(npts,npts);
+    nI = sparse(eye(npts,npts));
+    vx_pos = sparse(npts-1,npts-1);
+    vx_neg = sparse(npts-1,npts-1);
+    vx_diff = sparse(npts-1,npts-1);
+    vx_I = sparse(eye(npts-1,npts-1));
+end
+
 for ii=1:nmax
     
     if MMS && TD
