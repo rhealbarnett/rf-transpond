@@ -2,6 +2,7 @@
 % LAPD parameter file for wave solver 
 % 250219 rlbarnett, c3149416
 % Updated to reflect LAPD RF experimental campaign data 050919
+% Updated for cpc manuscript 201021
 % ------------------------------------------------------------------- %
 
 %--
