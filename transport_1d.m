@@ -80,17 +80,17 @@ rvBC_val = RuBC;
 %--------------------------------------------------------------------------------------------------------------%
 
 if ~MMS && staggered
-    vx_source = source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
+    vx_source = pressure_source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
     [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
     pf_source(1,1) = 0.0; pf_source(1,end) = 0.0;
 elseif ~MMS && collocated
-    vx_source = source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
+    vx_source = pressure_source_col(n_new,const.e,Te,Ti,const.mp,npts-1,dx);
 elseif MMS && staggered
     vx_source = mms_source_mom(om,ux,kux,vxax,dt,0,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
-                source_stag(n_new,1,0.5,0.5,1,npts,ndx);
+                pressure_source_stag(n_new,1,0.5,0.5,1,npts,ndx);
     n_source = mms_source_cont(om,nx,knx,nxax(2:npts-1),dt,0,ex_solu(2:npts-1),...
         kux,ux,vxax(2:npts-1),ex_soln(2:npts-1));
     n_source = [0, n_source, 0];
@@ -125,7 +125,7 @@ if plots
     plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
     if MMS
         hold on
-        plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = 0s'])
+        plot(vxax,(pressure_source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = 0s'])
     end
     xlabel('Position (m)','Fontsize',16)
     ylabel('Velocity source (ms^{-1})','Fontsize',16)
@@ -193,6 +193,9 @@ end
 
 for ii=1:nmax
     
+    %--
+    % Set exact density and velocity solutions for time dependent
+    % MMS calculations.
     if MMS && TD
         ex_solu = u0 + ux*cos(kux*vxax.^2 + om*dt*ii);
         ex_soln = n0 + nx*sin(knx*nxax.^2 + om*dt*ii);
@@ -201,18 +204,33 @@ for ii=1:nmax
         end
     end
     
-%     set the vectors with the old value going into the next loop
+    %--
+    % Set the vectors with the old value going into the next loop
     vx = vx_new;
+    
+    %--
+    % Interpolate the density to the ghost cells
     rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
         nxax(npts),'linear','extrap');   
     lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
         nxax(1),'linear','extrap');
     
+    %--
+    % Switch to couple to the wave solver 
     if couple
         
+        %--
+        % Interpolate density from variable to uniform grid
         n_new_uni = interp1(nxax,n_new,zax,'linear');
 
+        %--
+        % Update cold plasma dielectric tensor based on the density
+        % calculated from the previous loop
         [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
+        
+        %--
+        % Ramp the RF electric field amplitude over the first 1000
+        % iterations. 
         if ii<=1000
             source_ramp = 1.0/(1001-ii);
             [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
@@ -222,19 +240,20 @@ for ii=1:nmax
             om,mu0,cpdt,source,0,1,1,0);
         end
         
+        %--
+        % Interpolate the electric field from uniform to variable grid
         Ex = interp1(zax,rf_ex,vxax,'linear');
         Ey = interp1(zax,rf_ey,vxax,'linear');
         Ez = interp1(zax,rf_ez,vxax,'linear');
         
-    elseif ~couple
-        
     end
     
+    %--
+    % Start filling the density coefficient matrix for a staggered grid.
     if staggered && (continuity || ~MMS)
         
-        % fill n coefficient matrix using the averaged value of the
-        % velocities on adjacent grid points
-        
+        %--
+        % Fill coefficient matrix using Matlab's sparsefilling... routine?
         if sparsefill
             
             row = zeros(1,(2*npts)-2);
@@ -253,6 +272,9 @@ for ii=1:nmax
                 row(1,2*jj-1) = jj;
                 column(1,2*jj-2) = jj;
 
+                %--
+                % Use the average velocity over the two closest locations
+                % to determine whether to use up or down wind scheme. 
                 if ((vx(1,jj-1)+vx(1,jj))/2)>0 
                     column(1,2*jj-1) = jj-1;
                     n_sparse(1,2*jj-2) = - (1.0/ndx(1,jj-1))*vx(1,jj);
@@ -272,6 +294,9 @@ for ii=1:nmax
                 end
             end
             
+            %--
+            % Remove any zeros that weren't filled as this will throw off
+            % where the matrix is filled.
             ind_rem = find(column==0);
             column(ind_rem) = [];
             row(ind_rem) = [];
@@ -279,9 +304,12 @@ for ii=1:nmax
 
             S_nA= sparse(row,column,n_sparse,npts,npts,(2*(npts))-2);
 
+            % Calculate coefficient matrix.
             An_exp = nI + dt*S_nA;
             Anx = -S_nA;
             
+        %-- 
+        % Fill coefficient matrix using regular loop (slow)
         elseif ~sparsefill
             
             for jj=2:npts-1
@@ -305,17 +333,24 @@ for ii=1:nmax
             end
             
             An_exp = nI + dt*nA;
-            
             Anx = -nA;
-            An_exp(1,1) = 1.0;
-            An_exp(end,end) = 1.0;
+            
+%             %--
+%             % Set Dirichlet BCs
+%             An_exp(1,1) = 1.0;
+%             An_exp(end,end) = 1.0;
             
         end
         
+        %--
+        % Set 1's in coefficient matrix for Dirichlet boundary conditions.
         Anx(1,1) = 1.0;
         Anx(end,end) = 1.0;
         
-        % set source density ghost points to zero 
+        %--
+        % Set ends of density source : to exact solution for steady state
+        %                            MMS calculations, or
+        %                            : to zero for transport simulations.
         if continuity && SS
             n_source(1,1) = ex_soln(1,1);
             n_source(1,end) = ex_soln(1,end);
@@ -323,8 +358,11 @@ for ii=1:nmax
             n_source(1,1) = 0.0; n_source(1,end) = 0.0;
         end
         
-        % zero old rhs values for top and bottom boundary equations for
-        % implicit calculation
+        %--
+        % Set boundary conditions on n : to exact solution for time
+        %                              dependent MMS calculations,  or
+        %                              : to the ghost values for transport
+        %                              simulations. 
         if continuity && TD
             n(1,1) = ex_soln(1,1);
             n(1,end) = ex_soln(1,end);
@@ -333,17 +371,19 @@ for ii=1:nmax
             n(1,end) = rGhost;
         end
         
-        % implicit calculation
-%         n_new_imp = An_imp\(n' + dt*n_source');
+        %--
+        % Calculate updated value for density.
         if continuity && SS
             n_new = Anx\n_source';
-        elseif continuity && TD
+        elseif (continuity && TD) || ~MMS
             n_new = An_exp*n' + dt*n_source';
-        elseif ~MMS
-            n_new = An_exp*n' + dt*n_source';
+%         elseif ~MMS
+%             n_new = An_exp*n' + dt*n_source';
         end
         
-        % transpose solution vector
+        %--
+        % Transpose solution vector so that it is the correct dimensions
+        % for the next loop. 
         n_new = n_new';
         
 %         if MMS && SS
@@ -360,9 +400,19 @@ for ii=1:nmax
 %             end
 %         end
         
+        %--
+        % Save old value of n for rms calculations, set new value of n for
+        % velocity calculations. 
         n_tol = n;
         n = n_new;
-    
+    %--
+    % Start filling the density coefficient matrix for a co-located grid.
+    % -------------------------------------------------------------------%
+    %                                                                    %
+    %                   NEEDS UPDATING -- 201022 rlbarnett               %
+    %                   Hasn't been used in a long while.                %
+    %                                                                    %
+    % -------------------------------------------------------------------%
     elseif collocated
  
         for jj=2:npts-2
@@ -399,7 +449,11 @@ for ii=1:nmax
         % transpose solution vector
         n_new = n_new_imp;
         n_new = n_new';
-        
+    %---------------------------------------------------------------------%
+    %                                                                     %
+    %                End of untested/update required loop                 %
+    %                                                                     %
+    %---------------------------------------------------------------------%
     end
     
     if momentum || ~MMS
@@ -524,7 +578,7 @@ for ii=1:nmax
 
 
         if staggered && ~MMS
-            vx_source = source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
+            vx_source = pressure_source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
             vx_source(1,1) = 0.0; vx_source(1,end) = 0.0;
             [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
             pf_inter = sum(pf,1);
@@ -533,7 +587,7 @@ for ii=1:nmax
             pf_source(1,1) = 0.0; pf_source(1,end) = 0.0;
         elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
-                source_stag(n_new,1,0.5,0.5,1,npts,ndx);
+                pressure_source_stag(n_new,1,0.5,0.5,1,npts,ndx);
             if SS
                 vx_source(1,1) = ex_solu(1,1);
                 vx_source(1,end) = ex_solu(1,end);
@@ -542,7 +596,7 @@ for ii=1:nmax
                 vx_source(1,end) = 0;
             end
         elseif collocated
-            vx_source = source_col(n,const.e,Te,Ti,m,npts-1,dx);
+            vx_source = pressure_source_col(n,const.e,Te,Ti,m,npts-1,dx);
         end
 
         if momentum && SS
@@ -636,7 +690,7 @@ for ii=1:nmax
         plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         if MMS
             hold on
-            plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            plot(vxax,(pressure_source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         end
         xlim([min(vxax) max(vxax)])
         hold on
@@ -776,7 +830,7 @@ if plots
     plot(vxax(2:npts-2),vx_source(2:npts-2),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     if MMS
         hold on
-        plot(vxax,(source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        plot(vxax,(pressure_source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
     end
     xlabel('Position (m)','Fontsize',16)
     ylabel('Velocity source (ms^{-1})','Fontsize',16)
@@ -817,34 +871,6 @@ if plots
         hold on
     end
 end
-
-%%
-
-function [ans] = grad(n,dx,npts)
-    ans = (n(2:npts) - n(1:npts-1))./dx;
-end
-
-function [ans] = grad2(n,dx,npts)
-    cen_diff = (n(3:npts) - n(1:npts-2))/(2.0*dx);
-    fwd_diff = (-3*n(1) + 4*n(2) - n(3))/(2.0*dx);
-    bwd_diff = (3*n(npts) - 4*n(npts-1) + n(npts-2))/(2.0*dx);
-    ans = [fwd_diff, cen_diff, bwd_diff];
-end
-
-function [ans] = avg(n,npts)
-    ans = (n(2:npts) + n(1:npts-1))/2.0;
-end
-
-function [ans] = source_stag(n,q,Te,Ti,m,npts,dx)
-    ans = -((Te + Ti)*q./(m*avg(n,npts))).*(grad(n,dx,npts));
-end
-
-function [ans] = source_col(n,q,Te,Ti,m,npts,dx)
-    ans = -((Te + Ti)*q./(m*n)).*(grad2(n,dx,npts));
-end
-
-
-
 
 
 
