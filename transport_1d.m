@@ -43,6 +43,8 @@ n = n_init;
 % momentum = NaN;
 % continuity = NaN;
 
+filepath = '/home/c3149416/coupled_results/';
+
 staggered = 1;
 collocated = 0;
 v_ldirichlet = 1;
@@ -175,9 +177,6 @@ end
 %--------------------------------------------------------------------------------------------------------------%
 % START TIME STEPPING
 %--------------------------------------------------------------------------------------------------------------%
-
-counter = 2;
-timerVal = tic;
 
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
@@ -702,45 +701,35 @@ for ii=1:nmax
         return
     end
 
-    % plot loop; every 1/5 of iterations
-    if plots && mod(ii,round(nmax/5))==0
-        fprintf('***--------------------***\n')
-        fprintf('ii=%d, count=%d\n', [ii counter])
-        fprintf('dt=%ds\n', dt)
-        fprintf('total time=%ds\n', dt*ii)
-        fprintf('simulation time %d\n', toc(timerVal))
-        fprintf('Current vx rms tol calc %d\n', rms(vx - vx_new))
-        fprintf('Current n rms tol calc %d\n', rms(n_tol - n_new))
-        fprintf('total number of particles %e\n', trapz(nxax,n_new))
-        fprintf('particle balance check %e\n', trapz(nxax,n_tol) - trapz(nxax,n_new))
-%         fprintf('density source and flux balance check %e\n', rflux -...
-%             trapz(vxax,source_avg*ns_mult))
-%         if dt == cfl_fact*(dx^2)/(2.0*nu)
-%             fprintf('Diffusive CFL condition\n')
-%         elseif dt == cfl_fact*dx/max(abs(vx_new))
-%             fprintf('Convective CFL condition\n')
-%         end
+    %--
+    % Plot all fields if plot switch is on. 
+    if plots && (mod(ii,round(nmax/5))==0 || ii==nmax)
+        
+        %--
+        % Plot density (include exact solution for MMS)
         figure(1)
         set(gcf,'Position',[563 925 560 420])
-%         semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+ndx(1)) max(nxax-ndx(end))])
         hold on
         if MMS
             plot(nxax,ex_soln,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
         end
-%         semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
+        
+        %--
+        % Plot mach number (include exact solution for MMS)
         figure(2)
         set(gcf,'Position',[7 925 560 420])
-        if ~MMS
-            plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        elseif MMS
+        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+        if MMS
             plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
         end
         xlim([min(vxax) max(vxax)])
         hold on
-%         plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
+        
+        %--
+        % Plot the velocity source (grad-p only).
         figure(3)
         set(gcf,'Position',[3 476 560 420])
         plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
@@ -750,6 +739,9 @@ for ii=1:nmax
         end
         xlim([min(vxax) max(vxax)])
         hold on
+        
+        %--
+        % Plot the density source (should remain constant over each loop).
         figure(4)
         set(gcf,'Position',[563 476 560 420])
         plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
@@ -757,31 +749,19 @@ for ii=1:nmax
         ylabel('Density source ms^{-1}','Fontsize',16)
         legend('show','Location','northwest')
         hold on
+        
+        
         if ~MMS
+            %-- 
+            % Plot ponderomotive source term.
             figure(5)
             plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             xlabel('Position (m)','Fontsize',16)
             ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
             legend('show','Location','northwest')
             hold on
-            figure(6)
-            subplot(2,1,1)
-            plot(zax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
-            set(gca, 'XTickLabel', [])
-            ylabel('E_{||} (Vm^{-1})','Fontsize',16)
-            hold on
-            plot(zax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
-            set(gca, 'XTickLabel', [])
-            legend('show','Location','northwest')
-            hold on
-            subplot(2,1,2)
-            plot(zax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-            xlabel('Position (m)','Fontsize',16)
-            ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
-            legend('show','Location','northwest')
-            hold on
         end
-        counter = counter + 1;
+        
         
     elseif (mod(ii,save_iter)==0 && sfile) || unstable || (mod(ii,nmax)==0 && sfile)
         
@@ -807,10 +787,6 @@ for ii=1:nmax
         transport.freq = freq;
         transport.period = period;
         transport.B0 = B0;
-%         transport.source_dist = source_dist;
-%         transport.scale_fact = scale_fact;
-%         transport.ey_source = ey_source;
-%         transport.R = R;
         transport.rf_ex = rf_ex;
 	    transport.rf_ey = rf_ey;
 	    transport.rf_ez = rf_ez;
@@ -822,14 +798,11 @@ for ii=1:nmax
         transport.pond_summed = pf_source;
         transport.poyn = poyn;
         
-%         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-%         filename = strcat('/Volumes/DATA/LAPD/matlab/results_jsource_kyzero_eperpmix_mult8e5/coupled_transport_',num2str(ii),'.mat');
-        filename = strcat('/home/c3149416/coupled_results/coupled_',num2str(ii),'_',num2str(source_mult),'_',...
+        filename = strcat(filepath,'coupled_',num2str(ii),'_',num2str(source_mult),'_',...
             num2str(kx(1)),'_',num2str(Nmax),'.mat');
         save(filename,'-struct','transport');
         
         continue
-%         save('C:\Users\c3149416\Documents\coupled_transport.mat','-struct','transport');
     end    
 end
 
@@ -839,94 +812,5 @@ if MMS
     l_infu = norm(ex_solu - vx_new, Inf);
     l_twou = rms(ex_solu - vx_new);
 end
-
-fprintf('***--------------------***\n')
-fprintf('ii=%d, count=%d\n', [ii counter])
-fprintf('dt=%ds\n', dt)
-fprintf('total time=%ds\n', dt*ii)
-fprintf('simulation time %d\n', toc(timerVal))
-fprintf('Current rms tol calc %d\n', rms(vx - vx_new))
-fprintf('***-------*****--------***\n')
-
-        
-%%
-
-if plots
-    figure(1)
-    set(gcf,'Position',[563 925 560 420])
-    % semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    hold on
-    if MMS
-        plot(nxax,ex_soln,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
-    end
-    % semilogy(nxax(2:npts-1),n_new_exp(2:npts-1),'--','DisplayName',['(imp)time = ' num2str(double(ii)*dt) ' s'])
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('Density m^{-3}','Fontsize',16)
-    legend('show','Location','west')
-    hold off
-
-    figure(2)
-    set(gcf,'Position',[7 925 560 420])
-    hold on
-    if ~MMS
-        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    elseif MMS
-        plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
-    end
-    % plot(vxax,vx_new_imp/cs,'--','DisplayName',['(exp)time = ' num2str(double(ii)*dt) ' s'])
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('Mach number (v/c_s)','Fontsize',16)
-    legend('show','Location','southeast')
-    hold off
-
-    figure(3)
-    set(gcf,'Position',[3 476 560 420])
-    plot(vxax(2:npts-2),vx_source(2:npts-2),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    if MMS
-        hold on
-        plot(vxax,(pressure_source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    end
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('Velocity source (ms^{-1})','Fontsize',16)
-    legend('show','Location','northwest')
-    hold off
-
-    figure(4)
-    set(gcf,'Position',[563 476 560 420])
-    plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-    xlabel('Position (m)','Fontsize',16)
-    ylabel('Density source (ms^{-1})','Fontsize',16)
-    legend('show','Location','northwest')
-    hold off
-
-    if ~MMS
-        figure(5)
-        plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlabel('Position (m)','Fontsize',16)
-        ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
-        legend('show','Location','northwest')
-        hold off
-
-        figure(6)
-        subplot(2,1,1)
-        plot(zax,real(rf_ez),'DisplayName',['Re[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
-        set(gca, 'XTickLabel', [])
-        ylabel('E_{||} (Vm^{-1})','Fontsize',16)
-        hold on
-        plot(zax,imag(rf_ez),'DisplayName',['Im[E_{||}], time = ' num2str(double(ii)*dt) ' s'])
-        set(gca, 'XTickLabel', [])
-        legend('show','Location','northwest')
-        hold on
-        subplot(2,1,2)
-        plot(zax,abs(rf_ez).^2,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlabel('Position (m)','Fontsize',16)
-        ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
-        legend('show','Location','northwest')
-        hold on
-    end
-end
-
 
 
