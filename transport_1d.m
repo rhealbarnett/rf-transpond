@@ -456,12 +456,15 @@ for ii=1:nmax
     %---------------------------------------------------------------------%
     end
     
+    %--
+    % Fill coefficient matrices for velocity update equation 
+    % Positive for v>0 and negative for v<0 on the convective term; 
+    % differencing of the diffusion term is central and not 
+    % dependent on flow direction
     if momentum || ~MMS
-        % fill coefficient matrices for momentum equation, positive for v>0 and
-        % negative for v<0 on the convective term; differencing of the
-        % diffusion term is central and not dependent on flow direction
         
-        
+        %--
+        % Fill coefficient matrix using Matlab's sparsefilling... routine?
         if sparsefill
             
             count = 0;
@@ -494,26 +497,34 @@ for ii=1:nmax
                 row_adv(1,2*jj-1) = jj;
                 column_adv(1,2*jj-2) = jj;
 
+                %--
+                % Fill the diffusion coefficient matrix.
                 vx_sparse_diff(1,jj+2*count) = - (1.0/(vdx(1,jj-1)*vdx(1,jj)))*(2.0*nu);
                 vx_sparse_diff(1,jj+2*count+1) = (2.0/(vdx(1,jj-1)*(vdx(1,jj) + vdx(1,jj-1))))*nu;
                 vx_sparse_diff(1,jj+2*count+2) = (2.0/((vdx(1,jj-1) + vdx(1,jj))*vdx(1,jj)))*nu;
 
                 count = count+1;
 
-                    if vx(1,jj)>0
-                        column_adv(1,2*jj-1) = jj-1;
-                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
-                            (1.0/n(1,jj))*n_source(1,jj);
-                        vx_sparse_adv(1,2*jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
-                    elseif vx(1,jj)<0
-                        column_adv(1,2*jj-1) = jj+1;
-                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj) -...
-                            (1.0/n(1,jj+1))*n_source(1,jj+1);
-                        vx_sparse_adv(1,2*jj-1) = - (1.0/vdx(1,jj))*vx(1,jj);
-                    end
+                %--
+                % Check for sign of velocity to fill the advection
+                % coefficient terms.
+                if vx(1,jj)>0
+                    column_adv(1,2*jj-1) = jj-1;
+                    vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
+                        (1.0/n(1,jj))*n_source(1,jj);
+                    vx_sparse_adv(1,2*jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
+                elseif vx(1,jj)<0
+                    column_adv(1,2*jj-1) = jj+1;
+                    vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj) -...
+                        (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    vx_sparse_adv(1,2*jj-1) = - (1.0/vdx(1,jj))*vx(1,jj);
+                end
                     
             end
             
+            %--
+            % Remove any zero indices as this will skew the coefficient
+            % matrix.
             ind_rem = find(column_adv==0);
             column_adv(ind_rem) = [];
             row_adv(ind_rem) = [];
@@ -522,11 +533,18 @@ for ii=1:nmax
             S_vxE = sparse(row_adv,column_adv,vx_sparse_adv,npts-1,npts-1,(2*(npts-1))-2);
             S_vxI = sparse(row_diff,column_diff,vx_sparse_diff,npts-1,npts-1,(3*(npts-1))-4);  
 
+            %--
+            % Calculate the advection (Avx_exp) and diffusion (Avx_imp)
+            % matrices.
             Avx_exp = vx_I + dt*S_vxE;
             Avx_imp = vx_I - dt*S_vxI;
             
+            %--
+            % Avx is used for steady state MMS testing.
             Avx = -(S_vxE + S_vxI);
-            
+         
+        %-- 
+        % Fill coefficient matrix using regular loop (slow).    
         elseif ~sparsefill
             
             for jj=2:npts-2 
@@ -546,6 +564,9 @@ for ii=1:nmax
                 
             end
                 
+            %--
+            % Can switch between advection only and advection-diffusion
+            % equation. 
             if upwind 
                 vxA = vx_pos + vx_neg;
             elseif central
@@ -553,21 +574,31 @@ for ii=1:nmax
                 vxI = vx_diff;
             end
             
+            %--
+            % Calculate advection (Avx_exp) and diffusion (Avx_imp)
+            % coefficient matrices. 
             Avx_exp = vx_I + dt*vxE;
             Avx_imp = vx_I - dt*vxI;
             
+            %--
+            % Avx is used for steady state MMS testing.
             Avx = -(vxE + vxI);
-            Avx(1,1) = 1.0;
-            Avx(end,end) = 1.0;
-
+            
+            %--
+            % Set coefficients for Dirichlet boundary conditions.
             Avx_exp(1,1) = 1.0; Avx_exp(end,end) = 1.0;
             Avx_imp(1,1) = 1.0; Avx_imp(end,end) = 1.0;
 
         end
         
+        %--
+        % Set Dirichlet boundary conditions for steady state MMS. 
         Avx(1,1) = 1.0;
         Avx(end,end) = 1.0;
 
+        %--
+        % Set Dirichlet boundary conditions based on either MMS (exact
+        % solution at boundaries) or transport simulations (l/rvBC_val).
         if momentum && TD
             vx(1,1) = ex_solu(1,1);
             vx(1,end) = ex_solu(1,end);
@@ -576,18 +607,36 @@ for ii=1:nmax
             vx(1,end) = rvBC_val;
         end
 
-
+        %--
+        % Calculate the right hand side 'source' terms for a staggered
+        % grid.
         if staggered && ~MMS
+            %--
+            % Grad-P source, and set boundaries to zero (BCs set in
+            % coefficient matrix and vx)
             vx_source = pressure_source_stag(n,const.e,Te,Ti,const.mp,npts,ndx);
             vx_source(1,1) = 0.0; vx_source(1,end) = 0.0;
+            
+            %--
+            % Calculate the ponderomotive source term.
             [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
             pf_source = interp1(zax,pf_inter2,vxax,'linear');
+            
+            %--
+            % Set boundaries of source to zero (velocity BCs set in
+            % coefficient matrix and vx)
             pf_source(1,1) = 0.0; pf_source(1,end) = 0.0;
+        
+        %--
+        % Calculate MMS source term. 
         elseif staggered && momentum
             vx_source = mms_source_mom(om,ux,kux,vxax,dt,ii,nu,ex_solu,nxax,knx,nx,ex_soln,npts) +...
                 pressure_source_stag(n_new,1,0.5,0.5,1,npts,ndx);
+            %--
+            % Set MMS boundary conditions depending on whether it is a
+            % steady state (SS) or time dependent (TD) test.
             if SS
                 vx_source(1,1) = ex_solu(1,1);
                 vx_source(1,end) = ex_solu(1,end);
@@ -595,10 +644,17 @@ for ii=1:nmax
                 vx_source(1,1) = 0;
                 vx_source(1,end) = 0;
             end
+            
+        %--
+        % Calculate source term for a co-located grid 
+        % CURRENTLY OBSOLETE 201027 rlbarnett :)
         elseif collocated
             vx_source = pressure_source_col(n,const.e,Te,Ti,m,npts-1,dx);
         end
 
+        %--
+        % Calculate solution for MMS steady state, MMS time dependent or
+        % transport simulation. 
         if momentum && SS
             vx_new = Avx\vx_source';
         elseif (momentum && TD)
@@ -608,10 +664,14 @@ for ii=1:nmax
             vx_newE = Avx_exp*vx';
             vx_new = Avx_imp\(vx_newE + dt*(vx_source' - pf_source'));
         end
-
-        % transpose solution vector
+        
+        %--
+        % Transpose solution vector so that it is the correct shape for the
+        % next loop.
         vx_new = vx_new';
         
+        %--
+        % MMS steady state check for convergence. 
         if MMS && SS
             if rms(vx_new - vx)<=tol && rms(n_new - n_tol)<=tol
                 fprintf('tolerance reached, ii=%d\n',ii)
@@ -630,14 +690,10 @@ for ii=1:nmax
             end
         end
     end
-
-%     will stop running script if either of the CFL conditions is violated
-%     if dt*max(abs(vx_new))/min(ndx) >= 1.0
-%         fprintf('CFL condition violated, ii=%d\n',ii)
-%         return
-%     end
     
-    % will stop running script if there are any nans in the velocity array
+    %--
+    % Check for NaNs in the velocity array (can be density, whichever) and
+    % stop iterations if any exist.
     nan_check = isnan(vx_new);
     
     if sum(nan_check) ~= 0
