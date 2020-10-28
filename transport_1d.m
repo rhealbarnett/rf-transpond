@@ -509,13 +509,21 @@ for ii=1:nmax
                 % coefficient terms.
                 if vx(1,jj)>0
                     column_adv(1,2*jj-1) = jj-1;
-                    vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
-                        (1.0/n(1,jj))*n_source(1,jj);
+                    if ~MMS
+                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj) -...
+                            (1.0/n(1,jj))*n_source(1,jj);
+                    elseif MMS
+                        vx_sparse_adv(1,2*jj-2) = - (1.0/vdx(1,jj-1))*vx(1,jj);
+                    end
                     vx_sparse_adv(1,2*jj-1) = (1.0/vdx(1,jj-1))*vx(1,jj);
                 elseif vx(1,jj)<0
                     column_adv(1,2*jj-1) = jj+1;
-                    vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj) -...
-                        (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    if ~MMS
+                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj) -...
+                            (1.0/n(1,jj+1))*n_source(1,jj+1);
+                    elseif MMS
+                        vx_sparse_adv(1,2*jj-2) = (1.0/vdx(1,jj))*vx(1,jj);
+                    end
                     vx_sparse_adv(1,2*jj-1) = - (1.0/vdx(1,jj))*vx(1,jj);
                 end
                     
