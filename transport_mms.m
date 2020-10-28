@@ -3,30 +3,26 @@
 % rlbarnett c3149416 220119                             %
 %-------------------------------------------------------%
 
-%------
-% constants %
-%------
+%--
+% Constants 
 const = constants();
 m = const.mp;
 e = const.e;
 
-%------
-% parameters %
-%------
+%--
+% Parameters 
 Te = 5.0;
 Ti = 10.0;
 cs = sqrt((Te + Ti)*e/m);
 nu = 0.7;
 
-%------
-% spatial domain %
-%------
+%--
+% Spatial domain
 xmin = -0.3;
 xmax = 0.4;
 
-%------
-% turn variable grid on (1) or off (0)
-%------
+%--
+% Turn variable grid on (1) or off (0)
 variable = 1;
 
 % include two additional gridpoints for the density ghost points
@@ -51,7 +47,6 @@ if variable
 
     % location of sign change
     xc = (xmax - xmin)/2.0;
-%     xc = 0.1;
     
     %'strength' of grid refinement.
     % sign also indicates whether refinement is in the centre or at the
