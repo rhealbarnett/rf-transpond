@@ -64,7 +64,7 @@ central = 1;
 upwind = 0;
 unstable = 0;
 plots = 0;
-sparsefill = 0;
+sparsefill = 1;
 sfile = 0;
 couple = 0;
 
