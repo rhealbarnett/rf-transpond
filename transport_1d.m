@@ -18,8 +18,8 @@
 % params_transport_wave_ACM;
 % transport_vardx;
 % transport_test;
-% transport_mms;
-lapd_equib;
+transport_mms;
+% lapd_equib;
 
 % initialise velocity and density 
 vx = vx_init;
@@ -57,16 +57,16 @@ n_rdirichlet = 0;
 n_rneumann = 0;
 n_lneumann = 0;
 n_periodic = 0;
-MMS = 0;
-momentum = 0;
-continuity = 0;
+MMS = 1;
+momentum = 1;
+continuity = 1;
 central = 1;
 upwind = 0;
 unstable = 0;
 plots = 0;
-sparsefill = 1;
-sfile = 1;
-couple = 1;
+sparsefill = 0;
+sfile = 0;
+couple = 0;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
@@ -334,10 +334,10 @@ for ii=1:nmax
             An_exp = nI + dt*nA;
             Anx = -nA;
             
-%             %--
-%             % Set Dirichlet BCs
-%             An_exp(1,1) = 1.0;
-%             An_exp(end,end) = 1.0;
+            %--
+            % Set Dirichlet BCs
+            An_exp(1,1) = 1.0;
+            An_exp(end,end) = 1.0;
             
         end
         
