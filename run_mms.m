@@ -28,7 +28,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
     if SS
 
         dt = 1.0;
-        tol = 1.0e-14;
+        tol = 1.0e-12;
 
     elseif TD
 
@@ -148,37 +148,6 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
 
     if mms_plots
 
-        x0 = 0;
-        y0 = 0;
-        width = 1000;
-        height = 600;
-
-        figure(3)
-        set(gcf,'Position',[x0 y0 width height],'Color','w')
-
-        subplot(3,1,1)
-        plot(nxax,ex_soln,'k','Linewidth',1.5)
-        set(gca,'Fontsize',25)
-        xticks([])
-        xlim([min(nxax) max(nxax)])
-        ylabel('$n$ (m$^{-3}$)','Interpreter','latex')
-        legend('$n = n_0 + n_z\sin(k_nz^2)$','Interpreter','latex','location','northwest')
-
-        subplot(3,1,2)
-        plot(vxax,ex_solu,'k','Linewidth',1.5)
-        xlim([min(nxax) max(nxax)])
-        xticks([])
-        set(gca,'Fontsize',25)
-        ylabel('$v$ (ms$^{-1}$)','Interpreter','latex')
-        legend('$v = v_0 + v_z\sin(k_vz^2)$','Interpreter','latex','location','southwest')
-
-        subplot(3,1,3)
-        plot(nxax(1:3:npts),zeros(1,length(nxax(1:3:npts))),'xk','Linewidth',1.5)
-        xlim([min(nxax) max(nxax)])
-        xlabel('Position (m)')
-        set(gca,'Fontsize',25)
-        yticks([])
-
         if SS
 
             x0 = 0;
@@ -254,7 +223,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             width = 1000;
             height = 450;
 
-            figure(1)
+            figure(3)
             set(gcf,'Position',[x0 y0 width height],'Color','w')
             % yyaxis left
             loglog(dt_arr,dt_arr,'.-k','Markersize',15,'Linewidth',1.2)
@@ -288,7 +257,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
 
 
 
-            figure(2)
+            figure(4)
             set(gcf,'Position',[x0 y0 width height],'Color','w')
             % yyaxis left
             loglog(dt_arr,dt_arr,'.-k','Markersize',15,'Linewidth',1.2)
