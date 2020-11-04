@@ -1,10 +1,6 @@
-function t = tests(name)
+function tests = rf_transp_tests
 
-    switch name
-        case 'mms'
-            t.ans = 'This is mms';
-        case 'lapd'
-            t.ans = 'This is lapd';
-    end
+    tests = functiontests(localfunctions);
 
 end
+
