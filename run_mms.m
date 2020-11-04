@@ -21,7 +21,7 @@
 %-------------------------------------------------------------------------%
 
 function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
-    oo_inf_arr,oo_two_arr] = run_mms(SS,TD,mms_plots,save_file)
+    oo_inf_arr,oo_two_arr,arr] = run_mms(SS,TD,mms_plots,save_file)
 
     npts = 512;
 
@@ -100,6 +100,12 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             mms_errors.ltwou_arr = ltwou_arr;
             mms_errors.linfu_arr = linfu_arr;
 
+        end
+        
+        if SS
+            arr = npts_arr;
+        elseif TD
+            arr = dt_arr;
         end
 
     end
