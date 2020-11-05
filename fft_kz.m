@@ -1,5 +1,5 @@
 
-function [kz_spec, k_ax, phase] = fft_kz(dx,npts,rf_ex,rf_ey,rf_ez,plots)
+function [kz_spec, k_ax, phase, dk] = fft_kz(dx,npts,rf_ex,rf_ey,rf_ez,plots)
 
     dk = 1.0/((npts-1)*dx);
     knyq = 1.0/(2.0*dx);
