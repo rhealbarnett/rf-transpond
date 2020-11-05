@@ -1,43 +1,33 @@
 
-% lapd_equib;
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{1,damp_len});
+wave_verification;
 
-plots = 1;
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{0,''});
+kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,1,0,ky);
 
-% dispersion;
-% 
-% indx1 = find(source(npts/2:npts)==0,1,'first') + npts/2;
-% indx2 = npts - floor(0.35*npts);
-% indx = round(linspace(indx1,indx2,indx2-indx1));
-% NP = length(indx);
-
-% ind_n = find(n_new>=Nmax,1,'first');
-% ind_ky = find(ky>=0,1,'first');
-% kz_disp = kpara11(ind_n,ind_ky);
+expkz = real(kz_dispersion(1,:));
 
 kz_spec_density = zeros(npts,npts);
 
 count = 1;
 
 for ii=1:npts
-    
+
     density = n_new(1,ii)*ones(1,npts);
-    
+
     [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,density,m_s,om,eps0,npts,{1,damp_len});
     [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
     om,mu0,cpdt,source,0,1,1,0);
-                                      
-    [kz_spec, k_ax, phase] = fft_kz(dz,npts,rf_ex,rf_ey,rf_ez,plots);
-%     [kz_spec, k_ax, phase] = fft_kz(dx,NP,rf_ex(indx),rf_ey(indx),rf_ez(indx),plots);
-    
-    kz_spec_density(count,:) = kz_spec(:,3);
-    
-    count = count + 1;
-    
-end
 
-ind_kz = find(kz_spec(1:npts/2,2)==max(kz_spec(1:npts/2,2)));
-kz_rf = k_ax(ind_kz);
+    [kz_spec, k_ax, phase, dk] = fft_kz(dz,npts,rf_ex,rf_ey,rf_ez,0);
+
+    kz_spec_density(count,:) = kz_spec(:,3);
+
+    ind_kz = find(kz_spec(1:npts/2,2)==max(kz_spec(1:npts/2,2)));
+    actkz(1,count) = k_ax(ind_kz);
+
+    count = count + 1;
+
+end
 
 %%
 
@@ -66,7 +56,7 @@ set(gcf,'Position',[x0 y0 width height],'Color','w')
 levels = linspace(0,1.e-4,50);
 contourf(log10(n_new),k_ax(indk),(kz_spec_density(:,indk))',levels,'Linecolor','none')
 hold on
-plot(log10(n_new), real(kp11),'-.r','Linewidth',2)
+plot(log10(n_new), real(kz_dispersion(1,:)),'-.r','Linewidth',2)
 c = colorbar;
 colormap(magma)
 caxis([0 1.0e-4])
