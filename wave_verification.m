@@ -30,8 +30,8 @@ om = freq*2.0*pi;
 
 %-- 
 % Set some domain size and length
-zmin = -4.;
-zmax = 4.0;
+zmin = -10.;
+zmax = 10.0;
 npts = 2048;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
@@ -50,8 +50,8 @@ m_s = [me; mhe];
 % Scan over density values.
 Nmax = 1.0e20;
 Nmin = 1.0e18;
-% n_new = logspace(log10(Nmin),log10(Nmax),npts);
-n_new = 1.0e19*ones(1,npts);
+n_new = logspace(log10(Nmin),log10(Nmax),npts);
+% n_new = 1.0e20*ones(1,npts);
 
 %--
 % Calculate free space wavenumber and set perpendicular (or parallel) 
@@ -87,5 +87,7 @@ mult = 1.0/(source_width*sqrt(2.0*pi));
 source = mult*exp(-(zax - source_loc).^2/(2.0*source_width^2));
 source = source / max(source);
 source = source*source_mult;
+
+damp_len = 0.3;
 
 
