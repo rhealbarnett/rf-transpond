@@ -128,9 +128,8 @@ function [Ediff,pf] = pond_source(component,Efield,m,q,om_cyc,omega,dz,mix,dampi
     
     if component{2}
         intermediate = sum(pf,1);
-        ans = squeeze(sum(intermediate,2))';
+        pf = squeeze(sum(intermediate,2))';
     else
-        ans = pf;
     end
 %     ans = (1.0/m(2,1)).*pond;
 %     ans = pond;
