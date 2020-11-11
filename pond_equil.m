@@ -11,7 +11,7 @@
 
 function n_final = pond_equil(E,n_init,omega,v_thermal)
 
-    shape = omega./E;
+    shape = E./omega;
     n_final = n_init.*exp(-(1./2.)*(shape./v_thermal).^2);
 
 end
