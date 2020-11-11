@@ -35,6 +35,7 @@ zmax = 4.0;
 
 %-- 
 % npts will be set with the transport equilibrium script.
+npts = 512;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts);
 
@@ -59,17 +60,23 @@ me = me*ones(1,npts);
 m_s = [me; mhe];
 
 %--
+% Thermal velocity 
+Te = 5.0;
+Ti = 0.5;
+v_th = sqrt((Te + Ti)*abs(e)/mhe(1));
+
+%--
 % Initial density, flat.
-n_init = 1.0e19*ones(1,npts);
+n_init = 1.0e17*ones(1,npts);
 
 %--
 % Spatial electric field profile (gaussian)
 E_width = (0.5)/(2.*sqrt(2.*log(2.)));
 E_loc = 0.0;
-E_mult = 1.0e5;
+E_mult = 1.0e9;
 
-gauss_mult = 1.0/(source_width*sqrt(2.0*pi));
-E_0 = mult*exp(-(zax - E_loc).^2/(2.0*E_width^2));
+gauss_mult = 1.0/(E_width*sqrt(2.0*pi));
+E_0 = gauss_mult*exp(-(zax - E_loc).^2/(2.0*E_width^2));
 E_0 = E_0 / max(E_0);
 E_0 = E_0*E_mult;
 
