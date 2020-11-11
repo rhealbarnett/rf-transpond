@@ -23,7 +23,7 @@ mu0 = const.mu0;
 %--
 % Load transport equilibrium file
 filepath = '/Volumes/DATA/LAPD/matlab/inputs/';
-load('equil_transport_input.mat','npts','nxax','n_new','vxax','vx_new',...
+load('equil_transport_input.mat','npts','nxax','vxax',...
     'cs','ndx','vdx');
 
 %--
@@ -57,6 +57,8 @@ me = me*ones(1,npts);
 % Collect masses in 2d array for dielectric tensor calculation. 
 m_s = [me; mhe];
 
+q_s = [e; q];
+
 %--
 % Thermal velocity 
 Te = 5.0;
@@ -65,13 +67,14 @@ v_th = sqrt((Te + Ti)*abs(e)/mhe(1));
 
 %--
 % Initial density.
-n_init = n_new;
+n_init = 1.0e17*ones(1,npts);
+n_source = zeros(1,npts);
 
 %--
 % Spatial electric field profile (gaussian)
 E_width = (0.5)/(2.*sqrt(2.*log(2.)));
 E_loc = 0.0;
-E_mult = 1.0e9;
+E_mult = 5.0e10;
 
 gauss_mult = 1.0/(E_width*sqrt(2.0*pi));
 E_0 = gauss_mult*exp(-(zax - E_loc).^2/(2.0*E_width^2));
@@ -84,11 +87,17 @@ n_final = pond_equil(E_0,n_init,om,v_th);
 
 %--
 % Assign transport parameters from equilibrium transport file to variables.
-LuBc = -cs;
-RuBC = cs;
+vx_init = zeros(1,npts-1);
+LuBC = 0.0;
+RuBC = 0.0;
+
+n_init = interp1(zax,n_init,nxax,'linear');
+% vx_init = interp1(zax,vx_init,vxax,'linear');
 
 %--
 % 
 dt = 0.99*min(ndx)/cs;
 m = mhe(1);
-
+nmax = 100;
+nu = 1.0;
+save_iter = 0;
