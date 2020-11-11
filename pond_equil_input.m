@@ -7,13 +7,6 @@
 % rlbarnett 201111
 %------------------------------------------------------------------------%
 
-% ------------------------------------------------------------------- %
-% LAPD parameter file for wave solver 
-% 250219 rlbarnett, c3149416
-% Updated to reflect LAPD RF experimental campaign data 050919
-% Updated for cpc manuscript 201021
-% ------------------------------------------------------------------- %
-
 %--
 % Import physical constants.
 const = constants();
@@ -28,6 +21,12 @@ c0 = const.c0;
 mu0 = const.mu0;
 
 %--
+% Load transport equilibrium file
+filepath = '/Volumes/DATA/LAPD/matlab/inputs/';
+load('equil_transport_input.mat','npts','nxax','n_new','vxax','vx_new',...
+    'cs','ndx','vdx');
+
+%--
 % Actual plasma column is ~ 18 (m). However, use reduced size as interest
 % is close to the antenna. 
 zmin = -4.0;
@@ -35,7 +34,6 @@ zmax = 4.0;
 
 %-- 
 % npts will be set with the transport equilibrium script.
-npts = 512;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts);
 
@@ -66,8 +64,8 @@ Ti = 0.5;
 v_th = sqrt((Te + Ti)*abs(e)/mhe(1));
 
 %--
-% Initial density, flat.
-n_init = 1.0e17*ones(1,npts);
+% Initial density.
+n_init = n_new;
 
 %--
 % Spatial electric field profile (gaussian)
@@ -80,7 +78,17 @@ E_0 = gauss_mult*exp(-(zax - E_loc).^2/(2.0*E_width^2));
 E_0 = E_0 / max(E_0);
 E_0 = E_0*E_mult;
 
+%--
+% Calculate equilibrium density profile for given E field
+n_final = pond_equil(E_0,n_init,om,v_th);
 
+%--
+% Assign transport parameters from equilibrium transport file to variables.
+LuBc = -cs;
+RuBC = cs;
 
-
+%--
+% 
+dt = 0.99*min(ndx)/cs;
+m = mhe(1);
 
