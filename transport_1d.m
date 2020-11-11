@@ -18,8 +18,9 @@
 % params_transport_wave_ACM;
 % transport_vardx;
 % transport_test;
-transport_mms;
+% transport_mms;
 % lapd_equib;
+pond_equil_input;
 
 % initialise velocity and density 
 vx = vx_init;
@@ -57,21 +58,21 @@ n_rdirichlet = 0;
 n_rneumann = 0;
 n_lneumann = 0;
 n_periodic = 0;
-MMS = 1;
-momentum = 1;
-continuity = 1;
+MMS = 0;
+momentum = 0;
+continuity = 0;
 central = 1;
 upwind = 0;
 unstable = 0;
-plots = 0;
+plots = 1;
 sparsefill = 1;
 sfile = 0;
 couple = 0;
 
 
-rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n(npts-2), n(npts-1)],...
             nxax(npts),'linear','extrap');
-lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+lGhost = interp1([nxax(2), nxax(3)], [n(2), n(3)],...
             nxax(1),'linear','extrap');
 lvBC_val = LuBC;
 rvBC_val = RuBC;
@@ -82,8 +83,8 @@ rvBC_val = RuBC;
 %--------------------------------------------------------------------------------------------------------------%
 
 if ~MMS && staggered
-    vx_source = pressure_source_stag(n_new,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,1,{1,zax});
+    vx_source = pressure_source_stag(n_init,const.e,Te,Ti,const.mp,npts,ndx);
+    [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),E_0},m_s,q_s,'',om,dz,0,{0,''});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -102,7 +103,7 @@ if plots
     figure(1)
     set(gcf,'Position',[563 925 560 420])
     % semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
-    plot(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
+    plot(nxax(2:npts-1),n_init(2:npts-1),'DisplayName',['time = 0s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('Density (m^{-3})','Fontsize',16)
     legend('show','Location','west')
@@ -112,7 +113,7 @@ if plots
     figure(2)
     set(gcf,'Position',[7 925 560 420])
     if ~MMS
-        plot(vxax,vx_new/cs,'DisplayName',['time = 0s'])
+        plot(vxax,vx_init/cs,'DisplayName',['time = 0s'])
     elseif MMS
         plot(vxax,vx_new,'DisplayName',['time = 0s'])
     end
@@ -151,25 +152,6 @@ if plots
         ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
         legend('show','Location','northwest')
         hold on
-
-        figure(6)
-        subplot(2,1,1)
-        plot(zax,real(rf_ez),'k','DisplayName',['Re[E_{||}], time = 0s'])
-        set(gca, 'XTickLabel', [])
-        ylabel('E_{||} (Vm^{-1})','Fontsize',16)
-        hold on
-        plot(zax,imag(rf_ez),'--r','DisplayName',['Im[E_{||}], time = 0s'])
-        set(gca, 'XTickLabel', [])
-        legend('show','Location','northwest')
-        set(gca,'Fontsize',30)
-        hold on
-        subplot(2,1,2)
-        plot(zax,abs(rf_ez).^2,'DisplayName',['time = 0s'])
-        xlabel('Position (m)','Fontsize',16)
-        ylabel('|E_{||}|^2 (V^2m^{-2})','Fontsize',16)
-        legend('show','Location','northwest')
-        set(gca,'Fontsize',30)
-        hold on
     end
 end
     
@@ -181,13 +163,14 @@ end
 vx_rms = zeros(1,nmax);
 n_rms = zeros(1,nmax);
 
+vx_I = sparse(eye(npts-1,npts-1));
+nI = sparse(eye(npts,npts));
+
 if ~sparsefill
     nA = sparse(npts,npts);
-    nI = sparse(eye(npts,npts));
     vx_pos = sparse(npts-1,npts-1);
     vx_neg = sparse(npts-1,npts-1);
-    vx_diff = sparse(npts-1,npts-1);
-    vx_I = sparse(eye(npts-1,npts-1));
+    vx_diff = sparse(npts-1,npts-1); 
 end
 
 for ii=1:nmax
@@ -202,17 +185,6 @@ for ii=1:nmax
             vx_new = ex_solu;
         end
     end
-    
-    %--
-    % Set the vectors with the old value going into the next loop
-    vx = vx_new;
-    
-    %--
-    % Interpolate the density to the ghost cells
-    rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
-        nxax(npts),'linear','extrap');   
-    lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
-        nxax(1),'linear','extrap');
     
     %--
     % Switch to couple to the wave solver 
@@ -404,7 +376,14 @@ for ii=1:nmax
         % velocity calculations. 
         n_tol = n;
         n = n_new;
-    %--
+        
+        %--
+        % Interpolate the density to the ghost cells
+        rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n_new(npts-2), n_new(npts-1)],...
+            nxax(npts),'linear','extrap');   
+        lGhost = interp1([nxax(2), nxax(3)], [n_new(2), n_new(3)],...
+            nxax(1),'linear','extrap');
+
     % Start filling the density coefficient matrix for a co-located grid.
     % -------------------------------------------------------------------%
     %                                                                    %
@@ -626,7 +605,7 @@ for ii=1:nmax
             
             %--
             % Calculate the ponderomotive source term.
-            [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,zax});
+            [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),E_0},m_s,q_s,'',om,dz,0,{0,''});
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
             pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -676,6 +655,7 @@ for ii=1:nmax
         % Transpose solution vector so that it is the correct shape for the
         % next loop.
         vx_new = vx_new';
+        vx = vx_new;
         
         %--
         % MMS steady state check for convergence. 
