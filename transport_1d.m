@@ -44,7 +44,7 @@ n = n_init;
 % momentum = NaN;
 % continuity = NaN;
 
-filepath = '/home/c3149416/coupled_results/';
+filepath = '/Volumes/DATA/publications/2020-cpc/data/';
 
 staggered = 1;
 collocated = 0;
@@ -66,8 +66,9 @@ upwind = 0;
 unstable = 0;
 plots = 1;
 sparsefill = 1;
-sfile = 0;
+sfile = 1;
 couple = 0;
+test = 1;
 
 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n(npts-2), n(npts-1)],...
@@ -173,7 +174,9 @@ if ~sparsefill
     vx_diff = sparse(npts-1,npts-1); 
 end
 
-for ii=1:nmax
+tic
+
+for ii=962956:nmax
     
     %--
     % Set exact density and velocity solutions for time dependent
@@ -605,7 +608,14 @@ for ii=1:nmax
             
             %--
             % Calculate the ponderomotive source term.
-            [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),E_0},m_s,q_s,'',om,dz,0,{0,''});
+            if test && ii<=1000
+                source_ramp = 1.0/(1001-ii);
+                [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),...
+                    E_0*source_ramp},m_s,q_s,'',om,dz,0,{0,''});
+            else
+                [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),...
+                    E_0},m_s,q_s,'',om,dz,0,{0,''});
+            end
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
             pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -655,7 +665,7 @@ for ii=1:nmax
         % Transpose solution vector so that it is the correct shape for the
         % next loop.
         vx_new = vx_new';
-        vx = vx_new;
+        
         
         %--
         % MMS steady state check for convergence. 
@@ -673,10 +683,19 @@ for ii=1:nmax
             elseif mod(ii,round(nmax/10))==0 || ii==nmax
                 fprintf('velocity rms error = %d\n', rms(vx - vx_new))
                 fprintf('density rms error = %d\n', rms(n_tol - n_new))
-            else
             end
         end
+        
+        vx = vx_new;
+        
     end
+    
+%     if test && ii > 3000
+%         if rms(vx_new - vx)<=1.0e-6 && rms(n_new - n_tol)<=1.0e-6
+%             fprintf('tolerance reached, ii=%d\n',ii)
+%             return
+%         end
+%     end
     
     %--
     % Check for NaNs in the velocity array (can be density, whichever) and
@@ -769,30 +788,34 @@ for ii=1:nmax
         transport.Ti = Ti;
         transport.npts = npts;
         transport.tmax = tmax;
-        transport.xmin = xmin;
-        transport.xmax = xmax;
+        transport.xmin = zmin;
+        transport.xmax = zmax;
         transport.nu = nu;
         transport.freq = freq;
-        transport.period = period;
-        transport.B0 = B0;
-        transport.rf_ex = rf_ex;
-	    transport.rf_ey = rf_ey;
-	    transport.rf_ez = rf_ez;
+%         transport.period = period;
+%         transport.B0 = B0;
+        transport.E_0 = E_0;
+%        transport.rf_ex = rf_ex;
+% 	    transport.rf_ey = rf_ey;
+% 	    transport.rf_ez = rf_ez;
 	    transport.zax = zax;
-        transport.source = source;
-        transport.kx = kx;
-        transport.ky = ky;
+%         transport.source = source;
+%         transport.kx = kx;
+%         transport.ky = ky;
         transport.pond = pf;
         transport.pond_summed = pf_source;
-        transport.poyn = poyn;
+%         transport.poyn = poyn;
         
-        filename = strcat(filepath,'coupled_',num2str(ii),'_',num2str(source_mult),'_',...
-            num2str(kx(1)),'_',num2str(Nmax),'.mat');
+%         filename = strcat(filepath,'coupled_',num2str(ii),'_',num2str(source_mult),'_',...
+%             num2str(kx(1)),'_',num2str(Nmax),'.mat');
+        filename = strcat(filepath,'coupled_',num2str(ii),'.mat');
         save(filename,'-struct','transport');
         
         continue
     end    
 end
+
+toc
 
 if MMS
     l_infn = norm(ex_soln - n_new, Inf);
