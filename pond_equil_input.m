@@ -22,9 +22,9 @@ mu0 = const.mu0;
 
 %--
 % Load transport equilibrium file
-filepath = '/Volumes/DATA/LAPD/matlab/inputs/';
-load('equil_transport_input.mat','npts','nxax','vxax',...
-    'cs','ndx','vdx');
+filepath = '/Volumes/DATA/publications/2020-cpc/data/';
+load(strcat(filepath,'coupled_962955.mat'),'npts','nxax','vxax',...
+    'cs','ndx','vdx','n_new','vx_new','n_source');
 
 %--
 % Actual plasma column is ~ 18 (m). However, use reduced size as interest
@@ -63,18 +63,18 @@ q_s = [e; q];
 % Thermal velocity 
 Te = 5.0;
 Ti = 0.5;
-v_th = sqrt((Te + Ti)*abs(e)/mhe(1));
+v_th = sqrt((Te + Ti)*abs(e)/me(1));
 
 %--
 % Initial density.
-n_init = 1.0e17*ones(1,npts);
-n_source = zeros(1,npts);
+n_init = n_new;
+n_init_uni = interp1(nxax,n_init,zax,'linear');
 
 %--
 % Spatial electric field profile (gaussian)
 E_width = (0.5)/(2.*sqrt(2.*log(2.)));
 E_loc = 0.0;
-E_mult = 5.0e10;
+E_mult = 2.0e2;
 
 gauss_mult = 1.0/(E_width*sqrt(2.0*pi));
 E_0 = gauss_mult*exp(-(zax - E_loc).^2/(2.0*E_width^2));
@@ -83,21 +83,19 @@ E_0 = E_0*E_mult;
 
 %--
 % Calculate equilibrium density profile for given E field
-n_final = pond_equil(E_0,n_init,om,v_th);
+n_final = pond_equil(E_0,n_init_uni,om,v_th);
 
 %--
 % Assign transport parameters from equilibrium transport file to variables.
-vx_init = zeros(1,npts-1);
-LuBC = 0.0;
-RuBC = 0.0;
-
-n_init = interp1(zax,n_init,nxax,'linear');
-% vx_init = interp1(zax,vx_init,vxax,'linear');
+vx_init = vx_new;
+LuBC = -cs;
+RuBC = cs;
 
 %--
 % 
 dt = 0.99*min(ndx)/cs;
 m = mhe(1);
-nmax = 100;
+tmax = 6.0e-4;
+nmax = round(tmax/dt);
 nu = 1.0;
-save_iter = 0;
+save_iter = round(nmax/10);
