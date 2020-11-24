@@ -23,7 +23,7 @@ mu0 = const.mu0;
 %--
 % Load transport equilibrium file
 filepath = '/Volumes/DATA/publications/2020-cpc/data/';
-load(strcat(filepath,'coupled_962955.mat'),'npts','nxax','vxax',...
+load(strcat(filepath,'coupled_1444428.mat'),'npts','nxax','vxax',...
     'cs','ndx','vdx','n_new','vx_new','n_source');
 
 %--
@@ -95,7 +95,7 @@ RuBC = cs;
 % 
 dt = 0.99*min(ndx)/cs;
 m = mhe(1);
-tmax = 6.0e-4;
+tmax = 1.0e-3;
 nmax = round(tmax/dt);
 nu = 1.0;
 save_iter = round(nmax/10);
