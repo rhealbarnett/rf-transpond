@@ -176,7 +176,7 @@ end
 
 tic
 
-for ii=962956:nmax
+for ii=1444429:nmax
     
     %--
     % Set exact density and velocity solutions for time dependent
