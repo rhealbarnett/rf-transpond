@@ -9,7 +9,6 @@ const = constants();
 
 mp = const.mp;
 me = const.me;
-amu = const.amu;
 e = -const.e;
 q = const.e;
 eps0 = const.eps0;
@@ -30,9 +29,9 @@ om = freq*2.0*pi;
 
 %-- 
 % Set some domain size and length
-zmin = -10.;
-zmax = 10.0;
-npts = 2048;
+zmin = -4.;
+zmax = 4.0;
+npts = 1024;
 zax = linspace(zmin,zmax,npts);
 dz = (zmax - zmin) / (npts-1);
 
@@ -49,25 +48,15 @@ m_s = [me; mhe];
 %--
 % Scan over density values.
 Nmax = 1.0e20;
-Nmin = 1.0e18;
+Nmin = 1.0e19;
 n_new = logspace(log10(Nmin),log10(Nmax),npts);
-% n_new = 1.0e20*ones(1,npts);
 
 %--
 % Calculate free space wavenumber and set perpendicular (or parallel) 
 % wave number. 
 k0 = om/c0;
-% k_perp = 20.0;
-% n_perp = k_perp*c0/om;
-% n_para = linspace(0,800,800);
-% k_para = om*n_para/c0;
-% k_perp = 17;
-% n_perp = k_perp*c0/om;
-% k_para = 5.0;
-% n_para = k_para*c0/om;
 kx = 20.;
 ky = 0.;
-% kz = k_para;
 
 k_perp = sqrt(kx.^2 + ky.^2); 
 n_refrac = c0*k_perp./om;
