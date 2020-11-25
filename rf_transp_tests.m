@@ -10,8 +10,7 @@ function [] = mms_ss_test(testCase)
         '\n Running steady state transport MMS\n',...
         '=======================================\n'])
 
-    [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
-    oo_inf_arr,oo_two_arr,arr] = run_mms(1,0,1,0);
+    [~,ltwo_arr,~,~,~,~,arr] = run_mms(1,0,1,0);
 
     p = polyfit(log10(arr),log10(ltwo_arr(1,:)),1);
 
@@ -29,8 +28,7 @@ function [] = mms_td_test(testCase)
         '\n Running time dependent transport MMS\n',...
         '=======================================\n'])
 
-    [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
-    oo_inf_arr,oo_two_arr,arr] = run_mms(0,1,1,0);
+    [~,ltwo_arr,~,~,~,~,arr] = run_mms(0,1,1,0);
 
     p = polyfit(log10(arr),log10(ltwo_arr(1,:)),1);
 
@@ -43,35 +41,19 @@ end
 
 function[] = dispersion_test(testCase)
 
+    fprintf(['\n=======================================',...
+        '\n Running wave solver dispersion verification\n',...
+        '=======================================\n'])
+
     wave_verification;
     
-    [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{0,''});
+    [~,~,~,s_arr,d_arr,p_arr,~] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{0,damp_len});
     kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,1,0,ky);
     
     expkz = real(kz_dispersion(1,:));
    
-    kz_spec_density = zeros(npts,npts);
-
-    count = 1;
-
-    for ii=1:npts
-
-        density = n_new(1,ii)*ones(1,npts);
-
-        [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,density,m_s,om,eps0,npts,{1,damp_len});
-        [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
-        om,mu0,cpdt,source,0,1,1,0);
-
-        [kz_spec, k_ax, phase, dk] = fft_kz(dz,npts,rf_ex,rf_ey,rf_ez,0);
-
-        kz_spec_density(count,:) = kz_spec(:,3);
-        
-        ind_kz = find(kz_spec(1:npts/2,2)==max(kz_spec(1:npts/2,2)));
-        actkz(1,count) = k_ax(ind_kz);
-
-        count = count + 1;
-
-    end
+    [actkz, dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,zax,ky,kx,k0,B0,...
+                                source,expkz,1);
     
     verifyEqual(testCase,actkz,expkz,'RelTol',dk)
 
