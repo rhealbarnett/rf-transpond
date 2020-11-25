@@ -133,4 +133,6 @@ vx_neg = sparse(npts-1,npts-1);
 vx_diff = sparse(npts-1,npts-1);
 vx_I = sparse(eye(npts-1,npts-1));
 
-Efield = zeros(1,npts-1);
+rf_ex = zeros(1,npts-1);
+rf_ey = zeros(1,npts-1);
+rf_ez = zeros(1,npts-1);
