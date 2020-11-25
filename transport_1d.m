@@ -85,7 +85,7 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = pressure_source_stag(n_init,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),E_0},m_s,q_s,'',om,dz,0,{0,''});
+    [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -610,11 +610,10 @@ for ii=1:nmax
             % Calculate the ponderomotive source term.
             if test && ii<=1000
                 source_ramp = 1.0/(1001-ii);
-                [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),...
-                    E_0*source_ramp},m_s,q_s,'',om,dz,0,{0,''});
+                [Ediff, pf] = pond_source({'para',0},{rf_ex*source_ramp,...
+                    rf_ey*source_ramp,rf_ez*source_ramp},m_s,q_s,'',om,dz,0,{0,''});
             else
-                [Ediff, pf] = pond_source({'para',0},{zeros(1,npts),zeros(1,npts),...
-                    E_0},m_s,q_s,'',om,dz,0,{0,''});
+                [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
             end
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
