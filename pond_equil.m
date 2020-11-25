@@ -9,9 +9,9 @@
 %
 %
 
-function n_final = pond_equil(E,n_init,omega,v_thermal)
+function n_final = pond_equil(E,n_init,omega,v_thermal,q,m)
 
-    shape = E./omega;
+    shape = (q/m)*(E)./omega/(2.0*pi);
     n_final = n_init.*exp(-(1./2.)*(shape./v_thermal).^2);
 
 end
