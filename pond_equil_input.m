@@ -99,3 +99,9 @@ tmax = 2.0e-3;
 nmax = round(tmax/dt);
 nu = 1.0;
 save_iter = round(nmax/10);
+
+%--
+%
+rf_ex = zeros(1,npts-1);
+rf_ey = zeros(1,npts-1);
+rf_ez = E_0;
