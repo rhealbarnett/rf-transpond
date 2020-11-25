@@ -3,7 +3,7 @@
 % parameters. 
 %-----------------------------------------%
 
-lapd_params;
+wave_verification;
 [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{1,damp_len});
 % kz_dispersion_left = dispersion(1,s_arr(1),d_arr(1),p_arr(1),...
 %         om,n_refrac,n_new(1),1,0);
