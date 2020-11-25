@@ -1,14 +1,14 @@
 
 function [kz_spec, k_ax, phase, dk] = fft_kz(dx,npts,rf_ex,rf_ey,rf_ez,plots)
 
-    dk = 1.0/((npts-1)*dx);
+    dk = (2.0*pi)*1.0/((npts-1)*dx);
     knyq = 1.0/(2.0*dx);
     k_np = (npts/2);
     k_ax = zeros(1,k_np);
 
     for ii=1:k_np
 
-        k_ax(1,ii) = dk*(ii-1)*2.0*pi;
+        k_ax(1,ii) = dk*(ii-1);
 
     end
 
