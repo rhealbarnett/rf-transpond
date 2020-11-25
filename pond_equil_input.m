@@ -19,16 +19,16 @@ q = const.e;
 eps0 = const.eps0;
 c0 = const.c0;
 mu0 = const.mu0;
+kb = const.kb;
 
 %--
 % Load transport equilibrium file
-filepath = '/Volumes/DATA/publications/2020-cpc/data/';
-load(strcat(filepath,'coupled_1444428.mat'),'npts','nxax','vxax',...
+filepath = '/Volumes/DATA/LAPD/matlab/inputs/';
+load(strcat(filepath,'equil_transport_input.mat'),'npts','nxax','vxax',...
     'cs','ndx','vdx','n_new','vx_new','n_source');
 
 %--
-% Actual plasma column is ~ 18 (m). However, use reduced size as interest
-% is close to the antenna. 
+% Set domain limits.
 zmin = -4.0;
 zmax = 4.0;
 
@@ -63,7 +63,7 @@ q_s = [e; q];
 % Thermal velocity 
 Te = 5.0;
 Ti = 0.5;
-v_th = sqrt((Te + Ti)*abs(e)/me(1));
+v_th = sqrt((Te + Ti)*abs(e)/(me(1)));
 
 %--
 % Initial density.
@@ -83,7 +83,7 @@ E_0 = E_0*E_mult;
 
 %--
 % Calculate equilibrium density profile for given E field
-n_final = pond_equil(E_0,n_init_uni,om,v_th);
+n_final = pond_equil(E_0,n_init_uni,om,v_th,abs(e),(me(1)));
 
 %--
 % Assign transport parameters from equilibrium transport file to variables.
@@ -95,7 +95,7 @@ RuBC = cs;
 % 
 dt = 0.99*min(ndx)/cs;
 m = mhe(1);
-tmax = 1.0e-3;
+tmax = 2.0e-3;
 nmax = round(tmax/dt);
 nu = 1.0;
 save_iter = round(nmax/10);
