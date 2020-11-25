@@ -18,9 +18,9 @@
 % params_transport_wave_ACM;
 % transport_vardx;
 % transport_test;
-% transport_mms;
+transport_mms;
 % lapd_equib;
-pond_equil_input;
+% pond_equil_input;
 
 % initialise velocity and density 
 vx = vx_init;
@@ -58,15 +58,15 @@ n_rdirichlet = 0;
 n_rneumann = 0;
 n_lneumann = 0;
 n_periodic = 0;
-MMS = 0;
-momentum = 0;
-continuity = 0;
+MMS = 1;
+momentum = 1;
+continuity = 1;
 central = 1;
 upwind = 0;
 unstable = 0;
-plots = 1;
+plots = 0;
 sparsefill = 1;
-sfile = 1;
+sfile = 0;
 couple = 0;
 test = 1;
 
@@ -176,7 +176,7 @@ end
 
 tic
 
-for ii=1444429:nmax
+for ii=1:nmax
     
     %--
     % Set exact density and velocity solutions for time dependent
@@ -688,13 +688,15 @@ for ii=1444429:nmax
         
         vx = vx_new;
         
+        if rms(vx_new - vx)/rms(vx)<=1.0e-8 && rms(n_new - n_tol)/rms(n_tol)<=1.0e-8
+            fprintf('tolerance reached, ii=%d\n',ii)
+            return
+        end
+        
     end
     
 %     if test && ii > 3000
-%         if rms(vx_new - vx)<=1.0e-6 && rms(n_new - n_tol)<=1.0e-6
-%             fprintf('tolerance reached, ii=%d\n',ii)
-%             return
-%         end
+    
 %     end
     
     %--
@@ -816,12 +818,4 @@ for ii=1444429:nmax
 end
 
 toc
-
-if MMS
-    l_infn = norm(ex_soln - n_new, Inf);
-    l_twon = rms(ex_soln - n_new);
-    l_infu = norm(ex_solu - vx_new, Inf);
-    l_twou = rms(ex_solu - vx_new);
-end
-
 
