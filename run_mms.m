@@ -73,6 +73,11 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             dt = dt/2.0;
 
         end
+        
+        l_infn = norm(ex_soln - n_new, Inf);
+        l_twon = rms(ex_soln - n_new);
+        l_infu = norm(ex_solu - vx_new, Inf);
+        l_twou = rms(ex_solu - vx_new);
 
         ltwon_arr(1,kk) = l_twon;
         linfn_arr(1,kk) = l_infn;
