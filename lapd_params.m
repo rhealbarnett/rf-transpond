@@ -42,7 +42,7 @@ dz = (zmax - zmin) / (npts-1);
 % Driving frequency of the single strap, high power antenna (Hz)
 % Driven at 2.38MHz, but FFT of experimental data shows it is closer to
 % ~2.52MHz. 
-freq = 2.52e6;
+freq = 2.38e6;
 om = freq*2.0*pi;
 
 %--
@@ -80,7 +80,7 @@ source_loc = 0;
 
 %--
 % Scaling for the current source calculated from experimental data.
-source_mult = 0.7e5;
+source_mult = 1.0e5;
 
 %--
 % Calculate Gaussian source term.
