@@ -105,3 +105,12 @@ save_iter = round(nmax/10);
 rf_ex = zeros(1,npts-1);
 rf_ey = zeros(1,npts-1);
 rf_ez = E_0;
+
+%--
+% set seitches for PF equilibrium tests.
+MMS = 0;
+momentum = 0;
+continuity = 0;
+sfile = 0;
+couple = 0;
+test = 1;
