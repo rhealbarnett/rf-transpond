@@ -21,8 +21,6 @@ function kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,par
 
     if ~para
 
-        syms kperp
-        
         kz = n_refrac*om./c0;
 
         for ii=1:length(n_refrac)
@@ -233,8 +231,6 @@ function kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,par
         end
 
     elseif para
-
-        syms kpara
         
         kpara11 = zeros(npts,length(n_refrac));
         kpara12 = zeros(npts,length(n_refrac));
