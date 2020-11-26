@@ -14,8 +14,6 @@
 %--------------------------------------------------------------------------------------------------------------%
 %%
 
-filepath = '/Volumes/DATA/LAPD/matlab/';
-
 % initialise velocity and density 
 vx = vx_init;
 n = n_init;
