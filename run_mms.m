@@ -52,7 +52,8 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
 
             fprintf('Minimum dx %d\n', min(ndx))
             fprintf('Maximum dx %d\n', max(ndx))
-
+            
+            transport_mms;
             transport_1d
 
             npts_arr(1,kk) = npts;
@@ -67,6 +68,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             fprintf('Time step %d\n', dt)
             fprintf('nmax, tmax %d, %d\n', [nmax tmax])
 
+            transport_mms;
             transport_1d
 
             dt_arr(1,kk) = dt;
