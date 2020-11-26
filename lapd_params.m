@@ -93,6 +93,15 @@ source = source*source_mult;
 % Number of points to include in absorbing boundary region.
 damp_len = 0.2;
 
+%--
+% Set transport switches
+MMS = 0;
+momentum = 0;
+continuity = 0;
+sfile = 0;
+couple = 1;
+test = 0;
+
 
 
 
