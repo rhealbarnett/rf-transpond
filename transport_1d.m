@@ -44,7 +44,7 @@ rvBC_val = RuBC;
 
 if ~MMS && staggered
     vx_source = pressure_source_stag(n_init,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
+    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -555,7 +555,7 @@ for ii=1:nmax
                 [Ediff, pf] = pond_source({'para',0},{rf_ex*source_ramp,...
                     rf_ey*source_ramp,rf_ez*source_ramp},m_s,q_s,'',om,dz,0,{0,''});
             else
-                [Ediff, pf] = pond_source({'para',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
+                [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
             end
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
@@ -615,11 +615,6 @@ for ii=1:nmax
                 fprintf('tolerance reached, ii=%d\n',ii)
                 fprintf('velocity rms error = %d\n', rms(vx - vx_new))
                 fprintf('density rms error = %d\n', rms(n_tol - n_new))
-
-                l_infu = norm(ex_solu - vx_new, Inf);
-                l_twou = rms(ex_solu - vx_new);
-                l_infn = norm(ex_soln - n_new, Inf);
-                l_twon = rms(ex_soln - n_new);
                 return
             elseif mod(ii,round(nmax/10))==0 || ii==nmax
                 fprintf('velocity rms error = %d\n', rms(vx - vx_new))
@@ -629,7 +624,7 @@ for ii=1:nmax
         
         vx = vx_new;
         
-        if rms(vx_new - vx)/rms(vx)<=1.0e-8 && rms(n_new - n_tol)/rms(n_tol)<=1.0e-8
+        if test && rms(vx_new - vx)/rms(vx)<=1.0e-8 && rms(n_new - n_tol)/rms(n_tol)<=1.0e-8
             fprintf('tolerance reached, ii=%d\n',ii)
             return
         end
