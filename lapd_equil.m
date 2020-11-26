@@ -46,7 +46,7 @@ dt = 0.99*min(ndx)/cs;
 % Calculate RF period from frequency, set max time based on
 % number of periods, number of iterations nmax.
 period = 1.0/freq;
-tmax = 10*period;
+tmax = 5*period;
 nmax = round(tmax/dt);
 
 %--
