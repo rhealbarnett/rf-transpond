@@ -59,7 +59,7 @@ end
 
 if plots
     figure(1)
-    set(gcf,'Position',[563 925 560 420])
+    set(gcf,'Position',[563 925 560 420],'visible','off')
     plot(nxax(2:npts-1),n_init(2:npts-1),'DisplayName',['time = 0s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('Density (m^{-3})','Fontsize',16)
@@ -68,7 +68,7 @@ if plots
     hold on
 
     figure(2)
-    set(gcf,'Position',[7 925 560 420])
+    set(gcf,'Position',[7 925 560 420],'visible','off')
     if ~MMS
         plot(vxax,vx_init/cs,'DisplayName',['time = 0s'])
     elseif MMS
@@ -81,7 +81,7 @@ if plots
     hold on
 
     figure(3)
-    set(gcf,'Position',[3 476 560 420])
+    set(gcf,'Position',[3 476 560 420],'visible','off')
     plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = 0s'])
     if MMS
         hold on
@@ -94,7 +94,7 @@ if plots
     hold on
 
     figure(4)
-    set(gcf,'Position',[563 476 560 420])
+    set(gcf,'Position',[563 476 560 420],'visible','off')
     plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('Density source (m^{-3})','Fontsize',16)
@@ -104,6 +104,7 @@ if plots
 
     if ~MMS
         figure(5)
+        set(gcf,,'visible','off')
         plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
@@ -647,7 +648,7 @@ for ii=1:nmax
         %--
         % Plot density (include exact solution for MMS)
         figure(1)
-        set(gcf,'Position',[563 925 560 420])
+        set(gcf,'Position',[563 925 560 420],'visible','off')
         plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlim([min(nxax+ndx(1)) max(nxax-ndx(end))])
         hold on
@@ -658,7 +659,7 @@ for ii=1:nmax
         %--
         % Plot mach number (include exact solution for MMS)
         figure(2)
-        set(gcf,'Position',[7 925 560 420])
+        set(gcf,'Position',[7 925 560 420],'visible','off')
         plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         if MMS
             plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
@@ -670,7 +671,7 @@ for ii=1:nmax
         %--
         % Plot the velocity source (grad-p only).
         figure(3)
-        set(gcf,'Position',[3 476 560 420])
+        set(gcf,'Position',[3 476 560 420],'visible','off')
         plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         if MMS
             hold on
@@ -682,7 +683,7 @@ for ii=1:nmax
         %--
         % Plot the density source (should remain constant over each loop).
         figure(4)
-        set(gcf,'Position',[563 476 560 420])
+        set(gcf,'Position',[563 476 560 420],'visible','off')
         plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('Density source ms^{-1}','Fontsize',16)
@@ -694,6 +695,7 @@ for ii=1:nmax
             %-- 
             % Plot ponderomotive source term.
             figure(5)
+            set(gcf,,'visible','off')
             plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             xlabel('Position (m)','Fontsize',16)
             ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
