@@ -17,7 +17,8 @@ function [actkz,dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,zax,ky,kx,k0,B0
 
         density = n_new(1,ii)*ones(1,npts);
 
-        [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,density,m_s,om,eps0,npts,{1,damp_len});
+        [om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,density,m_s,om,...
+            eps0,npts,{1,damp_len,dampFac});
         [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
         om,mu0,cpdt,source,0,1,1,0);
 

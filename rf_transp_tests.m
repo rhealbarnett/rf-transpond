@@ -47,7 +47,8 @@ function[] = dispersion_test(testCase)
 
     wave_verification;
     
-    [~,~,~,s_arr,d_arr,p_arr,~] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{0,damp_len});
+    [~,~,~,s_arr,d_arr,p_arr,~] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,...
+        npts,{0,damp_len,dampFac});
     kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,1,0,ky);
     
     expkz = real(kz_dispersion(1,:));

@@ -7,11 +7,11 @@
 %--
 % Load transport equilibrium file
 filepath = '/Volumes/DATA/LAPD/matlab/';
-load('inputs/equil_transport_input.mat');
+load(strcat(filepath,'inputs/equil_transport_input.mat'));
 
 %--
 % Scale density and density source to desired max density.
-Nmax = 1.0e19;
+Nmax = 1.0e17;
 fact = Nmax/max(n_new);
 n_new = n_new*fact;
 n_source = n_source*fact;
@@ -63,7 +63,8 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 
 %--
 % Calculate dielectric tensor
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,{1,damp_len});
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,...
+    npts,{1,damp_len,dampFac});
 
 %--
 % Calculate initial RF wave fields
