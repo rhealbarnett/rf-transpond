@@ -4,6 +4,27 @@ function tests = rf_transp_tests
 
 end
 
+function[] = dispersion_test(testCase)
+
+    fprintf(['\n=======================================',...
+        '\n Running wave solver dispersion verification\n',...
+        '=======================================\n'])
+
+    wave_verification;
+    
+    [~,~,~,s_arr,d_arr,p_arr,~] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,...
+        npts,{0,damp_len,dampFac});
+    kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,1,0,ky);
+    
+    expkz = real(kz_dispersion(1,:));
+   
+    [actkz, dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,kx,k0,B0,...
+                                source,expkz,1);
+    
+    verifyEqual(testCase,actkz,expkz,'RelTol',dk)
+
+end
+
 function [] = mms_ss_test(testCase)
 
     fprintf(['=======================================',...
@@ -36,26 +57,5 @@ function [] = mms_td_test(testCase)
     actSlope = p(1);
     
     verifyEqual(testCase,actSlope,expSlope,'RelTol',1e-1)
-
-end
-
-function[] = dispersion_test(testCase)
-
-    fprintf(['\n=======================================',...
-        '\n Running wave solver dispersion verification\n',...
-        '=======================================\n'])
-
-    wave_verification;
-    
-    [~,~,~,s_arr,d_arr,p_arr,~] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,...
-        npts,{0,damp_len,dampFac});
-    kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,1,0,ky);
-    
-    expkz = real(kz_dispersion(1,:));
-   
-    [actkz, dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,kx,k0,B0,...
-                                source,expkz,1);
-    
-    verifyEqual(testCase,actkz,expkz,'RelTol',dk)
 
 end
