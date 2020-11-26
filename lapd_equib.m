@@ -82,47 +82,49 @@ pf_inter2 = squeeze(sum(pf_inter,2))';
 pf_source = interp1(zax,pf_inter2,vxax,'linear');
 pf_source(1,1) = 0.0; pf_source(1,end) = 0.0;
 
-%%
-
-transport.dt = dt;
-transport.n_source = n_source;
-transport.vx_new = vx_new;
-transport.n_new = n_new; 
-transport.cs = cs;
-transport.vxax = vxax;
-transport.nxax = nxax;
-transport.vdx = vdx;
-transport.ndx = ndx;
-transport.Te = Te;
-transport.Ti = Ti;
-transport.npts = npts;
-transport.tmax = tmax;
-transport.zmin = xmin;
-transport.zmax = xmax;
-transport.nu = nu;
-transport.freq = freq;
-transport.period = period;
-transport.B0 = B0;
-transport.rf_ez = rf_ez;
-transport.rf_ey = rf_ey;
-transport.rf_ex = rf_ex;
-transport.zax = zax;
-transport.source = source;
-transport.kx = kx;
-transport.ky = ky;
-transport.Ediff = Ediff;
-transport.pond = pf;
-transport.pond_summed = pf_source;
-transport.poyn = poyn;
-
-[status,git_hash] = system('git rev-parse HEAD');
-s1 = '# Created from matlab git hash ';
-s2 = git_hash;
-header = [s1 s2];
-
-transport.header = header;
+%--
+% Save struct.
 
 if sfile
+    
+    transport.dt = dt;
+    transport.n_source = n_source;
+    transport.vx_new = vx_new;
+    transport.n_new = n_new; 
+    transport.cs = cs;
+    transport.vxax = vxax;
+    transport.nxax = nxax;
+    transport.vdx = vdx;
+    transport.ndx = ndx;
+    transport.Te = Te;
+    transport.Ti = Ti;
+    transport.npts = npts;
+    transport.tmax = tmax;
+    transport.zmin = xmin;
+    transport.zmax = xmax;
+    transport.nu = nu;
+    transport.freq = freq;
+    transport.period = period;
+    transport.B0 = B0;
+    transport.rf_ez = rf_ez;
+    transport.rf_ey = rf_ey;
+    transport.rf_ex = rf_ex;
+    transport.zax = zax;
+    transport.source = source;
+    transport.kx = kx;
+    transport.ky = ky;
+    transport.Ediff = Ediff;
+    transport.pond = pf;
+    transport.pond_summed = pf_source;
+    transport.poyn = poyn;
+
+    [status,git_hash] = system('git rev-parse HEAD');
+    s1 = '# Created from matlab git hash ';
+    s2 = git_hash;
+    header = [s1 s2];
+
+    transport.header = header;
+
     filename = strcat(filepath,'outputs/coupled_results/coupled_transport_0.mat');
     save(filename,'-struct','transport');
 end
