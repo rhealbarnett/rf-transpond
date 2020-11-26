@@ -6,8 +6,8 @@
 
 %--
 % Load transport equilibrium file
-filepath = '/Volumes/DATA/LAPD/matlab/inputs/';
-load('equil_transport_input.mat');
+filepath = '/Volumes/DATA/LAPD/matlab/';
+load('inputs/equil_transport_input.mat');
 
 %--
 % Scale density and density source to desired max density.
@@ -46,7 +46,7 @@ dt = 0.99*min(ndx)/cs;
 % Calculate RF period from frequency, set max time based on
 % number of periods, number of iterations nmax.
 period = 1.0/freq;
-tmax = 100*period;
+tmax = 10*period;
 nmax = round(tmax/dt);
 
 %--
@@ -122,7 +122,7 @@ header = [s1 s2];
 
 transport.header = header;
 
-%         save('/Volumes/DATA/LAPD/matlab/coupled_transport.mat','-struct','transport');
-% filename = strcat('/home/c3149416/coupled_results/coupled_transport_0_',num2str(source_mult),'_',...
-%            num2str(kx(1)),'_',num2str(Nmax),'.mat');
-% save(filename,'-struct','transport');
+if sfile
+    filename = strcat(filepath,'outputs/coupled_results/coupled_transport_0.mat');
+    save(filename,'-struct','transport');
+end
