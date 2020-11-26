@@ -14,63 +14,24 @@
 %--------------------------------------------------------------------------------------------------------------%
 %%
 
-% import parameter file
-% params_transport_wave_ACM;
-% transport_vardx;
-% transport_test;
-transport_mms;
-% lapd_equib;
-% pond_equil_input;
+filepath = '/Volumes/DATA/LAPD/matlab/';
 
 % initialise velocity and density 
 vx = vx_init;
 n = n_init;
 
-% staggered = NaN;
-% collocated = NaN;
-% v_ldirichlet = NaN;
-% v_rdirichlet = NaN;
-% v_rneumann = NaN;
-% v_lneumann = NaN;
-% v_periodic = NaN;
-% n_ldirichlet = NaN;
-% n_rdirichlet = NaN;
-% n_rneumann = NaN;
-% n_lneumann = NaN;
-% n_periodic = NaN;
-% explicit = NaN;
-% implicit = NaN;
-% MMS = NaN;
-% momentum = NaN;
-% continuity = NaN;
-
-filepath = '/Volumes/DATA/publications/2020-cpc/data/';
-
+%--
+% Set 'default' switches.
+% sparsefill can be switched to 0, will be slower, but solves. 
+% all other switches need to remain as specified. 
 staggered = 1;
 collocated = 0;
-v_ldirichlet = 1;
-v_rdirichlet = 1;
-v_rneumann = 0;
-v_lneumann = 0;
-v_periodic = 0;
-n_ldirichlet = 0;
-n_rdirichlet = 0;
-n_rneumann = 0;
-n_lneumann = 0;
-n_periodic = 0;
-MMS = 1;
-momentum = 1;
-continuity = 1;
 central = 1;
-upwind = 0;
 unstable = 0;
-plots = 0;
 sparsefill = 1;
-sfile = 0;
-couple = 0;
-test = 1;
 
-
+%--
+% Set initial BCs. 
 rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n(npts-2), n(npts-1)],...
             nxax(npts),'linear','extrap');
 lGhost = interp1([nxax(2), nxax(3)], [n(2), n(3)],...
@@ -80,7 +41,7 @@ rvBC_val = RuBC;
 
 %%
 %--------------------------------------------------------------------------------------------------------------%
-% INITALISE PLOTS; INCLUDE INITIAL CONDITIONS
+% INITALISE PLOTS
 %--------------------------------------------------------------------------------------------------------------%
 
 if ~MMS && staggered
@@ -103,7 +64,6 @@ end
 if plots
     figure(1)
     set(gcf,'Position',[563 925 560 420])
-    % semilogy(nxax(2:npts-1),n_new(2:npts-1),'DisplayName',['time = 0s'])
     plot(nxax(2:npts-1),n_init(2:npts-1),'DisplayName',['time = 0s'])
     xlabel('Position (m)','Fontsize',16)
     ylabel('Density (m^{-3})','Fontsize',16)
@@ -351,28 +311,12 @@ for ii=1:nmax
             n_new = Anx\n_source';
         elseif (continuity && TD) || ~MMS
             n_new = An_exp*n' + dt*n_source';
-%         elseif ~MMS
-%             n_new = An_exp*n' + dt*n_source';
         end
         
         %--
         % Transpose solution vector so that it is the correct dimensions
         % for the next loop. 
         n_new = n_new';
-        
-%         if MMS && SS
-%             if rms(n - n_new)<=tol
-%                 fprintf('tolerance reached, ii=%d\n',ii)
-%                 fprintf('rms error = %d\n', rms(n - n_new))
-% 
-%                 l_infn = norm(ex_soln - n_new, Inf);
-%                 l_twon = rms(ex_soln - n_new);
-%                 return
-%             elseif mod(ii,round(nmax/10))==0 || ii==nmax
-%                 fprintf('density rms error = %d\n', rms(n - n_new))
-%             else
-%             end
-%         end
         
         %--
         % Save old value of n for rms calculations, set new value of n for
@@ -390,7 +334,7 @@ for ii=1:nmax
     % Start filling the density coefficient matrix for a co-located grid.
     % -------------------------------------------------------------------%
     %                                                                    %
-    %                   NEEDS UPDATING -- 201022 rlbarnett               %
+    %                   NOT TESTED -- 201022 rlbarnett                   %
     %                   Hasn't been used in a long while.                %
     %                                                                    %
     % -------------------------------------------------------------------%
@@ -694,10 +638,6 @@ for ii=1:nmax
         
     end
     
-%     if test && ii > 3000
-    
-%     end
-    
     %--
     % Check for NaNs in the velocity array (can be density, whichever) and
     % stop iterations if any exist.
@@ -793,23 +733,23 @@ for ii=1:nmax
         transport.xmax = zmax;
         transport.nu = nu;
         transport.freq = freq;
-%         transport.period = period;
-%         transport.B0 = B0;
         transport.E_0 = E_0;
-%        transport.rf_ex = rf_ex;
-% 	    transport.rf_ey = rf_ey;
-% 	    transport.rf_ez = rf_ez;
+        transport.rf_ex = rf_ex;
+	    transport.rf_ey = rf_ey;
+	    transport.rf_ez = rf_ez;
 	    transport.zax = zax;
-%         transport.source = source;
-%         transport.kx = kx;
-%         transport.ky = ky;
         transport.pond = pf;
         transport.pond_summed = pf_source;
-%         transport.poyn = poyn;
-        
-%         filename = strcat(filepath,'coupled_',num2str(ii),'_',num2str(source_mult),'_',...
-%             num2str(kx(1)),'_',num2str(Nmax),'.mat');
-        filename = strcat(filepath,'coupled_',num2str(ii),'.mat');
+        if ~test
+            transport.poyn = poyn;
+            transport.source = source;
+            transport.kx = kx;
+            transport.ky = ky;
+            transport.period = period;
+            transport.B0 = B0;
+        end
+
+        filename = strcat(filepath,'outputs/coupled_',num2str(ii),'.mat');
         save(filename,'-struct','transport');
         
         continue
