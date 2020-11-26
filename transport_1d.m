@@ -42,7 +42,8 @@ lGhost = interp1([nxax(2), nxax(3)], [n(2), n(3)],...
 
 if ~MMS && staggered
     vx_source = pressure_source_stag(n_init,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,''});
+    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,...
+        om,dz,1,{1,damp_len,zax});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -555,7 +556,8 @@ for ii=1:nmax
                 [Ediff, pf] = pond_source({'para',0},{rf_ex*source_ramp,...
                     rf_ey*source_ramp,rf_ez*source_ramp},m_s,q_s,'',om,dz,0,{0,''});
             else
-                [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,''});
+                [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,...
+                    om_c,om,dz,1,{1,damp_len,zax});
             end
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
@@ -644,64 +646,70 @@ for ii=1:nmax
 
     %--
     % Plot all fields if plot switch is on. 
-    if plots && (mod(ii,round(nmax/5))==0 || ii==nmax)
+    if (mod(ii,round(nmax/5))==0 || ii==nmax)
         
-        %--
-        % Plot density (include exact solution for MMS)
-        figure(1)
-        set(gcf,'Position',[563 925 560 420],'visible','off')
-        plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlim([min(nxax+ndx(1)) max(nxax-ndx(end))])
-        hold on
-        if MMS
-            plot(nxax,ex_soln,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
-        end
+        fprintf('At iteration %f of %f, time elapsed %f s.\n',ii,nmax,toc)
         
-        %--
-        % Plot mach number (include exact solution for MMS)
-        figure(2)
-        set(gcf,'Position',[7 925 560 420],'visible','off')
-        plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        if MMS
-            plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-            plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
-        end
-        xlim([min(vxax) max(vxax)])
-        hold on
+        if plots
         
-        %--
-        % Plot the velocity source (grad-p only).
-        figure(3)
-        set(gcf,'Position',[3 476 560 420],'visible','off')
-        plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        if MMS
+            %--
+            % Plot density (include exact solution for MMS)
+            figure(1)
+            set(gcf,'Position',[563 925 560 420],'visible','off')
+            plot(nxax,n_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            xlim([min(nxax+ndx(1)) max(nxax-ndx(end))])
             hold on
-            plot(vxax,(pressure_source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        end
-        xlim([min(vxax) max(vxax)])
-        hold on
-        
-        %--
-        % Plot the density source (should remain constant over each loop).
-        figure(4)
-        set(gcf,'Position',[563 476 560 420],'visible','off')
-        plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
-        xlabel('Position (m)','Fontsize',16)
-        ylabel('Density source ms^{-1}','Fontsize',16)
-        legend('show','Location','northwest')
-        hold on
-        
-        
-        if ~MMS
-            %-- 
-            % Plot ponderomotive source term.
-            figure(5)
-            set(gcf,'visible','off')
-            plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            if MMS
+                plot(nxax,ex_soln,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+            end
+
+            %--
+            % Plot mach number (include exact solution for MMS)
+            figure(2)
+            set(gcf,'Position',[7 925 560 420],'visible','off')
+            plot(vxax,vx_new/cs,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            if MMS
+                plot(vxax,vx_new,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+                plot(vxax,ex_solu,'--','DisplayName',['exact = ' num2str(double(ii)*dt) ' s'])
+            end
+            xlim([min(vxax) max(vxax)])
+            hold on
+
+            %--
+            % Plot the velocity source (grad-p only).
+            figure(3)
+            set(gcf,'Position',[3 476 560 420],'visible','off')
+            plot(vxax(2:npts-2),(vx_source(2:npts-2)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            if MMS
+                hold on
+                plot(vxax,(pressure_source_stag(n_new,1,nx/2,nx/2,1,npts,ndx)),'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+            end
+            xlim([min(vxax) max(vxax)])
+            hold on
+
+            %--
+            % Plot the density source (should remain constant over each loop).
+            figure(4)
+            set(gcf,'Position',[563 476 560 420],'visible','off')
+            plot(nxax(2:npts-1),n_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             xlabel('Position (m)','Fontsize',16)
-            ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+            ylabel('Density source ms^{-1}','Fontsize',16)
             legend('show','Location','northwest')
             hold on
+
+
+            if ~MMS
+                %-- 
+                % Plot ponderomotive source term.
+                figure(5)
+                set(gcf,'visible','off')
+                plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
+                xlabel('Position (m)','Fontsize',16)
+                ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
+                legend('show','Location','northwest')
+                hold on
+            end
+            
         end
         
         
