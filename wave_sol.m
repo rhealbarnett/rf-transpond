@@ -34,9 +34,6 @@
 function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
     om,mu0,cpdt,source,MMS,para,sparsefill,pml)
 
-    const = constants();
-    c0 = const.c0;
-
     npts = length(ax);
     axmax = ax(1,end);
     axmin = ax(1,1);
@@ -143,7 +140,6 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
         if pml
             cpml = wave_pml(0.05,10.,floor(0.2*npts),h,const.eps0,...
                 sqrt(const.mu0/const.eps0),cpdt,om,3,1,npts);
-%             k(1,:) = k(1,:)./squeeze(cpml(3,3,:))';
         end
         
         for gg = 1:npts-2
@@ -276,34 +272,13 @@ function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
         end
 
     end
-    
-%     A = sparse(A);
 
     %--
     % set up rhs vector (current source term)
     rhs = zeros(3*npts,1);
-    rhs(1:3:3*npts,1) = 0.;%(1i/8.1e-2)*1i*om*mu0*source';
-    rhs(2:3:3*npts,1) = 1i*om*mu0*source';%squeeze(sigma(2,2,:)).*ey_source';
-    rhs(3:3:3*npts,1) = 0.;%1i*om*mu0*source';
-    
-    % set boundary conditions, [ex,ey,ez]
-    
-%     k_perp = sqrt(k(1).^2 + ky(1).^2); 
-%     n_refrac = c0*k_perp./om;
-% 
-%     kz_dispersion_left = dispersion(1,cpdt(1,1,1),-1i*cpdt(2,1,1),cpdt(3,3,1),...
-%             om,n_refrac,n_new(1),1,0);
-%     kz_dispersion_right = dispersion(1,cpdt(1,1,npts),-1i*cpdt(2,1,npts),cpdt(3,3,npts),...
-%             om,n_refrac,n_new(npts),1,0);
-%     bc_left = [0,0,0];
-%     bc_right = [0,0,0];
-% 
-%     rhs(1,1) = bc_left(1,1);
-%     rhs(1,2) = bc_left(1,2);
-%     rhs(1,3) = bc_left(1,3);
-%     rhs(1,npts-2) = bc_right(1,1);
-%     rhs(1,npts-1) = bc_right(1,2);
-%     rhs(1,npts) = bc_right(1,3);
+    rhs(1:3:3*npts,1) = 0.;
+    rhs(2:3:3*npts,1) = 1i*om*mu0*source';
+    rhs(3:3:3*npts,1) = 0.;
 
     if sparsefill && ~MMS
         
