@@ -111,7 +111,7 @@ LnBC = n0 + nx*sin(knx*min(nxax)^2 + 0);
 RnBC = n0 + nx*sin(knx*max(nxax)^2 + 0);
 n_init = n_new;
 n_avg = interp1(nxax,n_new,vxax);
-ex_soln = n0 + nx*sin((nxax).^2 + 0);
+ex_soln = n0 + nx*sin(knx*(nxax).^2 + 0);
 
 
 %-- initial velocity
@@ -119,11 +119,6 @@ LuBC = u0 + ux*cos(kux*min(vxax)^2 + 0);
 RuBC = u0 + ux*cos(kux*max(vxax)^2 + 0);
 vx_init = vx_new;
 ex_solu = u0 + ux*cos(kux*vxax.^2 + 0);
-
-%%
-%-------------------------------------------------------------------------%
-% Initialise coefficient matrices                                         %
-%-------------------------------------------------------------------------%
 
 %-- initialise coefficient matrices as sparse
 nA = sparse(npts,npts);
@@ -136,3 +131,13 @@ vx_I = sparse(eye(npts-1,npts-1));
 rf_ex = zeros(1,npts-1);
 rf_ey = zeros(1,npts-1);
 rf_ez = zeros(1,npts-1);
+
+%-- 
+% Set transport switches for MMS tests
+MMS = 1;
+momentum = 1;
+continuity = 1;
+sfile = 0;
+couple = 0;
+test = 0;
+plots = 0;
