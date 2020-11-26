@@ -42,7 +42,7 @@ lGhost = interp1([nxax(2), nxax(3)], [n(2), n(3)],...
 
 if ~MMS && staggered
     vx_source = pressure_source_stag(n_init,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
+    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,''});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -104,7 +104,7 @@ if plots
 
     if ~MMS
         figure(5)
-        set(gcf,,'visible','off')
+        set(gcf,'visible','off')
         plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = 0s'])
         xlabel('Position (m)','Fontsize',16)
         ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
@@ -157,7 +157,8 @@ for ii=1:nmax
         %--
         % Update cold plasma dielectric tensor based on the density
         % calculated from the previous loop
-        [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,npts,1);
+        [om_c,om_p,cpdt,s_arr,d_arr,p_arr] = dielec_tens(q_s,B0,n_new_uni,m_s,om,eps0,...
+            npts,{1,damp_len,dampFac});
         
         %--
         % Ramp the RF electric field amplitude over the first 1000
@@ -554,7 +555,7 @@ for ii=1:nmax
                 [Ediff, pf] = pond_source({'para',0},{rf_ex*source_ramp,...
                     rf_ey*source_ramp,rf_ez*source_ramp},m_s,q_s,'',om,dz,0,{0,''});
             else
-                [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,'',om,dz,0,{0,''});
+                [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,om,dz,0,{0,''});
             end
             pf_inter = sum(pf,1);
             pf_inter2 = squeeze(sum(pf_inter,2))';
@@ -695,7 +696,7 @@ for ii=1:nmax
             %-- 
             % Plot ponderomotive source term.
             figure(5)
-            set(gcf,,'visible','off')
+            set(gcf,'visible','off')
             plot(vxax(2:npts-1),pf_source(2:npts-1)*dt,'DisplayName',['time = ' num2str(double(ii)*dt) ' s'])
             xlabel('Position (m)','Fontsize',16)
             ylabel('Ponderomotive source (ms^{-1})','Fontsize',16)
