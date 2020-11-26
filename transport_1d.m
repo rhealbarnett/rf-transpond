@@ -42,8 +42,8 @@ lGhost = interp1([nxax(2), nxax(3)], [n(2), n(3)],...
 
 if ~MMS && staggered
     vx_source = pressure_source_stag(n_init,const.e,Te,Ti,const.mp,npts,ndx);
-    [Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,q_s,om_c,...
-        om,dz,1,{1,damp_len,zax});
+    [Ediff, pf] = pond_source({'total',0},{rampFac*rf_ex,rampFac*rf_ey,rampFac*rf_ez},...
+        m_s,q_s,om_c,om,dz,1,{1,damp_len,zax});
     pf_inter = sum(pf,1);
     pf_inter2 = squeeze(sum(pf_inter,2))';
     pf_source = interp1(zax,pf_inter2,vxax,'linear');
@@ -648,7 +648,7 @@ for ii=1:nmax
     % Plot all fields if plot switch is on. 
     if (mod(ii,round(nmax/5))==0 || ii==nmax)
         
-        fprintf('At iteration %f of %f, time elapsed %f s.\n',ii,nmax,toc)
+        fprintf('At iteration %d of %d, time elapsed %d s.\n',ii,nmax,toc)
         
         if plots
         
@@ -759,11 +759,11 @@ for ii=1:nmax
 end
 
 
-saveas('-f1',strcat(filepath,'outputs/density.png'));
-saveas('-f2',strcat(filepath,'outputs/mach.png'));
-saveas('-f3',strcat(filepath,'outputs/v_source.png'));
-saveas('-f4',strcat(filepath,'outputs/n_source.png'));
-saveas('-f5',strcat(filepath,'outputs/pf_source.png'));
+print('-f1',strcat(filepath,'outputs/density'),'-dpng');
+print('-f2',strcat(filepath,'outputs/mach'),'-dpng');
+print('-f3',strcat(filepath,'outputs/v_source'),'-dpng');
+print('-f4',strcat(filepath,'outputs/n_source'),'-dpng');
+print('-f5',strcat(filepath,'outputs/pf_source'),'-dpng');
 
 toc
 
