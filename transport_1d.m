@@ -34,8 +34,6 @@ rGhost = interp1([nxax(npts-2), nxax(npts-1)], [n(npts-2), n(npts-1)],...
             nxax(npts),'linear','extrap');
 lGhost = interp1([nxax(2), nxax(3)], [n(2), n(3)],...
             nxax(1),'linear','extrap');
-lvBC_val = LuBC;
-rvBC_val = RuBC;
 
 %%
 %--------------------------------------------------------------------------------------------------------------%
@@ -534,8 +532,8 @@ for ii=1:nmax
             vx(1,1) = ex_solu(1,1);
             vx(1,end) = ex_solu(1,end);
         elseif ~MMS
-            vx(1,1) = lvBC_val;
-            vx(1,end) = rvBC_val;
+            vx(1,1) = LuBC;
+            vx(1,end) = RuBC;
         end
 
         %--
