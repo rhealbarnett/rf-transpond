@@ -78,5 +78,6 @@ source = source / max(source);
 source = source*source_mult;
 
 damp_len = 0.3;
+dampFac = 2.0e0;
 
 
