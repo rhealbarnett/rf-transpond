@@ -53,7 +53,7 @@ function[] = dispersion_test(testCase)
     
     expkz = real(kz_dispersion(1,:));
    
-    [actkz, dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,zax,ky,kx,k0,B0,...
+    [actkz, dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,kx,k0,B0,...
                                 source,expkz,1);
     
     verifyEqual(testCase,actkz,expkz,'RelTol',dk)
