@@ -750,5 +750,12 @@ for ii=1:nmax
     end    
 end
 
+
+saveas('-f1',strcat(filepath,'outputs/density.png'));
+saveas('-f2',strcat(filepath,'outputs/mach.png'));
+saveas('-f3',strcat(filepath,'outputs/v_source.png'));
+saveas('-f4',strcat(filepath,'outputs/n_source.png'));
+saveas('-f5',strcat(filepath,'outputs/pf_source.png'));
+
 toc
 
