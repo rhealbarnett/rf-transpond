@@ -757,12 +757,5 @@ for ii=1:nmax
     end    
 end
 
-
-print('-f1',strcat(filepath,'outputs/density'),'-dpng');
-print('-f2',strcat(filepath,'outputs/mach'),'-dpng');
-print('-f3',strcat(filepath,'outputs/v_source'),'-dpng');
-print('-f4',strcat(filepath,'outputs/n_source'),'-dpng');
-print('-f5',strcat(filepath,'outputs/pf_source'),'-dpng');
-
 toc
 
