@@ -3,8 +3,8 @@
 % parameters. 
 %-----------------------------------------%
 
-wave_verification;
-[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{1,damp_len});
+lapd_equil;
+[om_c,om_p,cpdt,s_arr,d_arr,p_arr,sig] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,npts,{1,damp_len,dampFac});
 % kz_dispersion_left = dispersion(1,s_arr(1),d_arr(1),p_arr(1),...
 %         om,n_refrac,n_new(1),1,0);
 % kz_dispersion_right = dispersion(1,s_arr(npts),d_arr(npts),p_arr(npts),...
