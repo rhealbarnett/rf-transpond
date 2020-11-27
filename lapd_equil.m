@@ -46,8 +46,9 @@ dt = 0.99*min(ndx)/cs;
 % Calculate RF period from frequency, set max time based on
 % number of periods, number of iterations nmax.
 period = 1.0/freq;
-tmax = 1*period;
+tmax = 2*period;
 nmax = round(tmax/dt);
+ii = 0;
 
 %--
 % Set save frequency
@@ -78,7 +79,7 @@ poyn = poynting(rf_ex, rf_ey, rf_ez, kx, ky, zax, om);
 %--
 % Calculate initial ponderomotive force
 rampFac = 1.0e-3;
-[Ediff, pf] = pond_source({'total',0},{rampFac*rf_ex,rampFac*rf_ey,rampFac*rf_ez},m_s,...
+[Ediff, pf] = pond_source({'total',0},{rf_ex,rf_ey,rf_ez},m_s,...
     q_s,om_c,om,dz,1,{1,damp_len,zax});
 pf_inter = sum(pf,1);
 pf_inter2 = squeeze(sum(pf_inter,2))';
