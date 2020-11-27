@@ -5,7 +5,7 @@ width = 420*2;
 height = 590*2;
 
 figure(22)
-set(gcf,'Units','points','Position',[x0 y0 width height],'Color','w')
+set(gcf,'Units','points','Position',[x0 y0 width height],'Color','w','visible','off')
 
 subplot(7,1,1)
 plot(zax,source,'k','linewidth',1.5)
