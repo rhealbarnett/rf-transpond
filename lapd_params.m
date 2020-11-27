@@ -80,7 +80,7 @@ source_loc = 0;
 
 %--
 % Scaling for the current source calculated from experimental data.
-source_mult = 1.0e5;
+source_mult = 2.0e6;
 
 %--
 % Calculate Gaussian source term.
