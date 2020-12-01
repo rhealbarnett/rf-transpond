@@ -166,10 +166,10 @@ for ii=1:nmax
         % iterations. 
         if ii<=1000
             source_ramp = 1.0/(1001-ii);
-            [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
+            [A,rf_e,rf_ex,rf_ey,rf_ez] = rf_wave_sol(zax,ky,kx,k0,...
             om,mu0,cpdt,source_ramp*source,0,1,1,0);
         else
-            [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
+            [A,rf_e,rf_ex,rf_ey,rf_ez] = rf_wave_sol(zax,ky,kx,k0,...
             om,mu0,cpdt,source,0,1,1,0);
         end
         
@@ -648,7 +648,7 @@ for ii=1:nmax
     % Plot all fields if plot switch is on. 
     if (mod(ii,round(nmax/5))==0 || ii==nmax)
         
-        fprintf('At iteration %d of %d, time elapsed %d s.\n',ii,nmax,toc)
+        fprintf('At iteration %d of %d, time elapsed %.2f s.\n',ii,nmax,toc)
         
         if plots
         
@@ -757,5 +757,5 @@ for ii=1:nmax
     end    
 end
 
-toc
+toc;
 
