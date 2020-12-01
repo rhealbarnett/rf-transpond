@@ -31,7 +31,7 @@
 %------------------------------------------------------------------------%
 
 
-function [A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(ax,ky,k,k0,...
+function [A,rf_e,rf_ex,rf_ey,rf_ez] = rf_wave_sol(ax,ky,k,k0,...
     om,mu0,cpdt,source,MMS,para,sparsefill,pml)
 
     npts = length(ax);
