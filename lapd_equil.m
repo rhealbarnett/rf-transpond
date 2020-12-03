@@ -69,7 +69,7 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 %--
 % Calculate initial RF wave fields
 [A,rf_e,rf_ex,rf_ey,rf_ez] = rf_wave_sol(zax,ky,kx,k0,...
-    om,mu0,cpdt,source,0,1,1,0);
+    om,mu0,cpdt,source,0,1,1);
 
 %--
 % Calculate initial Poynting flux
