@@ -147,7 +147,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
         mms_errors.oo_infu = oo_infu;
         mms_errors.sparsefill = sparsefill;
 
-        filename = strcat('/Volumes/DATA/matlab/transport_verification/errors_',str,'.mat');
+        filename = strcat('output/mms_errors_',str,'.mat');
         save(filename,'-struct','mms_errors');
 
     end
