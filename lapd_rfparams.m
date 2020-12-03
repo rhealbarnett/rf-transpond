@@ -44,6 +44,7 @@ dz = (zmax - zmin) / (npts-1);
 % ~2.52MHz. 
 freq = 2.38e6;
 om = freq*2.0*pi;
+period = 1.0/freq;
 
 %--
 % Ion mass : He only
