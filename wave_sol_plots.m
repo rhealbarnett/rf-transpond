@@ -5,7 +5,7 @@ width = 420*2;
 height = 590*2;
 
 figure(22)
-set(gcf,'Units','points','Position',[x0 y0 width height],'Color','w','visible','off')
+set(gcf,'Units','points','Position',[x0 y0 width height],'Color','w')
 
 subplot(7,1,1)
 plot(zax,source,'k','linewidth',1.5)
@@ -15,6 +15,9 @@ ylim([0, 2.2e6])
 yticks([0.0, 1.0e6, 2.0e6])
 yticklabels([{'0.0'} {'1.0'} {'2.0'}])
 ylabel({'$J_y$'; '($\times 10^6$ Am$^{-2}$)'},'interpreter','latex')
+text(0.005,0.98,'(a)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
+                'color','black')
+
 
 subplot(7,1,2)
 plot(zax, real(rf_ex), 'k','Linewidth',1.5)
@@ -36,6 +39,8 @@ yticks([-1.5e4, 0.0, 1.5e4])
 yticklabels([{'-1.5'} {'0.0'} {'1.5'}])
 ax.YRuler.TickLabelFormat = '%1.1f';
 ylabel({'$E_x$'; '($\times 10^4$ Vm$^{-1}$)'},'interpreter','latex')
+text(0.005,0.98,'(b)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
+                'color','black')
 
 
 hold off
@@ -60,6 +65,8 @@ yticks([-6.0e4, 0.0, 6.0e4])
 yticklabels([{'-6.0'} {'0.0'} {'6.0'}])
 ax.YRuler.TickLabelFormat = '%1.1f';
 ylabel({'$E_y$'; '($\times 10^4$ Vm$^{-1}$)'},'interpreter','latex')
+text(0.005,0.98,'(c)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
+                'color','black')
 
 
 hold off
@@ -85,6 +92,8 @@ yticks([-100,0.0,100])
 yticklabels([{'-1.0'} {'0.0'} {'1.0'}])
 ax.YRuler.TickLabelFormat = '%1.1f';
 ylabel({'$E_z$'; '($\times 10^2$ Vm$^{-1}$)'},'interpreter','latex')
+text(0.005,0.98,'(d)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
+                'color','black')
 
 hold off
 
@@ -99,6 +108,8 @@ yticklabels([{'-1.0'} {'0.0'} {'1.0'}])
 ax = gca();
 ax.YRuler.TickLabelFormat = '%1.1f';
 ylabel({'$a_P$'; '($\times 10^{11}$ ms$^{-2}$)'},'interpreter','latex')
+text(0.005,0.98,'(e)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
+                'color','black')
 
 subplot(7,1,6)
 plot(vxax,vx_new/cs,'k','Linewidth',1.5)
@@ -108,6 +119,8 @@ xlim([zmin zmax])
 ax = gca();
 ylabel({'Mach \#'},'interpreter','latex')
 ax.YRuler.TickLabelFormat = '%1.1f';
+text(0.005,0.98,'(f)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
+                'color','black')
 
 
 subplot(7,1,7)
@@ -120,5 +133,9 @@ yticklabels([{'0.0'} {'0.5'} {'1.0'} {'1.5'}])
 ax = gca();
 ylabel({'Density'; '($\times10^{17}$ m$^{-3}$)'},'interpreter','latex')
 xlabel('Position (m)')
+text(0.005,0.98,'(g)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
+                'color','black')
 
 print('-f22',strcat(filepath,'outputs/7-panel-',num2str(ii)),'-dpng');
+
+close 22
