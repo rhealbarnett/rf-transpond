@@ -20,7 +20,7 @@ function [actkz,dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,
         [~,~,cpdt,~,~,~,~] = dielec_tens(q_s,B0,density,m_s,om,...
             eps0,npts,{1,damp_len,dampFac});
         [~,~,rf_ex,rf_ey,rf_ez] = rf_wave_sol(zax,ky,kx,k0,...
-        om,mu0,cpdt,source,0,1,1,0);
+        om,mu0,cpdt,source,0,1,1);
 
         [kz_spec, k_ax, ~, dk] = fft_kz(dz,npts,rf_ex,rf_ey,rf_ez,0);
 
