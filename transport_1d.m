@@ -167,10 +167,10 @@ for ii=1:nmax
         if ii<=1000
             source_ramp = 1.0/(1001-ii);
             [A,rf_e,rf_ex,rf_ey,rf_ez] = rf_wave_sol(zax,ky,kx,k0,...
-            om,mu0,cpdt,source_ramp*source,0,1,1,0);
+            om,mu0,cpdt,source_ramp*source,0,1,1);
         else
             [A,rf_e,rf_ex,rf_ey,rf_ez] = rf_wave_sol(zax,ky,kx,k0,...
-            om,mu0,cpdt,source,0,1,1,0);
+            om,mu0,cpdt,source,0,1,1);
         end
         
         %--
