@@ -19,7 +19,7 @@ n_init = n_new;
 
 %--
 % Call parameter file
-lapd_params;
+lapd_rfparams;
 
 %--
 % Set ion mass 
@@ -43,9 +43,8 @@ vx_init = vx_new;
 dt = 0.99*min(ndx)/cs;
 
 %--
-% Calculate RF period from frequency, set max time based on
+% Set max time based on
 % number of periods, number of iterations nmax.
-period = 1.0/freq;
 tmax = 2*period;
 nmax = round(tmax/dt);
 ii = 0;
@@ -69,7 +68,7 @@ n_new_uni = interp1(nxax,n_new,zax,'linear');
 
 %--
 % Calculate initial RF wave fields
-[A,rf_e,rf_ex,rf_ey,rf_ez] = wave_sol(zax,ky,kx,k0,...
+[A,rf_e,rf_ex,rf_ey,rf_ez] = rf_wave_sol(zax,ky,kx,k0,...
     om,mu0,cpdt,source,0,1,1,0);
 
 %--
