@@ -124,14 +124,14 @@ text(0.005,0.98,'(f)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsiz
 
 
 subplot(7,1,7)
-plot(nxax,n_new,'k','Linewidth',1.5)
+plot(nxax,(n_init - n_new)./n_init,'k','Linewidth',1.5)
 set(gca,'Fontsize',18,'FontName','CMU Serif')
 xlim([zmin zmax])
-ylim([0.0, 1.5]*1e17)
-yticks([0.0, 0.5e17, 1.0e17, 1.5e17])
-yticklabels([{'0.0'} {'0.5'} {'1.0'} {'1.5'}])
+ylim([-0.2, 0.2])
+yticks([-0.2, 0.0, 0.2])
+yticklabels([{'-2.0'} {'0.0'} {'2.0'}])
 ax = gca();
-ylabel({'Density'; '($\times10^{17}$ m$^{-3}$)'},'interpreter','latex')
+ylabel({'$R_n$' ; '$\times 10^{-1}$'},'interpreter','latex')
 xlabel('Position (m)')
 text(0.005,0.98,'(g)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
