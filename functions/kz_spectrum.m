@@ -57,7 +57,7 @@ function [actkz,dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,
         xlabel('log_{10}({\itn} (m^{-3}))')
         ylabel(c,'|FFT[{\it E_z} (Vm^{-1})]|','Fontsize',30)
         
-        print('-f5',strcat('outputs/wave_verification'),'-dpng');
+        saveas(gcf,'outputs/wave_verification.png');
         close 5
     end
 
