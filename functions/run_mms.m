@@ -190,9 +190,8 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             xticks([fliplr(npts_arr)])
             set(gca,'XMinorTick','off')
 
-        %     export_fig('/Volumes/DATA/thesis/RFT/figs/MMS_SS_mom_dz_coupled.png',...
-        %         '-r300')
-
+            saveas(gcf,'outputs/MMS_SS_mom.png');
+            close 1
 
 
             figure(2)
@@ -222,6 +221,9 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             % xticks([])
             xticks([fliplr(npts_arr)])
             set(gca,'XMinorTick','off')
+            
+            saveas(gcf,'outputs/MMS_SS_cont.png');
+            close 2
 
         elseif TD 
 
@@ -257,10 +259,9 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             xticks([fliplr(dt_arr)])
             xticklabels([{'5\times10^{-7}','1\times10^{-6}','2\times10^{-6}',...
                 '4\times10^{-6}','8\times10^{-6}'},'Interpreter','latex'])
-        %     set(gca,'XMinorTick','off')
-
-        %     export_fig('/Volumes/DATA/thesis/RFT/figs/MMS_TD_mom_coupled.png',...
-        %         '-r300')
+            
+            saveas(gcf,'outputs/MMS_TD_mom.png');
+            close 3
 
 
 
@@ -292,7 +293,9 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             xticks([fliplr(dt_arr)])
             xticklabels([{'5\times10^{-7}','1\times10^{-6}','2\times10^{-6}',...
                 '4\times10^{-6}','8\times10^{-6}'},'Interpreter','latex'])
-        %     set(gca,'XMinorTick','off')    
+            
+            saveas(gcf,'outputs/MMS_TD_cont.png');
+            close 4
         end
 
     end
