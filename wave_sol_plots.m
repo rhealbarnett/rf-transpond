@@ -136,6 +136,6 @@ xlabel('Position (m)')
 text(0.005,0.98,'(g)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
 
-print('-f22',strcat(filepath,'outputs/7-panel-',num2str(ii)),'-dpng');
-
+saveas(gcf,strcat('outputs/coupled-results-',num2str(ii),'.png'));
+            
 close 22
