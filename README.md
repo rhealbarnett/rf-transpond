@@ -2,6 +2,14 @@
 
 A coupled 1D plasma transport (`transport_1d.m`) and cold plasma wave solver (`rf_wave_sol.m`) to determine ponderomotive effects in a fusion plasma close to radio-frequency antenna. 
 
+## `rf_wave_sol.m` ##
+
+Solves the frequency domain cold plasma wave equation along one axis. The electric field solution is calculated along *z* using a second order central finite difference scheme, with wavenumbers required for *x* and *y*. The three equations corresponding to each electric field component are written in matrix form, and a solution found using Matlab's \ operator. 
+
+## `transport_1d.m` ##
+
+Solves the single fluid continuity and momentum equations in 1D (domain parallel to a confining magnetic field B0) on a staggered, non-uniform grid. Advection terms are discretised using a first order upwind scheme, second order terms are discretised with a second order central difference scheme. The time stepping is implicit-explicit (IMEX).    
+
 ## Dependencies ##
 
 Matlab **[r2018b tested]**  
@@ -69,9 +77,9 @@ lapd_example()
 which calls `lapd_equil.m` and the transport solver script `transport_1d.m`, as well as the plotting routine, which saves an initial and final figure to `outputs/`. Running this example requires the functions
 
 - `pressure_source_stag.m`: calculates the grad pressure term on the right hand side of the velocity update equation,
-- `pond_source.m`: calculates the ponderomotive term on the right hand side of the velocity equation. In this specific example, the ponderomotive force is calculated using parallel gradients in all components of the electric field solution from `rf_wave_sol.m`, but this can be changed (details are contained in the function file),
+- `pond_source.m`: calculates the ponderomotive term on the right hand side of the velocity equation. In this specific example, the ponderomotive force is calculated using parallel gradients in all components of the electric field solution from `rf_wave_sol.m`, but this can be changed (details are contained in the function file).
 
-as well as the previously listed `dielec_tens.m`, `plasma_freq.m` and `cyclo_freq.m`. The wave solver function `rf_wave_sol.m` is called inside the time stepping loop of `transport_1d.m`. 
+as well as the previously listed `dielec_tens.m`, `plasma_freq.m` and `cyclo_freq.m`. The wave solver function `rf_wave_sol.m` is called inside the time stepping loop of `transport_1d.m`, providing the coupling between the plasma transport and cold plasma wave solvers.  
  
 
 
