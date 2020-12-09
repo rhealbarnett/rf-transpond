@@ -4,7 +4,7 @@ A coupled 1D plasma transport (`transport_1d.m`) and cold plasma wave solver (`r
 
 ## Dependencies ##
 
-Matlab **[r2018b tested]**
+Matlab **[r2018b tested]**\n
 All subdirectories in this repository must be in the Matlab path.
 
 ## Running the verification tests ##
