@@ -44,4 +44,4 @@ The input script for the wave solver verification is `wave_verification.m`. This
 - `fft_kz.m`: calculates the spatial FFT of the electric field solution from `rf_wave_sol.m`,
 - `kz_spectrum.m`: calls `fft_kz.m` over a range of densities,
 
-which are all housed in the `functions/` subdirectory.\Gamma 
+which are all housed in the `functions/` subdirectory.$\Gamma$ 
