@@ -16,7 +16,9 @@ runtests('rf_transp_tests.m')
 =======================================
 Running wave solver dispersion verification
 =======================================
+
 ...
+
 =======================================
 Running steady state transport MMS
 =======================================
@@ -32,4 +34,14 @@ Max number of iterations, time step, total time taken information will be printe
 
 These tests will produce a figure for each verification test that will be saved in `outputs/`. 
 
+### Wave solver verification ###
 
+The input script for the wave solver verification is `wave_verification.m`. This will require the functions
+
+- `dielec_tens.m`: calculates the cold plasma dielectric tensor,
+- `plasma_freq.m` and `cyclo_freq.m`: calculate the plasma and cyclotron frequencies, respectively,
+- `kz_dispersion.m`: calculates the cold plasma dispersion relation, 
+- `fft_kz.m`: calculates the spatial FFT of the electric field solution from `rf_wave_sol.m`,
+- `kz_spectrum.m`: calls `fft_kz.m` over a range of densities,
+
+which are housed in the `functions/` subdirectory. 
