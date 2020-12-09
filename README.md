@@ -11,20 +11,20 @@ All subdirectories in this repository must be in the Matlab path.
 
 Both the transport and wave verification tests can be run via 
 
-`runtests('rf_transp_tests.m')
-`=======================================
-`Running wave solver dispersion verification
-`======================================= 
-...
-`=======================================
-`Running steady state transport MMS
-`=======================================
+`runtests('rf_transp_tests.m')`
+`=======================================`
+`Running wave solver dispersion verification`
+`=======================================`
+`...`
+`=======================================`
+`Running steady state transport MMS`
+`=======================================`
 `
-`**Iterations to tolerance information will be printed**
+`**Iterations to tolerance information will be printed**`
 `
-`=======================================
-`Running time dependent transport MMS
-`=======================================
+`=======================================`
+`Running time dependent transport MMS`
+`=======================================`
 `
-`**Max number of iterations, time step, total time taken information will be printed**
+`**Max number of iterations, time step, total time taken information will be printed**`
 
