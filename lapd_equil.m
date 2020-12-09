@@ -6,8 +6,7 @@
 
 %--
 % Load transport equilibrium file
-filepath = '/Volumes/DATA/LAPD/matlab/';
-load(strcat(filepath,'inputs/equil_transport_input.mat'));
+load('inputs/equil_transport_input.mat');
 
 %--
 % Scale density and density source to desired max density.
@@ -128,6 +127,6 @@ if sfile
 
     transport.header = header;
 
-    filename = strcat(filepath,'outputs/coupled_results/coupled_transport_0.mat');
+    filename = strcat('outputs/coupled_results/coupled_transport_0.mat');
     save(filename,'-struct','transport');
 end
