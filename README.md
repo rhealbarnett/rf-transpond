@@ -55,3 +55,28 @@ Required parameters for both the steady state and time dependent method of manuf
 - `run_mms.m`: calls the transport script `transport_1d.m` for each set step size (spatial and temporal) and stores the calculated L2, L inifinity errors. 
 
 which are also all housed in the `functions/` subdirectory.     
+
+## Running the coupled wave / transport case for LAPD-like parameters ##
+
+Parameters for the transport and wave codes are defined in the input scripts `lapd_equil.m` and `lapd_rfparams.m` respectively. The equilibrium density and velocity profiles used as initial conditions are provided in `/inputs/equil_transport_input.mat`, which is loaded in `lapd_equil.m`. 
+
+The test case can be run via 
+
+```
+lapd_example()
+```
+
+which calls `lapd_equil.m` and the transport solver script `transport_1d.m`, as well as the plotting routine, which saves an initial and final figure to `outputs/`. Running this example requires the functions
+
+- `pressure_source_stag.m`: calculates the grad pressure term on the right hand side of the velocity update equation,
+- `pond_source.m`: calculates the ponderomotive term on the right hand side of the velocity equation. In this specific example, the ponderomotive force is calculated using parallel gradients in all components of the electric field solution from `rf_wave_sol.m`, but this can be changed (details are contained in the function file),
+
+as well as the previously listed `dielec_tens.m`, `plasma_freq.m` and `cyclo_freq.m`. The wave solver function `rf_wave_sol.m` is called inside the time stepping loop of `transport_1d.m`. 
+ 
+
+
+
+
+
+
+
