@@ -5,6 +5,7 @@ A coupled 1D plasma transport (`transport_1d.m`) and cold plasma wave solver (`r
 ## Dependencies ##
 
 Matlab **[r2018b tested]**  
+
 All subdirectories in this repository must be in the Matlab path.
 
 ## Running the verification tests ##
@@ -20,11 +21,15 @@ Running wave solver dispersion verification
 Running steady state transport MMS
 =======================================
 
-Iterations to tolerance information will be printed
+Iterations to tolerance information will be printed.
 
 =======================================
 Running time dependent transport MMS
 =======================================
 
-Max number of iterations, time step, total time taken information will be printed
+Max number of iterations, time step, total time taken information will be printed.
 ```
+
+These tests will produce a figure for each verification test that will be saved in `outputs/`. 
+
+
