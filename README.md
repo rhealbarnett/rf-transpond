@@ -1,4 +1,4 @@
-# ** `rf-transpond` ** # 
+# `rf-transpond` # 
 
 #### vels.py
 
