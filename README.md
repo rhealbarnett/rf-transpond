@@ -1,4 +1,4 @@
-Repository containing relevent phd codes, including reproductions of results from Van Eester 2015 paper
+# ** `rf-transpond` ** # 
 
 #### vels.py
 
