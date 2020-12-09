@@ -32,7 +32,7 @@ Running time dependent transport MMS
 Max number of iterations, time step, total time taken information will be printed.
 ```
 
-These tests will produce a figure for each verification test that will be saved in `outputs/`. 
+These tests will produce a figure for each verification test that will be saved in the `outputs/` subdirectory. 
 
 ### Wave solver verification ###
 
@@ -44,4 +44,4 @@ The input script for the wave solver verification is `wave_verification.m`. This
 - `fft_kz.m`: calculates the spatial FFT of the electric field solution from `rf_wave_sol.m`,
 - `kz_spectrum.m`: calls `fft_kz.m` over a range of densities,
 
-which are housed in the `functions/` subdirectory. 
+which are all housed in the `functions/` subdirectory.\Gamma 
