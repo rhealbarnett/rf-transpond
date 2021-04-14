@@ -1,4 +1,4 @@
-function tests = rf_transp_tests
+function tests = rf_transp_test
 
     tests = functiontests(localfunctions);
 
