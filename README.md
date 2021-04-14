@@ -2,6 +2,15 @@
 
 A coupled 1D plasma transport (`transport_1d.m`) and cold plasma wave solver (`rf_wave_sol.m`) to determine ponderomotive effects in a fusion plasma close to radio-frequency antenna. 
 
+## Quickstart
+
+```
+git clone https://github.com/rhealbarnett/rf-transpond.git
+cd rf-transpond
+addpath(genpath('./'))
+runtests
+```
+
 ## `rf_wave_sol.m` ##
 
 Solves the frequency domain cold plasma wave equation along one axis. The electric field solution is calculated along *z* using a second order central finite difference scheme, with wavenumbers required for *x* and *y*. The three equations corresponding to each electric field component are written in matrix form, and a solution found using Matlab's \ operator. 
