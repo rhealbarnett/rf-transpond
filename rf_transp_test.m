@@ -9,12 +9,16 @@ function[] = dispersion_test(testCase)
     fprintf(['\n=======================================',...
         '\n Running wave solver dispersion verification\n',...
         '=======================================\n'])
+    
+    tic
 
     wave_verification;
     
     [~,~,~,s_arr,d_arr,p_arr,~] = dielec_tens(q_s,B0,n_new,m_s,om,eps0,...
         npts,{0,damp_len,dampFac});
+    fprintf('Calculating cold plasma dispersion relation...\n')
     kz_dispersion = dispersion(npts,s_arr,d_arr,p_arr,om,n_refrac,n_new,1,0,ky);
+    fprintf('Dispersion calculation finished.\n')
     
     expkz = real(kz_dispersion(1,:));
    
@@ -22,6 +26,8 @@ function[] = dispersion_test(testCase)
                                 source,expkz,1);
     
     verifyEqual(testCase,actkz,expkz,'RelTol',dk)
+    
+    toc
 
 end
 
