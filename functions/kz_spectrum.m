@@ -48,7 +48,7 @@ function [actkz,dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,
         hold on
         plot(log10(n_new), expkz,'-.r','Linewidth',2)
         c = colorbar;
-        %colormap(magma)
+        colormap(flipud(gray))
         caxis([0 5.0e-5])
         ylim([0 50])
         yticks(linspace(0,50,11))
