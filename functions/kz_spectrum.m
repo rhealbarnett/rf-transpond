@@ -12,6 +12,8 @@ function [actkz,dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,
     kz_spec_density = zeros(npts,npts);
 
     count = 1;
+    
+    fprintf('Calculating RF wave solutions and FFTs...\n')
 
     for ii=1:npts
 
@@ -30,8 +32,14 @@ function [actkz,dk] = kz_spectrum(n_new,q_s,m_s,om,npts,damp_len,dampFac,zax,ky,
         actkz(1,count) = k_ax(ind_kz);
 
         count = count + 1;
+        
+        if mod(ii,round(npts/4))==0
+            fprintf('%1.f%% complete...\n',(100)*(ii)/npts)
+        end
 
     end
+
+    fprintf('RF wave solutions and FFTs finished.\n')
 
     if plots
         x0 = 0;
