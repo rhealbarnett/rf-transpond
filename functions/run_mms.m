@@ -173,7 +173,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             loglog(npts_arr,linfu_arr,'-xr','Markersize',12,'Linewidth',1.2)
             % set(gca,'yscale','log')
             xlim([min(npts_arr) max(npts_arr)])
-            ylabel('Error')
+            ylabel('Velocity Error')
             xlabel('NPTS')
             % text(npts_arr,1.0./npts_arr,{'2048','1024','512','256','128'})
             text((npts_arr(3)-(npts_arr(3)-npts_arr(2))/2)-40,1.0/npts_arr(3)-7.17e-3,...
@@ -205,7 +205,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             loglog(npts_arr,linfn_arr,'-xr','Markersize',12,'Linewidth',1.2)
             % set(gca,'yscale','log')
             xlim([min(npts_arr) max(npts_arr)])
-            ylabel('Error')
+            ylabel('Density Error')
             xlabel('NPTS')
             % text(npts_arr,1.0./npts_arr,{'2048','1024','512','256','128'})
             text((npts_arr(3)-(npts_arr(3)-npts_arr(2))/2)-35,1.0/npts_arr(3)-1.5e-3,...
@@ -243,7 +243,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             loglog(dt_arr,linfu_arr,'-xr','Markersize',12,'Linewidth',1.2)
             % set(gca,'yscale','log')
             xlim([min(dt_arr) max(dt_arr)])
-            ylabel('Error')
+            ylabel('Velocity Error')
             xlabel('$\Delta t$','Interpreter','latex')
             % text(npts_arr,1.0./npts_arr,{'2048','1024','512','256','128'})
             text((dt_arr(3)-(dt_arr(3)-dt_arr(2))/2)-1.8e-6,dt_arr(3)-8.0e-7,...
@@ -276,7 +276,7 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
             loglog(dt_arr,linfn_arr,'-xr','Markersize',12,'Linewidth',1.2)
             % set(gca,'yscale','log')
             xlim([min(dt_arr) max(dt_arr)])
-            ylabel('Error')
+            ylabel('Density Error')
             xlabel('$\Delta t$ (s)','Interpreter','latex')
             % text(npts_arr,1.0./npts_arr,{'2048','1024','512','256','128'})
             text((dt_arr(3)-(dt_arr(3)-dt_arr(2))/2)-5.0e-7,dt_arr(3)+5.0e-7,...
