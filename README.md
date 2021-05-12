@@ -73,7 +73,7 @@ Required parameters for both the steady state and time dependent method of manuf
 
 which are also all housed in the `functions/` subdirectory.     
 
-## Running the coupled wave / transport case for LAPD-like parameters ##
+# Running the coupled wave / transport case for LAPD-like parameters #
 
 Parameters for the transport and wave codes are defined in the input scripts `lapd_equil.m` and `lapd_rfparams.m` respectively. The equilibrium density and velocity profiles used as initial conditions are provided in `/inputs/equil_transport_input.mat`, which is loaded in `lapd_equil.m`. 
 
