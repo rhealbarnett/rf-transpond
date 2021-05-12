@@ -14,7 +14,7 @@ set(gca,'Fontsize',18,'FontName','CMU Serif')
 ylim([0, 2.2e6])
 yticks([0.0, 1.0e6, 2.0e6])
 yticklabels([{'0.0'} {'1.0'} {'2.0'}])
-ylabel({'$J_y$'; '($\times 10^6$ Am$^{-2}$)'},'interpreter','latex')
+ylabel({'$J_y$'; '($10^6$ Am$^{-2}$)'},'interpreter','latex')
 text(0.005,0.98,'(a)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
 
@@ -38,7 +38,7 @@ ylim([-1.5e4, 1.5e4])
 yticks([-1.5e4, 0.0, 1.5e4])
 yticklabels([{'-1.5'} {'0.0'} {'1.5'}])
 ax.YRuler.TickLabelFormat = '%1.1f';
-ylabel({'$E_x$'; '($\times 10^4$ Vm$^{-1}$)'},'interpreter','latex')
+ylabel({'$E_x$'; '($10^4$ Vm$^{-1}$)'},'interpreter','latex')
 text(0.005,0.98,'(b)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
 
@@ -64,7 +64,7 @@ ylim([-6.0e4, 6.0e4])
 yticks([-6.0e4, 0.0, 6.0e4])
 yticklabels([{'-6.0'} {'0.0'} {'6.0'}])
 ax.YRuler.TickLabelFormat = '%1.1f';
-ylabel({'$E_y$'; '($\times 10^4$ Vm$^{-1}$)'},'interpreter','latex')
+ylabel({'$E_y$'; '($10^4$ Vm$^{-1}$)'},'interpreter','latex')
 text(0.005,0.98,'(c)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
 
@@ -91,7 +91,7 @@ ylim([-100,100])
 yticks([-100,0.0,100])
 yticklabels([{'-1.0'} {'0.0'} {'1.0'}])
 ax.YRuler.TickLabelFormat = '%1.1f';
-ylabel({'$E_z$'; '($\times 10^2$ Vm$^{-1}$)'},'interpreter','latex')
+ylabel({'$E_z$'; '($10^2$ Vm$^{-1}$)'},'interpreter','latex')
 text(0.005,0.98,'(d)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
 
@@ -107,7 +107,7 @@ yticks([-1.e11,0.0,1.e11])
 yticklabels([{'-1.0'} {'0.0'} {'1.0'}])
 ax = gca();
 ax.YRuler.TickLabelFormat = '%1.1f';
-ylabel({'$a_P$'; '($\times 10^{11}$ ms$^{-2}$)'},'interpreter','latex')
+ylabel({'$a_P$'; '($10^{11}$ ms$^{-2}$)'},'interpreter','latex')
 text(0.005,0.98,'(e)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
 
@@ -131,7 +131,7 @@ ylim([-0.2, 0.2])
 yticks([-0.2, 0.0, 0.2])
 yticklabels([{'-2.0'} {'0.0'} {'2.0'}])
 ax = gca();
-ylabel({'$R_n$' ; '$\times 10^{-1}$'},'interpreter','latex')
+ylabel({'$R_n$' ; '$10^{-1}$'},'interpreter','latex')
 xlabel('Position (m)')
 text(0.005,0.98,'(g)','Units', 'Normalized', 'VerticalAlignment', 'Top','Fontsize',20,...
                 'color','black')
