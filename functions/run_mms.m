@@ -184,15 +184,16 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
                 '$\mathcal{O}(\Delta z)=1$','Interpreter','latex',...
                 'BackgroundColor','w','Rotation',-10)
             set(gca,'Linewidth',1.0)
-            for ii=2:length(npts_arr)
-                text(npts_arr(ii),ltwou_arr(ii),num2str(oo_twou(ii-1)));
+            for ii=1:length(npts_arr-1)
+                text(npts_arr(ii),ltwou_arr(ii),num2str(oo_twou(ii)));
             end
             text((npts_arr(3)-(npts_arr(3)-npts_arr(2))/2)-50,linfu_arr(2)+5.0e-3,...
-                ['$L_{\infty}$ slope = ' num2str(mean(oo_inf_arr(2,:)))],'Interpreter','latex',...
+                ['$L_{\infty}$ slope = ' num2str(mean(oo_inf_arr(2,:)),'%0.2f')],...
+                'Interpreter','latex',...
                 'BackgroundColor','w','Rotation',-10,'Color','r')
             % xticks([])
             xticks([fliplr(npts_arr)])
-            set(gca,'XMinorTick','off')
+            set(gca,'XMinorTick','on')
 
             saveas(gcf,'outputs/MMS_SS_mom.png');
             close 1
