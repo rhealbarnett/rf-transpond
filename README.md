@@ -29,7 +29,7 @@ All subdirectories in this repository must be in the Matlab path.
 
 Both the transport and wave verification tests can be run via 
 ```
-runtests('rf_transp_tests.m')
+runtests('rf_transp_test.m')
 =======================================
 Running wave solver dispersion verification
 =======================================
