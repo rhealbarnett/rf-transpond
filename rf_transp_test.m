@@ -45,8 +45,8 @@ function [] = mms_ss_test(testCase)
     actSlope = p(1);
     
     fprintf(['\n--------------------------------------',...
-        '\n p = %d \n',actSlope,...
-        '--------------------------------------\n'])
+        '\n p = %d \n',...
+        '--------------------------------------\n'],actSlope)
     
     verifyEqual(testCase,actSlope,expSlope,'RelTol',1e-1)
 
@@ -67,8 +67,8 @@ function [] = mms_td_test(testCase)
     actSlope = p(1);
     
     fprintf(['\n--------------------------------------',...
-        '\n p = %d \n',actSlope,...
-        '--------------------------------------\n'])
+        '\n p = %d \n',...
+        '--------------------------------------\n'],actSlope)
     
     verifyEqual(testCase,actSlope,expSlope,'RelTol',1e-1)
 
