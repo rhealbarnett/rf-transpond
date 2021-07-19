@@ -21,7 +21,7 @@
 %-------------------------------------------------------------------------%
 
 function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
-    oo_inf_arr,oo_two_arr,arr] = run_mms(SS,TD,mms_plots,save_file)
+    oo_inf_arr,oo_two_arr,arr,p] = run_mms(SS,TD,mms_plots,save_file)
 
     npts = 512;
 
@@ -134,6 +134,10 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
     ratio_two_arr = [ratio_twon; ratio_twou];
     oo_inf_arr = [oo_infn; oo_infu];
     oo_two_arr = [oo_twon; oo_twou];
+    
+    p2 = polyfit(log10(arr),log10(ltwo_arr(1,:)),1);
+    pinf = polyfit(log10(arr),log10(linf_arr(1,:)),1);
+    p = [p2(1); pinf(1)];
 
     if save_file
 
@@ -180,11 +184,11 @@ function [linf_arr,ltwo_arr,ratio_inf_arr,ratio_two_arr,...
                 '$\mathcal{O}(\Delta z)=1$','Interpreter','latex',...
                 'BackgroundColor','w','Rotation',-10)
             set(gca,'Linewidth',1.0)
-            text((npts_arr(3)-(npts_arr(3)-npts_arr(2))/2)-49,ltwou_arr(2)+2.3e-3,...
-                '$L_2$ slope $\approx$ 1','Interpreter','latex',...
-                'BackgroundColor','w','Rotation',-10,'Color','b')
+            for ii=1:length(npts_arr)
+                text(npts_arr(ii),ltwou_arr(ii),num2str(ltwou_arr(ii)))
+            end
             text((npts_arr(3)-(npts_arr(3)-npts_arr(2))/2)-50,linfu_arr(2)+5.0e-3,...
-                '$L_{\infty}$ slope $\approx$ 1','Interpreter','latex',...
+                '$L_{\infty}$ slope = %d','Interpreter','latex',...
                 'BackgroundColor','w','Rotation',-10,'Color','r')
             % xticks([])
             xticks([fliplr(npts_arr)])
