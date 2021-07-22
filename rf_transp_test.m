@@ -37,16 +37,14 @@ function [] = mms_ss_test(testCase)
         '\n Running steady state transport MMS\n',...
         '=======================================\n'])
 
-    [~,ltwo_arr,~,~,~,~,arr] = run_mms(1,0,1,0);
-
-    p = polyfit(log10(arr),log10(ltwo_arr(1,:)),1);
+    [~,~,~,~,~,~,~,p] = run_mms(1,0,1,0);
 
     expSlope = -1.0;
     actSlope = p(1);
     
     fprintf(['\n--------------------------------------',...
-        '\n p = %d \n',...
-        '--------------------------------------\n'],actSlope)
+        '\n p2 = %d, pinf = %d \n',...
+        '--------------------------------------\n'],p(1),p(2))
     
     verifyEqual(testCase,actSlope,expSlope,'RelTol',1e-1)
 
@@ -59,16 +57,14 @@ function [] = mms_td_test(testCase)
         '\n Running time dependent transport MMS\n',...
         '=======================================\n'])
 
-    [~,ltwo_arr,~,~,~,~,arr] = run_mms(0,1,1,0);
-
-    p = polyfit(log10(arr),log10(ltwo_arr(1,:)),1);
+    [~,~,~,~,~,~,~,p] = run_mms(0,1,1,0);
 
     expSlope = 1.0;
     actSlope = p(1);
     
     fprintf(['\n--------------------------------------',...
-        '\n p = %d \n',...
-        '--------------------------------------\n'],actSlope)
+        '\n p2 = %d, pinf = %d \n',...
+        '--------------------------------------\n'],p(1),p(2))
     
     verifyEqual(testCase,actSlope,expSlope,'RelTol',1e-1)
 
